@@ -24,13 +24,10 @@ namespace IronRing.Hud.Editor.Screens
             shade.preserveAspect = false;
             UiKit.Stretch(shade.rectTransform);
             Image card = UiKit.Panel(shade.transform, "Card", theme);
-            UiKit.Place(card.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(640, 200));
-            TextMeshProUGUI title = UiKit.Label(card.transform, "Title", Strings.Get("defeat_title"), UiTextSize.Title, theme);
-            UiKit.Place(title.rectTransform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -36), new Vector2(580, 50));
-            title.fontSize = theme.Size(UiTextSize.Title) * 1.25f;
-            title.color = theme.Accent;
+            UiKit.Place(card.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(760, 220)); // 스토리 024: 가장 긴 패배 사유(Title 28)가 제목판에 들어가게
+            TextMeshProUGUI title = UiKit.TitlePlate(card.transform, "Title", Strings.Get("defeat_title"), theme);
             TextMeshProUGUI body = UiKit.Label(card.transform, "Body", Strings.Get("defeat_body"), UiTextSize.Normal, theme);
-            UiKit.Place(body.rectTransform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -104), new Vector2(580, 60));
+            UiKit.Place(body.rectTransform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -UiKit.ContentTop(theme)), new Vector2(660, 110));
             UiKit.Bind(screen, "_title", title);
             UiKit.Bind(screen, "_body", body);
             return root;

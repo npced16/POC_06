@@ -11,13 +11,15 @@ using IronRing.Presentation.HubPhase;
 namespace IronRing.Npc.Demo
 {
     /// <summary>
-    /// 스토리 017·023 캡처용 스크립트 데모: `--npc-demo [--npc-stage homes|panel|encouraged|board|arrival|hub2]`. 실행 인자 또는 진행 중인
+    /// 스토리 017·023 캡처용 스크립트 데모: `--npc-demo [--npc-stage homes|panel|encouraged|board|arrival|hub2|passengers|codex]`. 실행 인자 또는 진행 중인
     /// 브리지 캡처의 extraArgs(SessionState "IronRing.Bridge.Capture.ExtraArgs")에서 읽는다. 설정은 Resources/Npc/NpcHomesDemo.json.
     /// homes|panel|encouraged: 데모 거점 내부를 열고 데이터 배치를 놓은 뒤, 대상 NPC를 승객으로 태우고(IPassengers.TryBoard force)
     /// INpcRecruiter.OnHubVisited로 정차를 일으켜 내리게 한다(합류는 승객 하차로만). 승객 시스템이 없으면 예전처럼 방문을 반복한다.
     /// board: 열차를 출발시켜 경유지 조우를 WaypointResolver.Advance로 끝내고, 승객이 타면(안 타면 강제 탑승 + 로그) StageReady.
     /// arrival: hub-1에 서식지를 완성하고 `_arrivalNpcId`를 태워 내리게 한다. 걸음은 `_arrivalSpeed`로 느리게(InteriorNpcWalker.DemoArrivalSpeed).
     /// hub2: hub-2 내부를 열어 같은 서식지(배치 앞 `_hub2PlacementCount`개)를 완성하고 hub-2 명단의 NPC(`_hub2NpcId`)가 내리는 것을 보인다.
+    /// passengers(스토리 025): `_passengerIds`를 IPassengers.TryBoard(force)로 태우고 StageReady → PassengersScreen이 열린다(내부 화면을 열지 않음).
+    /// codex(스토리 025): homes와 같이 hub-1에 합류시킨 뒤 StageReady → CodexScreen이 열린다("찾아오는 이: 점등부, ???").
     /// 로그 접두사 "NPC DEMO:".
     /// </summary>
     public sealed class NpcHomesDemoDriver : MonoBehaviour
@@ -34,7 +36,7 @@ namespace IronRing.Npc.Demo
         private bool _departed;
         private int _boardFrames;
 
-        /// <summary>데모 단계(homes|panel|encouraged|board|arrival|hub2). --npc-demo가 없으면 null, 단계 인자가 없으면 "homes".</summary>
+        /// <summary>데모 단계(homes|panel|encouraged|board|arrival|hub2|passengers|codex). --npc-demo가 없으면 null, 단계 인자가 없으면 "homes".</summary>
         public static string Stage { get; private set; }
 
         /// <summary>단계 준비가 끝나 StageReady를 낸 뒤 true.</summary>
@@ -94,6 +96,7 @@ namespace IronRing.Npc.Demo
         {
             if (_done || _settings == null) return;
             if (Stage == "board") { UpdateBoard(); return; }
+            if (Stage == "passengers") { UpdatePassengers(); return; }
             string hubId = Stage == "hub2" ? _settings._hub2Id : _settings._hubId;
             IViewMode view = GameServices.Get<IViewMode>();
             if (view == null) return;
@@ -146,6 +149,20 @@ namespace IronRing.Npc.Demo
             else UnityEngine.Debug.Log("NPC DEMO: board 굴림으로 탑승 " + string.Join(", ", passengers.PassengerIds));
             FirstNpcId = passengers.PassengerIds.FirstOrDefault();
             UnityEngine.Debug.Log($"NPC DEMO: board {FirstNpcId} at {waypoint} \"{passengers.Proposal(FirstNpcId)}\" {passengers.Hint(FirstNpcId)} (출신 {passengers.OriginName(FirstNpcId)})");
+            Ready();
+        }
+
+        /// <summary>passengers: board the data passengers (force) without opening an interior, then StageReady (the HUD opens the Passengers screen).</summary>
+        private void UpdatePassengers()
+        {
+            if (_waited++ < _settings._waitFrames) return;
+            _done = true;
+            IPassengers passengers = GameServices.Get<IPassengers>();
+            if (passengers == null) { UnityEngine.Debug.LogError("NPC DEMO: passengers 단계에 IPassengers가 없습니다."); return; }
+            foreach (string id in _settings._passengerIds ?? Array.Empty<string>())
+                UnityEngine.Debug.Log($"NPC DEMO: passengers {id} 탑승 = {passengers.TryBoard(id, Passengers.DemoWaypoint, true)} \"{passengers.Proposal(id)}\" {passengers.Hint(id)} (출신 {passengers.OriginName(id)})");
+            FirstNpcId = passengers.PassengerIds.FirstOrDefault();
+            UnityEngine.Debug.Log($"NPC DEMO: passengers 탑승 {passengers.PassengerIds.Count}/{NpcInstaller.Pool?.MaxPassengers} [{string.Join(", ", passengers.PassengerIds)}]");
             Ready();
         }
 
@@ -303,6 +320,8 @@ namespace IronRing.Npc.Demo
             public int _hub2PlacementCount = 4;
             /// <summary>board: 경유지에 닿지 못해도 이 프레임 뒤에는 끝낸다.</summary>
             public int _boardMaxFrames = 1800;
+            /// <summary>passengers(스토리 025): 강제로 태울 승객 id(제안이 있는 풀 NPC).</summary>
+            public string[] _passengerIds = { "lamplighter", "gas_fitter" };
         }
 
         [Serializable]

@@ -21,7 +21,7 @@ namespace IronRing.Hud.Editor.Screens
         {
             GameObject root = UiKit.ScreenRoot("InteriorTitle", false);
             InteriorTitleScreen screen = root.AddComponent<InteriorTitleScreen>();
-            UnityEngine.UI.Image box = UiKit.Panel(root.transform, "TitleBox", theme, false);
+            UnityEngine.UI.Image box = UiKit.Bar(root.transform, "TitleBox", theme, false);
             UiKit.Place(box.rectTransform, Vector2.one, Vector2.one, new Vector2(-16, -104), new Vector2(320, 60));
             TextMeshProUGUI title = UiKit.Label(box.transform, "Title", Strings.Get("hub_1"), UiTextSize.Title, theme);
             UiKit.Stretch(title.rectTransform, 14, 6, 14, 6);

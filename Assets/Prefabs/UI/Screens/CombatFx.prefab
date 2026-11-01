@@ -28,9 +28,9 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 3446388993173553802}
-  - {fileID: 9148086862079702123}
   - {fileID: 6745452845861268475}
+  - {fileID: 9148086862079702123}
+  - {fileID: 3154566647443014062}
   - {fileID: 1365080776683106157}
   - {fileID: 8732199887876077034}
   - {fileID: 7575887949683838962}
@@ -270,8 +270,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 20
-  m_fontSizeBase: 20
+  m_fontSize: 18
+  m_fontSizeBase: 18
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -459,9 +459,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::IronRing.Hud.CombatFxScreen
   _area: {fileID: 8308867747823766623}
   _pool:
-  - {fileID: 7404806414785036474}
-  - {fileID: 4027247469271938651}
   - {fileID: 1480427724434811339}
+  - {fileID: 4027247469271938651}
+  - {fileID: 7120302142497489822}
   - {fileID: 6622152994136780125}
   - {fileID: 3474563655317190618}
   - {fileID: 2320995686905515458}
@@ -558,11 +558,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8316270446527821156, guid: f8df5775f3420d145a8ee59e5d220f9f, type: 3}
       propertyPath: m_Name
-      value: FloatingMessage_2
-      objectReference: {fileID: 0}
-    - target: {fileID: 8316270446527821156, guid: f8df5775f3420d145a8ee59e5d220f9f, type: 3}
-      propertyPath: m_IsActive
-      value: 0
+      value: FloatingMessage_0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1053,7 +1049,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b9fde4b0780fff4bb1ceadc41068f3d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IronRing.Hud.FloatingMessageView
---- !u!1001 &6937351345426494434
+--- !u!1001 &7229721517925773510
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -1143,22 +1139,26 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8316270446527821156, guid: f8df5775f3420d145a8ee59e5d220f9f, type: 3}
       propertyPath: m_Name
-      value: FloatingMessage_0
+      value: FloatingMessage_2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8316270446527821156, guid: f8df5775f3420d145a8ee59e5d220f9f, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f8df5775f3420d145a8ee59e5d220f9f, type: 3}
---- !u!224 &3446388993173553802 stripped
+--- !u!224 &3154566647443014062 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 5733756105311678824, guid: f8df5775f3420d145a8ee59e5d220f9f, type: 3}
-  m_PrefabInstance: {fileID: 6937351345426494434}
+  m_PrefabInstance: {fileID: 7229721517925773510}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &7404806414785036474 stripped
+--- !u!114 &7120302142497489822 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 469857021235213144, guid: f8df5775f3420d145a8ee59e5d220f9f, type: 3}
-  m_PrefabInstance: {fileID: 6937351345426494434}
+  m_PrefabInstance: {fileID: 7229721517925773510}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1

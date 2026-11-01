@@ -119,17 +119,26 @@ namespace IronRing.Hud.HubPhase
             foreach (string id in _hubs.HubIds) anySettled |= _development.HasEverSettled(id);
             int laps = _development.LapsUntilDeadline;
             int habitats = _clusters != null ? _clusters.CompletedAt(hub).Count : 0;
-            string key = hub + "|" + phase + "|" + prosperity + "|" + laps + "|" + anySettled + "|" + _hubs.IsRunLost + "|" + habitats;
+            // 스토리 028: 정착 기준과 다음 바퀴 예상 증감(경유지 결과 제외)을 함께 보인다.
+            IProsperityForecast forecast = GameServices.Get<IProsperityForecast>();
+            int threshold = forecast != null ? Mathf.RoundToInt(forecast.SettledThreshold(hub)) : 0;
+            int next = forecast != null ? Mathf.RoundToInt(forecast.NextLapDelta(hub)) : 0;
+            string key = hub + "|" + phase + "|" + prosperity + "|" + laps + "|" + anySettled + "|" + _hubs.IsRunLost + "|" + habitats + "|" + threshold + "|" + next;
             if (!force && key == _bannerKey) return;
             _bannerKey = key;
             _hubLabel.transform.parent.gameObject.SetActive(true);
-            _hubLabel.text = Strings.Get(hub.Replace('-', '_')) + "  ·  " + PhaseText(phase) + "  ·  " + Strings.Get("phase_prosperity") + " " + prosperity
+            string prosperityText = Strings.Get("phase_prosperity") + " " + prosperity + (forecast != null ? "/" + threshold : "");
+            if (forecast != null) prosperityText += "  ·  " + Strings.Get("phase_next_lap") + " " + next.ToString("+0;-0;+0");
+            _hubLabel.text = Strings.Get(hub.Replace('-', '_')) + "  ·  " + PhaseText(phase) + "  ·  " + prosperityText
                 + "  ·  " + Strings.Get("phase_habitats") + " " + habitats;
             int index = (int)phase;
             if (index >= 0 && index < _phaseColors.Length) _hubLabel.color = _phaseColors[index];
-            bool showDeadline = !anySettled && laps != int.MaxValue && !_hubs.IsRunLost;
+            // 스토리 028: 기한은 정착해도 꺼지지 않고 런을 끝낸다(IRunResult가 없으면 옛 규칙: 첫 정착까지만).
+            bool runEnds = GameServices.Get<IRunResult>() != null;
+            bool showDeadline = (runEnds || !anySettled) && laps != int.MaxValue && !_hubs.IsRunLost;
             if (_deadlineBox != null) _deadlineBox.SetActive(showDeadline);
-            if (showDeadline && _deadline != null) _deadline.text = Strings.Get("phase_deadline") + ": " + laps + Strings.Get("phase_laps_left");
+            if (showDeadline && _deadline != null)
+                _deadline.text = Strings.Get(runEnds ? "phase_run_deadline" : "phase_deadline") + ": " + laps + Strings.Get("phase_laps_left");
             // 사유별 패배 제목은 Defeat 화면이 IRunLossInfo로 보인다. 이 줄은 그 서비스가 없을 때의 대비책이라 둘이 겹치지 않는다.
             bool showLoss = _hubs.IsRunLost && GameServices.Get<IRunLossInfo>() == null;
             if (_loss != null)

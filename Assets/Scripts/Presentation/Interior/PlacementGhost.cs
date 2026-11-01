@@ -23,9 +23,6 @@ namespace IronRing.Presentation.Interior
         /// <summary>현재 고스트(내부 화면 서비스가 없는 씬에서는 null).</summary>
         public static PlacementGhost Instance => _instance;
 
-        /// <summary>HUD가 등록하는 추가 UI 판정(화면 좌표 → 그 위에 자기 패널이 있는지). EventSystem 판정과 함께 쓴다.</summary>
-        public static readonly List<Func<Vector2, bool>> UiHitTests = new List<Func<Vector2, bool>>();
-
         private IViewMode _view;
         private IInteriorAnchors _anchors;
         private IMapAnchors _map;
@@ -61,7 +58,7 @@ namespace IronRing.Presentation.Interior
         public bool HoverValid { get; private set; }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void ResetStatics() { GameServices.Ready -= OnReady; _instance = null; UiHitTests.Clear(); }
+        private static void ResetStatics() { GameServices.Ready -= OnReady; _instance = null; }
 
         /// <summary>MainRoot의 GameServices.Reset()(SubsystemRegistration) 뒤에 Ready를 구독한다.</summary>
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -298,11 +295,9 @@ namespace IronRing.Presentation.Interior
             return found;
         }
 
-        /// <summary>pointer가 HUD 위인지: HUD가 등록한 옛 패널 판정 또는 EventSystem.IsPointerOverGameObject(UGUI·UI Toolkit).</summary>
+        /// <summary>pointer가 HUD(UGUI MainCanvas) 위인지: EventSystem.IsPointerOverGameObject 판정만 쓴다(스토리 025에서 옛 등록 판정 제거).</summary>
         private bool IsPointerOverUi(Vector2 pointer)
         {
-            foreach (Func<Vector2, bool> test in UiHitTests) if (test != null && test(pointer)) return true;
-            // 스토리 022: UGUI(MainCanvas)·UI Toolkit 패널 모두 EventSystem 포인터 판정으로 거른다. 옛 등록 판정은 3단계까지 유지.
             return EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
         }
 

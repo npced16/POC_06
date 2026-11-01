@@ -13,7 +13,11 @@ namespace IronRing.Hub.Demo
     /// Story 014 scripted capture demo, active only with --phase-demo or --deadline-demo (command line or the bridge's
     /// in-progress capture ExtraArgs, same SessionState pattern as MainRoot's --integration-demo).
     /// --phase-demo: hub Recovering with placed habitat items, one NPC and one facility in the interior, hold, then tick laps until Settled.
-    /// --deadline-demo: tick laps while docked until the first-settlement deadline loses the run.
+    /// --deadline-demo: tick laps while docked until the deadline ends the run (Story 028: result screen, 패배 with nothing settled).
+    /// --result-demo [--result-stage partial|win|lose] (Story 028): raise prosperity to the maximum on 2 (partial), every (win)
+    /// or no (lose) hub so they settle (data ResultSettleProsperity), then tick every remaining lap in one frame so the deadline ends
+    /// the run at once (RunEnded opens the RunResult screen). stage restart: partial, then after ResultRestartFrames frames calls the
+    /// result screen's restart (RunResultScreen.Restart) and, after the reload, logs whether services and HUD screens came back.
     /// Laps are ticked by calling RunState.OnLapCompleted(LastLap + 1) while the train stays docked (approved for the demo).
     /// Wire format: Resources/HubPhase/hub_phase_demo.json (seconds are real time, unaffected by timeScale).
     /// </summary>
@@ -34,6 +38,12 @@ namespace IronRing.Hub.Demo
             [SerializeField] private string[] _habitatItems = { "brazier", "brazier", "gear" };
             [SerializeField] private int _extraEmptyCells = 3;
             [SerializeField] private int _maxInvestigations = 36;
+            [SerializeField] private int _resultPartialHubs = 2;
+            [SerializeField] private float _resultSettleProsperity = 100f;
+            [SerializeField] private int _resultRestartFrames = 60;
+            public int ResultRestartFrames => _resultRestartFrames;
+            public int ResultPartialHubs => _resultPartialHubs;
+            public float ResultSettleProsperity => _resultSettleProsperity;
             public string HubId => _hubId;
             public string FacilityId => _facilityId;
             public float StartDelaySeconds => _startDelaySeconds;
@@ -51,6 +61,9 @@ namespace IronRing.Hub.Demo
         private static PhaseDemoDriver _instance;
         private Settings _settings;
         private bool _deadline;
+        private string _resultStage;
+        /// <summary>Set just before the restart demo reloads the scene; deliberately not cleared by ResetStatics (the restart replays it).</summary>
+        private static bool _restartIssued;
 
         /// <summary>Clears statics for a new play session (domain reload disabled).</summary>
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -62,7 +75,7 @@ namespace IronRing.Hub.Demo
         {
             GameServices.Ready -= Create;
             string[] args = Arguments();
-            if (args.Contains("--phase-demo") || args.Contains("--deadline-demo")) GameServices.Ready += Create;
+            if (args.Contains("--phase-demo") || args.Contains("--deadline-demo") || args.Contains("--result-demo")) GameServices.Ready += Create;
         }
 
         /// <summary>Starts the requested scripted demo once the real systems are ready.</summary>
@@ -73,6 +86,15 @@ namespace IronRing.Hub.Demo
             _instance._deadline = Arguments().Contains("--deadline-demo") && !Arguments().Contains("--phase-demo");
             TextAsset json = UnityEngine.Resources.Load<TextAsset>("HubPhase/hub_phase_demo");
             _instance._settings = json != null ? JsonUtility.FromJson<Settings>(json.text) : new Settings();
+            string[] args = Arguments();
+            if (args.Contains("--result-demo") && !args.Contains("--phase-demo"))
+            {
+                int at = Array.IndexOf(args, "--result-stage");
+                _instance._resultStage = at >= 0 && at + 1 < args.Length ? args[at + 1] : "partial";
+                if (_instance._resultStage == "restart" && _restartIssued) { _restartIssued = false; _instance.StartCoroutine(_instance.AfterRestart()); return; }
+                _instance.StartCoroutine(_instance.ResultDemo());
+                return;
+            }
             _instance.StartCoroutine(_instance._deadline ? _instance.DeadlineDemo() : _instance.PhaseDemo());
         }
 
@@ -158,7 +180,36 @@ namespace IronRing.Hub.Demo
                 hubs.OnLapCompleted(hubs.LastLap + 1);
                 yield return new WaitForSecondsRealtime(_settings.DeadlineLapIntervalSeconds);
             }
-            UnityEngine.Debug.Log($"DEADLINE-DEMO: lost={hubs.IsRunLost}, reason={hubs.LastLossReason}, lapsLeft={hubs.LapsUntilDeadline}, lap={hubs.LastLap}");
+            UnityEngine.Debug.Log($"DEADLINE-DEMO: over={hubs.IsRunLost}, outcome={hubs.Outcome}, reason={hubs.LastLossReason}, lapsLeft={hubs.LapsUntilDeadline}, lap={hubs.LastLap}");
+        }
+
+        /// <summary>Story 028. Settles the stage's hub count through ApplyDelta, then ticks laps until the deadline shows the result screen.</summary>
+        private IEnumerator ResultDemo()
+        {
+            UnityEngine.Debug.Log($"RESULT DEMO: stage={_resultStage}");
+            yield return null; // 한 프레임: 화면들이 Ready에서 RunEnded를 구독한 뒤에 끝낸다
+            var hubs = (RunState)GameServices.Get<IHubStateSystem>();
+            int settle = _resultStage == "win" ? hubs.HubIds.Count : _resultStage == "lose" ? 0 : Math.Min(_settings.ResultPartialHubs, hubs.HubIds.Count);
+            for (int i = 0; i < settle; i++) hubs.ApplyDelta(hubs.HubIds[i], _settings.ResultSettleProsperity, "result-demo settle");
+            UnityEngine.Debug.Log($"RESULT DEMO: settled now={hubs.SettledCount}, lapsLeft={hubs.LapsUntilDeadline}");
+            for (int lap = 0; lap < _settings.MaxLaps && !hubs.IsOver; lap++) hubs.OnLapCompleted(hubs.LastLap + 1);
+            UnityEngine.Debug.Log($"RESULT DEMO: over={hubs.IsOver}, outcome={hubs.Outcome}, settled={hubs.SettledCount}/{hubs.HubCount}, laps={hubs.Laps}");
+            if (_resultStage != "restart") yield break;
+            for (int i = 0; i < _settings.ResultRestartFrames; i++) yield return null;
+            UnityEngine.Debug.Log("RESULT DEMO: pressing restart");
+            _restartIssued = true;
+            IronRing.Hud.RunResultScreen.Restart();
+        }
+
+        /// <summary>restart stage, second scene: logs that the new run is alive and the HUD screens reattached.</summary>
+        private IEnumerator AfterRestart()
+        {
+            for (int i = 0; i < _settings.ResultRestartFrames; i++) yield return null;
+            var hubs = GameServices.Get<IHubStateSystem>() as RunState;
+            IronRing.Hud.Ui.UiScreens screens = IronRing.Hud.Ui.UiScreens.Instance;
+            string Open(string id) => screens == null ? "no-UiScreens" : screens.IsOpen(id).ToString();
+            UnityEngine.Debug.Log($"RESULT DEMO: after restart ready={GameServices.IsReady}, over={hubs?.IsOver}, lap={hubs?.LastLap}, lapsLeft={hubs?.LapsUntilDeadline}, "
+                + $"forecast={GameServices.Get<IProsperityForecast>() != null}, TopBar={Open("TopBar")}, PhaseBanner={Open("PhaseBanner")}, Hotbar={Open("Hotbar")}, RunResult={Open("RunResult")}");
         }
 
         /// <summary>Builds the data's facility on the first free plot; falls back to a hub-level build with a warning.</summary>

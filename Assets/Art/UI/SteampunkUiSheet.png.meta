@@ -1,0 +1,403 @@
+fileFormatVersion: 2
+guid: 18b06e7bea7b9b246b18f81739d6f6e0
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -2095588983214404259
+    second: SteampunkUiSheet_0
+  - first:
+      213: 2366039202611067881
+    second: SteampunkUiSheet_1
+  - first:
+      213: -9053807933710611841
+    second: SteampunkUiSheet_2
+  - first:
+      213: -7039922425484069322
+    second: SteampunkUiSheet_3
+  - first:
+      213: 2327604665813173720
+    second: SteampunkUiSheet_4
+  - first:
+      213: -4781391491323076262
+    second: SteampunkUiSheet_5
+  - first:
+      213: 8144473661567826729
+    second: SteampunkUiSheet_6
+  - first:
+      213: -4828005602349576002
+    second: SteampunkUiSheet_7
+  - first:
+      213: -5925071802936188307
+    second: SteampunkUiSheet_8
+  - first:
+      213: -399334371215688342
+    second: SteampunkUiSheet_9
+  - first:
+      213: 905670596197374517
+    second: SteampunkUiSheet_10
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: SteampunkUiSheet_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 525
+        width: 757
+        height: 483
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d5d88443ce8fae2e0800000000000000
+      internalID: -2095588983214404259
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SteampunkUiSheet_1
+      rect:
+        serializedVersion: 2
+        x: 780
+        y: 507
+        width: 743
+        height: 517
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9ebf7447e1cd5d020800000000000000
+      internalID: 2366039202611067881
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SteampunkUiSheet_2
+      rect:
+        serializedVersion: 2
+        x: 26
+        y: 317
+        width: 217
+        height: 184
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f7ac09647a96a5280800000000000000
+      internalID: -9053807933710611841
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SteampunkUiSheet_3
+      rect:
+        serializedVersion: 2
+        x: 282
+        y: 249
+        width: 246
+        height: 249
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 63637b66adb2d4e90800000000000000
+      internalID: -7039922425484069322
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SteampunkUiSheet_4
+      rect:
+        serializedVersion: 2
+        x: 564
+        y: 209
+        width: 290
+        height: 301
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8d506538c105d4020800000000000000
+      internalID: 2327604665813173720
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SteampunkUiSheet_5
+      rect:
+        serializedVersion: 2
+        x: 888
+        y: 175
+        width: 507
+        height: 312
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a51ec9385c515adb0800000000000000
+      internalID: -4781391491323076262
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SteampunkUiSheet_6
+      rect:
+        serializedVersion: 2
+        x: 1408
+        y: 383
+        width: 109
+        height: 100
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 92b7648d4abf60170800000000000000
+      internalID: 8144473661567826729
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SteampunkUiSheet_7
+      rect:
+        serializedVersion: 2
+        x: 24
+        y: 171
+        width: 233
+        height: 136
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eb09b5a0c7a7ffcb0800000000000000
+      internalID: -4828005602349576002
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SteampunkUiSheet_8
+      rect:
+        serializedVersion: 2
+        x: 1074
+        y: 175
+        width: 130
+        height: 133
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d622e4d669ae5cda0800000000000000
+      internalID: -5925071802936188307
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SteampunkUiSheet_9
+      rect:
+        serializedVersion: 2
+        x: 1390
+        y: 175
+        width: 117
+        height: 128
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a6db5115187457af0800000000000000
+      internalID: -399334371215688342
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SteampunkUiSheet_10
+      rect:
+        serializedVersion: 2
+        x: 14
+        y: 30
+        width: 1509
+        height: 134
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 53a5cd9db96919c00800000000000000
+      internalID: 905670596197374517
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      SteampunkUiSheet_0: -2095588983214404259
+      SteampunkUiSheet_1: 2366039202611067881
+      SteampunkUiSheet_10: 905670596197374517
+      SteampunkUiSheet_2: -9053807933710611841
+      SteampunkUiSheet_3: -7039922425484069322
+      SteampunkUiSheet_4: 2327604665813173720
+      SteampunkUiSheet_5: -4781391491323076262
+      SteampunkUiSheet_6: 8144473661567826729
+      SteampunkUiSheet_7: -4828005602349576002
+      SteampunkUiSheet_8: -5925071802936188307
+      SteampunkUiSheet_9: -399334371215688342
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

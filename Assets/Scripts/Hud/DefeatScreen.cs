@@ -12,6 +12,7 @@ namespace IronRing.Hud
     /// <summary>
     /// 스토리 022(KoreanHud #defeat의 UGUI 포팅). 상황 화면 "Defeat": IHubStateSystem.IsRunLost이면 전체 화면을 덮고 패배 제목·본문을 보인다.
     /// 제목은 IRunLossInfo의 사유(정착 기한·정착 거점 전부 붕괴)를 따르고, 서비스가 없으면 기본 제목을 쓴다.
+    /// 스토리 028: IRunResult가 등록되어 있으면 런의 끝은 RunResult 화면이 보이므로 이 화면은 늘 꺼 둔다(프리팹은 남겨 둠).
     /// </summary>
     [RequireComponent(typeof(UiScreen))]
     public sealed class DefeatScreen : MonoBehaviour
@@ -54,7 +55,7 @@ namespace IronRing.Hud
         private void Refresh()
         {
             if (_screens == null) return;
-            if (!_hubs.IsRunLost) { _screens.Hide(_screen.Id); return; }
+            if (!Wanted()) { _screens.Hide(_screen.Id); return; }
             RunLossReason reason = GameServices.Get<IRunLossInfo>()?.LastLossReason ?? RunLossReason.None;
             _title.text = Strings.Get(reason == RunLossReason.DeadlineExpired ? "phase_loss_deadline"
                 : reason == RunLossReason.AllSettledCollapsed ? "phase_loss_collapse" : "defeat_title");
@@ -65,8 +66,11 @@ namespace IronRing.Hud
         /// <summary>RunLost 이벤트를 놓친 경우(구독 전 패배, 다른 경로로 IsRunLost가 바뀐 경우)에도 화면을 맞춘다.</summary>
         void LateUpdate()
         {
-            if (_hubs != null && _screen != null && _hubs.IsRunLost != _screen.gameObject.activeSelf) Refresh();
+            if (_hubs != null && _screen != null && Wanted() != _screen.gameObject.activeSelf) Refresh();
         }
+
+        /// <summary>패배했고 결과 화면(IRunResult)이 없을 때만 보인다.</summary>
+        private bool Wanted() => _hubs.IsRunLost && GameServices.Get<IRunResult>() == null;
 
         void OnDestroy()
         {

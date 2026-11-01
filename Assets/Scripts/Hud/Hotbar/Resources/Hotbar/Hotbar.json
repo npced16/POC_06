@@ -1,14 +1,14 @@
 {
   "_slots": [
+    { "_kind": "item", "_id": "tile_gaslamp" },
+    { "_kind": "item", "_id": "tile_coal" },
     { "_kind": "item", "_id": "tile_boiler" },
     { "_kind": "item", "_id": "tile_pipe" },
     { "_kind": "item", "_id": "tile_gear" },
-    { "_kind": "item", "_id": "tile_gaslamp" },
     { "_kind": "item", "_id": "tile_girder" },
     { "_kind": "item", "_id": "tile_cobble" },
     { "_kind": "facility", "_id": "wall" },
-    { "_kind": "facility", "_id": "turret" },
-    { "_kind": "facility", "_id": "workshop" }
+    { "_kind": "facility", "_id": "turret" }
   ],
   "_fillMissingFromCatalog": true,
   "_paletteCategories": ["tile"],

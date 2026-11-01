@@ -443,4 +443,74 @@ namespace IronRing.Contracts
         /// <summary>데모·시험용 탑승. force면 자리·출신지·탑승 조건을 무시한다. 이미 합류했거나 타고 있으면 false.</summary>
         bool TryBoard(string npcId, string waypointId, bool force);
     }
+
+    // ----- 런의 끝과 번영 예보(스토리 028) -----
+
+    /// <summary>스토리 028. 런 결과. 기한이 지나면 정착 수로 정해진다(4곳 승리, 1~3곳 부분 성공, 0곳 패배). 정착 거점 전부 붕괴도 패배.</summary>
+    public enum RunOutcome
+    {
+        /// <summary>런이 아직 진행 중.</summary>
+        None,
+        /// <summary>모든 거점이 정착한 채 기한을 맞음.</summary>
+        Victory,
+        /// <summary>일부 거점만 정착한 채 기한을 맞음.</summary>
+        Partial,
+        /// <summary>정착 0곳으로 기한을 맞았거나, 정착했던 거점이 모두 붕괴함.</summary>
+        Defeat
+    }
+
+    /// <summary>스토리 028. 결과 화면 한 줄(거점 하나)의 요약. 런이 끝난 순간의 값이다.</summary>
+    public sealed class RunHubSummary
+    {
+        /// <summary>거점 id.</summary>
+        public string HubId;
+        /// <summary>끝난 순간의 단계.</summary>
+        public HubPhase Phase;
+        /// <summary>끝난 순간의 번영.</summary>
+        public float Prosperity;
+        /// <summary>합류한 NPC 수.</summary>
+        public int NpcCount;
+    }
+
+    /// <summary>
+    /// 스토리 028. 런의 끝. 기한(HubProfiles.json _deadlineLaps)은 정착 여부와 상관없이 항상 런을 끝낸다.
+    /// 끝나면 IHubStateSystem.IsRunLost도 true가 되어(= "런 종료", 결과와 무관) 열차·조작이 멈춘다. IRunLossInfo는 패배 사유만 그대로 준다.
+    /// </summary>
+    public interface IRunResult
+    {
+        /// <summary>런이 끝났는지.</summary>
+        bool IsOver { get; }
+        /// <summary>결과(진행 중이면 None).</summary>
+        RunOutcome Outcome { get; }
+        /// <summary>끝난 순간 정착(Settled) 단계인 거점 수.</summary>
+        int SettledCount { get; }
+        /// <summary>전체 거점 수.</summary>
+        int HubCount { get; }
+        /// <summary>끝난 순간까지 적용된 바퀴 수.</summary>
+        int Laps { get; }
+        /// <summary>거점별 요약(데이터 순서). 진행 중에는 빈 목록.</summary>
+        IReadOnlyList<RunHubSummary> Hubs { get; }
+        /// <summary>런이 끝날 때 한 번.</summary>
+        event Action RunEnded;
+    }
+
+    /// <summary>스토리 028. 번영 예보(배너 "번영 N/40 · 다음 바퀴 +M", 거점 패널 "정착까지 번영 K").</summary>
+    public interface IProsperityForecast
+    {
+        /// <summary>지금 상태로 다음 바퀴 틱에 더해질 번영(경유지 이벤트·전투 결과는 빼고, 붕괴 거점은 0).</summary>
+        float NextLapDelta(string hubId);
+        /// <summary>해당 거점의 정착 기준 번영(데이터 _settledThreshold).</summary>
+        float SettledThreshold(string hubId);
+    }
+
+    /// <summary>
+    /// 스토리 028 (QA S3-1). 완성 서식지의 칸 구성이 바뀌었지만 종류별 완성 수는 그대로일 때(완성 묶음에 칸이 붙거나 빠짐) 알린다.
+    /// 수가 바뀌는 경우는 기존 HabitatCompleted/HabitatBroken이 알리므로 여기서는 내지 않는다. 테두리·건물 표시가 이 신호로 다시 그린다.
+    /// ClusterHabitatSystem이 구현한다(IHabitatClusters와 같은 인스턴스로 GameServices에 등록).
+    /// </summary>
+    public interface IHabitatClusterChanges
+    {
+        /// <summary>hubId, 서식지 종류 id. 그 종류의 완성 묶음 칸 구성이 바뀔 때마다 1회.</summary>
+        event Action<string, string> HabitatChanged;
+    }
 }

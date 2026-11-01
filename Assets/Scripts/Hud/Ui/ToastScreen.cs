@@ -15,7 +15,10 @@ namespace IronRing.Hud.Ui
 
         [SerializeField] private GameObject _box;
         [SerializeField] private TMP_Text _text;
+        [Tooltip("스토리 024: 상황 화면이 열려 있는 동안 쌓아 둘 토스트 최대 개수(넘치면 가장 오래된 것을 버린다)")]
+        [SerializeField] private int _maxQueued = 4;
         private float _until;
+        private readonly System.Collections.Generic.Queue<(string text, float seconds)> _queue = new();
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStatics() { _instance = null; }
@@ -38,10 +41,32 @@ namespace IronRing.Hud.Ui
         {
             ToastScreen toast = Current;
             if (toast == null || toast._box == null || toast._text == null) return false;
-            toast._text.text = text;
-            toast._until = Time.realtimeSinceStartup + seconds;
-            toast._box.SetActive(true);
+            if (SituationOpen())
+            {
+                // 스토리 024: 상황 화면(도감·승객 등)의 제목판과 겹치지 않게, 닫힌 뒤 차례로 띄운다.
+                if (toast._queue.Count >= toast._maxQueued) toast._queue.Dequeue();
+                toast._queue.Enqueue((text, seconds));
+                return true;
+            }
+            toast.Display(text, seconds);
             return true;
+        }
+
+        /// <summary>항상 켜진 화면이 아닌 화면(상황 화면)이 하나라도 열려 있는지.</summary>
+        private static bool SituationOpen()
+        {
+            UiScreens screens = UiScreens.Instance;
+            if (screens == null) return false;
+            foreach (UiScreen screen in screens.Screens)
+                if (screen != null && !screen.AlwaysOn && screens.IsOpen(screen.Id)) return true;
+            return false;
+        }
+
+        private void Display(string text, float seconds)
+        {
+            _text.text = text;
+            _until = Time.realtimeSinceStartup + seconds;
+            _box.SetActive(true);
         }
 
         /// <summary>떠 있는 토스트를 바로 숨긴다.</summary>
@@ -59,7 +84,13 @@ namespace IronRing.Hud.Ui
 
         void Update()
         {
-            if (_box != null && _box.activeSelf && Time.realtimeSinceStartup >= _until) _box.SetActive(false);
+            if (_box == null) return;
+            if (_box.activeSelf && (Time.realtimeSinceStartup >= _until || SituationOpen())) _box.SetActive(false);
+            if (!_box.activeSelf && _queue.Count > 0 && !SituationOpen())
+            {
+                var next = _queue.Dequeue();
+                Display(next.text, next.seconds);
+            }
         }
 
         void OnDestroy() { if (_instance == this) _instance = null; }

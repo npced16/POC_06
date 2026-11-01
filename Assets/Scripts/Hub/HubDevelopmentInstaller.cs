@@ -45,6 +45,8 @@ namespace IronRing.Hub
                 GameServices.Get<IHabitatClusters>, IronRing.Habitats.HabitatsInstaller.BonusOf));
             GameServices.Register<IHubDevelopment>(hubs);
             GameServices.Register<IRunLossInfo>(hubs);
+            GameServices.Register<IRunResult>(hubs); // Story 028
+            GameServices.Register<IProsperityForecast>(hubs); // Story 028
             GameServices.Register<IInteriorFacilityPlots>(new InteriorFacilityPlots(facilities, GameServices.Get<IHubInterior>, GameServices.Get<IInteriorFacilityCells>));
             _installed = true;
         }

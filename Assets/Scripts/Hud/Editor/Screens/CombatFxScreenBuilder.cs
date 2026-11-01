@@ -28,7 +28,7 @@ namespace IronRing.Hud.Editor.Screens
             CombatFxScreen screen = root.AddComponent<CombatFxScreen>();
 
             RectTransform area = UiKit.Stretch(UiKit.Node(root.transform, "Messages"));
-            GameObject part = UiKit.SavePrefabIfMissing(MESSAGE_PART, () => BuildMessage(theme));
+            GameObject part = UiKit.SavePrefab(MESSAGE_PART, () => BuildMessage(theme), UiKit.ConsumeMarker("FloatingMessage"));
             var pool = new List<FloatingMessageView>();
             for (int i = 0; i < POOL; i++)
             {

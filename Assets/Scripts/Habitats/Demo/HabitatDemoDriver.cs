@@ -77,7 +77,8 @@ namespace IronRing.Habitats.Demo
                 return;
             }
             IReadOnlyList<IInteriorCell> cells = interior.Cells(hubId);
-            Placement[] placements = _stage == STAGE_INCOMPLETE ? _settings._incompletePlacements : _settings._placements;
+            Placement[] placements = _stage == STAGE_INCOMPLETE ? _settings._incompletePlacements
+                : _stage == "furnace" ? _settings._furnacePlacements : _settings._placements; // 스토리 027: 3×3 용광로 단계
             UnityEngine.Debug.Log($"HABITAT DEMO: 단계 {_stage}, 배치 {placements?.Length ?? 0}개");
             foreach (Placement p in placements ?? Array.Empty<Placement>())
             {
@@ -131,6 +132,8 @@ namespace IronRing.Habitats.Demo
             public int _visitAttempts = 12;
             public Placement[] _placements;
             public Placement[] _incompletePlacements;
+            /// <summary>스토리 027: --habitat-stage furnace (3×3 용광로 패턴).</summary>
+            public Placement[] _furnacePlacements;
         }
 
         [Serializable]
