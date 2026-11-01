@@ -40,6 +40,12 @@ namespace IronRing.Train.Equipment
         public int UsedCells { get { int n = 0; foreach (EquipmentSlot slot in _slots) if (slot.EquipmentId != null) n++; return n; } }
         public event Action<EquipmentSlot> EquipmentPlaced;
         public event Action<EquipmentSlot> EquipmentRemoved;
+        /// <summary>스토리 038. 고철이 모자라 놓기를 거절했을 때(장비 id, 비용, 보유).</summary>
+        public event Action<string, int, int> PlacementRefused;
+        /// <summary>스토리 038. 고철 저장소 조회(null이거나 null을 돌려주면 장비가 무료).</summary>
+        public Func<IScrap> ScrapSource { get; set; }
+        /// <summary>스토리 038. 뗄 때 돌려받는 비율(Scrap.json _refundRatio, 내림).</summary>
+        public float RefundRatio { get; set; } = 1f;
         /// <summary>IRaidLoadout: 장비가 바뀌었을 때.</summary>
         public event Action Changed;
 
@@ -58,9 +64,41 @@ namespace IronRing.Train.Equipment
             return true;
         }
 
+        /// <summary>스토리 038. equipmentId 비용(데이터 _cost, 없으면 0).</summary>
+        public int CostOf(string equipmentId) => _data.Get(equipmentId)?.Cost ?? 0;
+
+        /// <summary>스토리 038. 지금 고철로 equipmentId를 살 수 있는지(저장소가 없으면 true).</summary>
+        public bool CanAfford(string equipmentId)
+        {
+            IScrap scrap = ScrapSource?.Invoke();
+            return scrap == null || scrap.Amount >= CostOf(equipmentId);
+        }
+
+        /// <summary>스토리 038: 고철 비용을 확인·지불하고 놓는다. 모자라면 PlacementRefused 후 false.</summary>
         public bool TryPlace(int car, int column, int row, string equipmentId)
         {
             if (!CanPlace(car, column, row, equipmentId)) return false;
+            IScrap scrap = ScrapSource?.Invoke();
+            int cost = CostOf(equipmentId);
+            if (scrap != null && cost > 0)
+            {
+                if (!scrap.TrySpend(cost))
+                {
+                    UnityEngine.Debug.Log($"SCRAP: refuse {equipmentId} cost={cost} have={scrap.Amount}");
+                    PlacementRefused?.Invoke(equipmentId, cost, scrap.Amount);
+                    return false;
+                }
+                UnityEngine.Debug.Log($"SCRAP: spend {equipmentId} {cost} left={scrap.Amount}");
+            }
+            return Place(car, column, row, equipmentId);
+        }
+
+        /// <summary>스토리 038. 데모·되돌리기 밖 시스템용: 고철 없이 놓는다.</summary>
+        public bool PlaceFree(int car, int column, int row, string equipmentId)
+            => CanPlace(car, column, row, equipmentId) && Place(car, column, row, equipmentId);
+
+        private bool Place(int car, int column, int row, string equipmentId)
+        {
             int width = _data.Get(equipmentId).Width;
             for (int k = 0; k < width; k++)
             {
@@ -74,7 +112,19 @@ namespace IronRing.Train.Equipment
             return true;
         }
 
+        /// <summary>스토리 038: 떼고 비용 × RefundRatio(내림)를 돌려받는다.</summary>
         public bool TryRemove(int car, int column, int row)
+        {
+            int index = Index(car, column, row);
+            string id = index >= 0 ? _slots[index].EquipmentId : null;
+            if (!Remove(car, column, row)) return false;
+            IScrap scrap = ScrapSource?.Invoke();
+            int refund = (int)Math.Floor(CostOf(id) * RefundRatio);
+            if (scrap != null && refund > 0) { scrap.TryGain(refund); UnityEngine.Debug.Log($"SCRAP: refund {id} {refund}"); }
+            return true;
+        }
+
+        private bool Remove(int car, int column, int row)
         {
             int index = Index(car, column, row);
             if (index < 0 || _slots[index].EquipmentId == null) return false;
@@ -103,7 +153,7 @@ namespace IronRing.Train.Equipment
         /// <summary>모든 장비를 뗀다(각각 EquipmentRemoved).</summary>
         public void Clear()
         {
-            foreach (EquipmentSlot slot in _slots) if (slot.IsAnchor) TryRemove(slot.Car, slot.Column, slot.Row);
+            foreach (EquipmentSlot slot in _slots) if (slot.IsAnchor) Remove(slot.Car, slot.Column, slot.Row);
         }
 
         /// <summary>데이터의 stage 데모 배치로 바꾼다(기존 장비를 모두 뗀 뒤 순서대로 놓기). 단계가 없으면 false.</summary>
@@ -113,7 +163,7 @@ namespace IronRing.Train.Equipment
             if (demo == null) return false;
             Clear();
             foreach (DemoPiece piece in demo.Pieces)
-                if (!TryPlace(piece.Car, piece.Column, piece.Row, piece.Id))
+                if (!PlaceFree(piece.Car, piece.Column, piece.Row, piece.Id))
                     UnityEngine.Debug.LogWarning($"EQUIP: demo {stage} piece {piece.Id} car={piece.Car} col={piece.Column} row={piece.Row} refused");
             UnityEngine.Debug.Log($"EQUIP: demo loadout {stage} turrets={Turrets} heavy={HeavyTurrets} plates={ArmorPlates} speed={SpeedBonus:F2} repair={RepairPerSecond:F2} used={UsedCells}/{_slots.Length}");
             return true;

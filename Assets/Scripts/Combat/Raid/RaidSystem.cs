@@ -18,7 +18,12 @@ namespace IronRing.Combat.Raid
         private readonly Func<IRaidLoadout> _loadout;
         private readonly ITrackRuntime _track;
         private readonly List<RaidUnit> _monsters = new List<RaidUnit>();
-        private readonly List<RaidUnit> _nests = new List<RaidUnit>();
+        private List<RaidUnit> _nests = new List<RaidUnit>();
+        // 스토리 038: 길가/종점 둥지(_roadNests)와 정차 입구(_stopNests). _nests는 이번 습격이 쓰는 쪽을 가리킨다.
+        private readonly List<RaidUnit> _roadNests;
+        private readonly List<RaidUnit> _stopNests = new List<RaidUnit>();
+        private bool _stop;
+        private bool _leaveRequested;
         private readonly Dictionary<int, RaidMonsterData> _kinds = new Dictionary<int, RaidMonsterData>();
         private float[] _spawnTimers = Array.Empty<float>();
         private float[] _turretTimers = Array.Empty<float>();
@@ -59,6 +64,17 @@ namespace IronRing.Combat.Raid
         public Func<float> EdgeProgress { get; set; }
         /// <summary>스토리 037: 열차 꼬리 위치(습격 좌표). null이면 머리에서 _trainFallbackLength 뒤.</summary>
         public Func<(float x, float y)> TrainTailPosition { get; set; }
+
+        /// <summary>스토리 038: 중간역(_waypointId)에 서면 정차 디펜스(끝 시간 없음, 출발은 Leave)를 연다. 탑뷰 정차 화면이 켠다.</summary>
+        public bool StopMode { get; set; }
+        /// <summary>스토리 038: 이번 습격이 정차 디펜스인지(진행 중일 때만 true).</summary>
+        public bool ActiveStop => IsActive && _stop;
+        /// <summary>스토리 038: 정차 디펜스의 열차 머리 위치(정차 화면 좌표). 정차 화면이 넣는다.</summary>
+        public Func<(float x, float y)> StopFront { get; set; }
+        /// <summary>스토리 038: 정차 디펜스의 열차 꼬리 위치(정차 화면 좌표).</summary>
+        public Func<(float x, float y)> StopTail { get; set; }
+        /// <summary>스토리 038: 지금 정차 파도 번호(버틴 초 ÷ 간격 + 바퀴 보너스).</summary>
+        public int StopWave => (int)(_elapsed / _data.StopWaveEverySeconds) + (_track?.Lap ?? 0) * _data.StopLapWaveBonus;
 
         /// <summary>표현이 넣는 열차 월드 위치. null이면 종점을 가로지르는 가상 직선 위 위치를 쓴다.</summary>
         public Func<(float x, float y)> TrainPosition { get; set; }
@@ -119,18 +135,23 @@ namespace IronRing.Combat.Raid
             _state = unchecked((uint)data.Seed);
             for (int i = 0; i < data.NestOffsets.Length; i++)
                 _nests.Add(new RaidUnit { Id = i, Kind = "nest", Hp = data.NestHp, HpMax = data.NestHp, X = data.NestOffsets[i].x, Y = data.NestOffsets[i].y });
+            _roadNests = _nests;
+            for (int i = 0; i < data.StopEntrances.Length; i++)
+                _stopNests.Add(new RaidUnit { Id = i, Kind = "entrance", Hp = data.StopEntranceHp, HpMax = data.StopEntranceHp });
         }
 
         /// <summary>종점(점령 거점)의 월드 위치를 정한다. 둥지가 그 둘레(데이터 오프셋)로 옮겨진다.</summary>
         public void SetOrigin(float x, float y)
         {
             _originX = x; _originY = y;
-            for (int i = 0; i < _nests.Count; i++) { _nests[i].X = x + _data.NestOffsets[i].x; _nests[i].Y = y + _data.NestOffsets[i].y; }
+            for (int i = 0; i < _roadNests.Count; i++) { _roadNests[i].X = x + _data.NestOffsets[i].x; _roadNests[i].Y = y + _data.NestOffsets[i].y; }
         }
 
         /// <summary>node가 아직 점령된 경유지(데이터 _waypointId, 해방 전)인지.</summary>
         public bool IsOccupied(ITrackNode node)
         {
+            // 스토리 038: 정차 디펜스는 해방 여부와 관계없이 중간역에서 늘 열린다(고철 파밍).
+            if (StopMode && _stopNests.Count > 0 && node != null && (string.IsNullOrEmpty(_data.WaypointId) || node.Id == _data.WaypointId)) return true;
             if (TerminalLiberated || node == null || IsEnroute) return false;
             return string.IsNullOrEmpty(_data.WaypointId) || node.Id == _data.WaypointId;
         }
@@ -139,7 +160,32 @@ namespace IronRing.Combat.Raid
         public void Begin(ITrackNode node)
         {
             _enroute = false;
+            _stop = StopMode && _stopNests.Count > 0;
+            _nests = _stop ? _stopNests : _roadNests;
+            _leaveRequested = false;
+            if (_stop)
+            {
+                (float fx, float fy) = Train();
+                RaidOffset[] entrances = _data.StopEntrances;
+                for (int i = 0; i < _stopNests.Count; i++)
+                {
+                    _stopNests[i].X = fx + entrances[i].x; _stopNests[i].Y = fy + entrances[i].y;
+                    if (_data.StopEntranceRespawn) _stopNests[i].Hp = _stopNests[i].HpMax;
+                }
+            }
             BeginCore();
+        }
+
+        /// <summary>
+        /// 스토리 038(+03:30): 정차 디펜스 중 플레이어가 "출발"을 누르면 다음 Tick에서 승리로 끝내 열차를 떠나보낸다(언제든 가능).
+        /// 정차 디펜스가 아니면 false.
+        /// </summary>
+        public bool Leave()
+        {
+            if (!ActiveStop) return false;
+            _leaveRequested = true;
+            UnityEngine.Debug.Log($"RAID: stop leave requested t={_elapsed:F1} wave={StopWave}");
+            return true;
         }
 
         /// <summary>
@@ -149,6 +195,8 @@ namespace IronRing.Combat.Raid
         public void BeginEnroute(ITrackNode node)
         {
             _enroute = true;
+            _stop = false;
+            _nests = _roadNests;
             _enrouteDone = true;
             _enrouteNode = node;
             float length = EnrouteLength;
@@ -166,6 +214,7 @@ namespace IronRing.Combat.Raid
             _turrets = Math.Max(0, OverrideTurrets ?? loadout?.Turrets ?? 0);
             _heavyTurrets = OverrideTurrets.HasValue ? 0 : Math.Max(0, loadout?.HeavyTurrets ?? 0);
             _segment = _data.SegmentSeconds / (1f + Math.Max(0f, loadout?.SpeedBonus ?? 0f));
+            if (_stop) _segment = float.MaxValue; // 스토리 038: 정차 디펜스는 시간으로 끝나지 않는다.
             // 스토리 034: 제공자가 장비 수치(IRaidLoadoutStats)를 주면 그것을, 아니면 Raid.json 값을 쓴다.
             var stats = OverrideWalls.HasValue || OverrideTurrets.HasValue ? null : loadout as IRaidLoadoutStats;
             int hullBonus = stats != null ? stats.HullBonus : walls * _data.HullPerWall;
@@ -205,6 +254,7 @@ namespace IronRing.Combat.Raid
             FireTurrets(dt);
             Repair(dt);
             if (Hull <= 0) End(false);
+            else if (_stop) { if (_leaveRequested) End(true); }
             else if (_enroute) { if (EnrouteFinished()) End(true); }
             else if (_elapsed >= SegmentSeconds) End(true);
         }
@@ -231,6 +281,7 @@ namespace IronRing.Combat.Raid
 
         private (float x, float y) Tail()
         {
+            if (_stop && StopTail != null) return StopTail();
             if (TrainTailPosition != null) return TrainTailPosition();
             (float x, float y) = Train();
             return (x - _data.TrainFallbackLength, y);
@@ -257,7 +308,12 @@ namespace IronRing.Combat.Raid
             if (nest.Alive) return true;
             UnityEngine.Debug.Log($"RAID: nest {nestIndex} destroyed, left={NestsAlive}");
             NestDestroyed?.Invoke(nestIndex);
-            if (NestsAlive == 0)
+            if (NestsAlive == 0 && _stop)
+            {
+                // 스토리 038: 정차 입구를 모두 막으면 이번 정차의 스폰만 멈춘다(종점 해방·길가 습격과는 별개).
+                UnityEngine.Debug.Log("RAID: stop entrances all destroyed");
+            }
+            else if (NestsAlive == 0)
             {
                 TerminalLiberated = true;
                 UnityEngine.Debug.Log("RAID: terminal liberated");
@@ -282,6 +338,8 @@ namespace IronRing.Combat.Raid
 
         private (float x, float y) Train()
         {
+            if (_stop && StopFront != null) return StopFront();
+            if (StopMode && !IsActive && StopFront != null && !_enroute) return StopFront();
             if (TrainPosition != null) return TrainPosition();
             float half = _data.TrainFallbackLength * 0.5f;
             return (_originX - half + _data.TrainFallbackLength * Progress, _originY);
@@ -290,6 +348,11 @@ namespace IronRing.Combat.Raid
         private void Spawn(float dt)
         {
             RaidWave wave = _data.WaveFor(_track?.Lap ?? 0);
+            // 스토리 038: 정차 디펜스는 버틴 시간의 파도 번호로 간격·상한·자동인형 비율을 정한다.
+            int stopWave = _stop ? StopWave : 0;
+            float interval = _stop ? _data.StopSpawnInterval(stopWave) : wave.SpawnInterval;
+            int maxAlive = _stop ? _data.StopMaxAlive(stopWave) : wave.MaxAlive;
+            float automaton = _stop ? _data.StopAutomatonChance(stopWave) : wave.AutomatonChance;
             for (int i = 0; i < _nests.Count; i++)
             {
                 if (!_nests[i].Alive) continue;
@@ -297,9 +360,9 @@ namespace IronRing.Combat.Raid
                 _spawnTimers[i] -= dt;
                 if (_spawnTimers[i] > 0f) continue;
                 float jitter = 1f + (Next() * 2f - 1f) * _data.SpawnJitter;
-                _spawnTimers[i] += Math.Max(0.1f, wave.SpawnInterval * jitter);
-                if (_monsters.Count >= wave.MaxAlive) continue;
-                RaidMonsterData kind = _data.Monster(Next() < wave.AutomatonChance ? "automaton" : "spider");
+                _spawnTimers[i] += Math.Max(0.1f, interval * jitter);
+                if (_monsters.Count >= maxAlive) continue;
+                RaidMonsterData kind = _data.Monster(Next() < automaton ? "automaton" : "spider");
                 var monster = new RaidUnit
                 {
                     Id = _nextId++, Kind = kind.Id, Hp = kind.Hp, HpMax = kind.Hp,
@@ -358,6 +421,7 @@ namespace IronRing.Combat.Raid
                 RaidMonsterData kind = _kinds[monster.Id];
                 bool tail = _enroute && _data.TailContact && monster.X < (fx + bx) * 0.5f;
                 float tx = tail ? bx : fx, ty = tail ? by : fy;
+                if (_stop) Closest(monster.X, monster.Y, fx, fy, bx, by, out tx, out ty); // 스토리 038: 탑뷰에서는 열차 몸통 가장 가까운 곳으로
                 float dx = tx - monster.X, dy = ty - monster.Y;
                 float distance = (float)Math.Sqrt(dx * dx + dy * dy);
                 float step = kind.Speed * dt;
@@ -389,6 +453,7 @@ namespace IronRing.Combat.Raid
                 {
                     float d = (monster.X - tx) * (monster.X - tx) + (monster.Y - ty) * (monster.Y - ty);
                     if (_enroute) { (float bx, float by) = Tail(); d = Math.Min(d, (monster.X - bx) * (monster.X - bx) + (monster.Y - by) * (monster.Y - by)); }
+                    if (_stop) { (float bx, float by) = Tail(); Closest(monster.X, monster.Y, tx, ty, bx, by, out float cx, out float cy); d = (monster.X - cx) * (monster.X - cx) + (monster.Y - cy) * (monster.Y - cy); }
                     if (d <= best) { best = d; target = monster; }
                 }
                 if (target == null) { _turretTimers[i] = 0f; continue; } // 대상이 나타나면 바로 쏜다
@@ -429,8 +494,18 @@ namespace IronRing.Combat.Raid
             _monsters.Clear();
             UnityEngine.Debug.Log($"RAID: end victory={victory} hull={Hull}/{HullMax} nests={NestsAlive} liberated={TerminalLiberated} t={_elapsed:F1}");
             RaidEnded?.Invoke(victory);
+            if (_stop) { _stop = false; _nests = _roadNests; }
             if (_enroute) _resolver?.CompleteEnrouteRaid(victory, _enrouteNode);
             else _resolver?.CompleteRaid(victory);
+        }
+
+        /// <summary>스토리 038: 점 (x, y)에서 선분 (ax, ay)–(bx, by) 위 가장 가까운 점.</summary>
+        private static void Closest(float x, float y, float ax, float ay, float bx, float by, out float cx, out float cy)
+        {
+            float vx = bx - ax, vy = by - ay;
+            float len = vx * vx + vy * vy;
+            float t = len > 0f ? Math.Max(0f, Math.Min(1f, ((x - ax) * vx + (y - ay) * vy) / len)) : 0f;
+            cx = ax + vx * t; cy = ay + vy * t;
         }
 
         /// <summary>결정적 LCG(Bootstrap.SeededRandom과 같은 식). [0,1).</summary>

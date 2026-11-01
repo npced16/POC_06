@@ -26,6 +26,9 @@ namespace IronRing.Train.Equipment
             TrainEquipmentData data = TrainEquipmentData.Load();
             if (data == null) return;
             Loadout = new TrainLoadout(data);
+            // 스토리 038: 장비 비용은 IScrap에서 낸다(늦게 조회). 환급 비율은 Scrap.json.
+            Loadout.ScrapSource = () => GameServices.Get<IScrap>();
+            Loadout.RefundRatio = IronRing.Train.Scrap.ScrapData.Load().RefundRatio;
             GameServices.Register<ITrainLoadout>(Loadout);
             GameServices.Register<IRaidLoadout>(Loadout);
             Debug.Log($"EQUIP: installed cars={data.Cars} grid={data.Columns}x{data.Rows} kinds={data.Equipment.Count}");

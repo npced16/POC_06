@@ -58,6 +58,8 @@ namespace IronRing.Presentation.Raid
             while (!GameServices.IsReady) yield return null;
             // 스토리 037: 횡스크롤 여정 화면이 켜져 있으면(MainSettings _travelView "side") 지도 위 습격 표현은 쉰다.
             if (IronRing.Presentation.Travel.TravelViewMode.IsSide) yield break;
+            // 스토리 038: 탑뷰 정차 화면이 종점을 맡으면(MainSettings _stopView "top") 지도 위 습격 표현도 쉰다.
+            if (IronRing.Presentation.Travel.StopViewMode.IsTop) yield break;
             _raid = RaidInstaller.System;
             _anchors = GameServices.Get<IMapAnchors>();
             if (_raid == null || _anchors == null) yield break;

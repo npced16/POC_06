@@ -80,11 +80,12 @@ namespace IronRing.Presentation.Travel.Demo
 
         private static void Equip()
         {
-            ITrainLoadout loadout = GameServices.Get<ITrainLoadout>();
+            // 스토리 038: 데모 배치는 고철 없이(PlaceFree).
+            TrainLoadout loadout = TrainEquipmentInstaller.Loadout;
             if (loadout == null) return;
-            if (loadout.CountOf(TrainLoadout.TURRET) < 1) loadout.TryPlace(0, 0, 1, TrainLoadout.TURRET);
-            if (loadout.CountOf(TrainLoadout.TURRET) < 2) loadout.TryPlace(2, 2, 1, TrainLoadout.TURRET);
-            if (loadout.CountOf("armor_plate") < 1) loadout.TryPlace(1, 1, 0, "armor_plate");
+            if (loadout.CountOf(TrainLoadout.TURRET) < 1) loadout.PlaceFree(0, 0, 1, TrainLoadout.TURRET);
+            if (loadout.CountOf(TrainLoadout.TURRET) < 2) loadout.PlaceFree(2, 2, 1, TrainLoadout.TURRET);
+            if (loadout.CountOf("armor_plate") < 1) loadout.PlaceFree(1, 1, 0, "armor_plate");
         }
     }
 }

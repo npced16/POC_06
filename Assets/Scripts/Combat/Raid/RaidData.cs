@@ -63,6 +63,21 @@ namespace IronRing.Combat.Raid
         [SerializeField] private float _smokeScale = 0.5f;
         [SerializeField] private float _monsterScale = 1f;
         [SerializeField] private float _nestScale = 1f;
+        // 스토리 038(+03:30): 중간역 정차 디펜스. 입구는 열차 머리 기준, 파도는 버틴 시간으로 세진다(끝 시간 없음).
+        [SerializeField] private RaidOffset[] _stopEntrances;
+        [SerializeField] private int _stopEntranceHp = 16;
+        [SerializeField] private bool _stopEntranceRespawn = true;
+        [SerializeField] private float _stopWaveEverySeconds = 6f;
+        [SerializeField] private float _stopSpawnIntervalStart = 3.2f;
+        [SerializeField] private float _stopSpawnIntervalStep = 0.35f;
+        [SerializeField] private float _stopSpawnIntervalMin = 0.9f;
+        [SerializeField] private float _stopAutomatonStart = 0.1f;
+        [SerializeField] private float _stopAutomatonStep = 0.08f;
+        [SerializeField] private float _stopAutomatonMax = 0.6f;
+        [SerializeField] private int _stopMaxAliveStart = 4;
+        [SerializeField] private int _stopMaxAliveStep = 2;
+        [SerializeField] private int _stopMaxAliveCap = 16;
+        [SerializeField] private int _stopLapWaveBonus = 1;
         [Header("Demo (--raid-demo)")]
         [SerializeField] private int _demoTurretsMid = 2;
         [SerializeField] private int _demoWallsMid = 1;
@@ -188,6 +203,23 @@ namespace IronRing.Combat.Raid
         public float DemoMidSeconds => _demoMidSeconds;
         /// <summary>데모 start 캡처 시점(습격 경과 초).</summary>
         public float DemoStartSeconds => _demoStartSeconds;
+
+        /// <summary>스토리 038: 정차 입구(열차 머리 기준 X = 선로 방향, Y = 옆). 비면 정차 디펜스 없음.</summary>
+        public RaidOffset[] StopEntrances => _stopEntrances ?? System.Array.Empty<RaidOffset>();
+        /// <summary>정차 입구 체력.</summary>
+        public int StopEntranceHp => Mathf.Max(1, _stopEntranceHp);
+        /// <summary>정차마다 입구 체력을 되살릴지.</summary>
+        public bool StopEntranceRespawn => _stopEntranceRespawn;
+        /// <summary>정차 파도 간격(초): 버틴 시간 ÷ 이 값 = 파도 번호.</summary>
+        public float StopWaveEverySeconds => Mathf.Max(0.5f, _stopWaveEverySeconds);
+        /// <summary>파도 번호 w의 입구당 스폰 간격 = max(최소, 시작 − w × 감소).</summary>
+        public float StopSpawnInterval(int wave) => Mathf.Max(_stopSpawnIntervalMin, _stopSpawnIntervalStart - wave * _stopSpawnIntervalStep);
+        /// <summary>파도 번호 w의 자동인형 확률 = min(상한, 시작 + w × 증가).</summary>
+        public float StopAutomatonChance(int wave) => Mathf.Min(_stopAutomatonMax, _stopAutomatonStart + wave * _stopAutomatonStep);
+        /// <summary>파도 번호 w의 동시 몬스터 상한 = min(상한, 시작 + w × 증가).</summary>
+        public int StopMaxAlive(int wave) => Mathf.Min(_stopMaxAliveCap, _stopMaxAliveStart + wave * _stopMaxAliveStep);
+        /// <summary>바퀴 하나마다 파도 번호에 더하는 값(바퀴가 돌수록 정차가 처음부터 세다).</summary>
+        public int StopLapWaveBonus => Mathf.Max(0, _stopLapWaveBonus);
 
         /// <summary>JSON을 읽고 범위를 검사한다. 잘못된 값이면 ArgumentException.</summary>
         public static RaidData Parse(string json)

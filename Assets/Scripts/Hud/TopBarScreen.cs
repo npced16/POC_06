@@ -81,13 +81,50 @@ namespace IronRing.Hud
             Refresh();
         }
 
+        private IScrap _scrap;
+        private string _departText;
+        private float _stopRefreshTimer;
+
+        /// <summary>스토리 038: 정차 디펜스 중에는 "출발 (고철 N)"이 버틴 시간 보너스에 따라 바뀌므로 0.25초마다 다시 그린다.</summary>
+        private void Update()
+        {
+            var raid = IronRing.Combat.Raid.RaidInstaller.System;
+            if (_track == null || raid == null || !raid.ActiveStop) return;
+            _stopRefreshTimer -= Time.unscaledDeltaTime;
+            if (_stopRefreshTimer > 0f) return;
+            _stopRefreshTimer = 0.25f;
+            Refresh();
+        }
+
+        /// <summary>스토리 038: 고철 서비스를 늦게라도 얻고 바뀌면 다시 그린다.</summary>
+        private void ResolveScrap()
+        {
+            if (_scrap != null) return;
+            _scrap = GameServices.Get<IScrap>();
+            if (_scrap != null) _scrap.Changed += Refresh;
+        }
+
         /// <summary>위치·바퀴 수와 출발·다음 라운드 버튼의 표시·사용 가능 여부를 서비스 스냅샷으로 갱신한다.</summary>
         private void Refresh()
         {
             if (_track == null) return;
+            ResolveScrap();
             _location.text = Strings.Get("hud_location") + "  " + Strings.Get(_catalog.NodeKey(_track.CurrentNode?.Id));
             _lap.text = Strings.Get("hud_turn") + "  " + _track.Lap;
-            SetInteractable(_depart, !_hubs.IsRunLost && _track.IsHeld && _track.CurrentNode?.Kind == TrackNodeKind.Hub && !_waypoints.IsEncounterActive);
+            // 스토리 038: 상단 상태줄에 "고철 N".
+            if (_scrap != null) _lap.text += "  ·  " + string.Format(Strings.Get("hud_scrap"), _scrap.Amount);
+            // 스토리 038(+03:30): 정차 디펜스 중에는 출발 버튼이 "출발 (고철 N)"(창고 + 버틴 시간 보너스)으로 언제든 켜진다.
+            var raid = IronRing.Combat.Raid.RaidInstaller.System;
+            bool stop = raid != null && raid.ActiveStop;
+            TMP_Text departLabel = _depart.GetComponentInChildren<TMP_Text>(true);
+            if (departLabel != null)
+            {
+                if (_departText == null) _departText = departLabel.text;
+                var farming = IronRing.Train.Scrap.ScrapInstaller.Farming;
+                int take = (_scrap?.Amount ?? 0) + (farming != null && stop ? farming.HoldBonus(raid.Elapsed) : 0);
+                departLabel.text = stop ? string.Format(Strings.Get("stop_depart_button"), take) : _departText;
+            }
+            SetInteractable(_depart, stop || (!_hubs.IsRunLost && _track.IsHeld && _track.CurrentNode?.Kind == TrackNodeKind.Hub && !_waypoints.IsEncounterActive));
             bool combat = _waypoints.IsEncounterActive && _encounter != null && _encounter.IsCombat;
             if (_nextRound.gameObject.activeSelf != combat) _nextRound.gameObject.SetActive(combat);
             SetInteractable(_nextRound, !_hubs.IsRunLost && _rounds != null && _rounds.CanAdvance);
@@ -125,6 +162,9 @@ namespace IronRing.Hud
 
         private void Depart()
         {
+            // 스토리 038(+03:30): 정차 디펜스 중이면 언제든 떠난다(인부 운반분은 데이터대로 버림, 버틴 시간 보너스).
+            var raid = IronRing.Combat.Raid.RaidInstaller.System;
+            if (raid != null && raid.ActiveStop) { raid.Leave(); Refresh(); return; }
             if (_hubs.IsRunLost || !_track.IsHeld || _waypoints.IsEncounterActive || _track.CurrentNode?.Kind != TrackNodeKind.Hub) return;
             _track.Depart(); Refresh();
         }
@@ -147,6 +187,7 @@ namespace IronRing.Hud
         {
             GameServices.Ready -= Create;
             if (_instance == this) _instance = null;
+            if (_scrap != null) _scrap.Changed -= Refresh;
             if (_riders != null) { _riders.Boarded -= OnBoarded; _riders.Disembarked -= OnDisembarked; _riders.Left -= OnLeft; }
             if (_track == null) return;
             _track.Arrived -= OnArrived; _track.LapCompleted -= OnLap;

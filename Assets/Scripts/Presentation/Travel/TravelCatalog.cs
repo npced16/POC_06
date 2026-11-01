@@ -150,5 +150,35 @@ namespace IronRing.Presentation.Travel
         public Color Shell = new Color32(255, 230, 140, 255);
         public Color Flash = new Color32(255, 255, 255, 255);
         public Color Debris = new Color32(90, 30, 30, 255);
+
+        [Header("Stop top view (story 038)")]
+        /// <summary>정차 탑뷰 카메라 직교 크기.</summary>
+        public float StopCameraSize = 6f;
+        /// <summary>탑뷰 열차 칸 폭(옆 방향 두께).</summary>
+        public float StopCarDepth = 1.1f;
+        /// <summary>정차 입구(굴) 지름.</summary>
+        public float StopEntranceSize = 1.4f;
+        /// <summary>고철 조각 한 개 크기.</summary>
+        public float ScrapPieceSize = 0.32f;
+        /// <summary>인부 지름.</summary>
+        public float WorkerSize = 0.34f;
+        /// <summary>정차 바닥.</summary>
+        public Color StopGround = new Color32(58, 50, 46, 255);
+        /// <summary>선로 자갈.</summary>
+        public Color StopGravel = new Color32(82, 74, 68, 255);
+        /// <summary>재(흩어진 얼룩).</summary>
+        public Color StopAsh = new Color32(70, 64, 62, 255);
+        /// <summary>역 건물.</summary>
+        public Color StopStation = new Color32(96, 72, 58, 255);
+        /// <summary>고철.</summary>
+        public Color Scrap = new Color32(150, 112, 82, 255);
+        /// <summary>녹슨 고철.</summary>
+        public Color ScrapRust = new Color32(170, 88, 52, 255);
+        /// <summary>인부.</summary>
+        public Color Worker = new Color32(240, 205, 130, 255);
+        /// <summary>도망치는 인부.</summary>
+        public Color WorkerFlee = new Color32(255, 120, 90, 255);
+        /// <summary>정차 입구 구멍.</summary>
+        public Color Entrance = new Color32(28, 20, 22, 255);
     }
 }

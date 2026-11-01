@@ -45,6 +45,14 @@ namespace IronRing.Hud.Hotbar
             if (_name != null) _name.text = label ?? string.Empty;
         }
 
+        /// <summary>스토리 038: 살 수 없으면 아이콘·이름을 붉고 흐리게.</summary>
+        public void SetAffordable(bool affordable)
+        {
+            Color tint = affordable ? Color.white : new Color(1f, 0.45f, 0.4f, 0.55f);
+            if (_icon != null) _icon.color = tint;
+            if (_name != null) _name.color = affordable ? Color.white : new Color(1f, 0.5f, 0.45f, 1f);
+        }
+
         /// <summary>키 번호 문구(편집기 미리보기·생성기용).</summary>
         public void SetKey(string key) { if (_key != null) _key.text = key; }
 

@@ -525,6 +525,19 @@
     { "_key": "equip_mode_on", "_value": "열차 장비 칸 {0}/{1}" },
     { "_key": "result_equipment", "_value": "열차 장비 {0}칸" },
     { "_key": "travel_passing", "_value": "{0}{1} 지나는 중" },
-    { "_key": "travel_raid_start", "_value": "습격! 달리면서 막아라" }
+    { "_key": "travel_raid_start", "_value": "습격! 달리면서 막아라" },
+    { "_key": "hud_scrap", "_value": "고철 {0}" },
+    { "_key": "result_scrap", "_value": "고철 {0}" },
+    { "_key": "equip_cost", "_value": "고철 {0}" },
+    { "_key": "equip_no_scrap", "_value": "고철이 모자란다 (필요 {0}, 보유 {1})" },
+    { "_key": "stop_station_label", "_value": "중간역 — 잿더미 전초" },
+    { "_key": "stop_toast_arrive", "_value": "중간역 정차 — 고철 더미를 눌러 인부를 보내라. 언제든 출발할 수 있다" },
+    { "_key": "stop_toast_depart", "_value": "출발! {0}초 버팀 · 보너스 고철 +{1}" },
+    { "_key": "stop_toast_lost", "_value": "열차가 버티지 못했다 — {0}초" },
+    { "_key": "stop_no_worker", "_value": "쉬는 인부가 없거나 더미가 비었다" },
+    { "_key": "stop_worker_flee", "_value": "인부가 적을 피해 열차로 달아난다" },
+    { "_key": "stop_pile_label", "_value": "고철 {0}" },
+    { "_key": "stop_depart_button", "_value": "출발 (고철 {0})" },
+    { "_key": "stop_status_line", "_value": "버틴 시간 {0}초 · 파도 {1} · 고철 {2}(+인부 운반 중 {3}) · 인부 {4}/{5}" }
 ]
 }

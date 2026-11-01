@@ -392,14 +392,16 @@ namespace IronRing.Presentation.Travel
             else if (!track.CurrentNode.IsStation) { Position = 1f; FacingRight = true; }
             else { Position = 0f; FacingRight = true; }
 
-            bool active = !interior && (track.IsMoving || !atStation);
+            // 스토리 038: 탑뷰 정차 화면이 카메라를 쥐고 있으면 물러난다(출발하면 다시 잡는다).
+            bool stop = StopViewMode.Active;
+            bool active = !interior && !stop && (track.IsMoving || !atStation);
             Camera camera = _anchors.MapCamera;
             if (active && camera != null)
             {
                 camera.transform.position = new Vector3(transform.position.x, transform.position.y + _catalog.CameraOffsetY, camera.transform.position.z);
                 camera.orthographicSize = _catalog.CameraSize;
             }
-            else if (_active && !interior && camera != null) RestoreMapCamera(camera);
+            else if (_active && !interior && !stop && camera != null) RestoreMapCamera(camera);
             if (_interiorWasOpen && !interior && !active && camera != null) RestoreMapCamera(camera);
             if (active != _active) Debug.Log($"TRAVEL: view {(active ? "on" : "off")} position={Position:F2} facingRight={FacingRight}");
             _active = active;

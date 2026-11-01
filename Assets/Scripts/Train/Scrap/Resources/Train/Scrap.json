@@ -1,0 +1,26 @@
+{
+  "_startScrap": 6,
+  "_refundRatio": 1.0,
+  "_holdBonusPerSecond": 0.25,
+  "_fleeKeepCarried": false,
+  "_demoHoldSeconds": 12,
+  "_scrapPerSecond": 1.0,
+  "_carryMax": 3,
+  "_workers": 2,
+  "_workerSpeed": 1.8,
+  "_fleeSpeedFactor": 1.4,
+  "_fleeDistance": 1.6,
+  "_keepCarryOnFlee": true,
+  "_arriveDistance": 0.12,
+  "_respawnPiles": true,
+  "_homeX": -3.3,
+  "_homeY": -1.0,
+  "_workerSpacing": 0.4,
+  "_piles": [
+    { "x": -1.6, "y": 2.8, "amount": 4 },
+    { "x": 3.6, "y": 2.3, "amount": 4 },
+    { "x": 4.6, "y": -2.9, "amount": 5 },
+    { "x": -7.4, "y": 3.0, "amount": 5 },
+    { "x": -8.2, "y": -3.2, "amount": 3 }
+  ]
+}

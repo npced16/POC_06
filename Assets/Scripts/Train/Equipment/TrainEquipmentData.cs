@@ -81,6 +81,7 @@ namespace IronRing.Train.Equipment
         [SerializeField] private int _hull;
         [SerializeField] private float _speedBonus;
         [SerializeField] private float _repairPerSecond;
+        [SerializeField] private int _cost;
 
         /// <summary>장비 id(이름 문자열 키는 "equip_" + id).</summary>
         public string Id => _id;
@@ -96,6 +97,8 @@ namespace IronRing.Train.Equipment
         public float SpeedBonus => _speedBonus;
         /// <summary>습격 중 초당 내구도 회복.</summary>
         public float RepairPerSecond => _repairPerSecond;
+        /// <summary>스토리 038. 놓을 때 쓰는 고철(0 = 무료).</summary>
+        public int Cost => System.Math.Max(0, _cost);
     }
 
     /// <summary>스토리 034 데모 단계 하나의 장비 배치.</summary>
