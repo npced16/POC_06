@@ -62,5 +62,12 @@
       "_row": 0,
       "_column": 5
     }
-  ]
+  ],
+  "_arrivalSpeed": 0.25,
+  "_arrivalNpcId": "lamplighter",
+  "_hub2Id": "hub-2",
+  "_hub2NpcId": "gas_fitter",
+  "_hub2TypeId": "lamp_street",
+  "_hub2PlacementCount": 4,
+  "_boardMaxFrames": 1800
 }

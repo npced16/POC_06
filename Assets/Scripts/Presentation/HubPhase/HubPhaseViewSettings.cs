@@ -35,6 +35,12 @@ namespace IronRing.Presentation.HubPhase
         [SerializeField] private string _effectsSettings = "Story010Effects";
         [SerializeField] private bool _buildMenuOnCellClick = false;
         [SerializeField] private Color _npcHighlightColor = new Color(1f, 0.86f, 0.55f, 1f);
+        [Tooltip("Story 023: walk speed from the train car to the home cell (world units/s).")]
+        [SerializeField] private float _arrivalSpeed = 0.9f;
+        [Tooltip("Story 023: pause at home after the arrival walk (s).")]
+        [SerializeField] private float _arrivalPause = 0.8f;
+        [Tooltip("Story 023: delay between NPCs leaving the train in the same docking (s).")]
+        [SerializeField] private float _arrivalStagger = 1f;
 
         public float NpcSpeed => _npcSpeed;
         public float NpcPauseMin => _npcPauseMin;
@@ -53,6 +59,12 @@ namespace IronRing.Presentation.HubPhase
         public bool BuildMenuOnCellClick => _buildMenuOnCellClick;
         /// <summary>Story 017: tint of the NPC whose dialog panel is open (data).</summary>
         public Color NpcHighlightColor => _npcHighlightColor;
+        /// <summary>Story 023: arrival walk speed.</summary>
+        public float ArrivalSpeed => Mathf.Max(0.01f, _arrivalSpeed);
+        /// <summary>Story 023: pause after arriving.</summary>
+        public float ArrivalPause => Mathf.Max(0f, _arrivalPause);
+        /// <summary>Story 023: delay between successive arrivals.</summary>
+        public float ArrivalStagger => Mathf.Max(0f, _arrivalStagger);
 
         /// <summary>Loads the JSON tuning; logs and falls back to the serialized defaults when missing.</summary>
         public static HubPhaseViewSettings Load()

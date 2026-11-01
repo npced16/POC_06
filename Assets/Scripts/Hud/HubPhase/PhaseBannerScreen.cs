@@ -1,0 +1,153 @@
+using UnityEngine;
+
+using TMPro;
+
+using IronRing.Contracts;
+using IronRing.Contracts.Presentation;
+using IronRing.Hud.Ui;
+using IronRing.Localization;
+using IronRing.Presentation.HubPhase;
+
+using DevPhase = IronRing.Contracts.HubPhase;
+
+namespace IronRing.Hud.HubPhase
+{
+    /// <summary>
+    /// 스토리 022(PhaseHud의 UGUI 포팅). 항상 켜진 화면 "PhaseBanner": 위 가운데 "거점 · 단계 · 번영 N · 서식지 N" 띠, 정착 기한 상자,
+    /// IRunLossInfo가 없을 때만 보이는 패배 사유 줄. 지도 위 단계 라벨은 HubBuilding 프리팹의 월드 TMP(MapLabel)로 옮겼다.
+    /// 칸 클릭 건설 메뉴(hub_phase_view.json의 _buildMenuOnCellClick, 현재 false)는 포팅하지 않았다.
+    /// </summary>
+    [RequireComponent(typeof(UiScreen))]
+    public sealed class PhaseBannerScreen : MonoBehaviour
+    {
+        private static PhaseBannerScreen _instance;
+
+        [SerializeField] private TMP_Text _hubLabel;
+        [Tooltip("정착 기한 상자(라벨의 부모). 기한이 없으면 끈다.")]
+        [SerializeField] private GameObject _deadlineBox;
+        [SerializeField] private TMP_Text _deadline;
+        [SerializeField] private TMP_Text _loss;
+        [Tooltip("단계별 띠 글자색: 폐허, 복구 중, 정착, 붕괴.")]
+        [SerializeField] private Color[] _phaseColors =
+        {
+            new Color32(196, 140, 108, 255), new Color32(255, 207, 106, 255), new Color32(150, 205, 140, 255), new Color32(214, 96, 80, 255),
+        };
+
+        private IHubStateSystem _hubs;
+        private IHubDevelopment _development;
+        private ITrackRuntime _track;
+        private IHabitatClusters _clusters;
+        private IViewMode _view;
+        private string _lastHub;
+        private string _bannerKey;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStatics() { GameServices.Ready -= Create; _instance = null; }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+        private static void Boot() { GameServices.Ready -= Create; GameServices.Ready += Create; }
+
+        /// <summary>거점 상태·발전·선로 서비스와 MainCanvas의 화면이 있으면 한 번 바인딩한다. 없으면 예시 문구를 지우고 조용히 남는다.</summary>
+        private static void Create()
+        {
+            if (_instance != null) return;
+            UiScreens screens = UiScreens.Instance;
+            PhaseBannerScreen placed = screens != null ? screens.Find<PhaseBannerScreen>() : null;
+            if (placed == null || !placed.enabled || placed._hubLabel == null) return;
+            if (GameServices.Get<IHubStateSystem>() == null || GameServices.Get<IHubDevelopment>() == null || GameServices.Get<ITrackRuntime>() == null)
+            {
+                placed.ClearSample();
+                return;
+            }
+            _instance = placed;
+            placed.Initialize();
+        }
+
+        void Awake() { ClearSample(); }
+
+        /// <summary>프리팹의 편집 모드 예시 문구를 숨긴다(서비스가 채우기 전).</summary>
+        private void ClearSample()
+        {
+            if (_instance == this) return;
+            if (_hubLabel != null) _hubLabel.transform.parent.gameObject.SetActive(false);
+            if (_deadlineBox != null) _deadlineBox.SetActive(false);
+            if (_loss != null) _loss.gameObject.SetActive(false);
+        }
+
+        private void Initialize()
+        {
+            HubPhaseViewSettings settings = HubPhaseViewSettings.Load();
+            if (settings.BuildMenuOnCellClick)
+                UnityEngine.Debug.LogWarning("PhaseBannerScreen: _buildMenuOnCellClick=true지만 칸 클릭 건설 메뉴는 UGUI로 옮기지 않았습니다(시설은 핫바로 놓는다).");
+            _hubs = GameServices.Get<IHubStateSystem>();
+            _development = GameServices.Get<IHubDevelopment>();
+            _track = GameServices.Get<ITrackRuntime>();
+            _clusters = GameServices.Get<IHabitatClusters>();
+            _view = GameServices.Get<IViewMode>();
+            _lastHub = _hubs.HubIds.Count > 0 ? _hubs.HubIds[0] : null;
+            Refresh(true);
+        }
+
+        private static string PhaseText(DevPhase phase)
+        {
+            switch (phase)
+            {
+                case DevPhase.Recovering: return Strings.Get("phase_recovering");
+                case DevPhase.Settled: return Strings.Get("phase_settled");
+                case DevPhase.Collapsed: return Strings.Get("phase_collapsed");
+                default: return Strings.Get("phase_ruined");
+            }
+        }
+
+        /// <summary>띠가 보여 줄 거점: 열린 내부, 아니면 정차한 거점, 아니면 마지막으로 보인 거점.</summary>
+        private string CurrentHub()
+        {
+            if (_view != null && _view.InteriorOpen && _view.InteriorHubId != null) return _lastHub = _view.InteriorHubId;
+            ITrackNode node = _track.CurrentNode;
+            if (node != null && node.Kind == TrackNodeKind.Hub) return _lastHub = node.HubId;
+            return _lastHub;
+        }
+
+        /// <summary>띠·기한·패배 사유를 갱신한다. 값이 그대로면(force가 아니면) 문자열 작업을 건너뛴다.</summary>
+        private void Refresh(bool force)
+        {
+            string hub = CurrentHub();
+            if (hub == null) return;
+            DevPhase phase = _development.GetPhase(hub);
+            int prosperity = Mathf.RoundToInt(_hubs.GetProsperity(hub));
+            bool anySettled = false;
+            foreach (string id in _hubs.HubIds) anySettled |= _development.HasEverSettled(id);
+            int laps = _development.LapsUntilDeadline;
+            int habitats = _clusters != null ? _clusters.CompletedAt(hub).Count : 0;
+            string key = hub + "|" + phase + "|" + prosperity + "|" + laps + "|" + anySettled + "|" + _hubs.IsRunLost + "|" + habitats;
+            if (!force && key == _bannerKey) return;
+            _bannerKey = key;
+            _hubLabel.transform.parent.gameObject.SetActive(true);
+            _hubLabel.text = Strings.Get(hub.Replace('-', '_')) + "  ·  " + PhaseText(phase) + "  ·  " + Strings.Get("phase_prosperity") + " " + prosperity
+                + "  ·  " + Strings.Get("phase_habitats") + " " + habitats;
+            int index = (int)phase;
+            if (index >= 0 && index < _phaseColors.Length) _hubLabel.color = _phaseColors[index];
+            bool showDeadline = !anySettled && laps != int.MaxValue && !_hubs.IsRunLost;
+            if (_deadlineBox != null) _deadlineBox.SetActive(showDeadline);
+            if (showDeadline && _deadline != null) _deadline.text = Strings.Get("phase_deadline") + ": " + laps + Strings.Get("phase_laps_left");
+            // 사유별 패배 제목은 Defeat 화면이 IRunLossInfo로 보인다. 이 줄은 그 서비스가 없을 때의 대비책이라 둘이 겹치지 않는다.
+            bool showLoss = _hubs.IsRunLost && GameServices.Get<IRunLossInfo>() == null;
+            if (_loss != null)
+            {
+                _loss.gameObject.SetActive(showLoss);
+                if (showLoss) _loss.text = Strings.Get("phase_loss_collapse");
+            }
+        }
+
+        void LateUpdate()
+        {
+            if (_instance == this && _development != null) Refresh(false);
+        }
+
+        void OnDestroy()
+        {
+            GameServices.Ready -= Create;
+            if (_instance == this) _instance = null;
+        }
+    }
+}

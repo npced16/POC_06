@@ -44,6 +44,9 @@ namespace IronRing.Npc
         /// <summary>표시 이름(직업명). 모르는 id면 id 그대로.</summary>
         public string DisplayName(string npcId) => _pool.Find(npcId)?.Name ?? npcId ?? "";
 
+        /// <summary>스토리 023: 출신지 이름(NpcPool.json `_originName`). 모르면 null.</summary>
+        public string Origin(string npcId) => _pool.Find(npcId)?.Passenger?.OriginName;
+
         /// <summary>현재 대사. NextLine을 부르기 전에는 첫 줄(_quote).</summary>
         public string CurrentLine(string npcId)
         {

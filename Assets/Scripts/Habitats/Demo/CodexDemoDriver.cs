@@ -14,7 +14,7 @@ namespace IronRing.Habitats.Demo
     /// extraArgs에서 읽는다. start = 런 시작 상태(시작 레시피 3개) 그대로, lap = 데이터의 바퀴 수만큼 HabitatCodex.OnLapCompleted를 불러
     /// 바퀴 완료 신호를 흉내 낸다(PhaseDemoDriver가 RunState.OnLapCompleted를 직접 부르는 것과 같은 방식, 열차는 정박 그대로),
     /// discover = 데모 거점 내부를 열고 아직 모르는 레시피(데이터, 기본 전신선)의 타일을 IItemPlacement로 놓아 완성·발견시킨다.
-    /// 끝나면 StageReady를 내고, CodexHud가 그때 도감을 연다.
+    /// 끝나면 StageReady를 내고, CodexScreen이 그때 도감을 연다.
     /// </summary>
     public sealed class CodexDemoDriver : MonoBehaviour
     {

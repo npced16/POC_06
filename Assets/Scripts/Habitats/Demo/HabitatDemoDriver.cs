@@ -88,6 +88,9 @@ namespace IronRing.Habitats.Demo
             string done = string.Join(", ", clusters.CompletedAt(hubId).Select(c => c.TypeId + "[" + string.Join(",", c.Cells) + "]"));
             UnityEngine.Debug.Log($"HABITAT DEMO {hubId}: 완성 서식지 {done} complete={habitat?.IsHabitatComplete(hubId)} flag={habitat?.IsEventFlagSet(hubId)}");
 
+            // 스토리 023: 합류는 승객 하차로만 일어나므로, 이 거점에서 내릴 수 있는 승객을 먼저 태운다.
+            string rider = IronRing.Npc.NpcInstaller.Passengers?.BoardForHub(hubId);
+            UnityEngine.Debug.Log($"HABITAT DEMO {hubId}: 승객 탑승 {rider ?? "(없음)"}");
             int before = npcs.NpcsAt(hubId).Count;
             for (int visit = 1; visit <= Math.Max(1, _settings._visitAttempts); visit++)
             {

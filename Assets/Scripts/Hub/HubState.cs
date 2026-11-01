@@ -7,7 +7,7 @@ namespace IronRing.Hub
 {
     /// <summary>
     /// One permanent track hub's prosperity and development phase (Story 014, design/game-brief.md MVP feature 6).
-    /// Transition table (alive = prosperity above RuinThreshold; settles = prosperity at/above SettledThreshold or habitat complete):
+    /// Transition table (alive = prosperity above RuinThreshold; settles = prosperity at/above SettledThreshold, or habitat complete when SettleByHabitat):
     ///   Ruined     --alive-->              Recovering
     ///   Recovering --not alive-->          Ruined
     ///   Recovering --alive and settles-->  Settled
@@ -53,7 +53,7 @@ namespace IronRing.Hub
         internal void Evaluate(bool habitatComplete, List<HubPhase> transitions)
         {
             bool alive = Prosperity > Definition.RuinThreshold;
-            bool settles = Prosperity >= Definition.SettledThreshold || habitatComplete;
+            bool settles = Prosperity >= Definition.SettledThreshold || (Definition.SettleByHabitat && habitatComplete);
             while (true)
             {
                 HubPhase next = Next(Phase, alive, settles);

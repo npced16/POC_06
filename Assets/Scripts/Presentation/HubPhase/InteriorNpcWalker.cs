@@ -40,6 +40,10 @@ namespace IronRing.Presentation.HubPhase
         private readonly List<Walker> _walkers = new List<Walker>();
         private readonly List<RaycastResult> _uiHits = new List<RaycastResult>();
         private string _highlighted;
+        private readonly List<string> _arriving = new List<string>();
+
+        /// <summary>Story 023 demo override of the arrival walk speed (0 = data value). Cleared on play start.</summary>
+        public static float DemoArrivalSpeed;
 
         private sealed class Walker
         {
@@ -48,6 +52,8 @@ namespace IronRing.Presentation.HubPhase
             public Color BaseColor;
             public Transform Target;
             public float Pause;
+            /// <summary>Story 023: walking from the train car to its home.</summary>
+            public bool Arriving;
             /// <summary>Home-based targets; empty means "use the shared all-Empty-cells list".</summary>
             public readonly List<Transform> Targets = new List<Transform>();
         }
@@ -57,7 +63,7 @@ namespace IronRing.Presentation.HubPhase
 
         /// <summary>Clears statics for a new play session (domain reload disabled).</summary>
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void ResetStatics() { GameServices.Ready -= Create; _instance = null; _loggedMissing = false; _loggedNoHomes = false; }
+        private static void ResetStatics() { GameServices.Ready -= Create; _instance = null; _loggedMissing = false; _loggedNoHomes = false; DemoArrivalSpeed = 0f; }
 
         /// <summary>Waits for GameServices.Ready after the scene loads.</summary>
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -99,6 +105,7 @@ namespace IronRing.Presentation.HubPhase
             _map = GameServices.Get<IMapAnchors>();
             _view.InteriorChanged += OnInteriorChanged;
             _npcs.NpcJoined += OnNpcJoined;
+            _npcs.NpcArrived += OnNpcArrived;
             if (_interior != null) _interior.CellChanged += OnCellChanged;
             ResolveHomes();
             Rebuild();
@@ -116,6 +123,59 @@ namespace IronRing.Presentation.HubPhase
 
         private void OnInteriorChanged(bool open) => Rebuild();
         private void OnNpcJoined(string hubId, string npcId) { if (hubId == _view.InteriorHubId) Rebuild(); }
+        /// <summary>Story 023: a passenger disembarked at the open hub — it appears at the train car and walks home.</summary>
+        private void OnNpcArrived(string npcId, string hubId)
+        {
+            if (hubId == null || hubId != _hub || npcId == null) return;
+            if (!_arriving.Contains(npcId)) _arriving.Add(npcId);
+            ApplyArrivals();
+        }
+
+        /// <summary>Puts every still-arriving walker at the train anchor, aims it at its nearest home cell and staggers the starts.</summary>
+        private void ApplyArrivals()
+        {
+            if (_hub == null || _arriving.Count == 0) return;
+            Transform train = _anchors.TrainAnchor(_hub);
+            if (train == null) { _arriving.Clear(); return; }
+            if (_targetsDirty) RefreshTargets();
+            int order = 0;
+            foreach (string id in _arriving)
+            {
+                Walker walker = _walkers.Find(w => w.NpcId == id);
+                if (walker == null || walker.Renderer == null) continue;
+                Transform body = walker.Renderer.transform;
+                body.position = new Vector3(train.position.x, train.position.y, body.position.z);
+                walker.Arriving = true;
+                walker.Target = NearestHome(walker, body.position);
+                walker.Pause = order++ * _settings.ArrivalStagger;
+                UnityEngine.Debug.Log($"NPC ARRIVAL: {id} 열차 칸 → {(walker.Target != null ? walker.Target.name : "?")} (속도 {ArrivalSpeed})");
+            }
+        }
+
+        private float ArrivalSpeed => DemoArrivalSpeed > 0f ? DemoArrivalSpeed : _settings.ArrivalSpeed;
+
+        /// <summary>Nearest home-cell anchor (falls back to the walker's wander list).</summary>
+        private Transform NearestHome(Walker walker, Vector3 from)
+        {
+            var candidates = new List<Transform>();
+            NpcHome home = _homes?.HomeOf(walker.NpcId);
+            if (home != null && home.HubId == _hub && home.Cells != null)
+                foreach (int index in home.Cells)
+                {
+                    Transform anchor = _anchors.CellAnchor(_hub, index);
+                    if (anchor != null) candidates.Add(anchor);
+                }
+            if (candidates.Count == 0) candidates.AddRange(walker.Targets.Count > 0 ? walker.Targets : _targets);
+            Transform best = null;
+            float bestDistance = float.MaxValue;
+            foreach (Transform t in candidates)
+            {
+                float d = (t.position - from).sqrMagnitude;
+                if (d < bestDistance) { bestDistance = d; best = t; }
+            }
+            return best;
+        }
+
         private void OnCellChanged(string hubId, int cellIndex) { if (hubId == _hub) _targetsDirty = true; }
         private void OnHomeChanged(string npcId) { if (_hub != null) _targetsDirty = true; }
 
@@ -124,7 +184,9 @@ namespace IronRing.Presentation.HubPhase
         {
             foreach (Walker walker in _walkers) if (walker.Renderer != null) Destroy(walker.Renderer.gameObject);
             _walkers.Clear();
+            string previous = _hub;
             _hub = _view.InteriorOpen ? _view.InteriorHubId : null;
+            if (_hub != previous) _arriving.Clear();
             _targetsDirty = true;
             if (_hub == null) return;
             ResolveHomes();
@@ -147,6 +209,7 @@ namespace IronRing.Presentation.HubPhase
                 walker.Target = RandomTarget(walker);
                 walker.Pause = NextPause();
             }
+            ApplyArrivals();
             ApplyHighlight();
         }
 
@@ -245,8 +308,16 @@ namespace IronRing.Presentation.HubPhase
                 Transform body = walker.Renderer.transform;
                 Vector3 goal = walker.Target.position; goal.z = body.position.z;
                 if (Mathf.Abs(goal.x - body.position.x) > 0.001f) walker.Renderer.flipX = goal.x < body.position.x;
-                body.position = Vector3.MoveTowards(body.position, goal, step);
+                body.position = Vector3.MoveTowards(body.position, goal, walker.Arriving ? ArrivalSpeed * Time.deltaTime : step);
                 if ((body.position - goal).sqrMagnitude > 0.0001f) continue;
+                if (walker.Arriving)
+                {
+                    walker.Arriving = false;
+                    _arriving.Remove(walker.NpcId);
+                    walker.Pause = _settings.ArrivalPause;
+                    walker.Target = RandomTarget(walker);
+                    continue;
+                }
                 walker.Pause = NextPause();
                 walker.Target = RandomTarget(walker);
             }
@@ -290,6 +361,7 @@ namespace IronRing.Presentation.HubPhase
             GameServices.Ready -= Create;
             if (_view != null) _view.InteriorChanged -= OnInteriorChanged;
             if (_npcs != null) _npcs.NpcJoined -= OnNpcJoined;
+            if (_npcs != null) _npcs.NpcArrived -= OnNpcArrived;
             if (_interior != null) _interior.CellChanged -= OnCellChanged;
             if (_homes != null) _homes.HomeChanged -= OnHomeChanged;
             if (_instance == this) _instance = null;

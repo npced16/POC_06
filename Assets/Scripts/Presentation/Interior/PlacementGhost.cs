@@ -35,7 +35,6 @@ namespace IronRing.Presentation.Interior
         private IInteriorFacilityCells _facilityCells;
         private InteriorCatalog _catalog;
         private ItemSpriteSet _sprites;
-        private readonly List<RaycastResult> _uiHits = new List<RaycastResult>();
 
         private PlacementEntry _selected;
         private PlacementEntry _dragEntry;
@@ -299,14 +298,12 @@ namespace IronRing.Presentation.Interior
             return found;
         }
 
-        /// <summary>pointer가 HUD 위인지: EventSystem 레이캐스트(UI Toolkit 패널 포함)와 HUD가 등록한 패널 판정.</summary>
+        /// <summary>pointer가 HUD 위인지: HUD가 등록한 옛 패널 판정 또는 EventSystem.IsPointerOverGameObject(UGUI·UI Toolkit).</summary>
         private bool IsPointerOverUi(Vector2 pointer)
         {
             foreach (Func<Vector2, bool> test in UiHitTests) if (test != null && test(pointer)) return true;
-            if (EventSystem.current == null) return false;
-            _uiHits.Clear();
-            EventSystem.current.RaycastAll(new PointerEventData(EventSystem.current) { position = pointer }, _uiHits);
-            return _uiHits.Count > 0;
+            // 스토리 022: UGUI(MainCanvas)·UI Toolkit 패널 모두 EventSystem 포인터 판정으로 거른다. 옛 등록 판정은 3단계까지 유지.
+            return EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
         }
 
         private static Vector2 Pointer() => Mouse.current != null ? Mouse.current.position.ReadValue() : Vector2.zero;

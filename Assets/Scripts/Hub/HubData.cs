@@ -51,11 +51,14 @@ namespace IronRing.Hub
             [SerializeField] private float _decayScale;
             [SerializeField] private float _npcScale;
             [SerializeField] private float _facilityScale;
+            [Header("Settlement (Story 023)")]
+            [Tooltip("true: a completed habitat also settles the hub. false: settle only at _settledThreshold.")]
+            [SerializeField] private bool _settleByHabitat;
 
             /// <summary>Resolves serialized growth multipliers, bounds and phase threshold into a validated immutable hub definition.</summary>
             public HubDefinition ToDefinition(HubRunRules rules) => new HubDefinition(_id, _minimum, _maximum, _initial,
                 _ruinThreshold, _basePerLap * _decayScale, _perNpc * _npcScale, _perFacility * _facilityScale,
-                _perPlacedItem, _habitatBonus, _settledThreshold, rules);
+                _perPlacedItem, _habitatBonus, _settledThreshold, rules, _settleByHabitat);
         }
     }
 }

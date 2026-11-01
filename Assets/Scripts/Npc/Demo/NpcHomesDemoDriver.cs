@@ -6,16 +6,19 @@ using UnityEngine;
 
 using IronRing.Contracts;
 using IronRing.Contracts.Presentation;
+using IronRing.Presentation.HubPhase;
 
 namespace IronRing.Npc.Demo
 {
     /// <summary>
-    /// 스토리 017 캡처용 스크립트 데모: `--npc-demo [--npc-stage homes|panel|encouraged]`. 실행 인자 또는 진행 중인 브리지 캡처의
-    /// extraArgs(SessionState "IronRing.Bridge.Capture.ExtraArgs")에서 읽는다(HabitatDemoDriver와 같은 방식).
-    /// 데모 거점(데이터 Resources/Npc/NpcHomesDemo.json, 기본 hub-1)의 내부 화면이 열리면 가스등 4칸 L자(위 구역)와 유리 4칸 일자(아래 구역)를
-    /// IItemPlacement로 놓고, 대상 NPC(점등부·원예사)가 모두 합류할 때까지 INpcRecruiter.OnHubVisited를 최대 데이터 횟수(24)만큼 부른다.
-    /// 그 뒤 집을 "NPC DEMO: homes → id:type[cells]"로 남기고 StageReady를 낸다. 단계 panel/encouraged는 HUD가 StageReady에서 패널을 연다.
-    /// encouraged는 여기서 첫 NPC를 격려하고 결과를 남긴다.
+    /// 스토리 017·023 캡처용 스크립트 데모: `--npc-demo [--npc-stage homes|panel|encouraged|board|arrival|hub2]`. 실행 인자 또는 진행 중인
+    /// 브리지 캡처의 extraArgs(SessionState "IronRing.Bridge.Capture.ExtraArgs")에서 읽는다. 설정은 Resources/Npc/NpcHomesDemo.json.
+    /// homes|panel|encouraged: 데모 거점 내부를 열고 데이터 배치를 놓은 뒤, 대상 NPC를 승객으로 태우고(IPassengers.TryBoard force)
+    /// INpcRecruiter.OnHubVisited로 정차를 일으켜 내리게 한다(합류는 승객 하차로만). 승객 시스템이 없으면 예전처럼 방문을 반복한다.
+    /// board: 열차를 출발시켜 경유지 조우를 WaypointResolver.Advance로 끝내고, 승객이 타면(안 타면 강제 탑승 + 로그) StageReady.
+    /// arrival: hub-1에 서식지를 완성하고 `_arrivalNpcId`를 태워 내리게 한다. 걸음은 `_arrivalSpeed`로 느리게(InteriorNpcWalker.DemoArrivalSpeed).
+    /// hub2: hub-2 내부를 열어 같은 서식지(배치 앞 `_hub2PlacementCount`개)를 완성하고 hub-2 명단의 NPC(`_hub2NpcId`)가 내리는 것을 보인다.
+    /// 로그 접두사 "NPC DEMO:".
     /// </summary>
     public sealed class NpcHomesDemoDriver : MonoBehaviour
     {
@@ -28,20 +31,19 @@ namespace IronRing.Npc.Demo
         private int _waited;
         private bool _opened;
         private bool _done;
+        private bool _departed;
+        private int _boardFrames;
 
-        /// <summary>데모 단계(homes|panel|encouraged). --npc-demo가 없으면 null, 단계 인자가 없으면 "homes".</summary>
+        /// <summary>데모 단계(homes|panel|encouraged|board|arrival|hub2). --npc-demo가 없으면 null, 단계 인자가 없으면 "homes".</summary>
         public static string Stage { get; private set; }
 
-        /// <summary>합류가 끝나 StageReady를 낸 뒤 true.</summary>
+        /// <summary>단계 준비가 끝나 StageReady를 낸 뒤 true.</summary>
         public static bool IsStageReady { get; private set; }
 
-        /// <summary>패널을 열 NPC(대상 NPC 중 먼저 합류한 쪽, 없으면 거점의 첫 NPC). StageReady 전에는 null.</summary>
+        /// <summary>패널을 열 NPC(합류·탑승한 주인공). StageReady 전에는 null.</summary>
         public static string FirstNpcId { get; private set; }
 
-        /// <summary>
-        /// 합류가 끝난 뒤 한 번, 첫 NPC id와 함께 발생한다(Stage로 단계를 읽는다). 이미 끝났으면 구독 즉시 호출된다.
-        /// encouraged 단계는 격려를 실행한 뒤에 발생한다.
-        /// </summary>
+        /// <summary>단계 준비가 끝난 뒤 한 번, 첫 NPC id와 함께 발생한다. 이미 끝났으면 구독 즉시 호출된다.</summary>
         public static event Action<string> StageReady
         {
             add { _stageReady += value; if (IsStageReady) value?.Invoke(FirstNpcId); }
@@ -67,7 +69,6 @@ namespace IronRing.Npc.Demo
             GameServices.Ready += Create;
         }
 
-        /// <summary>인자에서 단계를 읽는다(플래그가 없으면 Stage는 null).</summary>
         private static void ReadStage()
         {
             string[] args = Arguments();
@@ -85,13 +86,15 @@ namespace IronRing.Npc.Demo
             _instance = new GameObject(nameof(NpcHomesDemoDriver)).AddComponent<NpcHomesDemoDriver>();
             _instance._settings = JsonUtility.FromJson<Settings>(asset.text);
             Application.runInBackground = true;
+            if (Stage == "arrival" || Stage == "hub2") InteriorNpcWalker.DemoArrivalSpeed = _instance._settings._arrivalSpeed;
             UnityEngine.Debug.Log("NPC DEMO: 단계 " + Stage);
         }
 
         void Update()
         {
             if (_done || _settings == null) return;
-            string hubId = _settings._hubId;
+            if (Stage == "board") { UpdateBoard(); return; }
+            string hubId = Stage == "hub2" ? _settings._hub2Id : _settings._hubId;
             IViewMode view = GameServices.Get<IViewMode>();
             if (view == null) return;
             if (!view.InteriorOpen || view.InteriorHubId != hubId)
@@ -101,27 +104,62 @@ namespace IronRing.Npc.Demo
             }
             if (_waited++ < _settings._waitFrames) return;
             _done = true;
-            try { Run(hubId); }
+            try
+            {
+                if (Stage == "hub2") RunHub2(hubId);
+                else if (Stage == "arrival") RunArrival(hubId);
+                else Run(hubId);
+            }
             catch (Exception e) { UnityEngine.Debug.LogException(e); }
+        }
+
+        /// <summary>board: depart, finish the waypoint encounter through the resolver, then report the boarded passenger.</summary>
+        private void UpdateBoard()
+        {
+            if (_waited++ < _settings._waitFrames) return;
+            ITrackRuntime track = GameServices.Get<ITrackRuntime>();
+            IWaypointResolver waypoints = GameServices.Get<IWaypointResolver>();
+            Passengers passengers = NpcInstaller.Passengers;
+            if (track == null || waypoints == null || passengers == null)
+            {
+                _done = true;
+                UnityEngine.Debug.LogError("NPC DEMO: board 단계에 필요한 서비스가 없습니다(ITrackRuntime/IWaypointResolver/Passengers).");
+                return;
+            }
+            if (!_departed) { _departed = true; track.Depart(); UnityEngine.Debug.Log("NPC DEMO: board 출발 " + track.CurrentNode?.Id); return; }
+            if (waypoints.IsEncounterActive)
+            {
+                (waypoints as IronRing.Combat.WaypointResolver)?.Advance();
+                return;
+            }
+            bool atWaypoint = track.CurrentNode != null && track.CurrentNode.Kind == TrackNodeKind.Waypoint;
+            if (!atWaypoint && ++_boardFrames < _settings._boardMaxFrames) return;
+            _done = true;
+            string waypoint = track.CurrentNode?.Id ?? Passengers.DemoWaypoint;
+            if (passengers.PassengerIds.Count == 0)
+            {
+                NpcDefinition pick = NpcInstaller.Pool.Definitions.FirstOrDefault(n => n.Passenger != null && (n.Passenger.Origin == waypoint || n.Passenger.Origin == "*"))
+                    ?? NpcInstaller.Pool.Definitions.First(n => n.Passenger != null);
+                passengers.TryBoard(pick.Id, waypoint, true);
+                UnityEngine.Debug.Log($"NPC DEMO: board 굴림에서 아무도 타지 않아 {pick.Id}를 강제 탑승");
+            }
+            else UnityEngine.Debug.Log("NPC DEMO: board 굴림으로 탑승 " + string.Join(", ", passengers.PassengerIds));
+            FirstNpcId = passengers.PassengerIds.FirstOrDefault();
+            UnityEngine.Debug.Log($"NPC DEMO: board {FirstNpcId} at {waypoint} \"{passengers.Proposal(FirstNpcId)}\" {passengers.Hint(FirstNpcId)} (출신 {passengers.OriginName(FirstNpcId)})");
+            Ready();
         }
 
         private void Run(string hubId)
         {
-            IHubInterior interior = GameServices.Get<IHubInterior>();
-            IItemPlacement placement = GameServices.Get<IItemPlacement>();
-            IItemInventory items = GameServices.Get<IItemInventory>();
-            INpcRecruiter npcs = GameServices.Get<INpcRecruiter>();
-            INpcHomes homes = GameServices.Get<INpcHomes>();
-            INpcInteraction interaction = GameServices.Get<INpcInteraction>();
-            if (interior == null || placement == null || items == null || npcs == null || homes == null || interaction == null)
-            {
-                UnityEngine.Debug.LogError("NPC DEMO: 필요한 서비스가 없습니다(IHubInterior/IItemPlacement/IItemInventory/INpcRecruiter/INpcHomes/INpcInteraction).");
-                return;
-            }
-
-            Place(hubId, interior, placement, items);
+            if (!Services(out IHubInterior interior, out IItemPlacement placement, out IItemInventory items, out INpcRecruiter npcs,
+                    out INpcHomes homes, out INpcInteraction interaction)) return;
+            Place(hubId, interior, placement, items, _settings._placements);
 
             string[] targets = _settings._targetNpcIds ?? Array.Empty<string>();
+            Passengers passengers = NpcInstaller.Passengers;
+            if (passengers != null)
+                foreach (string id in targets)
+                    UnityEngine.Debug.Log($"NPC DEMO: 승객 {id} 탑승 = {passengers.TryBoard(id, Passengers.DemoWaypoint, true)}");
             int visits = 0;
             while (visits < _settings._maxVisits && !targets.All(id => npcs.NpcsAt(hubId).Contains(id)))
             {
@@ -138,9 +176,8 @@ namespace IronRing.Npc.Demo
 
             FirstNpcId = joined.FirstOrDefault(targets.Contains) ?? joined.FirstOrDefault();
             if (FirstNpcId != null)
-                UnityEngine.Debug.Log($"NPC DEMO: 첫 NPC {FirstNpcId} '{interaction.DisplayName(FirstNpcId)}' 대사 \"{interaction.CurrentLine(FirstNpcId)}\"");
+                UnityEngine.Debug.Log($"NPC DEMO: 첫 NPC {FirstNpcId} '{interaction.DisplayName(FirstNpcId)}' 대사 \"{interaction.CurrentLine(FirstNpcId)}\" 출신 {interaction.Origin(FirstNpcId)}");
 
-            // 코디네이터 결정: encouraged 단계의 격려는 HUD가 버튼과 같은 경로로 누른다(결과 문장이 패널에 보이도록). 드라이버 직접 실행은 데이터로 켤 수 있다.
             if (Stage == "encouraged" && FirstNpcId != null && _settings._driverEncourages)
             {
                 IHubStateSystem hubs = GameServices.Get<IHubStateSystem>();
@@ -150,15 +187,65 @@ namespace IronRing.Npc.Demo
                 UnityEngine.Debug.Log($"NPC DEMO: 격려 {FirstNpcId} = {ok} \"{result}\" 번영 {before} → {hubs?.GetProsperity(hubId)}, " +
                                       $"버튼 활성={option?.Enabled} 이유=\"{option?.Reason}\"");
             }
+            Ready();
+        }
 
+        /// <summary>arrival: complete the habitat, board the data NPC, dock (visit) so it disembarks and walks from the train car.</summary>
+        private void RunArrival(string hubId)
+        {
+            if (!Services(out IHubInterior interior, out IItemPlacement placement, out IItemInventory items, out INpcRecruiter npcs, out _, out _)) return;
+            Place(hubId, interior, placement, items, _settings._placements);
+            Passengers passengers = NpcInstaller.Passengers;
+            string id = passengers?.BoardForHub(hubId, _settings._arrivalNpcId);
+            npcs.OnHubVisited(hubId);
+            FirstNpcId = npcs.NpcsAt(hubId).Contains(id) ? id : null;
+            UnityEngine.Debug.Log($"NPC DEMO: arrival {hubId} 하차 {FirstNpcId ?? "(없음)"} 걸음 속도 {_settings._arrivalSpeed}");
+            Ready();
+        }
+
+        /// <summary>hub2: same habitat at hub-2; a hub-2 roster NPC disembarks (different from hub-1's).</summary>
+        private void RunHub2(string hubId)
+        {
+            if (!Services(out IHubInterior interior, out IItemPlacement placement, out IItemInventory items, out INpcRecruiter npcs, out _, out _)) return;
+            Placement[] list = (_settings._placements ?? Array.Empty<Placement>()).Take(Math.Max(0, _settings._hub2PlacementCount)).ToArray();
+            Place(hubId, interior, placement, items, list);
+            IHabitatClusters clusters = GameServices.Get<IHabitatClusters>();
+            string done = clusters == null ? "?" : string.Join(", ", clusters.CompletedAt(hubId).Select(c => c.TypeId));
+            UnityEngine.Debug.Log($"NPC DEMO: hub2 {hubId} 완성 서식지 {done}");
+            Passengers passengers = NpcInstaller.Passengers;
+            string id = passengers?.BoardForHub(hubId, _settings._hub2NpcId);
+            npcs.OnHubVisited(hubId);
+            FirstNpcId = npcs.NpcsAt(hubId).Contains(id) ? id : null;
+            string candidates = string.Join(", ", npcs.CandidatesOf(_settings._hub2TypeId));
+            UnityEngine.Debug.Log($"NPC DEMO: hub2 {hubId} 하차 {FirstNpcId ?? "(없음)"} — {_settings._hub2TypeId} 후보 전체 [{candidates}], hub-1 쪽은 {_settings._arrivalNpcId}");
+            if (FirstNpcId == null) UnityEngine.Debug.LogWarning($"NPC DEMO: hub2 {hubId}에서 아무도 내리지 않았습니다(배치 실패 또는 조건 불충족).");
+            Ready();
+        }
+
+        private void Ready()
+        {
             IsStageReady = true;
             _stageReady?.Invoke(FirstNpcId);
         }
 
-        /// <summary>데이터의 배치를 놓는다. 모자란 타일은 인벤토리에 넣고, 잔해 칸은 조사해 빈 터로 만든다(데모 준비).</summary>
-        private void Place(string hubId, IHubInterior interior, IItemPlacement placement, IItemInventory items)
+        private static bool Services(out IHubInterior interior, out IItemPlacement placement, out IItemInventory items, out INpcRecruiter npcs,
+            out INpcHomes homes, out INpcInteraction interaction)
         {
-            Placement[] list = _settings._placements ?? Array.Empty<Placement>();
+            interior = GameServices.Get<IHubInterior>();
+            placement = GameServices.Get<IItemPlacement>();
+            items = GameServices.Get<IItemInventory>();
+            npcs = GameServices.Get<INpcRecruiter>();
+            homes = GameServices.Get<INpcHomes>();
+            interaction = GameServices.Get<INpcInteraction>();
+            if (interior != null && placement != null && items != null && npcs != null && homes != null && interaction != null) return true;
+            UnityEngine.Debug.LogError("NPC DEMO: 필요한 서비스가 없습니다(IHubInterior/IItemPlacement/IItemInventory/INpcRecruiter/INpcHomes/INpcInteraction).");
+            return false;
+        }
+
+        /// <summary>데이터의 배치를 놓는다. 모자란 타일은 인벤토리에 넣고, 잔해 칸은 조사해 빈 터로 만든다(데모 준비).</summary>
+        private static void Place(string hubId, IHubInterior interior, IItemPlacement placement, IItemInventory items, Placement[] list)
+        {
+            list = list ?? Array.Empty<Placement>();
             foreach (IGrouping<string, Placement> group in list.GroupBy(p => p._itemId))
             {
                 int missing = group.Count() - items.Count(group.Key);
@@ -174,11 +261,10 @@ namespace IronRing.Npc.Demo
                     if (interior.CanInvestigate(hubId, cell.Index)) interior.Investigate(hubId, cell.Index, out _);
                 }
                 bool ok = cell != null && placement.TryPlace(hubId, cell.Index, p._itemId);
-                UnityEngine.Debug.Log($"NPC DEMO: 배치 {p._itemId} → {(p._upper ? "위" : "아래")}({p._row},{p._column}) 칸 {cell?.Index} = {ok}");
+                UnityEngine.Debug.Log($"NPC DEMO: 배치 {hubId} {p._itemId} → {(p._upper ? "위" : "아래")}({p._row},{p._column}) 칸 {cell?.Index} = {ok}");
             }
         }
 
-        /// <summary>실행 인자와 진행 중인 브리지 캡처의 extraArgs를 합친다(캡처가 끝난 뒤의 값은 무시).</summary>
         private static string[] Arguments()
         {
             string extra = "";
@@ -207,6 +293,16 @@ namespace IronRing.Npc.Demo
             /// <summary>true면 드라이버가 격려를 직접 실행한다(기본 false: HUD가 누른다).</summary>
             public bool _driverEncourages = false;
             public Placement[] _placements;
+            /// <summary>arrival·hub2: 캡처용 느린 도착 걸음 속도(월드 단위/초).</summary>
+            public float _arrivalSpeed = 0.25f;
+            public string _arrivalNpcId = "lamplighter";
+            public string _hub2Id = "hub-2";
+            public string _hub2NpcId = "gas_fitter";
+            public string _hub2TypeId = "lamp_street";
+            /// <summary>hub2에서 놓을 배치 수(_placements 앞부분, 가스등 L자 4칸).</summary>
+            public int _hub2PlacementCount = 4;
+            /// <summary>board: 경유지에 닿지 못해도 이 프레임 뒤에는 끝낸다.</summary>
+            public int _boardMaxFrames = 1800;
         }
 
         [Serializable]

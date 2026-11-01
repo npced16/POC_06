@@ -41,6 +41,8 @@ namespace IronRing.Hub
         public float HabitatBonus { get; }
         /// <summary>Story 014: prosperity at or above which a recovering hub settles.</summary>
         public float SettledThreshold { get; }
+        /// <summary>Story 023: true lets one completed habitat settle the hub; false (default) settles by prosperity only.</summary>
+        public bool SettleByHabitat { get; }
         /// <summary>Story 014: shared run rules, or null when the deadline is disabled (legacy data and tests).</summary>
         public HubRunRules Rules { get; }
 
@@ -52,7 +54,7 @@ namespace IronRing.Hub
         /// <summary>Validates the supplied id, bounds, growth coefficients and phase threshold and stores an immutable definition.</summary>
         public HubDefinition(string id, float minimum, float maximum, float initial, float ruinThreshold,
             float basePerLap, float perNpc, float perFacility, float perPlacedItem, float habitatBonus,
-            float settledThreshold, HubRunRules rules)
+            float settledThreshold, HubRunRules rules, bool settleByHabitat = false)
         {
             if (string.IsNullOrWhiteSpace(id)) throw new ArgumentException("Hub id is required.", nameof(id));
             float[] values = { minimum, maximum, initial, ruinThreshold, basePerLap, perNpc, perFacility, perPlacedItem, habitatBonus, settledThreshold };
@@ -74,6 +76,7 @@ namespace IronRing.Hub
             HabitatBonus = habitatBonus;
             SettledThreshold = settledThreshold;
             Rules = rules;
+            SettleByHabitat = settleByHabitat;
         }
     }
 }

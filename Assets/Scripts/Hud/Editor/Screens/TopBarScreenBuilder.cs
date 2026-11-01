@@ -1,0 +1,52 @@
+using UnityEngine;
+using UnityEngine.UI;
+
+using UnityEditor;
+
+using TMPro;
+
+using IronRing.Hud.Ui;
+using IronRing.Localization;
+
+namespace IronRing.Hud.Editor.Screens
+{
+    /// <summary>스토리 022. 항상 켜진 화면 "TopBar"(위 띠: 현재 위치·바퀴·도감 버튼, 왼쪽 아래: 다음 라운드·출발) 프리팹 내용을 만든다.</summary>
+    public static class TopBarScreenBuilder
+    {
+        /// <summary>화면 루트(UiScreen "TopBar", 항상 켜짐) + TopBarScreen + 위 띠 패널과 아래 행동 버튼 줄.</summary>
+        public static GameObject Build(UiTheme theme)
+        {
+            GameObject root = UiKit.ScreenRoot("TopBar", true);
+            TopBarScreen screen = root.AddComponent<TopBarScreen>();
+
+            Image bar = UiKit.Panel(root.transform, "Bar", theme);
+            UiKit.StretchTop(bar.rectTransform, 54, 12, 16, 16);
+            TextMeshProUGUI location = UiKit.Label(bar.transform, "Location", Strings.Get("hud_location") + "  " + Strings.Get("hub_1"), UiTextSize.Normal, theme, TextAlignmentOptions.MidlineLeft);
+            UiKit.Place(location.rectTransform, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(18, 0), new Vector2(380, 44));
+            TextMeshProUGUI lap = UiKit.Label(bar.transform, "Lap", Strings.Get("hud_turn") + "  3", UiTextSize.Normal, theme, TextAlignmentOptions.MidlineLeft);
+            UiKit.Place(lap.rectTransform, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(410, 0), new Vector2(180, 44));
+            lap.color = theme.Accent;
+            Button codex = UiKit.Button(bar.transform, "Codex", Strings.Get("codex_open"), theme);
+            UiKit.Place((RectTransform)codex.transform, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-14, 0), new Vector2(132, 38));
+
+            RectTransform actions = UiKit.Node(root.transform, "Actions");
+            UiKit.Place(actions, Vector2.zero, Vector2.zero, new Vector2(24, 24), new Vector2(320, 46));
+            HorizontalOrVerticalLayoutGroup row = UiKit.Row(actions, "Row", false, 6);
+            row.childAlignment = TextAnchor.MiddleLeft;
+            Button next = UiKit.Button(row.transform, "NextRound", Strings.Get("hud_next_round"), theme);
+            ((RectTransform)next.transform).sizeDelta = new Vector2(150, 46);
+            Button depart = UiKit.Button(row.transform, "Depart", Strings.Get("hud_depart"), theme);
+            ((RectTransform)depart.transform).sizeDelta = new Vector2(150, 46);
+            foreach (Button button in new[] { next, depart })
+                button.GetComponentInChildren<TextMeshProUGUI>().fontSize = theme.Size(UiTextSize.Title) * 0.85f;
+
+            UiKit.Bind(screen, "_location", location);
+            UiKit.Bind(screen, "_lap", lap);
+            UiKit.Bind(screen, "_depart", depart);
+            UiKit.Bind(screen, "_nextRound", next);
+            UiKit.Bind(screen, "_codex", codex);
+            UiKit.Bind(screen, "_catalogJson", AssetDatabase.LoadAssetAtPath<TextAsset>(InteriorTitleScreenBuilder.CATALOG));
+            return root;
+        }
+    }
+}
