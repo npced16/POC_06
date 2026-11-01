@@ -46,7 +46,7 @@ namespace IronRing.Hud.Editor.Screens
             UiKit.StretchTop(paletteTitle.rectTransform, 34, 8, 16, 100);
             paletteTitle.color = theme.Accent;
             Button paletteClose = UiKit.Button(palette.transform, "Close", Strings.Get("inv_close"), theme);
-            UiKit.Place((RectTransform)paletteClose.transform, Vector2.one, Vector2.one, new Vector2(-12, -10), new Vector2(76, 32));
+            UiKit.Place((RectTransform)paletteClose.transform, Vector2.one, Vector2.one, new Vector2(-12, -10), new Vector2(76, theme.ButtonHeight));
             TextMeshProUGUI paletteHint = UiKit.Label(palette.transform, "Hint", Strings.Get("hotbar_palette_hint"), UiTextSize.Small, theme, TextAlignmentOptions.MidlineLeft);
             UiKit.StretchTop(paletteHint.rectTransform, 22, 44, 16, 16);
             paletteHint.color = theme.Muted;
@@ -63,7 +63,7 @@ namespace IronRing.Hud.Editor.Screens
             palette.gameObject.SetActive(false);
 
             // 하단 막대: 9칸 + 팔레트 버튼
-            Image bar = UiKit.Panel(content, "Bar", theme);
+            Image bar = UiKit.Bar(content, "Bar", theme);
             UiKit.Place(bar.rectTransform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 14), new Vector2(758, 90));
             HorizontalOrVerticalLayoutGroup row = UiKit.Row(bar.transform, "Slots", false, 6);
             row.childAlignment = TextAnchor.MiddleLeft;
@@ -79,7 +79,7 @@ namespace IronRing.Hud.Editor.Screens
                 if (i == 0) views[i].SetState(true, false, theme);
             }
             Button toggle = UiKit.Button(bar.transform, "PaletteToggle", Strings.Get("hotbar_palette"), theme);
-            UiKit.Place((RectTransform)toggle.transform, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-10, 0), new Vector2(86, 60));
+            UiKit.Place((RectTransform)toggle.transform, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-10, 0), new Vector2(86, theme.ButtonHeight));
 
             // 안내 줄과 알림
             Image hintBox = UiKit.Sliced(content, "HintBox", theme.ToastSprite, theme, false);

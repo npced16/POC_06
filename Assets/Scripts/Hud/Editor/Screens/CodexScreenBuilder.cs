@@ -40,17 +40,15 @@ namespace IronRing.Hud.Editor.Screens
             rect.anchorMin = new Vector2(0.5f, 0); rect.anchorMax = new Vector2(0.5f, 1); rect.pivot = new Vector2(0.5f, 0.5f);
             rect.offsetMin = new Vector2(-500, 90); rect.offsetMax = new Vector2(500, -150);
 
-            TextMeshProUGUI title = UiKit.Label(panel.transform, "Title", Strings.Get("ui_sample_codex_title"), UiTextSize.Title, theme, TextAlignmentOptions.MidlineLeft);
-            UiKit.StretchTop(title.rectTransform, 36, 8, 18, 120);
-            title.color = theme.Accent;
+            RectOffset pad = UiKit.FramePad(theme);
+            TextMeshProUGUI title = UiKit.TitlePlate(panel.transform, "Title", Strings.Get("ui_sample_codex_title"), theme);
             TextMeshProUGUI hint = UiKit.Label(panel.transform, "Hint", Strings.Get("codex_hint"), UiTextSize.Small, theme, TextAlignmentOptions.MidlineLeft);
-            UiKit.StretchTop(hint.rectTransform, 24, 44, 18, 120); // 제목 아래 둘째 줄(겹치지 않게)
+            UiKit.StretchTop(hint.rectTransform, theme.LineHeight(UiTextSize.Small), UiKit.ContentTop(theme), pad.left + 4, pad.right + 4); // 제목판 바로 아래 한 줄
             hint.color = theme.Muted;
-            Button close = UiKit.Button(panel.transform, "Close", Strings.Get("codex_close"), theme);
-            UiKit.Place((RectTransform)close.transform, Vector2.one, Vector2.one, new Vector2(-14, -12), new Vector2(80, 32));
+            Button close = UiKit.CloseButton(panel.transform, "Close", theme);
 
             ScrollRect scroll = UiKit.ScrollGrid(panel.transform, "Grid", CardSize, new Vector2(8, 8), 3, out RectTransform grid);
-            UiKit.Stretch((RectTransform)scroll.transform, 14, 76, 14, 12);
+            UiKit.Stretch((RectTransform)scroll.transform, pad.left, UiKit.ContentTop(theme) + theme.LineHeight(UiTextSize.Small) + 6, pad.right, pad.bottom);
             scroll.scrollSensitivity = 30;
 
             // 미리보기 카드(런타임에 지운다)
@@ -98,7 +96,7 @@ namespace IronRing.Hud.Editor.Screens
             name.textWrappingMode = TextWrappingModes.NoWrap;
             name.overflowMode = TextOverflowModes.Ellipsis;
 
-            Image badge = UiKit.Sliced(frame.transform, "Badge", theme.SlotSelectedSprite, theme, false);
+            Image badge = UiKit.Sliced(frame.transform, "Badge", theme.ButtonPressedSprite, theme, false); // 스토리 024: btn_gold(가운데 톱니 없음)
             UiKit.Place(badge.rectTransform, Vector2.one, Vector2.one, new Vector2(-8, -8), new Vector2(64, 24));
             TextMeshProUGUI badgeText = UiKit.Label(badge.transform, "Text", Strings.Get("codex_complete"), UiTextSize.Small, theme);
             badgeText.color = theme.Accent;

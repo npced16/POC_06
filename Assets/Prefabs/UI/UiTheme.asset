@@ -19,13 +19,28 @@ MonoBehaviour:
   _text: {r: 0.9490196, g: 0.87058824, b: 0.8039216, a: 1}
   _muted: {r: 0.7882353, g: 0.7058824, b: 0.6509804, a: 1}
   _font: {fileID: 11400000, guid: 285eac0e2e745804c8b2e663e3abe268, type: 2}
-  _fontSmall: 16
-  _fontNormal: 20
+  _fontSmall: 14
+  _fontNormal: 18
   _fontTitle: 28
-  _panelSprite: {fileID: 21300000, guid: 3498a0e441854854bb0db02567b812b8, type: 3}
-  _buttonSprite: {fileID: 21300000, guid: 8fdaafa6de3047043a942a363ac12d06, type: 3}
-  _buttonPressedSprite: {fileID: 21300000, guid: 8f3eb093c56dcbb4fb149859d9584216, type: 3}
-  _slotSprite: {fileID: 21300000, guid: 8e0ebb164c5547b43a15c6201255d779, type: 3}
-  _slotSelectedSprite: {fileID: 21300000, guid: 850b98f36870d7c4c84f70d4a544301e, type: 3}
-  _toastSprite: {fileID: 21300000, guid: 3229d29b350b45a42bd197bd996f84cd, type: 3}
-  _sliceMultiplier: 0.5
+  _fontHeading: 22
+  _lineHeightFactor: 1.3
+  _buttonHeight: 40
+  _buttonHeightSmall: 32
+  _panelSprite: {fileID: 1580464829, guid: 374d35ea950bd2944aa68c7801272673, type: 3}
+  _buttonSprite: {fileID: 1887732192, guid: 374d35ea950bd2944aa68c7801272673, type: 3}
+  _buttonPressedSprite: {fileID: 2126276004, guid: 374d35ea950bd2944aa68c7801272673, type: 3}
+  _slotSprite: {fileID: 1488545869, guid: 374d35ea950bd2944aa68c7801272673, type: 3}
+  _slotSelectedSprite: {fileID: 475083056, guid: 374d35ea950bd2944aa68c7801272673, type: 3}
+  _toastSprite: {fileID: 2041732347, guid: 374d35ea950bd2944aa68c7801272673, type: 3}
+  _sliceMultiplier: 2
+  _frameTitledSprite: {fileID: 951090247, guid: 374d35ea950bd2944aa68c7801272673, type: 3}
+  _progressBarSprite: {fileID: -969260987, guid: 374d35ea950bd2944aa68c7801272673, type: 3}
+  _roundCloseSprite: {fileID: -1058436808, guid: 374d35ea950bd2944aa68c7801272673, type: 3}
+  _buttonDarkSprite: {fileID: -1606023625, guid: 374d35ea950bd2944aa68c7801272673, type: 3}
+  _slotCopperSprite: {fileID: 1985273450, guid: 374d35ea950bd2944aa68c7801272673, type: 3}
+  _panelPad: {x: 64, y: 48, z: 48, w: 76}
+  _frameTitledPad: {x: 44, y: 60, z: 44, w: 116}
+  _toastPad: {x: 40, y: 12, z: 40, w: 18}
+  _buttonPad: {x: 28, y: 24, z: 28, w: 24}
+  _slotPad: {x: 13, y: 12, z: 12, w: 12}
+  _progressBarPad: {x: 112, y: 16, z: 112, w: 20}

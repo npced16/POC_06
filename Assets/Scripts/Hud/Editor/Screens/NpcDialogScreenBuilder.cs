@@ -20,14 +20,15 @@ namespace IronRing.Hud.Editor.Screens
         /// <summary>화면 루트(UiScreen "NpcDialog", 상황 화면) + NpcDialogScreen + 세로 배치 대화 상자.</summary>
         public static GameObject Build(UiTheme theme)
         {
-            GameObject optionPart = UiKit.SavePrefabIfMissing(OPTION_PART, () => Option(theme));
+            GameObject optionPart = UiKit.SavePrefab(OPTION_PART, () => Option(theme), ConsumeMarker("DialogOption"));
 
             GameObject root = UiKit.ScreenRoot("NpcDialog", false);
             NpcDialogScreen screen = root.AddComponent<NpcDialogScreen>();
             Image panel = UiKit.Panel(root.transform, "Dialog", theme);
-            UiKit.Place(panel.rectTransform, Vector2.zero, Vector2.zero, new Vector2(18, 150), new Vector2(390, 0)); // 스토리 025: 출신지 줄만큼 넓힘
+            UiKit.Place(panel.rectTransform, Vector2.zero, Vector2.zero, new Vector2(18, 150), new Vector2(418, 0)); // 스토리 025: 출신지 줄만큼 넓힘, 024: 프레임 여백만큼 더(내용 폭 유지)
             VerticalLayoutGroup column = panel.gameObject.AddComponent<VerticalLayoutGroup>();
-            column.padding = new RectOffset(14, 14, 12, 12);
+            RectOffset pad = UiKit.FramePad(theme);
+            column.padding = new RectOffset(pad.left, pad.right + (int)(UiKit.CLOSE_SIZE / 2), pad.top, pad.bottom);
             column.spacing = 6;
             column.childControlWidth = true; column.childControlHeight = true;
             column.childForceExpandWidth = true; column.childForceExpandHeight = false;
@@ -36,7 +37,7 @@ namespace IronRing.Hud.Editor.Screens
             HorizontalOrVerticalLayoutGroup header = UiKit.Row(panel.transform, "Header", false, 8);
             header.childControlWidth = true; header.childControlHeight = true;
             header.childAlignment = TextAnchor.LowerLeft;
-            TextMeshProUGUI title = UiKit.Label(header.transform, "Title", Strings.Get("ui_sample_npc_title"), UiTextSize.Normal, theme, TextAlignmentOptions.BottomLeft);
+            TextMeshProUGUI title = UiKit.Label(header.transform, "Title", Strings.Get("ui_sample_npc_title"), UiTextSize.Heading, theme, TextAlignmentOptions.BottomLeft);
             title.color = theme.Accent;
             title.fontStyle = FontStyles.Bold;
             title.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1;
@@ -60,9 +61,8 @@ namespace IronRing.Hud.Editor.Screens
             options.childAlignment = TextAnchor.MiddleLeft;
             options.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1;
             PrefabUtility.InstantiatePrefab(optionPart, options.transform);
-            Button close = UiKit.Button(buttons.transform, "Close", Strings.Get("npc_dialog_close"), theme);
-            LayoutElement closeSize = close.gameObject.AddComponent<LayoutElement>();
-            closeSize.preferredWidth = 72; closeSize.preferredHeight = 34;
+            Button close = UiKit.CloseButton(panel.transform, "Close", theme); // 스토리 024: 둥근 X를 오른쪽 위 모서리에
+            close.gameObject.AddComponent<LayoutElement>().ignoreLayout = true;
 
             TextMeshProUGUI reasons = UiKit.Label(panel.transform, "Reasons", "", UiTextSize.Small, theme, TextAlignmentOptions.TopLeft);
             reasons.color = theme.Muted;
@@ -84,13 +84,22 @@ namespace IronRing.Hud.Editor.Screens
         private static GameObject Option(UiTheme theme)
         {
             Button button = UiKit.Button(null, "DialogOption", Strings.Get("ui_sample_npc_option"), theme);
-            ((RectTransform)button.transform).sizeDelta = new Vector2(110, 34);
+            ((RectTransform)button.transform).sizeDelta = new Vector2(110, theme.ButtonHeight);
             LayoutElement size = button.gameObject.AddComponent<LayoutElement>();
-            size.preferredWidth = 110; size.preferredHeight = 34;
+            size.preferredWidth = 110; size.preferredHeight = theme.ButtonHeight;
             DialogOptionView view = button.gameObject.AddComponent<DialogOptionView>();
             UiKit.Bind(view, "_button", button);
             UiKit.Bind(view, "_label", button.GetComponentInChildren<TMP_Text>(true));
             return button.gameObject;
+        }
+
+        private static bool ConsumeMarker(string id)
+        {
+            string marker = System.IO.Path.Combine(System.IO.Directory.GetParent(Application.dataPath).FullName, ".bridge", "rebuild", id);
+            if (!System.IO.File.Exists(marker)) return false;
+            System.IO.File.Delete(marker);
+            Debug.Log("MAINCANVAS REBUILT PART: " + id);
+            return true;
         }
     }
 }

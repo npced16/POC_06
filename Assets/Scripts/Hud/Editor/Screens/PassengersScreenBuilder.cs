@@ -35,21 +35,19 @@ namespace IronRing.Hud.Editor.Screens
             Image panel = UiKit.Panel(root.transform, "Panel", theme);
             UiKit.Place(panel.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, -10), PanelSize);
 
-            TextMeshProUGUI title = UiKit.Label(panel.transform, "Title", string.Format(Strings.Get("passengers_title"), 2, 3), UiTextSize.Title, theme, TextAlignmentOptions.MidlineLeft);
-            UiKit.StretchTop(title.rectTransform, 36, 12, PAD + 4, 120);
-            title.color = theme.Accent;
+            RectOffset pad = UiKit.FramePad(theme);
+            TextMeshProUGUI title = UiKit.TitlePlate(panel.transform, "Title", string.Format(Strings.Get("passengers_title"), 2, 3), theme);
             TextMeshProUGUI hint = UiKit.Label(panel.transform, "Hint", Strings.Get("passengers_hint"), UiTextSize.Small, theme, TextAlignmentOptions.MidlineLeft);
-            UiKit.StretchTop(hint.rectTransform, 24, 48, PAD + 4, 120);
+            UiKit.StretchTop(hint.rectTransform, theme.LineHeight(UiTextSize.Small), UiKit.ContentTop(theme), pad.left + 4, pad.right + 4);
             hint.color = theme.Muted;
-            Button close = UiKit.Button(panel.transform, "Close", Strings.Get("passengers_close"), theme);
-            UiKit.Place((RectTransform)close.transform, Vector2.one, Vector2.one, new Vector2(-PAD, -14), new Vector2(80, 32));
+            Button close = UiKit.CloseButton(panel.transform, "Close", theme);
 
             ScrollRect scroll = UiKit.ScrollGrid(panel.transform, "List", RowSize, new Vector2(0, 8), 1, out RectTransform list);
-            UiKit.Stretch((RectTransform)scroll.transform, PAD, 82, PAD, PAD);
+            UiKit.Stretch((RectTransform)scroll.transform, pad.left, UiKit.ContentTop(theme) + theme.LineHeight(UiTextSize.Small) + 6, pad.right, pad.bottom);
             scroll.scrollSensitivity = 30;
 
             TextMeshProUGUI empty = UiKit.Label(panel.transform, "Empty", Strings.Get("passengers_empty"), UiTextSize.Normal, theme);
-            UiKit.Stretch(empty.rectTransform, PAD, 82, PAD, PAD);
+            UiKit.Stretch(empty.rectTransform, pad.left, UiKit.ContentTop(theme) + theme.LineHeight(UiTextSize.Small) + 6, pad.right, pad.bottom);
             empty.color = theme.Muted;
             empty.gameObject.SetActive(false); // 미리보기는 줄 2개를 보인다. 런타임에 승객이 없으면 켠다
 
