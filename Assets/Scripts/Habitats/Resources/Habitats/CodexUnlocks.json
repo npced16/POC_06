@@ -1,0 +1,24 @@
+{
+  "_starters": ["lamp_street", "coal_yard", "boiler_room"],
+  "_unlockOrder": [
+    "telegraph_line",
+    "cistern",
+    "pipe_gallery",
+    "toolshop",
+    "cogworks",
+    "cobble_plaza",
+    "iron_depot",
+    "greenhouse",
+    "barracks",
+    "water_tower",
+    "lamp_road",
+    "engine_room",
+    "repair_bay",
+    "power_house",
+    "blast_furnace",
+    "grand_cogworks"
+  ],
+  "_perLap": 1,
+  "_perEvent": 1,
+  "_perVictory": 1
+}

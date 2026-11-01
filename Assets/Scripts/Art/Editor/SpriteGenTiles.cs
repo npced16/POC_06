@@ -9,34 +9,28 @@ using UnityEditor;
 
 using IronRing.Presentation.Items;
 
+using static IronRing.Art.Editor.ArtKit;
+
 namespace IronRing.Art.Editor
 {
     /// <summary>
-    /// 스토리 016. 서식지 타일(아이템 카탈로그의 category "tile")의 32픽셀 바닥 도트를 SpriteGen(008)·SpriteGenItems(013)와 같은
-    /// 팔레트·임포터 설정으로 생성한다. 출력: Assets/Art/Generated/tiles/*.png, tiles_contact_sheet.png.
-    /// 그리고 ItemSprites.asset(ItemSpriteSet)을 카탈로그 전체 기준으로 다시 채운다: 타일은 tiles/, 나머지는 items/의 PNG.
-    /// SpriteGen.cs·SpriteGenItems.cs는 건드리지 않는다.
+    /// 스토리 016·019. 서식지 타일(아이템 카탈로그의 category "tile")의 64픽셀 탑뷰 스팀펑크 도트를 돌바닥 위에 그린다(색은 SteampunkPalette.json).
+    /// 출력: Assets/Art/Generated/tiles/*.png, tiles_contact_sheet.png. 그리고 ItemSprites.asset(ItemSpriteSet)을 카탈로그 전체 기준으로 다시 채운다:
+    /// 타일은 tiles/, 나머지는 items/의 PNG. 그림이 없는 새 타일 id는 경고와 함께 기본 판으로 그린다.
     /// </summary>
     public static class SpriteGenTiles
     {
-        private const int SIZE = 32;
         private const string OUTPUT = "Assets/Art/Generated/tiles/";
         private const string ITEM_OUTPUT = "Assets/Art/Generated/items/";
         private const string SET_DIR = "Assets/Scripts/Items/Resources/Items/";
         private const string SET_PATH = SET_DIR + "ItemSprites.asset";
         private const string CATALOG = "Assets/Scripts/Items/Resources/Items/ItemCatalog.json";
-        private const string EVIDENCE = "production/qa/evidence/story-016-habitat-types-clusters/";
-        private static Color32[] _palette;
-        private static Color32[] _pixels;
 
         /// <summary>카탈로그의 타일 아이템마다 PNG를 만들고 임포터와 ItemSpriteSet을 갱신한다.</summary>
         [MenuItem("IronRing/Art/Generate Tile Sprites")]
         public static void Generate()
         {
-            var data = JsonUtility.FromJson<Palette>(File.ReadAllText("Assets/Art/palette.json"));
-            _palette = data.Colors.Select(value => ColorUtility.TryParseHtmlString(value, out Color color)
-                ? (Color32)color : throw new FormatException(value)).ToArray();
-            if (_palette.Length != 12) throw new FormatException("Palette requires 12 colors");
+            Load();
             var catalog = IronRing.Items.ItemCatalog.Parse(File.ReadAllText(CATALOG));
             List<string> tiles = catalog.Items.Where(i => i.IsTile).Select(i => i.Id).ToList();
             Directory.CreateDirectory(OUTPUT);
@@ -44,28 +38,23 @@ namespace IronRing.Art.Editor
             foreach (string id in tiles)
             {
                 Begin();
-                if (!Draw(id)) throw new InvalidOperationException("No drawing for tile " + id);
-                Save(OUTPUT + id + ".png");
-                sprites.Add(_pixels);
+                Cobble(0, 0, SIZE, SIZE, G, 7);
+                C.Rect(0, 0, SIZE, 1, Mo.S); C.Rect(0, 0, 1, SIZE, Mo.S);
+                Layer();
+                bool known = Draw(id);
+                EndLayer();
+                if (!known)
+                {
+                    Debug.LogWarning("SpriteGenTiles: no drawing for tile " + id + ", using a plain riveted plate.");
+                    Layer(); Box(10, 10, 44, 44, Fe); RivetRing(32, 32, 18, 12, Bs.S); EndLayer();
+                }
+                if (id == "tile_gaslamp") Glow(32.5f, 45.5f, 18);
+                if (id == "tile_chimney") { Puff(34, 50, 7, 210); Puff(40, 57, 5, 170); Puff(27, 58, 4, 140); }
+                if (id == "tile_pipe") { Puff(44, 52, 4, 150); Puff(48, 57, 3, 110); }
+                C.Save(OUTPUT + id + ".png");
+                sprites.Add(C.Px);
             }
-
-            const int cell = 40, perRow = 7;
-            int sheetRows = Math.Max(1, (sprites.Count + perRow - 1) / perRow);
-            var sheet = new Texture2D(cell * perRow, cell * sheetRows, TextureFormat.RGBA32, false);
-            sheet.SetPixels32(Enumerable.Repeat(_palette[1], sheet.width * sheet.height).ToArray());
-            for (int i = 0; i < sprites.Count; i++)
-            {
-                Color32[] px = sprites[i];
-                int ox = (i % perRow) * cell + 4, oy = (sheetRows - 1 - i / perRow) * cell + 4;
-                for (int y = 0; y < SIZE; y++) for (int x = 0; x < SIZE; x++)
-                    if (px[y * SIZE + x].a > 0) sheet.SetPixel(ox + x, oy + y, px[y * SIZE + x]);
-            }
-            sheet.Apply();
-            byte[] png = sheet.EncodeToPNG();
-            UnityEngine.Object.DestroyImmediate(sheet);
-            File.WriteAllBytes(OUTPUT + "tiles_contact_sheet.png", png);
-            Directory.CreateDirectory(EVIDENCE);
-            File.WriteAllBytes(EVIDENCE + "tiles_contact_sheet.png", png);
+            File.WriteAllBytes(OUTPUT + "tiles_contact_sheet.png", Sheet(sprites, 7));
             AssetDatabase.Refresh();
             foreach (string id in tiles) ConfigureImporter(OUTPUT + id + ".png");
             ConfigureImporter(OUTPUT + "tiles_contact_sheet.png");
@@ -83,199 +72,109 @@ namespace IronRing.Art.Editor
                 string path = (item.IsTile ? OUTPUT : ITEM_OUTPUT) + item.Id + ".png";
                 Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(path);
                 if (sprite != null) entries.Add(new KeyValuePair<string, Sprite>(item.Id, sprite));
-                else UnityEngine.Debug.LogWarning("SpriteGenTiles: sprite missing for " + item.Id + " at " + path);
+                else Debug.LogWarning("SpriteGenTiles: sprite missing for " + item.Id + " at " + path);
             }
             set.SetEntries(entries);
             EditorUtility.SetDirty(set);
             AssetDatabase.SaveAssets();
-            UnityEngine.Debug.Log("SpriteGenTiles: " + tiles.Count + " tile sprites generated, ItemSprites has " + entries.Count + " entries.");
+            Debug.Log("SpriteGenTiles: " + tiles.Count + " tile sprites generated, ItemSprites has " + entries.Count + " entries.");
         }
 
-        /// <summary>SpriteGen과 같은 설정: 단일 스프라이트, 32 PPU, Point, 무압축.</summary>
-        private static void ConfigureImporter(string path)
-        {
-            var importer = (TextureImporter)AssetImporter.GetAtPath(path);
-            importer.textureType = TextureImporterType.Sprite;
-            importer.spriteImportMode = SpriteImportMode.Single;
-            importer.spritePixelsPerUnit = SIZE;
-            importer.filterMode = FilterMode.Point;
-            importer.textureCompression = TextureImporterCompression.Uncompressed;
-            importer.mipmapEnabled = false;
-            importer.alphaIsTransparency = true;
-            importer.npotScale = TextureImporterNPOTScale.None;
-            importer.SaveAndReimport();
-        }
-
-        private static void Begin() { _pixels = new Color32[SIZE * SIZE]; }
-
-        private static void Save(string path)
-        {
-            var texture = new Texture2D(SIZE, SIZE, TextureFormat.RGBA32, false);
-            texture.SetPixels32(_pixels);
-            texture.Apply();
-            File.WriteAllBytes(path, texture.EncodeToPNG());
-            UnityEngine.Object.DestroyImmediate(texture);
-        }
-
-        private static void Pixel(int x, int y, int index)
-        {
-            if (x >= 0 && x < SIZE && y >= 0 && y < SIZE) _pixels[y * SIZE + x] = _palette[index];
-        }
-
-        private static void Rect(int x, int y, int w, int h, int index)
-        {
-            for (int py = y; py < y + h; py++) for (int px = x; px < x + w; px++) Pixel(px, py, index);
-        }
-
-        private static void Disc(int cx, int cy, int radius, int index)
-        {
-            for (int y = -radius; y <= radius; y++) for (int x = -radius; x <= radius; x++)
-                if (x * x + y * y <= radius * radius) Pixel(cx + x, cy + y, index);
-        }
-
-        /// <summary>결정적 의사 난수(위치 해시). 같은 입력이면 같은 무늬가 나온다.</summary>
-        private static int Hash(int x, int y, int salt)
-        {
-            unchecked
-            {
-                int h = x * 73856093 ^ y * 19349663 ^ salt * 83492791;
-                h ^= h >> 13; h *= 0x5bd1e995; h ^= h >> 15;
-                return h & 0x7fffffff;
-            }
-        }
-
-        /// <summary>바탕을 채우고 1픽셀 테두리를 둘러 칸 경계가 보이게 한다.</summary>
-        private static void Base(int fill, int rim)
-        {
-            Rect(0, 0, SIZE, SIZE, fill);
-            Rect(0, 0, SIZE, 1, rim); Rect(0, SIZE - 1, SIZE, 1, rim); Rect(0, 0, 1, SIZE, rim); Rect(SIZE - 1, 0, 1, SIZE, rim);
-        }
-
-        /// <summary>salt로 흩뿌린 점(밀도 1/every).</summary>
-        private static void Speckle(int index, int every, int salt)
-        {
-            for (int y = 2; y < SIZE - 2; y++) for (int x = 2; x < SIZE - 2; x++)
-                if (Hash(x, y, salt) % every == 0) Pixel(x, y, index);
-        }
-
-        /// <summary>
-        /// id의 타일을 그린다. y=0이 아래. 팔레트: 0 외곽선, 1·2 회청, 3 갈색, 4 황동, 5 금, 6 크림, 7 연청록, 8 진청록, 9 옅은 청록, 10 적갈, 11 주황.
-        /// </summary>
+        /// <summary>id 타일의 물체를 현재 레이어에 그린다(y=0이 아래). 모르는 id면 false.</summary>
         private static bool Draw(string id)
         {
             switch (id)
             {
                 case "tile_boiler":
-                    Base(1, 0);
-                    Rect(6, 3, 20, 26, 0); Rect(7, 4, 18, 24, 4); Rect(8, 4, 3, 24, 5); Rect(21, 4, 3, 24, 3);
-                    Rect(7, 9, 18, 1, 3); Rect(7, 22, 18, 1, 3);
-                    for (int x = 8; x < 25; x += 3) { Pixel(x, 8, 6); Pixel(x, 23, 6); }
-                    Disc(16, 16, 4, 0); Disc(16, 16, 3, 6); Pixel(16, 16, 0); Pixel(17, 17, 10); Pixel(18, 18, 10);
-                    Rect(14, 28, 4, 3, 0); Rect(15, 28, 2, 3, 2);
+                    C.Ellipse(32, 9, 19, 4, Cu.S);
+                    CylV(13, 9, 38, 42, Cu);
+                    C.Ellipse(32, 51, 19, 5, Cu.L); C.Ellipse(32, 51, 15, 3, Cu.B);
+                    foreach (int y in new[] { 17, 41 }) { C.Rect(13, y, 38, 2, Bs.B); C.Rect(13, y + 1, 38, 1, Bs.L); RivetsH(15, 49, y, 4, O.B); }
+                    C.Disc(32, 29, 8, Bs.S); C.Disc(32, 29, 7, Bs.B); C.Disc(32, 29, 5.5f, Sm.L);
+                    C.Line(32, 29, 36, 32, O.B); C.Set(28, 31, Em.B); C.Set(31, 33, O.S); C.Set(35, 33, O.S);
+                    C.Rect(28, 54, 8, 6, Fe.B); C.Rect(28, 54, 2, 6, Fe.L); C.Rect(27, 59, 10, 2, Bs.S);
                     return true;
                 case "tile_pipe":
-                    Base(1, 0);
-                    Rect(1, 12, 30, 9, 0); Rect(1, 13, 30, 7, 4); Rect(1, 18, 30, 1, 5); Rect(1, 13, 30, 1, 3);
-                    Rect(5, 11, 3, 11, 0); Rect(6, 12, 1, 9, 5); Rect(24, 11, 3, 11, 0); Rect(25, 12, 1, 9, 5);
-                    Rect(15, 20, 2, 4, 0); Disc(16, 26, 4, 0); Disc(16, 26, 3, 10); Disc(16, 26, 1, 0);
-                    Rect(12, 26, 9, 1, 0); Rect(16, 22, 1, 9, 0);
-                    Disc(9, 6, 2, 9); Disc(13, 4, 1, 6);
+                    PipeH(0, 24, 64, 14, Bs);
+                    foreach (int x in new[] { 14, 46 }) { Box(x, 21, 5, 20, Cu); RivetsV(x + 2, 23, 38, 4, Bs.L); }
+                    C.Rect(30, 38, 4, 6, Fe.B);
+                    C.Ring(32, 47, 5, 7, Cu.B); C.Line(26, 47, 38, 47, Cu.S); C.Line(32, 41, 32, 53, Cu.S); C.Disc(32, 47, 1.5f, Bs.L);
+                    C.Rect(4, 8, 8, 6, Fe.S); C.Rect(5, 13, 6, 1, Fe.L);
                     return true;
                 case "tile_gear":
-                    Base(1, 0);
-                    Disc(11, 12, 8, 0); Disc(11, 12, 7, 4); Rect(10, 2, 3, 21, 4); Rect(1, 11, 21, 3, 4);
-                    Disc(11, 12, 3, 3); Disc(11, 12, 1, 0);
-                    Disc(23, 23, 6, 0); Disc(23, 23, 5, 5); Rect(22, 16, 3, 15, 5); Rect(16, 22, 15, 3, 5);
-                    Disc(23, 23, 2, 3); Pixel(23, 23, 0);
+                    Gear(24, 26, 18, 12, Bs);
+                    Gear(47, 46, 13, 9, Cu);
                     return true;
                 case "tile_gaslamp":
-                    Base(1, 0);
-                    Disc(16, 23, 9, 2); Disc(16, 23, 6, 3);
-                    Rect(15, 3, 3, 16, 0); Rect(16, 4, 1, 15, 2); Rect(12, 3, 9, 2, 0);
-                    Rect(12, 18, 9, 9, 0); Rect(13, 19, 7, 7, 5); Rect(14, 20, 5, 5, 6); Rect(16, 19, 1, 7, 4);
-                    Rect(11, 27, 11, 2, 0); Pixel(16, 29, 0);
+                    LampPost(32, 8, 32, false);
                     return true;
                 case "tile_coal":
-                    Base(2, 1);
-                    for (int y = 0; y < 18; y++) { int half = 13 - y * 12 / 18; Rect(16 - half, 3 + y, half * 2, 1, 0); }
-                    for (int i = 0; i < 18; i++) Rect(5 + Hash(i, 1, 31) % 20, 3 + Hash(i, 2, 31) % 14, 2, 2, 1);
-                    Pixel(10, 8, 6); Pixel(18, 12, 6); Pixel(14, 16, 9); Pixel(22, 6, 9); Pixel(12, 4, 11);
+                    for (int k = 0; k < 40; k++)
+                    {
+                        float a = H(k, 1, 31) % 628 / 100f, d = H(k, 2, 31) % 100 / 100f * 18f;
+                        float cx = 32 + Mathf.Cos(a) * d * 1.2f, cy = 28 + Mathf.Sin(a) * d * 0.8f, r = 3 + H(k, 3, 31) % 3;
+                        C.Disc(cx, cy, r, Fe.S); C.Disc(cx - 1, cy + 1, r - 1.5f, k % 3 == 0 ? Fe.B : O.B); C.Set((int)cx - 1, (int)cy + 1, Fe.L);
+                    }
+                    foreach (var p in new[] { (24, 26), (38, 32), (30, 18), (44, 22), (20, 34) }) { C.Set(p.Item1, p.Item2, Em.B); C.Set(p.Item1 + 1, p.Item2, Em.L); C.Set(p.Item1, p.Item2 - 1, Em.S); }
+                    C.Set(33, 25, Gl.L);
                     return true;
                 case "tile_girder":
-                    Base(1, 0);
-                    Rect(3, 4, 26, 5, 0); Rect(4, 5, 24, 3, 2); Rect(3, 23, 26, 5, 0); Rect(4, 24, 24, 3, 2);
-                    Rect(13, 8, 6, 16, 0); Rect(14, 8, 4, 16, 2); Rect(14, 8, 1, 16, 9);
-                    for (int x = 6; x < 27; x += 4) { Pixel(x, 6, 9); Pixel(x, 25, 9); }
-                    Pixel(16, 12, 9); Pixel(16, 19, 9);
+                    foreach (int y in new[] { 8, 46 }) { Box(3, y, 58, 10, Fe); C.Rect(3, y + 4, 58, 2, Fe.S); RivetsH(6, 58, y + 2, 5, Bs.S); RivetsH(6, 58, y + 7, 5, Bs.S); }
+                    Box(27, 18, 10, 28, Fe); C.Rect(31, 18, 2, 28, Fe.S); RivetsV(29, 20, 44, 5, Bs.S);
+                    C.Line(6, 19, 26, 44, Fe.B, 3); C.Line(58, 19, 38, 44, Fe.B, 3); C.Line(6, 20, 26, 45, Fe.L);
                     return true;
                 case "tile_cobble":
-                    Base(10, 0);
-                    Rect(1, 1, 30, 30, 1);
-                    for (int row = 0; row < 6; row++)
-                    {
-                        int y = 2 + row * 5, offset = row % 2 == 0 ? 0 : 3;
-                        for (int x = 1 + offset; x < SIZE - 1; x += 6) Rect(x, y, 5, 4, Hash(x, y, 33) % 3 == 0 ? 3 : 10);
-                    }
+                    Cobble(0, 0, SIZE, SIZE, Sa, 33);
+                    C.Rect(0, 31, SIZE, 2, Bs.S);
                     return true;
                 case "tile_tank":
-                    Base(1, 0);
-                    Rect(5, 3, 22, 26, 0); Rect(6, 4, 20, 24, 2); Rect(6, 4, 20, 12, 8); Rect(6, 15, 20, 1, 9);
-                    Rect(6, 4, 3, 24, 1); Rect(6, 11, 20, 1, 1); Rect(6, 22, 20, 1, 1);
-                    for (int x = 8; x < 26; x += 3) { Pixel(x, 12, 9); Pixel(x, 23, 9); }
-                    Rect(4, 28, 24, 2, 0); Rect(8, 1, 2, 3, 0); Rect(22, 1, 2, 3, 0);
+                    Box(9, 6, 46, 52, Fe);
+                    C.Rect(13, 28, 38, 26, Wa.B); C.Rect(13, 50, 38, 4, Wa.S);
+                    for (int k = 0; k < 4; k++) C.Rect(16 + k * 9, 34 + (k % 2) * 7, 6, 1, Wa.L);
+                    foreach (int y in new[] { 12, 24 }) { C.Rect(9, y, 46, 2, Cu.B); RivetsH(11, 53, y + 1, 3, Bs.L); }
+                    RivetsV(11, 28, 56, 4, Bs.S); RivetsV(52, 28, 56, 4, Bs.S);
+                    C.Rect(28, 2, 8, 5, Bs.B); C.Rect(30, 0, 4, 3, Fe.S);
                     return true;
                 case "tile_glass":
-                    Base(0, 4);
-                    Rect(1, 1, 30, 30, 8);
-                    for (int i = 0; i < 12; i++) Disc(3 + Hash(i, 3, 35) % 26, 3 + Hash(i, 4, 35) % 14, 2, 7);
-                    Rect(1, 1, 30, 1, 4); Rect(1, 10, 30, 1, 4); Rect(1, 20, 30, 1, 4); Rect(1, 30, 30, 1, 4);
-                    Rect(1, 1, 1, 30, 4); Rect(11, 1, 1, 30, 4); Rect(21, 1, 1, 30, 4); Rect(30, 1, 1, 30, 4);
-                    for (int k = 0; k < 6; k++) { Pixel(4 + k, 23 + k, 9); Pixel(14 + k, 12 + k, 9); Pixel(24 + k, 22 + k, 9); }
+                    C.Rect(2, 2, 60, 60, Wa.S);
+                    for (int k = 0; k < 9; k++) Shrub(9 + H(k, 3, 35) % 46, 9 + H(k, 4, 35) % 46, 4 + H(k, 5, 35) % 3, k);
+                    C.Rect(2, 2, 60, 60, A(Wa.L, 70));
+                    foreach (int v in new[] { 2, 21, 41, 60 }) { C.Rect(2, v, 60, 2, Bs.B); C.Rect(v, 2, 2, 60, Bs.B); }
+                    for (int k = 0; k < 8; k++) { C.Set(6 + k, 36 + k, Sm.L); C.Set(26 + k, 16 + k, Sm.L); C.Set(45 + k, 46 + k, Sm.L); }
                     return true;
                 case "tile_bunk":
-                    Base(1, 0);
-                    Rect(4, 3, 24, 26, 0); Rect(5, 4, 22, 24, 3);
-                    Rect(6, 5, 20, 22, 6);
-                    Rect(6, 5, 20, 15, 10); Rect(6, 19, 20, 1, 11); Rect(6, 12, 20, 1, 11);
-                    Rect(8, 21, 16, 5, 9); Rect(8, 25, 16, 1, 6);
+                    Box(10, 5, 44, 54, Fe);
+                    C.Rect(13, 8, 38, 48, Sm.S);
+                    Box(15, 44, 34, 10, Sm); C.Rect(17, 50, 30, 2, Sm.L);
+                    C.Rect(13, 8, 38, 32, Fa.B); C.Rect(13, 37, 38, 3, Fa.L); C.Rect(13, 8, 38, 2, Fa.S);
+                    for (int x = 15; x < 51; x += 6) C.Rect(x, 11, 1, 24, Fa.S);
+                    foreach (int x in new[] { 10, 53 }) foreach (int y in new[] { 5, 58 }) C.Set(x, y, Bs.L);
                     return true;
                 case "tile_bench":
-                    Base(1, 0);
-                    Rect(3, 6, 26, 20, 0); Rect(4, 7, 24, 18, 3); Rect(4, 24, 24, 1, 4);
-                    for (int y = 10; y < 24; y += 5) Rect(4, y, 24, 1, 0);
-                    Rect(7, 13, 10, 3, 2); Rect(15, 12, 4, 5, 2);
-                    Rect(20, 9, 2, 12, 4); Rect(19, 19, 4, 3, 2);
-                    Disc(9, 21, 2, 5); Pixel(9, 21, 0);
+                    Box(5, 12, 54, 40, Wd);
+                    for (int y = 21; y < 51; y += 9) C.Rect(6, y, 52, 1, Wd.S);
+                    Box(8, 46, 10, 8, Fe); C.Rect(10, 52, 6, 2, Fe.L);
+                    C.Rect(22, 30, 16, 3, Wd.L); C.Rect(22, 30, 16, 1, Wd.S); Box(36, 27, 7, 9, Fe);
+                    C.Line(42, 18, 54, 30, Fe.B, 2); C.Disc(54, 31, 3, Fe.B); C.Disc(54, 31, 1.2f, Wd.B);
+                    Gear(16, 22, 5, 8, Bs);
+                    C.Set(48, 44, Bs.L); C.Set(50, 42, Bs.L); C.Set(28, 44, Cu.L);
                     return true;
                 case "tile_wire":
-                    Base(1, 0);
-                    Rect(15, 2, 3, 28, 0); Rect(16, 3, 1, 27, 3);
-                    Rect(6, 24, 21, 2, 0); Rect(7, 24, 19, 1, 3);
-                    Pixel(8, 26, 9); Pixel(16, 26, 9); Pixel(24, 26, 9);
-                    for (int x = 0; x < SIZE; x++) { Pixel(x, 21 + (x - 16) * (x - 16) / 80, 5); Pixel(x, 18 + (x - 16) * (x - 16) / 90, 9); }
+                    C.Line(0, 40, 64, 40, O.B); C.Line(0, 30, 64, 30, O.B);
+                    C.Rect(30, 6, 5, 50, Wd.B); C.Rect(30, 6, 1, 50, Wd.L); C.Rect(34, 6, 1, 50, Wd.S);
+                    Box(14, 42, 36, 5, Wd);
+                    foreach (int x in new[] { 17, 25, 39, 47 }) { C.Disc(x, 48, 1.6f, Bs.L); C.Set(x, 48, Sm.L); }
+                    for (int x = 0; x < SIZE; x++) { C.Set(x, 48 - Mathf.Abs(x - 32) / 10, Fe.S); C.Set(x, 44 + (x - 32) * (x - 32) / 220, O.B); }
                     return true;
                 case "tile_chimney":
-                    Base(1, 0);
-                    Rect(9, 2, 14, 20, 0); Rect(10, 3, 12, 18, 10);
-                    for (int row = 0; row < 6; row++)
-                    {
-                        int y = 3 + row * 3, offset = row % 2 == 0 ? 0 : 2;
-                        Rect(10, y, 12, 1, 3);
-                        for (int x = 10 + offset; x < 22; x += 4) Pixel(x, y + 1, 3);
-                    }
-                    Rect(8, 20, 16, 3, 0); Rect(9, 21, 14, 1, 2);
-                    Disc(14, 26, 3, 2); Disc(19, 27, 3, 9); Disc(24, 29, 2, 9); Disc(10, 29, 2, 2);
+                    Bricks(18, 6, 28, 34, Br);
+                    C.Rect(16, 38, 32, 6, Fe.B); C.Rect(16, 43, 32, 1, Fe.L); C.Rect(16, 38, 32, 1, Fe.S);
+                    C.Rect(20, 40, 24, 3, O.S); C.Rect(22, 40, 20, 1, Em.S);
+                    C.Rect(18, 18, 28, 1, Bs.S);
                     return true;
                 default:
                     return false;
             }
-        }
-
-        [Serializable]
-        private sealed class Palette
-        {
-            [SerializeField] private string[] _colors;
-            public string[] Colors => _colors;
         }
     }
 }

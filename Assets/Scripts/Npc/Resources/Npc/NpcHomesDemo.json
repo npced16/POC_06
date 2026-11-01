@@ -55,6 +55,12 @@
       "_upper": false,
       "_row": 0,
       "_column": 4
+    },
+    {
+      "_itemId": "tile_tank",
+      "_upper": false,
+      "_row": 0,
+      "_column": 5
     }
   ]
 }

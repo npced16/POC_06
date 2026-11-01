@@ -4,7 +4,7 @@
     <ui:VisualElement name="phase-root" picking-mode="Ignore">
         <ui:VisualElement name="phase-map-labels" picking-mode="Ignore" />
         <ui:VisualElement name="phase-banner" picking-mode="Ignore">
-            <ui:Label name="phase-hub" picking-mode="Ignore" text="주조소  ·  복구 중  ·  번영 12" />
+            <ui:Label name="phase-hub" picking-mode="Ignore" text="주조소  ·  복구 중  ·  번영 12  ·  서식지 2" />
             <ui:Label name="phase-deadline" picking-mode="Ignore" text="정착 기한: 3바퀴 남음" />
         </ui:VisualElement>
         <ui:VisualElement name="phase-build-menu">

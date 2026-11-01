@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,32 +6,29 @@ using UnityEngine;
 
 using UnityEditor;
 
+using static IronRing.Art.Editor.ArtKit;
+
 namespace IronRing.Art.Editor
 {
-    /// <summary>팔레트 기반 32픽셀 아트를 외부 도구 없이 결정적으로 생성한다.</summary>
+    /// <summary>
+    /// 스토리 008·019. 탑뷰 스팀펑크 64픽셀 도트(선로 6, 거점 4+폐허 4, 열차·경유지·인물·시설·게이지 9, 내부 타일 4)와 contact_sheet.png를
+    /// 외부 도구 없이 결정적으로 생성한다. 색은 Assets/Art/Palette/SteampunkPalette.json(ArtKit)에서 읽는다. 파일 이름은 그대로 두어 GUID 참조를 지킨다.
+    /// 모든 거점의 굴뚝 머리는 같은 자리(픽셀 x 42~48, 윗줄 y 58)라서 HubBuilding 프리팹의 Smoke 자식 하나로 맞는다.
+    /// </summary>
     public static class SpriteGen
     {
-        private const int SIZE = 32;
         private const string OUTPUT = "Assets/Art/Generated/";
-        private static Color32[] _palette;
-        private static Color32[] _pixels;
 
-        /// <summary>palette.json을 읽어 27개 PNG(선로 6, 거점 8, 아이콘 9, 내부 타일 4)와 contact_sheet.png를 생성하고 임포터를 설정한다.</summary>
+        /// <summary>27개 PNG와 contact_sheet.png를 만들고 임포터(PPU 64, Point, 무압축)를 설정한다.</summary>
         [MenuItem("IronRing/Art/Generate Sprites")]
         public static void Generate()
         {
-            var data = JsonUtility.FromJson<Palette>(File.ReadAllText("Assets/Art/palette.json"));
-            _palette = data.Colors.Select(value => ColorUtility.TryParseHtmlString(value, out Color color)
-                ? (Color32)color : throw new FormatException(value)).ToArray();
-            if (_palette.Length != 12) throw new FormatException("Palette requires 12 colors");
+            Load();
             Directory.CreateDirectory(OUTPUT);
             var sprites = new List<Color32[]>();
             var names = new List<string>();
-            for (int i = 0; i < 6; i++)
-            {
-                Begin(); Rail(i);
-                Save(new[] { "rail_horizontal", "rail_vertical", "rail_curve_ne", "rail_curve_nw", "rail_curve_se", "rail_curve_sw" }[i], sprites, names);
-            }
+            string[] rails = { "rail_horizontal", "rail_vertical", "rail_curve_ne", "rail_curve_nw", "rail_curve_se", "rail_curve_sw" };
+            for (int i = 0; i < rails.Length; i++) { Begin(); Rail(i); Save(rails[i], sprites, names); }
             for (int i = 0; i < 4; i++)
             {
                 Begin(); Hub(i, false); Save("hub_" + (i + 1), sprites, names);
@@ -40,205 +36,262 @@ namespace IronRing.Art.Editor
             }
             string[] icons = { "train", "waypoint", "raider", "wall", "turret", "workshop", "npc", "prosperity_bg", "prosperity_fill" };
             foreach (string icon in icons) { Begin(); Icon(icon); Save(icon, sprites, names); }
-            // Story 012: 거점 내부 탑뷰 타일(바닥, 잔해, 빈 터, 시설 부지).
             string[] tiles = { "interior_floor", "interior_rubble", "interior_empty", "interior_plot" };
             foreach (string tile in tiles) { Begin(); InteriorTile(tile); Save(tile, sprites, names); }
-            const int cell = 40;
-            int sheetRows = (sprites.Count + 5) / 6;
-            var sheet = new Texture2D(cell * 6, cell * sheetRows, TextureFormat.RGBA32, false);
-            var background = Enumerable.Repeat(_palette[0], sheet.width * sheet.height).ToArray();
-            sheet.SetPixels32(background);
-            for (int i = 0; i < sprites.Count; i++)
-                sheet.SetPixels32((i % 6) * cell + 4, (sheetRows - 1 - i / 6) * cell + 4, SIZE, SIZE, sprites[i]);
-            sheet.Apply();
-            File.WriteAllBytes(OUTPUT + "contact_sheet.png", sheet.EncodeToPNG());
-            UnityEngine.Object.DestroyImmediate(sheet);
-            File.WriteAllText(OUTPUT + "manifest.json", "{\"size\":32,\"sprites\":[" + string.Join(",", names.Select(n => "\"" + n + "\"")) + "]}");
+            File.WriteAllBytes(OUTPUT + "contact_sheet.png", Sheet(sprites, 7));
+            File.WriteAllText(OUTPUT + "manifest.json", "{\"size\":" + SIZE + ",\"sprites\":[" + string.Join(",", names.Select(n => "\"" + n + "\"")) + "]}");
             AssetDatabase.Refresh();
             foreach (string name in names.Concat(new[] { "contact_sheet" })) ConfigureImporter(OUTPUT + name + ".png");
             AssetDatabase.SaveAssets();
         }
 
-        /// <summary>path의 PNG를 단일 스프라이트, 32 PPU, Point, 무압축으로 임포트한다.</summary>
-        private static void ConfigureImporter(string path)
-        {
-            var importer = (TextureImporter)AssetImporter.GetAtPath(path);
-            importer.textureType = TextureImporterType.Sprite;
-            importer.spriteImportMode = SpriteImportMode.Single;
-            importer.spritePixelsPerUnit = SIZE;
-            importer.filterMode = FilterMode.Point;
-            importer.textureCompression = TextureImporterCompression.Uncompressed;
-            importer.mipmapEnabled = false;
-            importer.alphaIsTransparency = true;
-            importer.npotScale = TextureImporterNPOTScale.None;
-            importer.SaveAndReimport();
-        }
-
-        /// <summary>새 스프라이트를 위해 투명 픽셀 버퍼를 초기화한다.</summary>
-        private static void Begin() { _pixels = new Color32[SIZE * SIZE]; }
-
-        /// <summary>name 파일에 현재 픽셀을 저장하고 시트용 sprites 및 names 목록에 추가한다.</summary>
         private static void Save(string name, List<Color32[]> sprites, List<string> names)
         {
-            var texture = new Texture2D(SIZE, SIZE, TextureFormat.RGBA32, false);
-            texture.SetPixels32(_pixels); texture.Apply();
-            File.WriteAllBytes(OUTPUT + name + ".png", texture.EncodeToPNG());
-            UnityEngine.Object.DestroyImmediate(texture);
-            sprites.Add(_pixels); names.Add(name);
+            C.Save(OUTPUT + name + ".png");
+            sprites.Add(C.Px); names.Add(name);
         }
 
-        /// <summary>x,y 위치에 팔레트 index 색을 찍어 현재 버퍼를 변경한다.</summary>
-        private static void Pixel(int x, int y, int index)
-        {
-            if (x >= 0 && x < SIZE && y >= 0 && y < SIZE) _pixels[y * SIZE + x] = _palette[index];
-        }
-
-        /// <summary>x,y에서 w,h 크기의 사각형을 index 색으로 채운다.</summary>
-        private static void Rect(int x, int y, int w, int h, int index)
-        {
-            for (int py = y; py < y + h; py++) for (int px = x; px < x + w; px++) Pixel(px, py, index);
-        }
-
-        /// <summary>cx,cy 중심의 radius 원을 index 색으로 채운다.</summary>
-        private static void Disc(int cx, int cy, int radius, int index)
-        {
-            for (int y = -radius; y <= radius; y++) for (int x = -radius; x <= radius; x++)
-                if (x * x + y * y <= radius * radius) Pixel(cx + x, cy + y, index);
-        }
-
-        /// <summary>kind 방향에 맞는 두 레일과 침목을 현재 타일에 그린다.</summary>
+        /// <summary>나무 침목 위 어두운 강철 레일과 황동 볼트. kind 0 가로, 1 세로, 2~5 곡선(ne, nw, se, sw).</summary>
         private static void Rail(int kind)
         {
+            if (kind < 2)
+            {
+                Layer();
+                for (int u = 1; u < SIZE; u += 8)
+                {
+                    Box(u, 12, 5, 40, Wd);
+                    C.Rect(u + 1, 13, 1, 38, Wd.L);
+                }
+                EndLayer();
+                Layer();
+                foreach (int y in new[] { 19, 42 }) { C.Rect(0, y, SIZE, 3, Fe.B); C.Rect(0, y + 1, SIZE, 1, Fe.L); C.Rect(0, y, SIZE, 1, Fe.S); }
+                EndLayer();
+                for (int u = 1; u < SIZE; u += 8) foreach (int y in new[] { 16, 24, 39, 47 }) C.Set(u + 2, y, Bs.B);
+                if (kind == 1) C.Transpose();
+                return;
+            }
+            float cx = kind == 2 || kind == 4 ? SIZE : 0, cy = kind == 2 || kind == 3 ? SIZE : 0;
+            Layer();
             for (int y = 0; y < SIZE; y++) for (int x = 0; x < SIZE; x++)
             {
-                int u = kind == 1 ? y : x;
-                int v = kind == 1 ? x : y;
-                if (kind < 2)
+                float dx = x + 0.5f - cx, dy = y + 0.5f - cy, r = Mathf.Sqrt(dx * dx + dy * dy);
+                float s = Mathf.Atan2(Mathf.Abs(dy), Mathf.Abs(dx)) * 32f % 8f;
+                if (r < 12 || r >= 52 || s >= 5f) continue;
+                C.Set(x, y, s < 1f ? Wd.L : s >= 4f ? Wd.S : Wd.B);
+            }
+            EndLayer();
+            Layer();
+            for (int y = 0; y < SIZE; y++) for (int x = 0; x < SIZE; x++)
+            {
+                float dx = x + 0.5f - cx, dy = y + 0.5f - cy, r = Mathf.Sqrt(dx * dx + dy * dy);
+                foreach (float center in new[] { 20.5f, 43.5f })
                 {
-                    if (v >= 6 && v <= 25 && u % 7 < 3) Pixel(x, y, 3);
-                    if (v == 9 || v == 22) Pixel(x, y, 2);
-                    if (v == 10 || v == 21) Pixel(x, y, 5);
+                    float d = r - center;
+                    if (Mathf.Abs(d) < 1.5f) C.Set(x, y, Mathf.Abs(d) < 0.5f ? Fe.L : d < 0 ? Fe.S : Fe.B);
                 }
-                else
+            }
+            EndLayer();
+            for (int k = 0; k < 7; k++)
+            {
+                float a = (k * 8 + 2.5f) / 32f;
+                if (a > Mathf.PI / 2) break;
+                foreach (float rr in new[] { 17f, 24f, 40f, 47f })
                 {
-                    int cx = kind == 2 || kind == 4 ? 31 : 0;
-                    int cy = kind == 2 || kind == 3 ? 31 : 0;
-                    float radius = Mathf.Sqrt((x - cx) * (x - cx) + (y - cy) * (y - cy));
-                    float angle = Mathf.Atan2(Mathf.Abs(y - cy), Mathf.Abs(x - cx));
-                    if (radius >= 6 && radius <= 25 && (int)(angle * 16) % 4 < 2) Pixel(x, y, 3);
-                    if (Mathf.Abs(radius - 10) < 1 || Mathf.Abs(radius - 21) < 1) Pixel(x, y, 5);
+                    float sx = Mathf.Abs(Mathf.Cos(a)) * rr, sy = Mathf.Abs(Mathf.Sin(a)) * rr;
+                    C.Set(Mathf.FloorToInt(cx == 0 ? sx : cx - sx), Mathf.FloorToInt(cy == 0 ? sy : cy - sy), Bs.B);
                 }
             }
         }
 
-        /// <summary>kind 거점의 탑뷰 실루엣을 그리고 ruined이면 같은 바닥 위에 잔해를 남긴다.</summary>
+        /// <summary>돌 광장 받침(둥근 모서리, 외곽선).</summary>
+        private static void Pad(int salt)
+        {
+            Layer();
+            Cobble(2, 2, 60, 60, G, salt);
+            for (int y = 2; y < 62; y++) for (int x = 2; x < 62; x++)
+            {
+                float qx = Mathf.Max(0, Mathf.Max(8 - x, x - 55)), qy = Mathf.Max(0, Mathf.Max(8 - y, y - 55));
+                if (qx * qx + qy * qy > 36) C.Erase(x, y);
+            }
+            EndLayer();
+        }
+
+        /// <summary>kind 거점(0 시청, 1 주조소, 2 창고 부두, 3 역 요새). ruined이면 불 꺼지고 무너진 지붕과 잔해.</summary>
         private static void Hub(int kind, bool ruined)
         {
-            Rect(3, 3, 26, 25, 0); Rect(4, 4, 24, 23, 2); Rect(5, 5, 22, 21, 1);
-            if (ruined)
-            {
-                Rect(6, 6, 3, 18, 3); Rect(7, 6, 17, 3, 3); Rect(23, 8, 3, 14, 2);
-                for (int i = 0; i < 9; i++) Rect(9 + (i * 7) % 15, 9 + (i * 5) % 15, 3, 2, i % 2 == 0 ? 2 : 3);
-                Rect(14, 14, 5, 3, kind == 1 ? 8 : 10); return;
-            }
-            if (kind == 0)
-            {
-                Rect(7, 7, 18, 17, 3); Rect(8, 9, 16, 13, 4); Rect(9, 16, 14, 2, 5);
-                Rect(11, 9, 9, 5, 0); Rect(12, 10, 7, 3, 11); Rect(7, 22, 5, 7, 0); Rect(8, 23, 3, 5, 5);
-                Disc(10, 29, 2, 9); Rect(21, 20, 4, 6, 2);
-            }
-            if (kind == 1)
-            {
-                Rect(7, 7, 18, 17, 3); Rect(9, 9, 14, 13, 8);
-                for (int x = 10; x < 23; x += 5) { Rect(x, 10, 2, 11, 7); Rect(x, 13, 3, 2, 9); }
-                Rect(6, 23, 20, 3, 5); Rect(15, 7, 2, 16, 5);
-            }
+            bool lit = !ruined;
+            Pad(10 + kind);
             if (kind == 2)
             {
-                Rect(6, 6, 20, 19, 8); for (int y = 7; y < 25; y += 4) Rect(7, y, 18, 1, 7);
-                Rect(7, 17, 18, 5, 3); Rect(7, 20, 18, 1, 5); Rect(13, 7, 5, 18, 4);
-                Rect(8, 9, 3, 5, 6); Rect(20, 10, 3, 4, 5);
+                C.Rect(3, 3, 58, 6, Wa.B); C.Rect(3, 8, 58, 1, Mo.S);
+                for (int x = 5; x < 60; x += 7) C.Rect(x + kind % 2, 5 + x % 3, 3, 1, Wa.L);
             }
-            if (kind == 3)
+            Layer();
+            switch (kind)
             {
-                Rect(7, 7, 18, 18, 3); Rect(10, 10, 12, 12, 2); Rect(12, 12, 8, 8, 4);
-                foreach (int x in new[] { 6, 22 }) foreach (int y in new[] { 6, 22 }) { Rect(x, y, 5, 5, 4); Rect(x, y + 3, 5, 2, 5); }
-                Rect(14, 5, 4, 5, 0); Rect(15, 15, 2, 5, 6);
+                case 0:
+                    Roof(6, 26, 52, 28, R, false);
+                    Bricks(8, 10, 48, 16, W);
+                    foreach (int x in new[] { 11, 18, 42, 49 }) Window(x, 14, 4, 7, lit);
+                    Bricks(24, 8, 16, 22, W2);
+                    Roof(22, 30, 20, 6, Cu, false);
+                    C.Disc(32, 23, 5.5f, Bs.S); C.Disc(32, 23, 4.5f, Bs.B); C.Disc(32, 23, 3.2f, lit ? Gl.B : Mo.S); C.Disc(31.5f, 23.5f, 1.5f, lit ? Gl.L : O.S);
+                    Box(29, 8, 6, 9, Wd); C.Rect(32, 8, 1, 8, Wd.S); C.Set(33, 12, Bs.L);
+                    Gear(18, 42, 7, 10, Bs);
+                    Chimney(13, 44, 6, 13, Br);
+                    break;
+                case 1:
+                    Roof(4, 24, 30, 26, R, true);
+                    Bricks(6, 10, 26, 14, W2);
+                    Window(9, 14, 4, 6, lit); Box(17, 10, 10, 10, Fe); C.Rect(18, 11, 8, 8, lit ? Em.S : O.S); RivetsH(18, 25, 18, 2, Bs.S);
+                    CylV(34, 10, 24, 22, Cu); C.Rect(34, 14, 24, 1, Bs.S); C.Rect(34, 24, 24, 1, Bs.S);
+                    Window(44, 16, 4, 6, lit);
+                    Dome(46, 34, 12, Cu); C.Ring(46, 34, 8, 9, Bs.S); RivetRing(46, 34, 10.5f, 16, Bs.L);
+                    PipeH(28, 28, 10, 4, Bs);
+                    Gear(17, 37, 8, 10, Bs); Gear(27, 44, 4, 8, Cu);
+                    break;
+                case 2:
+                    Roof(4, 24, 56, 28, R, true);
+                    Bricks(6, 10, 52, 14, Br);
+                    foreach (int x in new[] { 10, 17, 44, 51 }) Window(x, 15, 4, 5, lit);
+                    Box(25, 10, 14, 12, Wd); C.Rect(32, 10, 1, 11, Wd.S); C.Line(26, 11, 31, 20, Wd.L); C.Line(33, 11, 38, 20, Wd.L);
+                    C.Rect(12, 34, 12, 4, lit ? Mix(Gl.S, R.B, 0.4f) : R.S); C.Rect(12, 37, 12, 1, lit ? Gl.B : R.L);
+                    C.Line(14, 44, 5, 60, Cu.B, 2); C.Line(13, 44, 4, 60, Cu.L); C.Line(5, 60, 9, 60, Fe.B);
+                    break;
+                default:
+                    Roof(8, 22, 48, 32, R, false);
+                    Bricks(10, 8, 44, 14, W2);
+                    foreach (int x in new[] { 15, 21, 40, 46 }) Window(x, 12, 3, 5, lit);
+                    Box(27, 8, 10, 10, Wd); C.Rect(32, 8, 1, 9, Wd.S); Window(29, 19, 6, 1, lit);
+                    Dome(32, 38, 10, Cu);
+                    foreach (var d in new[] { (1, 0), (-1, 0), (0, 1), (0, -1) }) C.Line(32 + d.Item1 * 3, 38 + d.Item2 * 3, 32 + d.Item1 * 9, 38 + d.Item2 * 9, Bs.S);
+                    C.Disc(32, 38, 2.5f, lit ? Gl.B : O.S); C.Set(31, 38, lit ? Gl.L : Mo.S);
+                    foreach (var p in new[] { (11, 22), (53, 22), (11, 52) }) { Dome(p.Item1, p.Item2, 6, R); C.Set(p.Item1 - 1, p.Item2, Bs.L); }
+                    break;
             }
-            Pixel(5, 5, 5); Pixel(26, 5, 5); Pixel(5, 25, 5); Pixel(26, 25, 5);
+            Chimney(42, 45, 7, 14, kind == 2 ? Br : kind == 0 ? Cu : Fe);
+            if (ruined) Ruin(40 + kind);
+            EndLayer();
+            if (!ruined) return;
+            Layer(); Rubble(6, 4, 52, 8, 9, 50 + kind); EndLayer();
         }
 
-        /// <summary>name에 해당하는 열차, 인물, 시설 또는 게이지를 버퍼에 그린다.</summary>
+        /// <summary>name 열차·경유지·인물·시설·게이지를 그린다. 열차 앞(굴뚝)은 위쪽.</summary>
         private static void Icon(string name)
         {
             switch (name)
             {
                 case "train":
-                    Rect(7, 4, 18, 23, 0); Rect(9, 5, 14, 21, 4); Rect(10, 6, 12, 5, 3);
-                    Rect(10, 13, 12, 12, 5); Rect(12, 14, 8, 8, 2); Rect(13, 17, 6, 3, 7);
-                    Rect(13, 25, 6, 4, 6); Rect(7, 2, 18, 3, 2); Rect(6, 9, 3, 4, 2); Rect(23, 9, 3, 4, 2);
-                    Disc(16, 23, 2, 0); break;
+                    Layer();
+                    for (int y = 8; y < 56; y += 11) { Box(14, y, 4, 7, Fe); Box(46, y, 4, 7, Fe); }
+                    Box(17, 5, 30, 54, Fe);
+                    for (int y = 17; y < 58; y += 12) C.Rect(18, y, 28, 1, Fe.S);
+                    RivetsV(19, 7, 56, 3, Bs.S); RivetsV(44, 7, 56, 3, Bs.S);
+                    CylV(21, 26, 22, 28, Cu);
+                    foreach (int y in new[] { 31, 41, 51 }) { C.Rect(21, y, 22, 1, Bs.B); C.Rect(21, y - 1, 22, 1, Bs.S); }
+                    Box(19, 6, 26, 18, W);
+                    Roof(20, 9, 24, 14, R, false);
+                    Window(16, 14, 2, 4, true); Window(46, 14, 2, 4, true);
+                    Box(17, 58, 30, 3, Bs);
+                    C.Disc(32, 53, 4.5f, Fe.S); C.Ring(32, 53, 3, 4.5f, Fe.L); C.Disc(32, 53, 2.5f, O.S);
+                    C.Disc(25, 46, 2, Bs.B); C.Set(25, 46, Sm.L);
+                    EndLayer();
+                    break;
                 case "waypoint":
-                    Disc(16, 15, 11, 0); Disc(16, 15, 9, 4); Disc(16, 15, 7, 1);
-                    Rect(15, 8, 2, 16, 6); Rect(11, 19, 9, 2, 5); Rect(13, 21, 5, 2, 5); break;
-                case "raider":
+                    Layer();
+                    C.Rect(30, 4, 4, 18, Fe.B); C.Rect(30, 4, 1, 18, Fe.L); C.Rect(26, 3, 12, 3, Fe.S);
+                    Gear(32, 36, 20, 12, Bs);
+                    C.Disc(32, 36, 7, Fe.S); C.Disc(32, 36, 5.5f, Em.S); C.Disc(32, 36, 4, Gl.B); C.Disc(31, 37, 2, Gl.L);
+                    EndLayer();
+                    Glow(32, 36, 11);
+                    break;
                 case "npc":
-                    Rect(9, 5, 5, 8, 0); Rect(18, 5, 5, 8, 0); Rect(8, 12, 16, 11, name == "npc" ? 8 : 10);
-                    Rect(11, 21, 10, 7, 3); Rect(12, 21, 8, 5, 6); Rect(10, 26, 12, 3, 2);
-                    Rect(13, 23, 2, 2, 0); Rect(18, 23, 2, 2, 0); Rect(15, 14, 2, 6, 5); break;
+                case "raider":
+                    bool npc = name == "npc";
+                    C.Ellipse(32, 14, 14, 5, A(O.S, 110));
+                    Layer();
+                    Swatch coat = npc ? Wa : Fe;
+                    C.Ellipse(32, 26, 14, 13, coat.S); C.Ellipse(31, 27, 12, 11, coat.B); C.Ellipse(27, 30, 5, 5, coat.L);
+                    C.Rect(31, 15, 2, 20, coat.S);
+                    if (npc) { C.Rect(20, 30, 24, 3, Bs.S); C.Set(32, 22, Bs.L); C.Set(32, 26, Bs.L); }
+                    else { C.Ellipse(32, 36, 10, 3, Fa.B); C.Rect(24, 35, 16, 1, Fa.S); }
+                    C.Disc(32, 44, 9, Sa.B); C.Disc(30, 46, 5, Sa.L);
+                    if (npc) { C.Disc(32, 47, 10, Wd.S); C.Disc(32, 48, 7, Wd.B); C.Ring(32, 48, 5.5f, 7, Bs.S); C.Disc(30, 50, 3, Wd.L); }
+                    else
+                    {
+                        C.Disc(32, 47, 9, Fe.S); C.Disc(31, 48, 7, Fe.B);
+                        C.Rect(23, 41, 18, 3, O.S); C.Disc(27, 42, 2.5f, Cu.B); C.Disc(37, 42, 2.5f, Cu.B); C.Set(26, 43, Em.L); C.Set(36, 43, Em.L);
+                    }
+                    EndLayer();
+                    break;
                 case "wall":
-                    Rect(3, 8, 26, 15, 0); Rect(4, 9, 24, 13, 3);
-                    for (int x = 5; x < 28; x += 6) { Rect(x, 10, 4, 11, 4); Rect(x, 20, 4, 3, 5); } break;
+                    Layer();
+                    Bricks(4, 16, 56, 26, W2);
+                    for (int x = 4; x < 60; x += 10) { Box(x, 42, 6, 8, W2); C.Rect(x + 1, 48, 4, 1, Bs.S); }
+                    C.Rect(4, 26, 56, 4, Fe.B); C.Rect(4, 29, 56, 1, Fe.L); C.Rect(4, 26, 56, 1, Fe.S); RivetsH(6, 58, 28, 4, Bs.L);
+                    EndLayer();
+                    break;
                 case "turret":
-                    Disc(16, 14, 11, 0); Disc(16, 14, 9, 3); Disc(16, 14, 7, 5); Disc(16, 14, 5, 2);
-                    Rect(13, 16, 6, 13, 0); Rect(14, 18, 4, 10, 4); Rect(14, 27, 4, 2, 6); break;
+                    Layer();
+                    Dome(32, 26, 22, Fe); RivetRing(32, 26, 19.5f, 24, Bs.S);
+                    Dome(32, 28, 13, Cu); C.Ring(32, 28, 9, 10, Bs.S);
+                    C.Rect(29, 34, 6, 26, Fe.B); C.Rect(30, 34, 2, 26, Fe.L); C.Rect(34, 34, 1, 26, Fe.S);
+                    Box(28, 56, 8, 4, Bs); C.Rect(30, 59, 4, 1, O.S);
+                    C.Disc(32, 28, 3, Em.B); C.Set(31, 29, Gl.L);
+                    EndLayer();
+                    break;
                 case "workshop":
-                    Rect(5, 5, 23, 22, 0); Rect(6, 6, 21, 20, 3); Rect(7, 14, 19, 11, 4);
-                    Rect(7, 23, 19, 2, 5); Rect(10, 6, 7, 8, 1); Rect(20, 7, 4, 5, 7);
-                    Disc(16, 19, 4, 6); Disc(16, 19, 2, 3); break;
-                case "prosperity_bg": Rect(1, 11, 30, 10, 0); Rect(2, 12, 28, 8, 4); Rect(3, 13, 26, 6, 1); break;
-                case "prosperity_fill": Rect(3, 13, 26, 6, 8); Rect(3, 16, 26, 3, 7); Rect(3, 18, 26, 1, 9); break;
+                    Layer();
+                    Roof(6, 24, 52, 30, R, true);
+                    Bricks(8, 8, 48, 16, Br);
+                    Window(12, 12, 5, 7, true); Window(47, 12, 5, 7, true);
+                    Box(26, 8, 12, 12, Wd); C.Rect(27, 9, 10, 10, Em.S); C.Rect(28, 10, 8, 3, Gl.S);
+                    Gear(22, 40, 9, 10, Bs); Gear(33, 47, 5, 8, Cu);
+                    Chimney(44, 38, 7, 18, Cu);
+                    EndLayer();
+                    break;
+                case "prosperity_bg":
+                    C.Rect(2, 22, 60, 20, O.B); C.Rect(3, 23, 58, 18, Bs.S); C.Rect(4, 24, 56, 16, Bs.B); C.Rect(4, 39, 56, 1, Bs.L);
+                    C.Rect(6, 26, 52, 12, Mo.S); C.Set(4, 24, Bs.L); C.Set(59, 24, Bs.L); C.Set(4, 39, O.B); C.Set(59, 39, O.B);
+                    break;
+                case "prosperity_fill":
+                    C.Rect(6, 26, 52, 12, Gl.B); C.Rect(6, 34, 52, 3, Gl.L); C.Rect(6, 26, 52, 2, Gl.S); C.Rect(6, 37, 52, 1, Gl.S);
+                    break;
             }
         }
 
-        /// <summary>name에 해당하는 거점 내부 타일(바닥·잔해·빈 터·시설 부지)을 같은 석판 바닥 위에 그려 격자가 이어지게 한다.</summary>
+        /// <summary>거점 내부 칸: 돌바닥(줄눈·이끼·먼지), 잔해, 리벳 슬레이트 판(빈 터), 옛 시설 부지.</summary>
         private static void InteriorTile(string name)
         {
-            // 바닥: 어두운 석판, 왼쪽·아래 이음새, 군데군데 밝은 돌.
-            Rect(0, 0, SIZE, SIZE, 1); Rect(0, 0, SIZE, 1, 0); Rect(0, 0, 1, SIZE, 0);
-            for (int i = 0; i < 7; i++) Pixel(2 + (i * 11) % 29, 3 + (i * 7) % 27, 2);
+            Cobble(0, 0, SIZE, SIZE, G, 3);
+            C.Rect(0, 0, SIZE, 1, Mo.S); C.Rect(0, 0, 1, SIZE, Mo.S);
             switch (name)
             {
                 case "interior_rubble":
-                    // 무너진 벽돌과 들보 더미: 그림자(0), 몸체(2/3), 윗면 하이라이트(5), 녹슨 조각(10)과 황동 파편(4).
-                    Rect(4, 5, 10, 6, 0); Rect(4, 6, 9, 5, 2); Rect(5, 10, 7, 1, 5);
-                    Rect(15, 3, 8, 5, 0); Rect(15, 4, 7, 4, 3); Rect(16, 7, 5, 1, 5);
-                    Rect(20, 9, 9, 7, 0); Rect(20, 10, 8, 6, 2); Rect(21, 15, 6, 1, 5);
-                    Rect(5, 14, 11, 7, 0); Rect(5, 15, 10, 6, 3); Rect(6, 20, 8, 1, 5);
-                    Rect(17, 18, 10, 8, 0); Rect(17, 19, 9, 7, 2); Rect(18, 25, 7, 1, 5);
-                    Rect(8, 23, 8, 5, 0); Rect(8, 24, 7, 4, 3); Rect(9, 27, 5, 1, 5);
-                    Rect(12, 12, 4, 3, 10); Rect(24, 5, 3, 3, 10); Rect(3, 27, 4, 2, 4);
+                    Layer();
+                    Rubble(4, 4, 50, 50, 14, 21);
+                    Box(10, 30, 34, 4, Wd); C.Line(14, 18, 44, 44, Wd.S, 2);
+                    C.Rect(40, 12, 6, 3, Cu.B); C.Set(41, 14, Cu.L);
+                    EndLayer();
                     break;
                 case "interior_empty":
-                    // 치운 빈 터: 밝은 석판과 옅은 테두리, 아이템을 놓을 수 있다는 표시로 가운데 청록 점.
-                    Rect(2, 2, 28, 28, 2); Rect(3, 3, 26, 26, 1); Rect(4, 4, 24, 24, 2);
-                    for (int y = 6; y < 26; y += 5) for (int x = 6; x < 26; x += 5) Pixel(x, y, 1);
-                    Rect(15, 15, 2, 2, 7);
+                    Layer();
+                    Box(4, 4, 56, 56, R);
+                    for (int y = 4; y < 60; y += 13) C.Rect(5, y, 54, 1, R.S);
+                    C.Rect(32, 5, 1, 54, R.S); C.Rect(33, 5, 1, 54, R.L);
+                    RivetsH(7, 57, 7, 6, Bs.S); RivetsH(7, 57, 56, 6, Bs.S); RivetsV(7, 13, 50, 6, Bs.S); RivetsV(56, 13, 50, 6, Bs.S);
+                    C.Disc(32, 32, 4, Bs.S); C.Disc(32, 32, 3, Bs.B); C.Disc(31.5f, 32.5f, 1.2f, Bs.L);
+                    EndLayer();
                     break;
                 case "interior_plot":
-                    // 옛 시설 부지: 갈색 토대 테두리, 네 모서리 황동 기초, 가운데 황동 십자 표식.
-                    Rect(3, 3, 26, 26, 3); Rect(5, 5, 22, 22, 1); Rect(6, 6, 20, 20, 2);
-                    foreach (int x in new[] { 2, 25 }) foreach (int y in new[] { 2, 25 }) { Rect(x, y, 5, 5, 4); Rect(x, y + 4, 5, 1, 5); Pixel(x + 1, y + 1, 5); }
-                    Rect(12, 15, 8, 2, 4); Rect(15, 12, 2, 8, 4);
+                    Layer();
+                    C.Rect(8, 8, 48, 48, Wd.B); C.Rect(12, 12, 40, 40, Mo.S);
+                    for (int x = 12; x < 52; x += 2) C.Set(x, 52 - (x % 4), Wd.L);
+                    foreach (int x in new[] { 5, 49 }) foreach (int y in new[] { 5, 49 }) Box(x, y, 10, 10, Bs);
+                    C.Rect(26, 31, 12, 3, Bs.B); C.Rect(30, 26, 3, 13, Bs.B); C.Rect(26, 33, 12, 1, Bs.L);
+                    EndLayer();
                     break;
             }
-        }
-
-        [Serializable]
-        private sealed class Palette
-        {
-            [SerializeField] private string[] _colors;
-            public string[] Colors => _colors;
         }
     }
 }

@@ -30,7 +30,8 @@ namespace IronRing.Art.Editor
                 var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
                 var camera = new GameObject("PreviewCamera").AddComponent<Camera>();
                 camera.clearFlags = CameraClearFlags.SolidColor;
-                camera.backgroundColor = new Color(0.098f, 0.118f, 0.149f);
+                ArtKit.Load();
+                camera.backgroundColor = ArtKit.Bg.B;
                 camera.orthographic = true;
                 camera.transform.position = new Vector3(0, 0, -10);
                 var root = new GameObject("ArtPreview");
@@ -61,22 +62,22 @@ namespace IronRing.Art.Editor
             const string evidence = "production/qa/evidence/story-008-art-set-korean-base/";
             SpriteGen.Generate();
             string[] files = Directory.GetFiles("Assets/Art/Generated", "*.png").Select(path => path.Replace('\\', '/')).OrderBy(path => path).ToArray();
-            if (files.Length != 24) throw new InvalidOperationException("Expected 23 sprites and one contact sheet");
+            if (files.Length != 28) throw new InvalidOperationException("Expected 27 sprites and one contact sheet");
             string[] hashes = files.Select(Hash).ToArray();
             SpriteGen.Generate();
             for (int i = 0; i < files.Length; i++)
             {
                 if (hashes[i] != Hash(files[i])) throw new InvalidOperationException("Non-deterministic PNG: " + files[i]);
                 var importer = (TextureImporter)AssetImporter.GetAtPath(files[i]);
-                if (importer.spritePixelsPerUnit != 32 || importer.filterMode != FilterMode.Point ||
+                if (importer.spritePixelsPerUnit != ArtKit.PPU || importer.filterMode != FilterMode.Point ||
                     importer.textureCompression != TextureImporterCompression.Uncompressed)
                     throw new InvalidOperationException("Invalid sprite import: " + files[i]);
                 Texture2D texture = AssetDatabase.LoadAssetAtPath<Texture2D>(files[i]);
-                if (!files[i].EndsWith("contact_sheet.png") && (texture.width != 32 || texture.height != 32))
+                if (!files[i].EndsWith("contact_sheet.png") && (texture.width != ArtKit.SIZE || texture.height != ArtKit.SIZE))
                     throw new InvalidOperationException("Invalid sprite dimensions: " + files[i]);
             }
             Directory.CreateDirectory(evidence);
-            File.WriteAllText(evidence + "generation-check.txt", "PASS: 23 sprites, 32x32, PPU32, Point, Uncompressed; 24 PNG SHA256 hashes identical on two runs.\n" +
+            File.WriteAllText(evidence + "generation-check.txt", "PASS: 27 sprites, 64x64, PPU64, Point, Uncompressed; 28 PNG SHA256 hashes identical on two runs.\n" +
                 string.Join("\n", files.Select((path, i) => path + " " + hashes[i])));
             File.Copy("Assets/Art/Generated/contact_sheet.png", evidence + "contact_sheet.png", true);
         }

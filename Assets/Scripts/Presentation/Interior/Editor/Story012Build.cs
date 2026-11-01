@@ -17,6 +17,8 @@ namespace IronRing.Presentation.Interior.Editor
     /// 스토리 012 제작 도구. Assets/Prefabs/Interior/에 카탈로그와 프리팹(FloorTile, TrackTile, TrainCar, InteriorCell, HubInterior, ItemPiece)을
     /// 없을 때만 만들고(사용자 편집 보존), Main 씬의 HubInteriors 아래에 거점마다 HubInterior 인스턴스를 없을 때만 놓는다(거점 id로 찾아 중복 없음).
     /// 격자 크기는 Interior/HubInterior.json, 배치 기본값은 카탈로그에서 읽는다. 생성 뒤의 편집은 씬과 프리팹에서 한다.
+    /// 스토리 020: HubInterior.prefab의 칸 수가 데이터(행×열×2)와 다르면 프리팹을 새 격자로 다시 만들고, 칸 수가 다른 씬 인스턴스는
+    /// 지우고 같은 이름·위치·부모 순서로 새로 놓는다. 칸 수가 같으면 아무것도 바꾸지 않는다(멱등).
     /// </summary>
     public static class Story012Build
     {
@@ -43,15 +45,60 @@ namespace IronRing.Presentation.Interior.Editor
         private const string TRACK = "Assets/Scripts/Track/Resources/Track/ring-track.json";
         private const string LEGACY_RESOURCES = "Assets/Scripts/Presentation/Interior/Resources";
 
-        /// <summary>프리팹·카탈로그를 보장하고 Main 씬에 빠진 거점 인스턴스만 놓은 뒤 씬과 에셋을 저장한다. 다시 실행해도 중복되지 않는다.</summary>
+        /// <summary>
+        /// 프리팹·카탈로그를 보장하고 Main 씬에서 격자 크기가 다른 거점 인스턴스를 교체하고 빠진 것만 놓은 뒤, 바뀐 것이 있을 때만 씬을 저장한다.
+        /// 다시 실행해도 중복되지 않는다.
+        /// </summary>
         [MenuItem("IronRing/Interior/Generate Prefabs And Place In Main")]
         public static void Generate()
         {
+            GameObject before = AssetDatabase.LoadAssetAtPath<GameObject>(HUB_PREFAB);
+            bool gridChanged = before != null && before.GetComponentsInChildren<InteriorCellView>(true).Length
+                != InteriorData.Parse(File.ReadAllText(DATA)).CellCount;
             InteriorCatalog catalog = EnsurePrefabs();
             Scene scene = EditorSceneManager.OpenScene(SCENE);
-            PlaceInteriors(scene, catalog);
-            EditorSceneManager.SaveScene(scene, SCENE);
+            int replaced = ReplaceMismatchedInteriors(scene, catalog, gridChanged);
+            int added = PlaceInteriors(scene, catalog);
+            if (replaced > 0 || added > 0 || scene.isDirty) EditorSceneManager.SaveScene(scene, SCENE);
             AssetDatabase.SaveAssets();
+            UnityEngine.Debug.Log($"Story012Build: 교체 {replaced}, 추가 {added}");
+        }
+
+        /// <summary>
+        /// 스토리 020. scene의 HubInterior 인스턴스 중 칸(InteriorCellView) 수가 데이터의 행×열×2와 다른 것을 지우고, 같은 부모·이름·위치·
+        /// 형제 순서·거점 id로 현재 HubInterior.prefab을 새로 놓는다. replaceAll이면(이번 실행에서 프리팹을 다시 만든 경우, 옛 칸 재정의가
+        /// 새 프리팹에 남지 않도록) 칸 수와 관계없이 모두 교체한다. 교체한 수를 돌려준다.
+        /// </summary>
+        public static int ReplaceMismatchedInteriors(Scene scene, InteriorCatalog catalog, bool replaceAll = false)
+        {
+            InteriorData data = InteriorData.Parse(File.ReadAllText(DATA));
+            GameObject prefab = Load<GameObject>(HUB_PREFAB);
+            HubInteriorRoot[] existing = UnityEngine.Object.FindObjectsByType<HubInteriorRoot>(FindObjectsInactive.Include, FindObjectsSortMode.None)
+                .Where(root => root.gameObject.scene == scene).ToArray();
+            int replaced = 0;
+            foreach (HubInteriorRoot old in existing)
+            {
+                if (!replaceAll && old.Cells().Length == data.CellCount) continue;
+                Transform parent = old.transform.parent;
+                string name = old.gameObject.name, hubId = old.HubId;
+                Vector3 position = old.transform.position;
+                int sibling = old.transform.GetSiblingIndex();
+                bool active = old.gameObject.activeSelf;
+                UnityEngine.Object.DestroyImmediate(old.gameObject);
+                var instance = (GameObject)PrefabUtility.InstantiatePrefab(prefab, scene);
+                if (parent != null) instance.transform.SetParent(parent, false);
+                instance.transform.SetSiblingIndex(sibling);
+                instance.name = name;
+                instance.transform.position = position;
+                instance.SetActive(active);
+                HubInteriorRoot root = instance.GetComponent<HubInteriorRoot>();
+                root.ApplyHubId(hubId);
+                EditorUtility.SetDirty(root);
+                foreach (InteriorCellView cellView in root.Cells()) EditorUtility.SetDirty(cellView);
+                replaced++;
+            }
+            if (replaced > 0) EditorSceneManager.MarkSceneDirty(scene);
+            return replaced;
         }
 
         /// <summary>카탈로그의 스프라이트·재질 참조를 채우고 없는 프리팹만 만든다. 기존 프리팹은 손대지 않는다.</summary>
@@ -228,10 +275,14 @@ namespace IronRing.Presentation.Interior.Editor
             return asset;
         }
 
-        /// <summary>HubInterior.prefab이 없으면 바닥·가로 선로·열차·위/아래 격자(중첩 프리팹 인스턴스)로 조립해 만든다.</summary>
+        /// <summary>
+        /// HubInterior.prefab이 없거나(스토리 020) 칸 수가 데이터의 행×열×2와 다르면 바닥·가로 선로·열차·위/아래 격자(중첩 프리팹 인스턴스)로
+        /// 조립해 같은 경로에 저장한다(GUID 유지). 칸 수가 같으면 손대지 않는다.
+        /// </summary>
         private static void EnsureHubPrefab(InteriorCatalog catalog, InteriorData data, GameObject floor, GameObject track, GameObject car, GameObject cell)
         {
-            if (AssetDatabase.LoadAssetAtPath<GameObject>(HUB_PREFAB) != null) return;
+            GameObject existing = AssetDatabase.LoadAssetAtPath<GameObject>(HUB_PREFAB);
+            if (existing != null && existing.GetComponentsInChildren<InteriorCellView>(true).Length == data.CellCount) return;
             var temp = new GameObject("HubInterior");
             var root = temp.AddComponent<HubInteriorRoot>();
             Transform floorGroup = Group(temp.transform, "Floor");

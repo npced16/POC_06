@@ -16,6 +16,7 @@ namespace IronRing.Presentation.HubPhase
     public sealed class RingHubPhaseView : MonoBehaviour
     {
         private const string RuinedSuffix = "_ruined";
+        private const string SmokeName = "Smoke";
         private static RingHubPhaseView _instance;
         private EffectsSettings _art;
         private IMapAnchors _anchors;
@@ -53,7 +54,7 @@ namespace IronRing.Presentation.HubPhase
 
         private void OnPhaseChanged(string hubId, DevPhase phase) => Apply(hubId);
 
-        /// <summary>Sets every hub-anchor sprite of hubId to its ruined art when Ruined/Collapsed, otherwise to its normal art.</summary>
+        /// <summary>Sets every hub-anchor sprite of hubId to its ruined art when Ruined/Collapsed, otherwise to its normal art, and toggles the chimney smoke.</summary>
         private void Apply(string hubId)
         {
             if (_art == null) return;
@@ -69,6 +70,9 @@ namespace IronRing.Presentation.HubPhase
                 Sprite target = _art.Sprite(ruined ? normal + RuinedSuffix : normal);
                 if (target != null && target != renderer.sprite) renderer.sprite = target;
             }
+            // Story 019: chimney smoke (prefab child "Smoke") only for Recovering/Settled hubs.
+            foreach (Transform child in anchor.GetComponentsInChildren<Transform>(true))
+                if (child.name == SmokeName && child.gameObject.activeSelf == ruined) child.gameObject.SetActive(!ruined);
         }
 
         void OnDestroy()

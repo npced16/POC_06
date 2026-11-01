@@ -10,16 +10,20 @@ using IronRing.Contracts.Presentation;
 namespace IronRing.Habitats.Demo
 {
     /// <summary>
-    /// 스토리 016 캡처용 스크립트 데모(--habitat-demo). 실행 인자 또는 진행 중인 브리지 캡처의 extraArgs에서 읽는다(MainRoot와 같은 SessionState 방식).
-    /// 데모 거점(데이터, 기본 hub-1)의 내부 화면이 열리면(안 열려 있으면 IInteriorNavigation.Open) 데이터의 배치 목록(풀 4칸 L자 위 구역,
-    /// 물 4칸 일자 아래 구역)을 IItemPlacement로 놓고, 서식지가 완성되면 INpcRecruiter.OnHubVisited로 방문을 일으켜 NPC를 합류시킨다.
+    /// 스토리 016/020 캡처용 스크립트 데모(--habitat-demo, 단계 --habitat-stage complete|incomplete, 기본 complete). 실행 인자 또는 진행 중인
+    /// 브리지 캡처의 extraArgs에서 읽는다(MainRoot와 같은 SessionState 방식). 데모 거점(데이터, 기본 hub-1)의 내부 화면이 열리면(안 열려 있으면
+    /// IInteriorNavigation.Open) 데이터의 배치 목록을 IItemPlacement로 놓는다. complete = _placements(같은 타일 묶음·혼합 묶음·패턴 하나씩 완성),
+    /// incomplete = _incompletePlacements(혼합 묶음 하나가 타일별 최소 수를 못 채움, 나머지 둘은 완성). 그 뒤 서식지가 완성되면 INpcRecruiter.OnHubVisited로 방문을 일으켜 NPC를 합류시킨다.
     /// 합류 확률(0.5)은 그대로 두고, 합류할 때까지 데이터의 횟수만큼 방문을 반복한다(방문 한 번당 판정 한 번 규칙은 지킨다).
     /// </summary>
     public sealed class HabitatDemoDriver : MonoBehaviour
     {
         private const string FLAG = "--habitat-demo";
+        private const string STAGE_FLAG = "--habitat-stage";
+        private const string STAGE_INCOMPLETE = "incomplete";
         private static HabitatDemoDriver _instance;
         private Settings _settings;
+        private string _stage;
         private int _waited;
         private bool _opened;
         private bool _done;
@@ -32,11 +36,14 @@ namespace IronRing.Habitats.Demo
 
         private static void Create()
         {
-            if (_instance != null || !Arguments().Contains(FLAG)) return;
+            string[] args = Arguments();
+            if (_instance != null || !args.Contains(FLAG)) return;
             TextAsset asset = UnityEngine.Resources.Load<TextAsset>("Habitats/HabitatDemo");
             if (asset == null) { UnityEngine.Debug.LogError("HABITAT DEMO: Resources/Habitats/HabitatDemo.json 없음"); return; }
             _instance = new GameObject(nameof(HabitatDemoDriver)).AddComponent<HabitatDemoDriver>();
             _instance._settings = JsonUtility.FromJson<Settings>(asset.text);
+            int stageAt = Array.IndexOf(args, STAGE_FLAG);
+            _instance._stage = stageAt >= 0 && stageAt + 1 < args.Length ? args[stageAt + 1] : "complete";
             Application.runInBackground = true;
         }
 
@@ -70,7 +77,9 @@ namespace IronRing.Habitats.Demo
                 return;
             }
             IReadOnlyList<IInteriorCell> cells = interior.Cells(hubId);
-            foreach (Placement p in _settings._placements ?? Array.Empty<Placement>())
+            Placement[] placements = _stage == STAGE_INCOMPLETE ? _settings._incompletePlacements : _settings._placements;
+            UnityEngine.Debug.Log($"HABITAT DEMO: 단계 {_stage}, 배치 {placements?.Length ?? 0}개");
+            foreach (Placement p in placements ?? Array.Empty<Placement>())
             {
                 IInteriorCell cell = cells.FirstOrDefault(c => c.IsUpper == p._upper && c.Row == p._row && c.Column == p._column);
                 bool ok = cell != null && placement.TryPlace(hubId, cell.Index, p._itemId);
@@ -118,6 +127,7 @@ namespace IronRing.Habitats.Demo
             public int _waitFrames = 20;
             public int _visitAttempts = 12;
             public Placement[] _placements;
+            public Placement[] _incompletePlacements;
         }
 
         [Serializable]

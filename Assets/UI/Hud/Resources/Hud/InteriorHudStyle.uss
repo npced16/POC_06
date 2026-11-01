@@ -1,3 +1,3 @@
-#interior { flex-grow: 1; color: rgb(238, 228, 207); font-size: 18px; }
-#interior-panel { position: absolute; right: 18px; top: 84px; padding: 8px 16px; background-color: rgba(19, 29, 32, 0.96); border-width: 2px; border-color: rgb(137, 112, 70); border-radius: 5px; }
-#interior-title { font-size: 25px; color: rgb(231, 186, 99); }
+#interior { flex-grow: 1; color: rgb(242, 222, 205); font-size: 18px; }
+#interior-panel { position: absolute; right: 18px; top: 84px; padding: 8px 16px; background-color: rgba(43, 29, 42, 0.96); border-width: 2px; border-color: rgb(214, 160, 83); border-radius: 5px; }
+#interior-title { font-size: 25px; color: rgb(255, 207, 106); }

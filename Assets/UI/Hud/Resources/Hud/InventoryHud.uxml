@@ -2,14 +2,6 @@
     <ui:Style src="../../../../Fonts/Resources/KoreanDefault.uss" />
     <ui:Style src="InventoryHudStyle.uss" />
     <ui:VisualElement name="inv-root">
-        <ui:VisualElement name="inv-habitat">
-            <ui:Label name="inv-habitat-title" text="서식지: 증기 공방" />
-            <ui:VisualElement name="inv-habitat-tags">
-                <ui:VisualElement class="inv-tag inv-tag-met preview-only"><ui:Label text="가스등" /><ui:Label text="2 / 2" /></ui:VisualElement>
-                <ui:VisualElement class="inv-tag inv-tag-missing preview-only"><ui:Label text="증기관" /><ui:Label text="1 / 3" /></ui:VisualElement>
-            </ui:VisualElement>
-            <ui:Label name="inv-habitat-state" text="완성까지 증기관 2개" />
-        </ui:VisualElement>
         <ui:Label name="inv-banner" text="증기 공방 완성!" />
         <ui:VisualElement name="inv-craft-menu" class="inv-menu">
             <ui:VisualElement class="inv-header">

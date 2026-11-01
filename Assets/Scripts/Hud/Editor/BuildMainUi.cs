@@ -18,7 +18,7 @@ using IronRing.Hud.Npc;
 namespace IronRing.Hud.Editor
 {
     /// <summary>
-    /// 스토리 018 제작 도구. Assets/Prefabs/UI/MainUI.prefab(루트 MainUI + HUD 자식 6개, 자식마다 UIDocument + HUD 스크립트)을
+    /// 스토리 018 제작 도구. Assets/Prefabs/UI/MainUI.prefab(루트 MainUI + HUD 자식 7개(021 도감 포함), 자식마다 UIDocument + HUD 스크립트)을
     /// 없을 때만 만들고 빠진 자식·컴포넌트만 보충한 뒤, Main 씬 루트에 MainUI 인스턴스가 없으면 놓고 저장한다.
     /// 이미 있는 값(Sort Order, 위치, UXML 교체)은 건드리지 않는다. 모달 대화상자를 띄우지 않는다.
     /// </summary>
@@ -45,6 +45,7 @@ namespace IronRing.Hud.Editor
             ("PhaseHud", typeof(PhaseHud), "PhaseHud.uxml", 110),
             ("Hotbar", typeof(HotbarHud), "Hotbar.uxml", 120),
             ("NpcDialog", typeof(NpcDialogHud), "NpcDialog.uxml", 125),
+            ("Codex", typeof(IronRing.Hud.Codex.CodexHud), "Codex.uxml", 130),
         };
 
         /// <summary>MainUI 프리팹을 보장하고 Main 씬 루트에 인스턴스가 없을 때만 놓은 뒤 저장한다. 여러 번 실행해도 결과가 같다.</summary>

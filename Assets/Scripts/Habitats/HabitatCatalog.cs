@@ -12,7 +12,27 @@ namespace IronRing.Habitats
         /// <summary>같은 타일이 RequiredCount칸 이상 상하좌우로 이어진 묶음(모양 무관).</summary>
         Cluster,
         /// <summary>타일 격자 템플릿이 회전·거울 8변형 중 하나로 들어맞는 배치.</summary>
-        Pattern
+        Pattern,
+        /// <summary>스토리 020. 혼합 묶음: 집합에 속한 타일 칸들의 상하좌우 묶음이 총 RequiredCount칸 이상이고 타일별 최소 수를 채움(모양 무관).</summary>
+        Set
+    }
+
+    /// <summary>스토리 020. 혼합 묶음(Set)의 타일 하나와 그 최소 칸 수.</summary>
+    public sealed class HabitatTileRequirement
+    {
+        /// <summary>타일 아이템 id.</summary>
+        public string TileItemId { get; }
+        /// <summary>묶음 안에 있어야 하는 이 타일의 최소 칸 수(0 이상, 0이면 집합에 속하기만 함).</summary>
+        public int MinCount { get; }
+
+        /// <summary>요구 하나를 만든다.</summary>
+        public HabitatTileRequirement(string tileItemId, int minCount)
+        {
+            if (string.IsNullOrWhiteSpace(tileItemId)) throw new ArgumentException("Set tile needs a tile item id.");
+            if (minCount < 0) throw new ArgumentException("Set tile minCount must be >= 0: " + tileItemId);
+            TileItemId = tileItemId;
+            MinCount = minCount;
+        }
     }
 
     /// <summary>
@@ -31,10 +51,12 @@ namespace IronRing.Habitats
         public HabitatKind Kind { get; }
         /// <summary>Cluster일 때 타일 아이템 id, Pattern이면 null.</summary>
         public string TileItemId { get; }
-        /// <summary>Cluster: 필요한 칸 수. Pattern: 템플릿에서 "."이 아닌 칸 수.</summary>
+        /// <summary>Cluster·Set: 묶음에 필요한 총 칸 수. Pattern: 템플릿에서 "."이 아닌 칸 수.</summary>
         public int RequiredCount { get; }
         /// <summary>Pattern일 때 템플릿(줄 × 칸, 토큰은 타일 아이템 id 또는 "."). Cluster면 빈 목록.</summary>
         public IReadOnlyList<IReadOnlyList<string>> Pattern { get; }
+        /// <summary>Set일 때 타일 집합과 타일별 최소 수(데이터 순서). Cluster면 그 타일 하나(최소 = RequiredCount), Pattern이면 빈 목록.</summary>
+        public IReadOnlyList<HabitatTileRequirement> SetTiles { get; private set; }
         /// <summary>완성된 서식지 하나당 바퀴마다 더하는 번영. 0이면 거점 데이터의 기본값(_habitatBonus)을 쓴다.</summary>
         public float ProsperityBonus { get; }
         /// <summary>이 서식지를 찾아오는 NPC id(없으면 null).</summary>
@@ -45,7 +67,41 @@ namespace IronRing.Habitats
         {
             if (string.IsNullOrWhiteSpace(tileItemId)) throw new ArgumentException("Cluster habitat needs a tile item id: " + id);
             if (requiredCount < 1) throw new ArgumentException("Cluster habitat needs requiredCount >= 1: " + id);
-            return new HabitatType(id, name, HabitatKind.Cluster, tileItemId, requiredCount, Array.Empty<IReadOnlyList<string>>(), prosperityBonus, npcTypeId);
+            var type = new HabitatType(id, name, HabitatKind.Cluster, tileItemId, requiredCount, Array.Empty<IReadOnlyList<string>>(), prosperityBonus, npcTypeId);
+            type.SetTiles = Array.AsReadOnly(new[] { new HabitatTileRequirement(tileItemId, requiredCount) });
+            return type;
+        }
+
+        /// <summary>
+        /// 스토리 020. Set(혼합 묶음) 종류를 만든다. tiles는 서로 다른 타일 id여야 하며, requiredCount(총 칸 수)는 1 이상이고
+        /// 타일별 최소 수의 합보다 작을 수 없다.
+        /// </summary>
+        public static HabitatType CreateSet(string id, string name, IEnumerable<HabitatTileRequirement> tiles, int requiredCount, float prosperityBonus, string npcTypeId)
+        {
+            if (tiles == null) throw new ArgumentException("Set habitat needs tiles: " + id);
+            var list = new List<HabitatTileRequirement>();
+            int minimumSum = 0;
+            foreach (HabitatTileRequirement tile in tiles)
+            {
+                if (tile == null) throw new ArgumentException("Null set tile in " + id);
+                if (list.Exists(t => t.TileItemId == tile.TileItemId)) throw new ArgumentException("Duplicate set tile " + tile.TileItemId + " in " + id);
+                list.Add(tile);
+                minimumSum += tile.MinCount;
+            }
+            if (list.Count == 0) throw new ArgumentException("Set habitat needs at least one tile: " + id);
+            if (requiredCount < 1 || requiredCount < minimumSum)
+                throw new ArgumentException("Set habitat requiredCount must be >= 1 and >= the sum of minCounts: " + id);
+            var type = new HabitatType(id, name, HabitatKind.Set, null, requiredCount, Array.Empty<IReadOnlyList<string>>(), prosperityBonus, npcTypeId);
+            type.SetTiles = list.AsReadOnly();
+            return type;
+        }
+
+        /// <summary>스토리 020. Cluster·Set 묶음에 이 타일이 들어갈 수 있는지(Pattern이면 false).</summary>
+        public bool AcceptsTile(string tileItemId)
+        {
+            if (tileItemId == null) return false;
+            foreach (HabitatTileRequirement tile in SetTiles) if (tile.TileItemId == tileItemId) return true;
+            return false;
         }
 
         /// <summary>Pattern 종류를 만든다. rows는 줄마다 공백으로 구분한 토큰 문자열이며 모든 줄의 토큰 수가 같아야 한다.</summary>
@@ -64,7 +120,9 @@ namespace IronRing.Habitats
                 grid.Add(Array.AsReadOnly(tokens));
             }
             if (grid.Count == 0 || required == 0) throw new ArgumentException("Pattern needs at least one tile: " + id);
-            return new HabitatType(id, name, HabitatKind.Pattern, null, required, grid.AsReadOnly(), prosperityBonus, npcTypeId);
+            var type = new HabitatType(id, name, HabitatKind.Pattern, null, required, grid.AsReadOnly(), prosperityBonus, npcTypeId);
+            type.SetTiles = Array.Empty<HabitatTileRequirement>();
+            return type;
         }
 
         private HabitatType(string id, string name, HabitatKind kind, string tileItemId, int requiredCount,
@@ -84,10 +142,11 @@ namespace IronRing.Habitats
             NpcTypeId = string.IsNullOrWhiteSpace(npcTypeId) ? null : npcTypeId;
         }
 
-        /// <summary>이 종류가 쓰는 타일 아이템 id 전부(Pattern이면 템플릿의 "."이 아닌 토큰).</summary>
+        /// <summary>이 종류가 쓰는 타일 아이템 id 전부(Set이면 집합의 타일, Pattern이면 템플릿의 "."이 아닌 토큰).</summary>
         public IEnumerable<string> TileIds()
         {
             if (Kind == HabitatKind.Cluster) { yield return TileItemId; yield break; }
+            if (Kind == HabitatKind.Set) { foreach (HabitatTileRequirement tile in SetTiles) yield return tile.TileItemId; yield break; }
             foreach (IReadOnlyList<string> row in Pattern)
                 foreach (string token in row)
                     if (token != DontCare) yield return token;
@@ -149,6 +208,16 @@ namespace IronRing.Habitats
                 string kind = string.IsNullOrWhiteSpace(t._kind) ? "cluster" : t._kind.Trim().ToLowerInvariant();
                 if (kind == "cluster") types.Add(HabitatType.CreateCluster(t._id, t._name, t._tileItemId, t._requiredCount, t._prosperityBonus, t._npcTypeId));
                 else if (kind == "pattern") types.Add(HabitatType.CreatePattern(t._id, t._name, t._pattern, t._prosperityBonus, t._npcTypeId));
+                else if (kind == "set")
+                {
+                    var tiles = new List<HabitatTileRequirement>();
+                    foreach (TileData tile in t._tiles ?? Array.Empty<TileData>())
+                    {
+                        if (tile == null) throw new ArgumentException("Null set tile on " + t._id, nameof(json));
+                        tiles.Add(new HabitatTileRequirement(tile._tileItemId, tile._minCount));
+                    }
+                    types.Add(HabitatType.CreateSet(t._id, t._name, tiles, t._requiredCount, t._prosperityBonus, t._npcTypeId));
+                }
                 else throw new ArgumentException("Unknown habitat kind " + t._kind + " on " + t._id, nameof(json));
             }
             return new HabitatCatalog(types);
@@ -160,8 +229,9 @@ namespace IronRing.Habitats
         private sealed class TypeData
         {
             public string _id; public string _name; public string _kind; public string _tileItemId; public int _requiredCount;
-            public string[] _pattern; public float _prosperityBonus; public string _npcTypeId;
+            public string[] _pattern; public TileData[] _tiles; public float _prosperityBonus; public string _npcTypeId;
         }
+        [Serializable] private sealed class TileData { public string _tileItemId; public int _minCount; }
 #pragma warning restore 0649
     }
 }

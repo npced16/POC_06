@@ -121,6 +121,13 @@ namespace IronRing.Hud
             Button close = _root.Q<Button>("close");
             close.text = Strings.Get("hud_close");
             close.clicked += ClosePanel;
+            // 스토리 021: 상단 바의 도감 버튼(C 키는 CodexHud가 읽는다).
+            Button codex = _root.Q<Button>("codex-open");
+            if (codex != null)
+            {
+                codex.text = Strings.Get("codex_open");
+                codex.clicked += IronRing.Hud.Codex.CodexHud.Toggle;
+            }
             foreach (string resource in _catalog.Resources)
             {
                 var cell = new VisualElement(); cell.AddToClassList("resource");

@@ -434,6 +434,22 @@
     { "_key": "item_tile_chimney", "_value": "굴뚝" },
     { "_key": "npc_dialog_home", "_value": "집" },
     { "_key": "npc_dialog_home_none", "_value": "집 없음" },
-    { "_key": "npc_dialog_close", "_value": "닫기" }
+    { "_key": "npc_dialog_close", "_value": "닫기" },
+    { "_key": "codex_open", "_value": "도감 (C)" },
+    { "_key": "codex_title", "_value": "서식지 도감 (해금 {0}/{1})" },
+    { "_key": "codex_hint", "_value": "C 키로 열고 닫는다 · 미해금 설계도는 선로 위에서 얻는다" },
+    { "_key": "codex_close", "_value": "닫기" },
+    { "_key": "codex_locked", "_value": "???" },
+    { "_key": "codex_kind_cluster", "_value": "같은 타일" },
+    { "_key": "codex_kind_set", "_value": "혼합" },
+    { "_key": "codex_kind_pattern", "_value": "패턴" },
+    { "_key": "codex_cells", "_value": "{0}칸" },
+    { "_key": "codex_any", "_value": "+{0} 아무거나" },
+    { "_key": "codex_bonus", "_value": "번영 +{0}" },
+    { "_key": "codex_npc", "_value": "찾아오는 이: {0}" },
+    { "_key": "codex_complete", "_value": "완성" },
+    { "_key": "codex_toast_new", "_value": "새 레시피: {0}" },
+    { "_key": "codex_toast_discover", "_value": "발견: {0}" },
+    { "_key": "phase_habitats", "_value": "서식지" }
   ]
 }

@@ -1,0 +1,27 @@
+#codex-root { position: absolute; left: 0; top: 0; right: 0; bottom: 0; color: rgb(238, 228, 207); font-size: 16px; }
+#codex-panel { position: absolute; left: 50%; translate: -50% 0; top: 190px; bottom: 90px; width: 1000px; padding: 12px 16px; background-color: rgba(19, 29, 32, 0.97); border-width: 2px; border-color: rgb(166, 129, 65); border-radius: 6px; }
+.codex-header { flex-direction: row; align-items: center; justify-content: space-between; margin-bottom: 8px; padding-bottom: 6px; border-bottom-width: 1px; border-bottom-color: rgb(137, 112, 70); }
+#codex-title { font-size: 24px; color: rgb(231, 186, 99); -unity-font-style: bold; }
+#codex-hint { flex-grow: 1; margin-left: 16px; font-size: 15px; color: rgb(169, 160, 140); }
+#codex-close { font-size: 17px; padding: 4px 14px; }
+#codex-grid { flex-grow: 1; }
+#codex-grid .unity-scroll-view__content-container { flex-direction: row; flex-wrap: wrap; }
+.codex-entry { width: 304px; min-height: 176px; margin: 4px; padding: 8px 10px; background-color: rgba(38, 50, 52, 0.95); border-width: 2px; border-color: rgb(96, 82, 58); border-radius: 5px; }
+.codex-entry.codex-complete { border-color: rgb(229, 189, 115); }
+.codex-entry.codex-locked { align-items: center; justify-content: center; background-color: rgba(14, 18, 20, 0.95); border-color: rgb(52, 50, 46); }
+.codex-silhouette { width: 120px; height: 84px; margin-bottom: 8px; background-color: rgb(30, 34, 36); border-width: 2px; border-color: rgb(46, 48, 48); border-radius: 4px; }
+.codex-locked .codex-entry-name { color: rgb(110, 104, 92); font-size: 22px; }
+.codex-entry-header { flex-direction: row; align-items: center; justify-content: space-between; }
+.codex-entry-name { font-size: 20px; color: rgb(244, 229, 187); -unity-font-style: bold; }
+.codex-badge { font-size: 14px; padding: 1px 8px; color: rgb(30, 26, 18); background-color: rgb(229, 189, 115); border-radius: 3px; -unity-font-style: bold; }
+.codex-entry-meta { font-size: 15px; color: rgb(169, 197, 186); margin-top: 2px; }
+.codex-diagram { flex-direction: row; flex-wrap: wrap; align-items: center; margin-top: 6px; margin-bottom: 6px; min-height: 40px; }
+.codex-diagram-pattern { flex-direction: column; align-items: flex-start; }
+.codex-pattern-row { flex-direction: row; }
+.codex-icon { width: 34px; height: 34px; margin: 2px; background-color: rgba(70, 82, 80, 0.9); border-width: 1px; border-color: rgb(137, 112, 70); border-radius: 3px; -unity-background-scale-mode: scale-to-fit; align-items: center; justify-content: center; }
+.codex-icon-empty { background-color: rgba(0, 0, 0, 0); border-color: rgb(70, 70, 64); }
+.codex-icon-letter { font-size: 16px; color: rgb(244, 229, 187); }
+.codex-any { margin-left: 6px; font-size: 15px; color: rgb(228, 139, 76); }
+.codex-entry-footer { flex-direction: row; justify-content: space-between; }
+.codex-bonus { font-size: 15px; color: rgb(231, 186, 99); }
+.codex-npc { font-size: 15px; color: rgb(214, 204, 182); }
