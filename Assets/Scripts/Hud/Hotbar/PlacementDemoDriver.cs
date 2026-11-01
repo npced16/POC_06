@@ -44,7 +44,7 @@ namespace IronRing.Hud.Hotbar
         {
             if (_done) return;
             IViewMode view = GameServices.Get<IViewMode>();
-            HotbarHud hotbar = HotbarHud.Instance;
+            IHotbarDemoTarget hotbar = HotbarScreen.Instance != null ? HotbarScreen.Instance : (IHotbarDemoTarget)HotbarHud.Instance; // 스토리 022
             PlacementGhost ghost = PlacementGhost.Instance;
             if (view == null || !view.InteriorOpen || hotbar == null || ghost == null) return;
             HotbarData.DemoData demo = HotbarData.Load().Demo;
@@ -54,7 +54,7 @@ namespace IronRing.Hud.Hotbar
             catch (Exception e) { UnityEngine.Debug.LogException(e); }
         }
 
-        private void Run(string hubId, HotbarData.DemoData demo, HotbarHud hotbar, PlacementGhost ghost)
+        private void Run(string hubId, HotbarData.DemoData demo, IHotbarDemoTarget hotbar, PlacementGhost ghost)
         {
             IHubInterior interior = GameServices.Get<IHubInterior>();
             PlacementEntry first = hotbar.Entry(0);

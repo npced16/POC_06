@@ -10,6 +10,7 @@ using IronRing.Contracts.Presentation;
 using IronRing.Habitats;
 using IronRing.Habitats.Demo;
 using IronRing.Hud.Hotbar;
+using IronRing.Hud.Ui;
 using IronRing.Localization;
 using IronRing.Presentation.Interior;
 using IronRing.Presentation.Items;
@@ -69,6 +70,7 @@ namespace IronRing.Hud.Codex
         private static void Create()
         {
             if (_instance != null || GameServices.Get<IHabitatCodex>() == null || HabitatsInstaller.Catalog == null) return;
+            if (UiScreens.Instance != null) return; // 스토리 022: UGUI CodexScreen이 대신한다.
             CodexHud placed = FindAnyObjectByType<CodexHud>(FindObjectsInactive.Include);
             if (placed != null && !(placed.enabled && placed.gameObject.activeInHierarchy)) return;
             _instance = placed != null ? placed : new GameObject(nameof(CodexHud)).AddComponent<CodexHud>();
@@ -76,10 +78,10 @@ namespace IronRing.Hud.Codex
         }
 
         /// <summary>도감을 열거나 닫는다(상단 바 버튼). 패널이 없으면 무시한다.</summary>
-        public static void Toggle() { if (_instance != null) _instance.SetOpen(!_instance._open); }
+        public static void Toggle() { if (_instance != null) _instance.SetOpen(!_instance._open); else CodexScreen.Toggle(); }
 
         /// <summary>도감을 연다(데모용).</summary>
-        public static void Open() { if (_instance != null) _instance.SetOpen(true); }
+        public static void Open() { if (_instance != null) _instance.SetOpen(true); else CodexScreen.Open(); }
 
         private void Initialize()
         {

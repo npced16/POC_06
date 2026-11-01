@@ -450,6 +450,14 @@
     { "_key": "codex_complete", "_value": "완성" },
     { "_key": "codex_toast_new", "_value": "새 레시피: {0}" },
     { "_key": "codex_toast_discover", "_value": "발견: {0}" },
-    { "_key": "phase_habitats", "_value": "서식지" }
+    { "_key": "phase_habitats", "_value": "서식지" },
+    { "_key": "ui_sample_npc_title", "_value": "점등부 마르타" },
+    { "_key": "ui_sample_npc_home", "_value": "집: 가스등 거리" },
+    { "_key": "ui_sample_npc_line", "_value": "증기압이 안정됐군. 오늘은 등불이 밝겠어." },
+    { "_key": "ui_sample_npc_result", "_value": "마르타가 힘을 냈다." },
+    { "_key": "ui_sample_npc_option", "_value": "격려하기" },
+    { "_key": "ui_sample_notice", "_value": "여기에는 놓을 수 없다." },
+    { "_key": "ui_sample_codex_name", "_value": "증기 공방" },
+    { "_key": "ui_sample_codex_title", "_value": "레시피 도감  3 / 19" }
   ]
 }

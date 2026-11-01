@@ -7,6 +7,7 @@ using UnityEngine.UIElements;
 
 using IronRing.Contracts;
 using IronRing.Contracts.Presentation;
+using IronRing.Hud.Ui;
 using IronRing.Localization;
 using IronRing.Npc.Demo;
 using IronRing.Presentation.HubPhase;
@@ -77,6 +78,7 @@ namespace IronRing.Hud.Npc
         private static void Create()
         {
             if (_instance != null || GameServices.Get<IViewMode>() == null) return;
+            if (UiScreens.Instance != null) return; // 스토리 022: UGUI NpcDialogScreen이 대신한다.
             NpcDialogHud placed = FindAnyObjectByType<NpcDialogHud>(FindObjectsInactive.Include);
             // 스토리 018: 씬(MainUI)에 놓인 HUD에 바인딩한다. 제작자가 꺼 둔 화면이면 대비책도 만들지 않는다.
             if (placed != null && !(placed.enabled && placed.gameObject.activeInHierarchy)) return;
@@ -259,7 +261,7 @@ namespace IronRing.Hud.Npc
         /// </summary>
         public static void HandleDemoStage(string stage, string npcId = null)
         {
-            if (_instance == null) return;
+            if (_instance == null) { NpcDialogScreen.HandleDemoStage(stage, npcId); return; } // 스토리 022
             if (stage != "panel" && stage != "encouraged") { _instance.Hide(); return; }
             if (string.IsNullOrEmpty(npcId))
             {

@@ -6,6 +6,7 @@ using UnityEngine.UIElements;
 
 using IronRing.Contracts;
 using IronRing.Contracts.Presentation;
+using IronRing.Hud.Ui;
 using IronRing.Items;
 using IronRing.Localization;
 using IronRing.Presentation.Items;
@@ -71,6 +72,7 @@ namespace IronRing.Hud.Items
         private static void Create()
         {
             if (_instance != null) return;
+            if (UiScreens.Instance != null) return; // 스토리 022: 남은 기능이 없어 UGUI로 옮기지 않는다(3단계에서 삭제).
             if (GameServices.Get<IItemInventory>() == null || GameServices.Get<IItemPlacement>() == null
                 || GameServices.Get<IHubInterior>() == null || GameServices.Get<IViewMode>() == null
                 || GameServices.Get<IResourceInventory>() == null || ItemsInstaller.Catalog == null) return;

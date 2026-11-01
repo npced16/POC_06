@@ -22,7 +22,7 @@ namespace IronRing.Hud.Hotbar
     /// 팔레트 항목을 누른 뒤 슬롯을 누르면 그 슬롯의 배정이 바뀐다. 기본 배정은 Resources/Hotbar/Hotbar.json.
     /// 서식지 완성(IHabitatClusters.HabitatCompleted, 스토리 016)이면 "이름 완성!" 문구를 잠깐 띄운다. 게임 상태는 바꾸지 않고 명령만 보낸다.
     /// </summary>
-    public sealed class HotbarHud : MonoBehaviour
+    public sealed class HotbarHud : MonoBehaviour, IHotbarDemoTarget
     {
         public const int SLOT_COUNT = 9;
         private static HotbarHud _instance;
@@ -80,6 +80,7 @@ namespace IronRing.Hud.Hotbar
         private static void Create()
         {
             if (_instance != null || GameServices.Get<IViewMode>() == null || ItemsInstaller.Catalog == null) return;
+            if (UiScreens.Instance != null) return; // 스토리 022: UGUI HotbarScreen이 대신한다.
             PlacementGhost ghost = PlacementGhost.Ensure();
             if (ghost == null) return;
             HotbarHud placed = FindAnyObjectByType<HotbarHud>(FindObjectsInactive.Include);
