@@ -54,3 +54,10 @@ commands:
   test: '"C:/Program Files/Unity/Hub/Editor/6000.3.27f1/Editor/Unity.exe" -batchmode -runTests -projectPath . -testPlatform EditMode -testResults test-results/editmode.xml'
   run: "Builds/Win64/POC_06.exe -screen-width 1280 -screen-height 720 -screen-fullscreen 0"
   smoke: '"C:/Program Files/Unity/Hub/Editor/6000.3.27f1/Editor/Unity.exe" -batchmode -quit -projectPath . -logFile -'
+
+# 2026-11-01: 사용자 결정 — AX(에이전트) 기반 개발이라 자동 테스트를 두지 않는다(테스트 코드는 archive/legacy-tests/로 이동). 테스트 게이트는 권고(ADVISORY).
+testing:
+  strict:
+    logic: false
+    integration: false
+    config: false
