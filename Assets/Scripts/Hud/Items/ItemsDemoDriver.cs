@@ -12,8 +12,8 @@ namespace IronRing.Hud.Items
 {
     /// <summary>
     /// 스토리 013 캡처용 스크립트 데모(--items-demo). 브리지 캡처 중에만 읽는다(MainRoot의 --integration-demo와 같은 SessionState 방식).
-    /// 내부 화면이 데모 거점(데이터, 기본 hub-1)으로 열리면: 두 아이템 제작 → (단계 craft면 제작 메뉴를 열고 끝)
-    /// → 보상 아이템 지급 → 빈 터 확보(조사) → 세 아이템 배치 → 서식지 완성. 단계 place는 마지막 칸의 회수 메뉴를, complete(기본)는 완성 배너를 띄운다.
+    /// 내부 화면이 데모 거점(데이터, 기본 hub-1)으로 열리면: 두 아이템 제작 → (단계 craft면 끝)
+    /// → 보상 아이템 지급 → 빈 터 확보(조사) → 세 아이템 배치 → 서식지 완성. 단계 place는 마지막 칸을 로그로 남긴다(옛 인벤토리 HUD 메뉴·배너는 스토리 022에서 제거).
     /// 실제 시스템 API만 호출하며 규칙을 우회하지 않는다. 자원이 모자라면 데모 지급으로 채우고 로그를 남긴다.
     /// </summary>
     public sealed class ItemsDemoDriver : MonoBehaviour
@@ -45,7 +45,7 @@ namespace IronRing.Hud.Items
         {
             if (_done) return;
             IViewMode view = GameServices.Get<IViewMode>();
-            if (view == null || !view.InteriorOpen || view.InteriorHubId != _settings.DemoHubId || InventoryHud.Instance == null) return;
+            if (view == null || !view.InteriorOpen || view.InteriorHubId != _settings.DemoHubId) return;
             if (_waited++ < _settings.DemoWaitFrames) return;
             _done = true;
             try { Run(_settings.DemoHubId); }
@@ -71,7 +71,7 @@ namespace IronRing.Hud.Items
                 }
                 UnityEngine.Debug.Log($"ITEMS DEMO: 제작 {id} = {items.TryCraft(id)}");
             }
-            if (_stage == "craft") { InventoryHud.Instance.ShowCraftMenu(); Log(hubId, items, habitat); return; }
+            if (_stage == "craft") { Log(hubId, items, habitat); return; } // 스토리 022: 옛 인벤토리 HUD 제거, 제작 메뉴 화면은 없다
 
             foreach (string id in _settings.DemoGrants) items.Add(id, 1);
             List<int> empty = EnsureEmptyCells(interior, hubId, _settings.DemoPlacements.Length);
@@ -82,8 +82,7 @@ namespace IronRing.Hud.Items
                 UnityEngine.Debug.Log($"ITEMS DEMO: 배치 {_settings.DemoPlacements[i]} → 칸 {empty[i]} = {ok}");
                 if (ok) last = empty[i];
             }
-            if (_stage == "place" && last >= 0) InventoryHud.Instance.OpenCellMenu(hubId, last);
-            else InventoryHud.Instance.PinBanner();
+            if (_stage == "place") UnityEngine.Debug.Log($"ITEMS DEMO: 마지막 배치 칸 {last}(옛 회수 메뉴는 스토리 022에서 제거)");
             Log(hubId, items, habitat);
         }
 

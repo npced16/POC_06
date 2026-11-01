@@ -44,7 +44,7 @@ namespace IronRing.Hud.Hotbar
         {
             if (_done) return;
             IViewMode view = GameServices.Get<IViewMode>();
-            IHotbarDemoTarget hotbar = HotbarScreen.Instance != null ? HotbarScreen.Instance : (IHotbarDemoTarget)HotbarHud.Instance; // 스토리 022
+            IHotbarDemoTarget hotbar = HotbarScreen.Instance; // 스토리 022
             PlacementGhost ghost = PlacementGhost.Instance;
             if (view == null || !view.InteriorOpen || hotbar == null || ghost == null) return;
             HotbarData.DemoData demo = HotbarData.Load().Demo;

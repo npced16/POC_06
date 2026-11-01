@@ -6,7 +6,7 @@ namespace IronRing.Hud.Ui
 {
     /// <summary>
     /// 스토리 022. 위 가운데 한 줄 토스트(선로·내부 공통, 항상 켜진 화면 "Toast"). 프리팹의 예시 문구는 편집 모드에서만 보이고 Play 시작 때 숨는다.
-    /// HotbarHud.ShowToast 등은 ToastScreen.Show로 넘긴다.
+    /// HotbarScreen.ShowToast 등은 ToastScreen.Show로 넘긴다.
     /// </summary>
     [RequireComponent(typeof(UiScreen))]
     public sealed class ToastScreen : MonoBehaviour

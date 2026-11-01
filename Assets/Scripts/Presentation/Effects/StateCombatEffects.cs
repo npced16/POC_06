@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 
 using UnityEngine;
-using UnityEngine.UIElements;
 
 using IronRing.Contracts;
 using IronRing.Contracts.Presentation;
@@ -21,11 +20,9 @@ namespace IronRing.Presentation.Effects
         private IWaypointResolver _waypoints;
         private IEncounterPresentationSource _encounter;
         private ITrackNode _activeNode;
-        private VisualElement _overlay;
         private readonly Dictionary<string, Transform> _fills = new Dictionary<string, Transform>();
         private readonly HashSet<string> _placed = new HashSet<string>();
         private readonly Dictionary<string, GameObject> _raiders = new Dictionary<string, GameObject>();
-        private readonly List<FloatingMessage> _messages = new List<FloatingMessage>();
         private readonly List<Debris> _debris = new List<Debris>();
 
         /// <summary>플레이 세션마다 이전 인스턴스 참조를 비워 새 서비스 연결을 허용한다.</summary>
@@ -59,18 +56,7 @@ namespace IronRing.Presentation.Effects
             _settings = UnityEngine.Resources.Load<EffectsSettings>("Story010Effects");
             _anchors = anchors; _hubs = hubs; _npcs = npcs; _facilities = facilities; _waypoints = waypoints;
             _encounter = GameServices.Get<IEncounterPresentationSource>();
-            // 스토리 022: MainCanvas(UGUI)가 있으면 문구·그늘은 CombatFx 화면(IronRing.Hud.CombatFxScreen)이 그린다. 없을 때만 옛 UIDocument 오버레이.
-            if (IronRing.Hud.Ui.UiScreens.Instance == null)
-            {
-                var document = gameObject.AddComponent<UIDocument>();
-                document.panelSettings = KoreanUi.DefaultPanel;
-                document.sortingOrder = 100;
-                _overlay = document.rootVisualElement;
-                KoreanUi.Apply(_overlay);
-                _overlay.pickingMode = PickingMode.Ignore;
-                _overlay.style.position = Position.Absolute;
-                _overlay.style.left = 0; _overlay.style.right = 0; _overlay.style.top = 0; _overlay.style.bottom = 0;
-            }
+            // 스토리 022: 떠오르는 문구·그늘은 MainCanvas의 CombatFx 화면(IronRing.Hud.CombatFxScreen)이 그린다.
             foreach (string hubId in hubs.HubIds)
             {
                 Transform anchor = anchors.HubAnchor(hubId);
@@ -209,62 +195,19 @@ namespace IronRing.Presentation.Effects
         /// <summary>position에 key 현지화 문구와 prefix 숫자를 띄우며 같은 group의 이전 문구를 교체하고 수명 목록에 추가한다.</summary>
         private void Message(Vector3 position, string key, string group = null, string prefix = "")
         {
-            if (group != null)
-                for (int index = _messages.Count - 1; index >= 0; index--)
-                    if (_messages[index].Group == group) { _messages[index].Label.RemoveFromHierarchy(); _messages.RemoveAt(index); }
-            if (_overlay == null)
-            {
-                IronRing.Hud.CombatFxScreen.Message(position, prefix + Strings.Get(key), group, _settings.MessageSeconds, _settings.RiseSpeed, _anchors.MapCamera);
-                return;
-            }
-            var label = new Label(prefix + Strings.Get(key));
-            label.pickingMode = PickingMode.Ignore;
-            label.style.position = Position.Absolute;
-            label.style.width = _settings.MessageWidth;
-            label.style.fontSize = _settings.FontSize;
-            label.style.color = _settings.Ink;
-            label.style.backgroundColor = _settings.Bubble;
-            label.style.unityTextAlign = TextAnchor.MiddleCenter;
-            label.style.paddingTop = 6; label.style.paddingBottom = 6;
-            label.style.borderBottomLeftRadius = 8; label.style.borderBottomRightRadius = 8;
-            _overlay.Add(label);
-            _messages.Add(new FloatingMessage { Label = label, Position = position, Remaining = _settings.MessageSeconds, Group = group });
+            IronRing.Hud.CombatFxScreen.Message(position, prefix + Strings.Get(key), group, _settings.MessageSeconds, _settings.RiseSpeed, _anchors.MapCamera);
         }
 
-        /// <summary>전체 화면을 어둡게 덮고 한국어 패배 제목과 설명을 표시한다.</summary>
+        /// <summary>IRunLossInfo가 없을 때만 CombatFx 그늘로 패배 제목과 설명을 띄운다(있으면 Defeat 화면이 사유별로 보인다).</summary>
         private void RunLost()
         {
             // Story 014: 사유별 제목은 011 HUD의 패배 화면이 보여 주므로, IRunLossInfo가 있으면 겹치는 제목을 만들지 않는다.
             if (GameServices.Get<IRunLossInfo>() != null) return;
-            if (_overlay == null)
-            {
-                IronRing.Hud.CombatFxScreen.ShowShade(Strings.Get("defeat_title"), Strings.Get("defeat_body"), _settings.DefeatShade);
-                return;
-            }
-            var shade = new VisualElement { pickingMode = PickingMode.Ignore };
-            shade.style.position = Position.Absolute;
-            shade.style.left = 0; shade.style.right = 0; shade.style.top = 0; shade.style.bottom = 0;
-            shade.style.backgroundColor = _settings.DefeatShade;
-            shade.style.alignItems = Align.Center; shade.style.justifyContent = Justify.Center;
-            var title = new Label(Strings.Get("defeat_title"));
-            title.style.color = _settings.Ink; title.style.fontSize = _settings.FontSize * 2;
-            var body = new Label(Strings.Get("defeat_body"));
-            body.style.color = _settings.Ink; body.style.fontSize = _settings.FontSize;
-            shade.Add(title); shade.Add(body); _overlay.Add(shade);
+            IronRing.Hud.CombatFxScreen.ShowShade(Strings.Get("defeat_title"), Strings.Get("defeat_body"), _settings.DefeatShade);
         }
 
         void Update()
         {
-            for (int index = _messages.Count - 1; index >= 0; index--)
-            {
-                FloatingMessage message = _messages[index];
-                message.Remaining -= Time.unscaledDeltaTime;
-                if (message.Remaining <= 0) { message.Label.RemoveFromHierarchy(); _messages.RemoveAt(index); continue; }
-                message.Position += Vector3.up * (_settings.RiseSpeed * Time.unscaledDeltaTime);
-                Vector2 panel = RuntimePanelUtils.CameraTransformWorldToPanel(_overlay.panel, message.Position, _anchors.MapCamera);
-                message.Label.style.left = panel.x - _settings.MessageWidth / 2;
-                message.Label.style.top = panel.y;
-            }
             for (int index = _debris.Count - 1; index >= 0; index--)
             {
                 Debris piece = _debris[index]; piece.Remaining -= Time.unscaledDeltaTime;
@@ -282,14 +225,6 @@ namespace IronRing.Presentation.Effects
             _npcs.NpcJoined -= NpcJoined; _facilities.FacilityBuilt -= FacilityBuilt;
             _waypoints.EncounterStarted -= EncounterStarted; _waypoints.EncounterEnded -= EncounterEnded;
             if (_encounter != null) { _encounter.RoundResolved -= RoundResolved; _encounter.EventResolved -= EventResolved; }
-        }
-
-        private sealed class FloatingMessage
-        {
-            public Label Label { get; set; }
-            public Vector3 Position { get; set; }
-            public float Remaining { get; set; }
-            public string Group { get; set; }
         }
 
         private sealed class Debris

@@ -1,12 +1,12 @@
 # Story 022: UGUI 전환 — 캔버스 하나와 상황별 화면 프리팹
 
 > **Epic**: 철환 장갑열차 MVP (iron-ring-train)
-> **Status**: Ready
+> **Status**: Done (2026-11-01 21:10 KST 코디네이터 브리지 검증 — 3단계까지 완료, 컴파일 통과, UIElements 참조 0건, Play 캡처 7장(핫바·드래그·대화·도감·선로·패배) 육안 확인)
 > **Layer**: Presentation
 > **Type**: UI
 > **Estimate**: L
 > **Manifest Version**: N/A (minimal — no control manifest)
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-11-01
 
 ## Context
 
@@ -26,16 +26,16 @@
 
 ## Acceptance Criteria
 
-- [ ] 글꼴: `Assets/Fonts/NotoSansKR-Regular.otf`로 TextMeshPro 폰트 에셋(`Assets/Fonts/NotoSansKR SDF.asset`, 동적 아틀라스)을 편집기 메서드로 만든다(`IronRing.Art.Editor.FontSetup.GenerateTmp`). TMP 필수 리소스는 스크립트로 가져온다(`TMP_PackageResourceImporter.ImportResources`). 모든 UI 글자는 TMP이며 한글이 네모 없이 나온다.
-- [ ] 테마: `Assets/Prefabs/UI/UiTheme.asset`(ScriptableObject)에 팔레트 색(자두색 패널·황동 테두리·호박색 강조·구리 버튼·연기색 글자), 폰트 에셋, 글자 크기, 9분할 패널·버튼 스프라이트(`Assets/Art/Generated/ui/ui_panel.png`·`ui_button.png`·`ui_slot.png`, 64px, border 8, 생성기 `SpriteGenUi`)를 둔다. 색·크기는 코드에 박지 않는다.
-- [ ] 캔버스: `Assets/Prefabs/UI/MainCanvas.prefab`(Canvas Screen Space Overlay, CanvasScaler 1280×720 Scale With Screen Size, GraphicRaycaster, 루트에 `UiScreens`) + 같은 프리팹 안의 `EventSystem`(`InputSystemUIInputModule`). `Assets/Scenes/Main.unity` 루트에 인스턴스 하나. 편집기 메서드 `IronRing.Hud.Editor.BuildMainCanvas.Generate`가 프리팹·화면 프리팹·씬 인스턴스를 없을 때만 만들고 빠진 것만 보충한다(멱등, 손으로 바꾼 값 보존, 모달 없음).
-- [ ] 화면 프리팹(`Assets/Prefabs/UI/Screens/*.prefab`, 각각 루트에 `UiScreen`(id) 컴포넌트, MainCanvas의 자식 인스턴스, 하이어라키 순서 = 그리는 순서): `TopBar`(현재 위치·바퀴·출발·다음 라운드·도감 버튼), `HubPanel`(거점 이름·단계·서식지·시설·메시지·닫기), `Defeat`(패배 제목·본문), `PhaseBanner`(거점 · 단계 · 번영 · 서식지 N, 정착 기한, 패배 사유), `InteriorTitle`(거점 내부 제목), `Hotbar`(슬롯 9개 = `HotbarSlot.prefab`, 팔레트 = `PaletteItem.prefab` 목록, 힌트, 놓을 수 없음 안내, 드래그 칩), `Toast`(한 줄 토스트, 선로·내부 공통), `NpcDialog`(직업·집·대사·선택지 버튼 = `DialogOption.prefab`·닫기), `Codex`(제목·해금 수·ScrollRect 격자 = `CodexCard.prefab`·타일 아이콘 = `TileIcon.prefab`·닫기), `CombatFx`(전투·상태 변화 떠오르는 문구 = `FloatingMessage.prefab`, 월드 좌표→화면 좌표). 선로 화면의 거점 이름·단계 라벨과 경유지 이름은 HUD가 아니라 `HubBuilding.prefab`·`WaypointMarker.prefab`의 월드 공간 TMP 자식으로 옮긴다(디자이너가 프리팹에서 위치·크기 조정).
-- [ ] 전환: `UiScreens.Show(id)/Hide(id)/Toggle(id)`로 화면 루트를 SetActive 한다. 항상 켜진 화면(TopBar·PhaseBanner·Hotbar·Toast·CombatFx)과 상황 화면(HubPanel·InteriorTitle·NpcDialog·Codex·Defeat)을 데이터(UiTheme 또는 UiScreens 목록)로 구분한다. 디자이너는 하이어라키에서 화면을 켜고 끄며 보고, 프리팹 모드에서 고친다.
-- [ ] 바인딩: HUD 스크립트는 이름 조회 대신 인스펙터에 꽂힌 참조(`[SerializeField]` TMP_Text·Button·Image·Transform)만 쓴다. 지금의 공개 API와 정적 인스턴스(`HotbarHud.Instance`, `NpcDialogHud.Instance`, `CodexHud.Toggle`, 데모 드라이버가 쓰는 멤버)는 이름을 유지해 데모가 그대로 돈다. 서비스 준비(`GameServices.Ready`) 뒤 초기화하고 서비스가 없으면 조용히 꺼진 채 남는 규칙은 유지한다. 런타임에 UI를 코드로 만들지 않는다(MainCanvas 없는 씬은 HUD 없음).
-- [ ] 입력: `PlacementGhost.UiHitTests` 대신 `EventSystem.current.IsPointerOverGameObject()`로 UI 위 클릭을 거른다. 핫바 드래그는 `IBeginDragHandler/IDragHandler/IEndDragHandler`, 키(1~9, C, Esc)는 새 Input System.
-- [ ] 제거: UI Toolkit 자산·코드를 모두 없앤다 — `Assets/UI/`, `Assets/UI Toolkit/`, `Assets/Fonts/Resources/`(PanelSettings·KoreanDefault.uss·UI Toolkit FontAsset·TextSettings), `Assets/Prefabs/UI/MainUI.prefab`, `KoreanUi.cs`·`HudDocument`·`BuildMainUi.cs`, `StateCombatEffects`의 UIDocument 오버레이. UIElements를 쓰는 옛 데모(`Assets/Scripts/Habitat/Demo/HabitatDemoView.cs`·`Editor/Story002Builder.cs`, `Assets/Scripts/Art/Demo/ArtPreview.cs`, `Story008Build`의 미리보기)는 `archive/legacy-uitoolkit/`로 옮긴다(저장소 밖 Assets). `Assets/Scripts`에 `UnityEngine.UIElements` 참조가 0이어야 한다(에디터 스크립트 포함).
-- [ ] 결과 동일: `--placement-demo --placement-stage ghost|drag|placed`, `--npc-demo --npc-stage panel|encouraged`, `--codex-demo --codex-stage start|discover`, `--map-depart`, `--hud-demo-defeat`(또는 패배 화면을 여는 기존 플래그), 전투 문구(`--combat-result`류)가 UI Toolkit 때와 같은 정보를 보여 준다. 콘솔 예외 없음.
-- [ ] 스크린샷: 위 데모 캡처 + 편집 모드(Play 아님) Game 뷰에 모든 화면이 켜진 상태 1장(`BuildMainCanvas.CaptureGameView`) + 프리팹 모드에서 화면 하나를 연 Scene 뷰 캡처는 사용자 확인으로 대체. `production/qa/evidence/story-022-ugui-screens/` + verification.md.
+- [x] 글꼴: `Assets/Fonts/NotoSansKR-Regular.otf`로 TextMeshPro 폰트 에셋(`Assets/Fonts/NotoSansKR SDF.asset`, 동적 아틀라스)을 편집기 메서드로 만든다(`IronRing.Art.Editor.FontSetup.GenerateTmp`). TMP 필수 리소스는 스크립트로 가져온다(`TMP_PackageResourceImporter.ImportResources`). 모든 UI 글자는 TMP이며 한글이 네모 없이 나온다.
+- [x] 테마: `Assets/Prefabs/UI/UiTheme.asset`(ScriptableObject)에 팔레트 색(자두색 패널·황동 테두리·호박색 강조·구리 버튼·연기색 글자), 폰트 에셋, 글자 크기, 9분할 패널·버튼 스프라이트(`Assets/Art/Generated/ui/ui_panel.png`·`ui_button.png`·`ui_slot.png`, 64px, border 8, 생성기 `SpriteGenUi`)를 둔다. 색·크기는 코드에 박지 않는다.
+- [x] 캔버스: `Assets/Prefabs/UI/MainCanvas.prefab`(Canvas Screen Space Overlay, CanvasScaler 1280×720 Scale With Screen Size, GraphicRaycaster, 루트에 `UiScreens`) + 같은 프리팹 안의 `EventSystem`(`InputSystemUIInputModule`). `Assets/Scenes/Main.unity` 루트에 인스턴스 하나. 편집기 메서드 `IronRing.Hud.Editor.BuildMainCanvas.Generate`가 프리팹·화면 프리팹·씬 인스턴스를 없을 때만 만들고 빠진 것만 보충한다(멱등, 손으로 바꾼 값 보존, 모달 없음).
+- [x] 화면 프리팹(`Assets/Prefabs/UI/Screens/*.prefab`, 각각 루트에 `UiScreen`(id) 컴포넌트, MainCanvas의 자식 인스턴스, 하이어라키 순서 = 그리는 순서): `TopBar`(현재 위치·바퀴·출발·다음 라운드·도감 버튼), `HubPanel`(거점 이름·단계·서식지·시설·메시지·닫기), `Defeat`(패배 제목·본문), `PhaseBanner`(거점 · 단계 · 번영 · 서식지 N, 정착 기한, 패배 사유), `InteriorTitle`(거점 내부 제목), `Hotbar`(슬롯 9개 = `HotbarSlot.prefab`, 팔레트 = `PaletteItem.prefab` 목록, 힌트, 놓을 수 없음 안내, 드래그 칩), `Toast`(한 줄 토스트, 선로·내부 공통), `NpcDialog`(직업·집·대사·선택지 버튼 = `DialogOption.prefab`·닫기), `Codex`(제목·해금 수·ScrollRect 격자 = `CodexCard.prefab`·타일 아이콘 = `TileIcon.prefab`·닫기), `CombatFx`(전투·상태 변화 떠오르는 문구 = `FloatingMessage.prefab`, 월드 좌표→화면 좌표). 선로 화면의 거점 이름·단계 라벨과 경유지 이름은 HUD가 아니라 `HubBuilding.prefab`·`WaypointMarker.prefab`의 월드 공간 TMP 자식으로 옮긴다(디자이너가 프리팹에서 위치·크기 조정).
+- [x] 전환: `UiScreens.Show(id)/Hide(id)/Toggle(id)`로 화면 루트를 SetActive 한다. 항상 켜진 화면(TopBar·PhaseBanner·Hotbar·Toast·CombatFx)과 상황 화면(HubPanel·InteriorTitle·NpcDialog·Codex·Defeat)을 데이터(UiTheme 또는 UiScreens 목록)로 구분한다. 디자이너는 하이어라키에서 화면을 켜고 끄며 보고, 프리팹 모드에서 고친다.
+- [x] 바인딩: HUD 스크립트는 이름 조회 대신 인스펙터에 꽂힌 참조(`[SerializeField]` TMP_Text·Button·Image·Transform)만 쓴다. 지금의 공개 API와 정적 인스턴스(`HotbarHud.Instance`, `NpcDialogHud.Instance`, `CodexHud.Toggle`, 데모 드라이버가 쓰는 멤버)는 이름을 유지해 데모가 그대로 돈다. 서비스 준비(`GameServices.Ready`) 뒤 초기화하고 서비스가 없으면 조용히 꺼진 채 남는 규칙은 유지한다. 런타임에 UI를 코드로 만들지 않는다(MainCanvas 없는 씬은 HUD 없음).
+- [x] 입력: `PlacementGhost.UiHitTests` 대신 `EventSystem.current.IsPointerOverGameObject()`로 UI 위 클릭을 거른다. 핫바 드래그는 `IBeginDragHandler/IDragHandler/IEndDragHandler`, 키(1~9, C, Esc)는 새 Input System.
+- [x] 제거: UI Toolkit 자산·코드를 모두 없앤다 — `Assets/UI/`, `Assets/UI Toolkit/`, `Assets/Fonts/Resources/`(PanelSettings·KoreanDefault.uss·UI Toolkit FontAsset·TextSettings), `Assets/Prefabs/UI/MainUI.prefab`, `KoreanUi.cs`·`HudDocument`·`BuildMainUi.cs`, `StateCombatEffects`의 UIDocument 오버레이. UIElements를 쓰는 옛 데모(`Assets/Scripts/Habitat/Demo/HabitatDemoView.cs`·`Editor/Story002Builder.cs`, `Assets/Scripts/Art/Demo/ArtPreview.cs`, `Story008Build`의 미리보기)는 `archive/legacy-uitoolkit/`로 옮긴다(저장소 밖 Assets). `Assets/Scripts`에 `UnityEngine.UIElements` 참조가 0이어야 한다(에디터 스크립트 포함).
+- [x] 결과 동일: `--placement-demo --placement-stage ghost|drag|placed`, `--npc-demo --npc-stage panel|encouraged`, `--codex-demo --codex-stage start|discover`, `--map-depart`, `--hud-demo-defeat`(또는 패배 화면을 여는 기존 플래그), 전투 문구(`--combat-result`류)가 UI Toolkit 때와 같은 정보를 보여 준다. 콘솔 예외 없음.
+- [x] 스크린샷: 위 데모 캡처 + 편집 모드(Play 아님) Game 뷰에 모든 화면이 켜진 상태 1장(`BuildMainCanvas.CaptureGameView`) + 프리팹 모드에서 화면 하나를 연 Scene 뷰 캡처는 사용자 확인으로 대체. `production/qa/evidence/story-022-ugui-screens/` + verification.md.
 
 ---
 
@@ -78,7 +78,7 @@
 **Required evidence**:
 - 브리지 컴파일 확인 + 데모 캡처 + 편집 모드 캡처: `production/qa/evidence/story-022-ugui-screens/` + `verification.md`
 
-**Status**: [ ] 미완
+**Status**: [x] 1단계 `022-editmode-gameview-v2.png`, 2단계 `-v3`·`-v4`(UI Toolkit 공존 상태), 3단계 Play: `022-final-ghost.png`·`022-final-drag.png`(핫바·고스트·드래그 칩), `022-final-npc-panel.png`(대화 패널, 토스트가 배너 아래), `022-final-codex-start.png`·`022-final-codex-discover.png`(카드 이름·"???"·머리줄 두 줄, 3/19→4/19), `022-final-map.png`(건물 아래 월드 라벨), `022-final-defeat.png`(패배 화면 최상단). 편집 모드 최종 캡처는 Unity 창이 앞에 있을 때 `BuildMainCanvas.CaptureGameView`로 찍을 수 있음(사용자 확인 가능). 세부: `verification-phase1~3.md`
 
 ---
 

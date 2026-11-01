@@ -19,7 +19,7 @@ namespace IronRing.Hud.Npc
     /// <summary>
     /// 스토리 022(NpcDialogHud의 UGUI 포팅). 상황 화면 "NpcDialog": INpcClickSource.NpcClicked로 열고 직업명·집 서식지·대사·결과 한 줄·
     /// 선택지 버튼(INpcInteraction.Options, 부품 DialogOption)·[닫기]를 보인다. 닫기 버튼·Esc·내부 화면 닫힘·다른 거점이면 닫고,
-    /// 다른 NPC 클릭이면 그 NPC로 바꾼다. 게임 상태는 바꾸지 않고 TryInteract 명령만 보낸다. 데모 브리지(NpcDialogHud.OpenForDemo 등)를 채운다.
+    /// 다른 NPC 클릭이면 그 NPC로 바꾼다. 게임 상태는 바꾸지 않고 TryInteract 명령만 보낸다. 데모 단계(NpcHomesDemoDriver.StageReady)는 HandleDemoStage가 처리한다.
     /// </summary>
     [RequireComponent(typeof(UiScreen))]
     public sealed class NpcDialogScreen : MonoBehaviour
@@ -79,8 +79,6 @@ namespace IronRing.Hud.Npc
             if (closeLabel != null) closeLabel.text = Strings.Get("npc_dialog_close");
             _close.onClick.AddListener(Close);
             _view.InteriorChanged += OnInteriorChanged;
-            NpcDialogHud.OpenForDemo = Open;
-            NpcDialogHud.InteractForDemo = Press;
             ResolveServices();
             Hide();
             ScreenTicker.Add(Tick);
@@ -268,8 +266,6 @@ namespace IronRing.Hud.Npc
             if (_interaction != null) _interaction.Interacted -= OnInteracted;
             if (_homes != null) _homes.HomeChanged -= OnHomeChanged;
             _instance = null;
-            NpcDialogHud.OpenForDemo = null;
-            NpcDialogHud.InteractForDemo = null;
         }
     }
 }

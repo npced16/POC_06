@@ -18,7 +18,7 @@ using IronRing.Presentation.Items;
 namespace IronRing.Hud.Codex
 {
     /// <summary>
-    /// 스토리 022(CodexHud의 UGUI 포팅). 상황 화면 "Codex": 서식지 레시피 도감. 상단 바 도감 버튼(CodexHud.Toggle → Toggle)·C 키로 열고 닫고,
+    /// 스토리 022(CodexHud의 UGUI 포팅). 상황 화면 "Codex": 서식지 레시피 도감. 상단 바 도감 버튼(Toggle)·C 키로 열고 닫고,
     /// Esc·닫기 버튼으로 닫는다. 카탈로그의 모든 종류를 카드 격자(CodexCard 부품)로 보인다: 잠김은 "???"+실루엣, 해금은 이름·종류·칸 수·
     /// 타일 배열(TileIcon 부품)·번영 보너스·찾아오는 NPC, 현재 거점에서 완성된 종류에는 "완성". 해금마다 토스트(ToastScreen)를 한 프레임 늦게,
     /// 겹치면 차례로 띄운다. 키·토스트 큐는 화면이 꺼져 있어도 ScreenTicker로 돈다. 게임 상태는 읽기만 한다.

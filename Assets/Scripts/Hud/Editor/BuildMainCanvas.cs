@@ -254,6 +254,29 @@ namespace IronRing.Hud.Editor
         }
 
         /// <summary>
+        /// 스토리 022 3단계. Main 씬에서 옛 UI Toolkit 루트 "MainUI"를 지우고 씬을 저장한다. 없으면 아무것도 하지 않는다(여러 번 불러도 같다).
+        /// 콘솔에 "MAINCANVAS LEGACY UI: removed|absent"를 남긴다.
+        /// </summary>
+        public static void RemoveLegacyUi()
+        {
+            Scene scene = SceneManager.GetActiveScene();
+            if (scene.path != SCENE) scene = EditorSceneManager.OpenScene(SCENE, OpenSceneMode.Single);
+            bool removed = false;
+            foreach (GameObject root in scene.GetRootGameObjects())
+            {
+                if (root.name != "MainUI") continue;
+                UnityEngine.Object.DestroyImmediate(root);
+                removed = true;
+            }
+            if (removed)
+            {
+                EditorSceneManager.MarkSceneDirty(scene);
+                EditorSceneManager.SaveScene(scene);
+            }
+            Debug.Log("MAINCANVAS LEGACY UI: " + (removed ? "removed" : "absent"));
+        }
+
+        /// <summary>
         /// 편집 모드 Game 뷰를 앞으로 가져와 창 영역 화면 픽셀(InternalEditorUtility.ReadScreenPixel)을
         /// production/qa/evidence/story-022-ugui-screens/022-editmode-gameview.png로 저장한다(덮어쓰지 않고 -v2, -v3…).
         /// Unity 편집기가 OS 앞 창이 될 때까지 최대 CAPTURE_TIMEOUT_SECONDS 기다린다. 비동기라 콘솔에 "MAINCANVAS CAPTURE: 경로"를 남긴다.

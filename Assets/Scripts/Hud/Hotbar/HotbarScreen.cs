@@ -18,7 +18,7 @@ using IronRing.Presentation.Interior;
 
 namespace IronRing.Hud.Hotbar
 {
-    /// <summary>스토리 022. PlacementDemoDriver가 핫바를 조작하는 공통 면(옛 HotbarHud와 새 HotbarScreen 모두 구현).</summary>
+    /// <summary>스토리 022. PlacementDemoDriver가 핫바를 조작하는 공통 면(HotbarScreen이 구현).</summary>
     public interface IHotbarDemoTarget
     {
         /// <summary>slot(0..8)의 배정.</summary>
@@ -39,7 +39,7 @@ namespace IronRing.Hud.Hotbar
     public sealed class HotbarScreen : MonoBehaviour, IHotbarDemoTarget
     {
         /// <summary>슬롯 수.</summary>
-        public const int SLOT_COUNT = HotbarHud.SLOT_COUNT;
+        public const int SLOT_COUNT = 9;
         private static HotbarScreen _instance;
         /// <summary>현재 핫바 화면(데모 드라이버용). 초기화 전·캔버스가 없으면 null.</summary>
         public static HotbarScreen Instance => _instance;

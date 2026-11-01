@@ -10,7 +10,6 @@ namespace IronRing.Items
     {
         [SerializeField] private int _itemSortingOrder = 40;
         [SerializeField] private float _itemScale = 0.85f;
-        [SerializeField] private int _hudSortingOrder = 120;
         [SerializeField] private float _bannerSeconds = 4f;
         [SerializeField] private string _demoHubId = "hub-1";
         [SerializeField] private int _demoWaitFrames = 20;
@@ -22,8 +21,6 @@ namespace IronRing.Items
         public int ItemSortingOrder => _itemSortingOrder;
         /// <summary>칸 앵커 기준 아이템 스프라이트 배율.</summary>
         public float ItemScale => _itemScale;
-        /// <summary>인벤토리 HUD UIDocument의 sortingOrder.</summary>
-        public int HudSortingOrder => _hudSortingOrder;
         /// <summary>서식지 완성 배너 표시 시간(실시간 초).</summary>
         public float BannerSeconds => _bannerSeconds;
         /// <summary>--items-demo가 동작할 거점.</summary>

@@ -62,6 +62,12 @@ namespace IronRing.Hud
             _screens.Show(_screen.Id);
         }
 
+        /// <summary>RunLost 이벤트를 놓친 경우(구독 전 패배, 다른 경로로 IsRunLost가 바뀐 경우)에도 화면을 맞춘다.</summary>
+        void LateUpdate()
+        {
+            if (_hubs != null && _screen != null && _hubs.IsRunLost != _screen.gameObject.activeSelf) Refresh();
+        }
+
         void OnDestroy()
         {
             GameServices.Ready -= Create;

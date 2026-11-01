@@ -70,6 +70,8 @@ namespace IronRing.Hud
         {
             CombatFxScreen screen = Current;
             if (screen == null || screen._shade == null) return false;
+            // 스토리 022: Defeat 화면이 있으면 패배 표시는 그 화면이 맡는다(그늘이 위에 덮어 가리지 않게).
+            if (UiScreens.Instance != null && UiScreens.Instance.Find<DefeatScreen>() != null) return true;
             screen._shade.color = color;
             if (screen._shadeTitle != null) screen._shadeTitle.text = title;
             if (screen._shadeBody != null) screen._shadeBody.text = body;

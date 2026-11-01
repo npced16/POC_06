@@ -30,7 +30,8 @@ namespace IronRing.Hud.Editor.Screens
         public static GameObject Build(UiTheme theme)
         {
             GameObject tilePart = UiKit.SavePrefabIfMissing(TILE_PART, () => Tile(theme));
-            GameObject cardPart = UiKit.SavePrefabIfMissing(CARD_PART, () => Card(theme));
+            // 표식 .bridge/rebuild/CodexCard가 있으면 카드 부품도 같은 경로(GUID 유지)에 다시 만든다.
+            GameObject cardPart = UiKit.SavePrefab(CARD_PART, () => Card(theme), ConsumeMarker("CodexCard"));
 
             GameObject root = UiKit.ScreenRoot("Codex", false);
             CodexScreen screen = root.AddComponent<CodexScreen>();
@@ -40,16 +41,16 @@ namespace IronRing.Hud.Editor.Screens
             rect.offsetMin = new Vector2(-500, 90); rect.offsetMax = new Vector2(500, -150);
 
             TextMeshProUGUI title = UiKit.Label(panel.transform, "Title", Strings.Get("ui_sample_codex_title"), UiTextSize.Title, theme, TextAlignmentOptions.MidlineLeft);
-            UiKit.StretchTop(title.rectTransform, 36, 10, 18, 420);
+            UiKit.StretchTop(title.rectTransform, 36, 8, 18, 120);
             title.color = theme.Accent;
-            TextMeshProUGUI hint = UiKit.Label(panel.transform, "Hint", Strings.Get("codex_hint"), UiTextSize.Small, theme, TextAlignmentOptions.MidlineRight);
-            UiKit.StretchTop(hint.rectTransform, 36, 10, 110, 380);
+            TextMeshProUGUI hint = UiKit.Label(panel.transform, "Hint", Strings.Get("codex_hint"), UiTextSize.Small, theme, TextAlignmentOptions.MidlineLeft);
+            UiKit.StretchTop(hint.rectTransform, 24, 44, 18, 120); // 제목 아래 둘째 줄(겹치지 않게)
             hint.color = theme.Muted;
             Button close = UiKit.Button(panel.transform, "Close", Strings.Get("codex_close"), theme);
             UiKit.Place((RectTransform)close.transform, Vector2.one, Vector2.one, new Vector2(-14, -12), new Vector2(80, 32));
 
             ScrollRect scroll = UiKit.ScrollGrid(panel.transform, "Grid", CardSize, new Vector2(8, 8), 3, out RectTransform grid);
-            UiKit.Stretch((RectTransform)scroll.transform, 14, 56, 14, 12);
+            UiKit.Stretch((RectTransform)scroll.transform, 14, 76, 14, 12);
             scroll.scrollSensitivity = 30;
 
             // 미리보기 카드(런타임에 지운다)
@@ -74,6 +75,15 @@ namespace IronRing.Hud.Editor.Screens
             return root;
         }
 
+        private static bool ConsumeMarker(string id)
+        {
+            string marker = System.IO.Path.Combine(System.IO.Directory.GetParent(Application.dataPath).FullName, ".bridge", "rebuild", id);
+            if (!System.IO.File.Exists(marker)) return false;
+            System.IO.File.Delete(marker);
+            Debug.Log("MAINCANVAS REBUILT PART: " + id);
+            return true;
+        }
+
         /// <summary>카드 부품: 슬롯 틀 바탕, 이름·완성 표시·종류 줄·배열 격자·보너스·NPC, 잠김 실루엣.</summary>
         private static GameObject Card(UiTheme theme)
         {
@@ -83,7 +93,7 @@ namespace IronRing.Hud.Editor.Screens
             CodexCardView view = frame.gameObject.AddComponent<CodexCardView>();
 
             TextMeshProUGUI name = UiKit.Label(frame.transform, "Name", "", UiTextSize.Normal, theme, TextAlignmentOptions.MidlineLeft);
-            UiKit.StretchTop(name.rectTransform, 28, 6, 12, 80);
+            UiKit.StretchTop(name.rectTransform, 34, 2, 12, 80); // 줄 높이(약 29px)보다 높아야 Ellipsis가 줄을 지우지 않는다
             name.color = theme.Accent;
             name.textWrappingMode = TextWrappingModes.NoWrap;
             name.overflowMode = TextOverflowModes.Ellipsis;
@@ -94,11 +104,11 @@ namespace IronRing.Hud.Editor.Screens
             badgeText.color = theme.Accent;
 
             TextMeshProUGUI meta = UiKit.Label(frame.transform, "Meta", "", UiTextSize.Small, theme, TextAlignmentOptions.MidlineLeft);
-            UiKit.StretchTop(meta.rectTransform, 20, 34, 12, 12);
+            UiKit.StretchTop(meta.rectTransform, 20, 37, 12, 12);
             meta.color = theme.Muted;
 
             RectTransform diagram = UiKit.Node(frame.transform, "Diagram");
-            UiKit.StretchTop(diagram, TILE * 3 + 8, 58, 12, 12);
+            UiKit.StretchTop(diagram, TILE * 3 + 8, 60, 12, 12);
             GridLayoutGroup grid = diagram.gameObject.AddComponent<GridLayoutGroup>();
             grid.cellSize = new Vector2(TILE, TILE);
             grid.spacing = new Vector2(3, 3);

@@ -65,8 +65,8 @@ namespace IronRing.Hud
             _catalog = JsonUtility.FromJson<HudCatalog>(_catalogJson.text);
             _depart.onClick.AddListener(Depart);
             _nextRound.onClick.AddListener(AdvanceRound);
-            // 스토리 021: 도감 버튼(C 키는 CodexHud가 읽는다).
-            if (_codex != null) _codex.onClick.AddListener(IronRing.Hud.Codex.CodexHud.Toggle);
+            // 스토리 021: 도감 버튼(C 키는 CodexScreen이 읽는다).
+            if (_codex != null) _codex.onClick.AddListener(IronRing.Hud.Codex.CodexScreen.Toggle);
             _track.Arrived += OnArrived; _track.LapCompleted += OnLap;
             _hubs.RunLost += Refresh;
             _waypoints.EncounterStarted += OnArrived; _waypoints.EncounterEnded += OnEncounterEnded;

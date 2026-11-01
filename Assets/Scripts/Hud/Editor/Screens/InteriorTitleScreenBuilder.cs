@@ -14,7 +14,7 @@ namespace IronRing.Hud.Editor.Screens
     public static class InteriorTitleScreenBuilder
     {
         /// <summary>노드 id → 문자열 키 표(3단계에서 Assets/UI를 지울 때 .meta와 함께 옮긴다).</summary>
-        public const string CATALOG = "Assets/UI/Hud/Resources/Hud/HudCatalog.json";
+        public const string CATALOG = "Assets/Scripts/Hud/Data/HudCatalog.json";
 
         /// <summary>화면 루트(UiScreen "InteriorTitle", 상황 화면) + InteriorTitleScreen + 제목 패널과 예시 한국어 라벨.</summary>
         public static GameObject Build(UiTheme theme)

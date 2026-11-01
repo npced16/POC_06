@@ -4,56 +4,19 @@ using System.Linq;
 using System.Security.Cryptography;
 
 using UnityEngine;
-using UnityEngine.UIElements;
 
 using UnityEditor;
-using UnityEditor.Build.Reporting;
-using UnityEditor.SceneManagement;
-
-using IronRing.Art.Demo;
 
 namespace IronRing.Art.Editor
 {
     public static class Story008Build
     {
-        private const string SCENE = "Assets/Scenes/Demo/Story008/Story008Art.unity";
-
-        /// <summary>스프라이트와 폰트를 생성하고 미리보기 씬이 없을 때만 기본 배치를 저장한다.</summary>
-        [MenuItem("IronRing/Art/Generate Story008 Demo")]
+        /// <summary>스토리 008 스프라이트를 생성한다(UI Toolkit 미리보기 씬은 스토리 022에서 archive/legacy-uitoolkit/로 옮겼다).</summary>
+        [MenuItem("IronRing/Art/Generate Story008 Sprites")]
         public static void Generate()
         {
             SpriteGen.Generate();
-            FontSetup.Generate();
-            Directory.CreateDirectory("Assets/Scenes/Demo/Story008");
-            if (!File.Exists(SCENE))
-            {
-                var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
-                var camera = new GameObject("PreviewCamera").AddComponent<Camera>();
-                camera.clearFlags = CameraClearFlags.SolidColor;
-                ArtKit.Load();
-                camera.backgroundColor = ArtKit.Bg.B;
-                camera.orthographic = true;
-                camera.transform.position = new Vector3(0, 0, -10);
-                var root = new GameObject("ArtPreview");
-                root.AddComponent<UIDocument>().panelSettings = AssetDatabase.LoadAssetAtPath<PanelSettings>("Assets/Fonts/Resources/KoreanPanelSettings.asset");
-                root.AddComponent<ArtPreview>().Configure(AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Art/Generated/contact_sheet.png"));
-                EditorSceneManager.SaveScene(scene, SCENE);
-            }
             AssetDatabase.SaveAssets();
-        }
-
-        /// <summary>생성된 Story008 씬만 Windows 플레이어로 빌드하고 실패 시 예외를 반환한다.</summary>
-        public static void Build()
-        {
-            Generate();
-            var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
-            {
-                scenes = new[] { SCENE },
-                locationPathName = "Builds/Demo/Story008/Game.exe",
-                target = BuildTarget.StandaloneWindows64,
-                options = BuildOptions.Development
-            });
-            if (report.summary.result != BuildResult.Succeeded) throw new InvalidOperationException(report.summary.result.ToString());
         }
 
         /// <summary>PNG를 두 번 생성하여 해시 및 임포터 설정을 비교하고 결과를 스토리 증거 폴더에 저장한다.</summary>
