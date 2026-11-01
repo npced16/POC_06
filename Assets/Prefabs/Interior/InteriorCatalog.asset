@@ -44,10 +44,10 @@ MonoBehaviour:
     _sprite: {fileID: 21300000, guid: c548c7e423d2a5949b8ce9073f8c7887, type: 3}
   _defaultOrigin: {x: 1000, y: 0, z: 0}
   _defaultSpacing: {x: 200, y: 0, z: 0}
-  _defaultCameraSize: 5.5
+  _defaultCameraSize: 7
   _tileSize: 1
-  _floorMarginColumns: 3
-  _floorMarginRows: 1
+  _floorMarginColumns: 0
+  _floorMarginRows: 0
   _trainCars: 3
   _trainCarSpacing: 1.3
   _trainScale: 1.25
