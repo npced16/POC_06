@@ -6,7 +6,12 @@ using IronRing.Contracts.Presentation;
 
 namespace IronRing.Npc
 {
-    /// <summary>Run-scoped unique recruitment; invoke once per arrival, never each frame or flag update.</summary>
+    /// <summary>
+    /// Run-scoped unique recruitment; invoke once per arrival, never each frame or flag update.
+    /// Story 023: when a passenger system sets VisitHandler, a hub visit is handed to it and NPCs join ONLY through
+    /// TryJoin (a passenger disembarking). Without a handler (standalone Story 003 demo) the legacy single roll applies.
+    /// An NPC joins at most once per run either way.
+    /// </summary>
     public sealed class NpcRecruiter : INpcRecruiter
     {
         private readonly List<NpcDefinition> _pool;
@@ -15,11 +20,17 @@ namespace IronRing.Npc
         private readonly IRandomSource _random;
         private readonly Func<IHabitatClusters> _clusters;
         private readonly HashSet<string> _joined = new HashSet<string>(StringComparer.Ordinal);
+        private readonly List<string> _joinOrder = new List<string>();
         private readonly Dictionary<string, List<string>> _members = new Dictionary<string, List<string>>(StringComparer.Ordinal);
         private bool _processingVisit;
 
         /// <summary>Publishes hub and NPC ids after membership has been committed.</summary>
         public event Action<string, string> NpcJoined;
+        /// <summary>Story 023: npcId, hubId — raised right after NpcJoined (homes are assigned by then); presentation plays the arrival walk.</summary>
+        public event Action<string, string> NpcArrived;
+
+        /// <summary>Story 023: receives every hub visit instead of the legacy roll (set by Passengers). Null keeps the legacy roll.</summary>
+        public Action<string> VisitHandler { get; set; }
 
         /// <summary>Copies validated pool and chance inputs and stores injected habitat and randomness dependencies for a new run.</summary>
         /// <param name="clusters">Story 016: completed-habitat source queried at visit time; null reads GameServices.Get&lt;IHabitatClusters&gt;().</param>
@@ -38,13 +49,17 @@ namespace IronRing.Npc
             _joinChance = joinChance;
         }
 
-        /// <summary>Processes one hubId arrival with at most one chance roll and one join; ignores reentrant calls during this visit.</summary>
+        /// <summary>True once npcId has joined any hub this run.</summary>
+        public bool IsJoined(string npcId) => npcId != null && _joined.Contains(npcId);
+
+        /// <summary>Processes one hub arrival: hands it to VisitHandler when set, otherwise one legacy roll. Ignores reentrant calls.</summary>
         public void OnHubVisited(string hubId)
         {
             if (_processingVisit || string.IsNullOrEmpty(hubId)) return;
             _processingVisit = true;
             try
             {
+                if (VisitHandler != null) { VisitHandler(hubId); return; }
                 if (!_habitats.IsEventFlagSet(hubId)) return;
                 var candidates = new List<NpcDefinition>();
                 foreach (var npc in _pool)
@@ -54,22 +69,37 @@ namespace IronRing.Npc
                 }
                 if (candidates.Count == 0 || _random.NextFloat() >= _joinChance) return;
                 var selected = candidates[candidates.Count == 1 ? 0 : _random.NextInt(0, candidates.Count)];
-                _joined.Add(selected.Id);
-                if (!_members.TryGetValue(hubId, out var members))
-                {
-                    members = new List<string>();
-                    _members.Add(hubId, members);
-                }
-                members.Add(selected.Id);
-                NpcJoined?.Invoke(hubId, selected.Id);
+                Commit(selected.Id, hubId);
             }
             finally { _processingVisit = false; }
         }
 
+        /// <summary>Story 023: commits npcId to hubId (a disembarking passenger). False when unknown or already joined.</summary>
+        public bool TryJoin(string npcId, string hubId)
+        {
+            if (string.IsNullOrEmpty(hubId) || IsJoined(npcId) || _pool.Find(n => n.Id == npcId) == null) return false;
+            Commit(npcId, hubId);
+            return true;
+        }
+
+        private void Commit(string npcId, string hubId)
+        {
+            _joined.Add(npcId);
+            _joinOrder.Add(npcId);
+            if (!_members.TryGetValue(hubId, out var members))
+            {
+                members = new List<string>();
+                _members.Add(hubId, members);
+            }
+            members.Add(npcId);
+            NpcJoined?.Invoke(hubId, npcId);
+            NpcArrived?.Invoke(npcId, hubId);
+        }
+
         /// <summary>
-        /// Eligibility (the only rule Story 016 changes). Hub list: the NPC's hubs, or any hub when it names a habitat type and lists none.
-        /// Habitat: with a habitat type id and a cluster source, that type must be complete at hubId now (each completed type's NPCs
-        /// become candidates); otherwise the Story 003 rule (RequiresCompleteHabitat → IsHabitatComplete).
+        /// Legacy eligibility. Hub list: the NPC's hubs, or any hub when it names a habitat type and lists none.
+        /// Habitat: with a habitat type id and a cluster source, that type must be complete at hubId now;
+        /// otherwise the Story 003 rule (RequiresCompleteHabitat → IsHabitatComplete).
         /// </summary>
         private bool IsEligible(NpcDefinition npc, string hubId)
         {
@@ -87,5 +117,25 @@ namespace IronRing.Npc
         /// <summary>Returns a read-only snapshot of joined ids for hubId; unknown hubs return an empty list.</summary>
         public IReadOnlyList<string> NpcsAt(string hubId) => hubId != null && _members.TryGetValue(hubId, out var members)
             ? Array.AsReadOnly(members.ToArray()) : Array.Empty<string>();
+
+        /// <summary>Story 023: every NPC id that wants habitatTypeId (hub-independent, pool order).</summary>
+        public IReadOnlyList<string> CandidatesOf(string habitatTypeId)
+        {
+            var list = new List<string>();
+            foreach (NpcDefinition npc in _pool) if (npc.HabitatTypeId != null && npc.HabitatTypeId == habitatTypeId) list.Add(npc.Id);
+            return list.AsReadOnly();
+        }
+
+        /// <summary>Story 023: joined NPC ids that want habitatTypeId, in join order.</summary>
+        public IReadOnlyList<string> JoinedOf(string habitatTypeId)
+        {
+            var list = new List<string>();
+            foreach (string id in _joinOrder)
+            {
+                NpcDefinition npc = _pool.Find(n => n.Id == id);
+                if (npc != null && npc.HabitatTypeId == habitatTypeId) list.Add(id);
+            }
+            return list.AsReadOnly();
+        }
     }
 }

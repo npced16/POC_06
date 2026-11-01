@@ -12,7 +12,7 @@ namespace IronRing.Npc
         public string Name { get; }
         /// <summary>The single arrival line shown to the player.</summary>
         public string Quote { get; }
-        /// <summary>Hub ids at which this NPC can join.</summary>
+        /// <summary>Hub ids at which this NPC can join (Story 023: NpcPool.json `_hubIds`, hidden from the player).</summary>
         public IReadOnlyList<string> EligibleHubIds { get; }
         /// <summary>Whether the target hub must currently have a complete habitat.</summary>
         public bool RequiresCompleteHabitat { get; }
@@ -26,10 +26,12 @@ namespace IronRing.Npc
         /// lines (NpcPool.json `_lines`, blanks and duplicates of the quote skipped). Never empty.
         /// </summary>
         public IReadOnlyList<string> Lines { get; }
+        /// <summary>Story 023: train-passenger data (origin, chance, conditions, proposal, hint). Null for legacy entries built in code.</summary>
+        public NpcPassengerProfile Passenger { get; }
 
         /// <summary>Validates and copies identity, display text and allowed hubs into an immutable definition.</summary>
         public NpcDefinition(string id, string name, string quote, IEnumerable<string> eligibleHubIds, bool requiresCompleteHabitat, string habitatTypeId = null,
-            IEnumerable<string> lines = null)
+            IEnumerable<string> lines = null, NpcPassengerProfile passenger = null)
         {
             if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(quote))
                 throw new ArgumentException("NPC id, name and quote must be non-empty.");
@@ -47,6 +49,64 @@ namespace IronRing.Npc
                 foreach (string line in lines)
                     if (!string.IsNullOrWhiteSpace(line) && !allLines.Contains(line)) allLines.Add(line);
             Lines = allLines.AsReadOnly();
+            Passenger = passenger;
+        }
+
+        /// <summary>True when hubId is one of this NPC's hubs (an empty hub list means any hub).</summary>
+        public bool AllowsHub(string hubId)
+        {
+            if (hubId == null) return false;
+            if (EligibleHubIds.Count == 0) return true;
+            foreach (string hub in EligibleHubIds) if (hub == hubId) return true;
+            return false;
+        }
+    }
+
+    /// <summary>Story 023: one hidden condition (`{ "_type", "_value" }`). Evaluated by NpcConditions.</summary>
+    public sealed class NpcCondition
+    {
+        /// <summary>prosperityAtLeast | lapAtLeast | visitAtLeast | habitatComplete | npcPresent | phaseAtLeast.</summary>
+        public string Type { get; }
+        /// <summary>Number, habitat type id, NPC id or phase name depending on Type.</summary>
+        public string Value { get; }
+
+        /// <summary>Stores the condition as authored; unknown types are reported at evaluation time.</summary>
+        public NpcCondition(string type, string value) { Type = type ?? ""; Value = value ?? ""; }
+
+        /// <inheritdoc/>
+        public override string ToString() => Type + "≥" + Value;
+    }
+
+    /// <summary>Story 023: how an NPC rides the train — where it boards, its chance, conditions and what it says.</summary>
+    public sealed class NpcPassengerProfile
+    {
+        /// <summary>Waypoint node id where the NPC can board, or "*" for any waypoint.</summary>
+        public string Origin { get; }
+        /// <summary>Korean origin name shown to the player ("북쪽 고개").</summary>
+        public string OriginName { get; }
+        /// <summary>Boarding chance per resolved waypoint, 0..1.</summary>
+        public float Chance { get; }
+        /// <summary>Conditions checked at boarding (all must hold).</summary>
+        public IReadOnlyList<NpcCondition> BoardConditions { get; }
+        /// <summary>Hidden conditions checked at a hub before disembarking (all must hold). Never shown to the player.</summary>
+        public IReadOnlyList<NpcCondition> Conditions { get; }
+        /// <summary>Proposal line announced when boarding.</summary>
+        public string Proposal { get; }
+        /// <summary>Hint line about the hidden conditions, announced when boarding.</summary>
+        public string Hint { get; }
+
+        /// <summary>Validates the chance and copies the lists.</summary>
+        public NpcPassengerProfile(string origin, string originName, float chance, IEnumerable<NpcCondition> boardConditions,
+            IEnumerable<NpcCondition> conditions, string proposal, string hint)
+        {
+            if (float.IsNaN(chance) || chance < 0f || chance > 1f) throw new ArgumentOutOfRangeException(nameof(chance));
+            Origin = string.IsNullOrWhiteSpace(origin) ? "*" : origin;
+            OriginName = originName ?? "";
+            Chance = chance;
+            BoardConditions = new List<NpcCondition>(boardConditions ?? Array.Empty<NpcCondition>()).AsReadOnly();
+            Conditions = new List<NpcCondition>(conditions ?? Array.Empty<NpcCondition>()).AsReadOnly();
+            Proposal = proposal ?? "";
+            Hint = hint ?? "";
         }
     }
 }

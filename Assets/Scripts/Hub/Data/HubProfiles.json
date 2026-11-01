@@ -1,9 +1,9 @@
 {
   "_deadlineLaps": 8,
   "_hubs": [
-    { "_id": "hub-1", "_minimum": 0, "_maximum": 100, "_initial": 0, "_ruinThreshold": 0, "_settledThreshold": 40, "_basePerLap": -3, "_perNpc": 3, "_perFacility": 2, "_perPlacedItem": 1, "_habitatBonus": 5, "_decayScale": 1, "_npcScale": 1, "_facilityScale": 1.5 },
-    { "_id": "hub-2", "_minimum": 0, "_maximum": 100, "_initial": 0, "_ruinThreshold": 0, "_settledThreshold": 40, "_basePerLap": -3, "_perNpc": 3, "_perFacility": 2, "_perPlacedItem": 1, "_habitatBonus": 5, "_decayScale": 1, "_npcScale": 1.5, "_facilityScale": 1 },
-    { "_id": "hub-3", "_minimum": 0, "_maximum": 100, "_initial": 0, "_ruinThreshold": 0, "_settledThreshold": 40, "_basePerLap": -3, "_perNpc": 3, "_perFacility": 2, "_perPlacedItem": 1, "_habitatBonus": 5, "_decayScale": 0.5, "_npcScale": 1, "_facilityScale": 1 },
-    { "_id": "hub-4", "_minimum": 0, "_maximum": 100, "_initial": 0, "_ruinThreshold": 0, "_settledThreshold": 40, "_basePerLap": -3, "_perNpc": 3, "_perFacility": 2, "_perPlacedItem": 1, "_habitatBonus": 5, "_decayScale": 1.5, "_npcScale": 1, "_facilityScale": 1 }
+    { "_id": "hub-1", "_minimum": 0, "_maximum": 100, "_initial": 0, "_ruinThreshold": 0, "_settledThreshold": 40, "_basePerLap": -3, "_perNpc": 3, "_perFacility": 2, "_perPlacedItem": 1, "_habitatBonus": 5, "_decayScale": 1, "_npcScale": 1, "_facilityScale": 1.5, "_settleByHabitat": false },
+    { "_id": "hub-2", "_minimum": 0, "_maximum": 100, "_initial": 0, "_ruinThreshold": 0, "_settledThreshold": 40, "_basePerLap": -3, "_perNpc": 3, "_perFacility": 2, "_perPlacedItem": 1, "_habitatBonus": 5, "_decayScale": 1, "_npcScale": 1.5, "_facilityScale": 1, "_settleByHabitat": false },
+    { "_id": "hub-3", "_minimum": 0, "_maximum": 100, "_initial": 0, "_ruinThreshold": 0, "_settledThreshold": 40, "_basePerLap": -3, "_perNpc": 3, "_perFacility": 2, "_perPlacedItem": 1, "_habitatBonus": 5, "_decayScale": 0.5, "_npcScale": 1, "_facilityScale": 1, "_settleByHabitat": false },
+    { "_id": "hub-4", "_minimum": 0, "_maximum": 100, "_initial": 0, "_ruinThreshold": 0, "_settledThreshold": 40, "_basePerLap": -3, "_perNpc": 3, "_perFacility": 2, "_perPlacedItem": 1, "_habitatBonus": 5, "_decayScale": 1.5, "_npcScale": 1, "_facilityScale": 1, "_settleByHabitat": false }
   ]
 }

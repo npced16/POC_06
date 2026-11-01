@@ -108,6 +108,12 @@ namespace IronRing.Contracts
         IReadOnlyList<string> NpcsAt(string hubId);
         /// <summary>hubId, npcId.</summary>
         event Action<string, string> NpcJoined;
+        /// <summary>스토리 023. 그 서식지 종류를 원하는 모든 NPC id(거점 무관, 풀 순서). 도감 "찾아오는 이"의 ??? 개수에 쓴다.</summary>
+        IReadOnlyList<string> CandidatesOf(string habitatTypeId) => Array.Empty<string>();
+        /// <summary>스토리 023. 그 서식지 종류를 원하는 NPC 가운데 실제로 합류한 id(합류 순서).</summary>
+        IReadOnlyList<string> JoinedOf(string habitatTypeId) => Array.Empty<string>();
+        /// <summary>스토리 023. npcId, hubId. 승객이 내려 합류한 순간(NpcJoined 직후). 표현이 열차 칸→집 도착 연출에 쓴다.</summary>
+        event Action<string, string> NpcArrived { add { } remove { } }
     }
 
     /// <summary>Story 004. Prosperity per hub, ruin transition, and the run-lost rule (all hubs ruined).</summary>
@@ -380,6 +386,8 @@ namespace IronRing.Contracts
         bool TryInteract(string npcId, string optionId, out string resultText);
         /// <summary>npcId, optionId. 실행에 성공했을 때.</summary>
         event Action<string, string> Interacted;
+        /// <summary>스토리 023. npcId의 출신지 이름(한국어, 예: "북쪽 고개"). 모르면 null. 대화 패널의 "&lt;출신지&gt; 출신" 줄에 쓴다.</summary>
+        string Origin(string npcId) => null;
     }
 
     /// <summary>런이 끝난 이유.</summary>
@@ -408,5 +416,31 @@ namespace IronRing.Contracts
         int LapsUntilDeadline { get; }
         /// <summary>hubId, 새 단계.</summary>
         event Action<string, HubPhase> PhaseChanged;
+    }
+
+    /// <summary>
+    /// 스토리 023. 열차 승객. NPC는 경유지 이벤트·전투 승리 뒤 각자 확률·탑승 조건으로 타며 제안과 힌트를 남기고,
+    /// 거점에 정차했을 때 원하는 서식지가 완성되어 있고 숨은 조건을 채우면 내려 합류한다. 인내 바퀴가 지나면 다음 경유지에서 떠난다.
+    /// </summary>
+    public interface IPassengers
+    {
+        /// <summary>지금 탄 승객 id(탑승 순서).</summary>
+        IReadOnlyList<string> PassengerIds { get; }
+        /// <summary>승객의 제안 문장(한국어).</summary>
+        string Proposal(string npcId);
+        /// <summary>숨은 조건에 대한 힌트 문장(한국어). 조건 수치를 다 드러내지 않는다.</summary>
+        string Hint(string npcId);
+        /// <summary>출신지 이름(한국어).</summary>
+        string OriginName(string npcId);
+        /// <summary>탑승 뒤 지난 바퀴 수. 타고 있지 않으면 0.</summary>
+        int LapsAboard(string npcId);
+        /// <summary>npcId, waypointId.</summary>
+        event Action<string, string> Boarded;
+        /// <summary>npcId, hubId.</summary>
+        event Action<string, string> Disembarked;
+        /// <summary>집을 못 찾고 떠난 npcId.</summary>
+        event Action<string> Left;
+        /// <summary>데모·시험용 탑승. force면 자리·출신지·탑승 조건을 무시한다. 이미 합류했거나 타고 있으면 false.</summary>
+        bool TryBoard(string npcId, string waypointId, bool force);
     }
 }

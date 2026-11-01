@@ -90,6 +90,7 @@ namespace IronRing.Hub.Demo
             RevealCells(hub);
             PlaceHabitatItems(hub);
             INpcRecruiter npcs = GameServices.Get<INpcRecruiter>();
+            IronRing.Npc.NpcInstaller.Passengers?.BoardForHub(hub); // 스토리 023: 합류는 승객 하차로만
             for (int i = 0; i < _settings.NpcVisitAttempts && npcs.NpcsAt(hub).Count == 0; i++) npcs.OnHubVisited(hub);
             BuildFacility(hub);
             OpenInterior(hub);

@@ -1,176 +1,881 @@
 {
   "_joinChance": 0.5,
+  "_maxPassengers": 3,
+  "_patienceLaps": 3,
+  "_maxDisembarkPerVisit": 0,
+  "_passengerSeed": 2311,
+  "_toastSeconds": 4.0,
+  "_boardToastFormat": "{0} {1}에서 탔다: \"{2}\" {3}",
+  "_disembarkToastFormat": "열차에서 {0} 내렸다 · {1} 출신",
+  "_leaveToastFormat": "{0} 열차에서 내려 떠났다",
   "_npcs": [
-    {
-      "_id": "stoker",
-      "_name": "화부",
-      "_quote": "불을 꺼뜨리지 않는 게 내 일이오.",
-      "_eligibleHubIds": [],
-      "_requiresCompleteHabitat": true,
-      "_habitatTypeId": "boiler_room",
-      "_lines": ["석탄 한 삽에도 박자가 있소. 서두르면 불이 숨이 막히지.", "보일러 압력계 바늘이 초록에 있으면 오늘은 무사한 거요."]
-    },
-    {
-      "_id": "pipefitter",
-      "_name": "배관공",
-      "_quote": "새는 데가 있으면 소리로 먼저 알지.",
-      "_eligibleHubIds": [],
-      "_requiresCompleteHabitat": true,
-      "_habitatTypeId": "pipe_gallery",
-      "_lines": ["증기 새는 쉭 소리, 그게 이 동네의 경보음이지.", "렌치 하나, 삼베 한 줌이면 웬만한 이음매는 막아."]
-    },
-    {
-      "_id": "mechanic",
-      "_name": "기계공",
-      "_quote": "톱니 하나만 맞아도 마을이 돌아가요.",
-      "_eligibleHubIds": [],
-      "_requiresCompleteHabitat": true,
-      "_habitatTypeId": "cogworks",
-      "_lines": ["기름칠을 거르면 톱니가 먼저 비명을 질러요.", "오늘은 태엽 장치 세 개를 손봤어요. 손이 근질근질하네요."]
-    },
     {
       "_id": "lamplighter",
       "_name": "점등부",
-      "_quote": "해 지기 전에 등을 다 밝혀 둘게요.",
-      "_eligibleHubIds": [],
-      "_requiresCompleteHabitat": true,
       "_habitatTypeId": "lamp_street",
-      "_lines": ["가스 밸브를 반 바퀴만 돌려야 불꽃이 곱게 서요.", "등불 하나가 꺼지면 골목 하나가 통째로 겁을 먹죠."]
-    },
-    {
-      "_id": "coal_merchant",
-      "_name": "석탄 상인",
-      "_quote": "좋은 석탄은 오래 타고 값도 정직하지.",
-      "_eligibleHubIds": [],
-      "_requiresCompleteHabitat": true,
-      "_habitatTypeId": "coal_yard",
-      "_lines": ["무연탄은 연기가 적고 갈탄은 싸지. 골라 보시게.", "철로가 이어지는 한 석탄 장사는 망하지 않네."]
-    },
-    {
-      "_id": "ironworker",
-      "_name": "철공",
-      "_quote": "철골만 튼튼하면 폭풍도 버티오.",
-      "_eligibleHubIds": [],
-      "_requiresCompleteHabitat": true,
-      "_habitatTypeId": "iron_depot",
-      "_lines": ["리벳은 달궈서 박아야 식으면서 꽉 물지.", "녹은 게으름의 다른 이름이오. 매일 긁어내야 하오."]
-    },
-    {
-      "_id": "peddler",
-      "_name": "행상",
-      "_quote": "광장이 생겼다니, 좌판부터 펴야겠네!",
-      "_eligibleHubIds": [],
-      "_requiresCompleteHabitat": true,
-      "_habitatTypeId": "cobble_plaza",
-      "_lines": ["태엽 시계, 놋쇠 단추, 고글까지! 구경은 공짜요.", "사람이 모이는 곳이면 내 좌판도 거기 있지."]
-    },
-    {
-      "_id": "water_keeper",
-      "_name": "급수원",
-      "_quote": "물탱크 수위는 내가 매일 잽니다.",
-      "_eligibleHubIds": [],
-      "_requiresCompleteHabitat": true,
-      "_habitatTypeId": "cistern",
-      "_lines": ["물 한 통이 기관차 반 마일을 밀어 줍니다.", "탱크에 녹물이 섞이면 보일러가 금방 병들어요."]
+      "_hubIds": [
+        "hub-1"
+      ],
+      "_origin": "*",
+      "_originName": "떠돌이 선로",
+      "_chance": 0.6,
+      "_boardConditions": [],
+      "_conditions": [],
+      "_proposal": "가스등 거리를 만들어 주면 거기서 살겠소.",
+      "_hint": "불빛만 넉넉하면 어느 마을이든 좋아요.",
+      "_quote": "해 지기 전에 등을 다 밝혀 둘게요.",
+      "_lines": [
+        "가스 밸브를 반 바퀴만 돌려야 불꽃이 곱게 서요.",
+        "등불 하나가 꺼지면 골목 하나가 통째로 겁을 먹죠."
+      ]
     },
     {
       "_id": "gardener",
       "_name": "원예사",
-      "_quote": "유리 아래라면 잿빛 땅에서도 싹이 나요.",
-      "_eligibleHubIds": [],
-      "_requiresCompleteHabitat": true,
       "_habitatTypeId": "greenhouse",
-      "_lines": ["증기 배관 열기로 온실을 데우면 겨울에도 상추가 자라요.", "검댕 낀 유리는 매일 닦아 줘야 햇빛이 들어와요."]
+      "_hubIds": [
+        "hub-1"
+      ],
+      "_origin": "*",
+      "_originName": "떠돌이 선로",
+      "_chance": 0.55,
+      "_boardConditions": [],
+      "_conditions": [],
+      "_proposal": "온실을 지어 주면 거기 눌러앉겠어요.",
+      "_hint": "유리 지붕 아래 흙만 있으면 돼요.",
+      "_quote": "유리 아래라면 잿빛 땅에서도 싹이 나요.",
+      "_lines": [
+        "증기 배관 열기로 온실을 데우면 겨울에도 상추가 자라요.",
+        "검댕 낀 유리는 매일 닦아 줘야 햇빛이 들어와요."
+      ]
     },
     {
-      "_id": "night_watch",
-      "_name": "야간 경비",
-      "_quote": "눈 붙이세요. 밤은 내가 지킵니다.",
-      "_eligibleHubIds": [],
-      "_requiresCompleteHabitat": true,
-      "_habitatTypeId": "barracks",
-      "_lines": ["랜턴 기름은 넉넉히 채워 뒀습니다.", "철로 쪽에서 쇳소리가 나면 제일 먼저 알려 드리죠."]
+      "_id": "stoker",
+      "_name": "화부",
+      "_habitatTypeId": "boiler_room",
+      "_hubIds": [
+        "hub-1"
+      ],
+      "_origin": "NORTH PASS",
+      "_originName": "북쪽 고개",
+      "_chance": 0.5,
+      "_boardConditions": [],
+      "_conditions": [
+        {
+          "_type": "prosperityAtLeast",
+          "_value": "10"
+        }
+      ],
+      "_proposal": "보일러실을 갖춰 주면 불을 맡겠소.",
+      "_hint": "굴뚝 연기가 좀 오르는, 번영이 조금은 있는 마을이면 좋겠소.",
+      "_quote": "불을 꺼뜨리지 않는 게 내 일이오.",
+      "_lines": [
+        "석탄 한 삽에도 박자가 있소. 서두르면 불이 숨이 막히지.",
+        "보일러 압력계 바늘이 초록에 있으면 오늘은 무사한 거요."
+      ]
+    },
+    {
+      "_id": "water_keeper",
+      "_name": "급수원",
+      "_habitatTypeId": "cistern",
+      "_hubIds": [
+        "hub-1"
+      ],
+      "_origin": "WEST PASS",
+      "_originName": "서쪽 고개",
+      "_chance": 0.45,
+      "_boardConditions": [],
+      "_conditions": [
+        {
+          "_type": "habitatComplete",
+          "_value": "greenhouse"
+        }
+      ],
+      "_proposal": "저수조를 마련해 주면 물을 지키겠소.",
+      "_hint": "온실이 있는 마을이면 좋겠어.",
+      "_quote": "물탱크 수위는 내가 매일 잽니다.",
+      "_lines": [
+        "물 한 통이 기관차 반 마일을 밀어 줍니다.",
+        "탱크에 녹물이 섞이면 보일러가 금방 병들어요."
+      ]
     },
     {
       "_id": "tinker",
       "_name": "수리공",
-      "_quote": "망가진 건 다 가져오시오. 고쳐 드리지.",
-      "_eligibleHubIds": [],
-      "_requiresCompleteHabitat": true,
       "_habitatTypeId": "toolshop",
-      "_lines": ["부서진 오르골도 톱니만 갈면 다시 노래하오.", "버리는 나사 하나 없이 다 쓸모가 있는 법이지."]
+      "_hubIds": [
+        "hub-1"
+      ],
+      "_origin": "*",
+      "_originName": "떠돌이 선로",
+      "_chance": 0.5,
+      "_boardConditions": [],
+      "_conditions": [],
+      "_proposal": "공구점을 차려 주면 거기서 일하겠네.",
+      "_hint": "잡동사니 굴러다니는 곳이면 어디든 좋네.",
+      "_quote": "망가진 건 다 가져오시오. 고쳐 드리지.",
+      "_lines": [
+        "부서진 오르골도 톱니만 갈면 다시 노래하오.",
+        "버리는 나사 하나 없이 다 쓸모가 있는 법이지."
+      ]
+    },
+    {
+      "_id": "peddler",
+      "_name": "행상",
+      "_habitatTypeId": "cobble_plaza",
+      "_hubIds": [
+        "hub-1",
+        "hub-3"
+      ],
+      "_origin": "*",
+      "_originName": "떠돌이 선로",
+      "_chance": 0.4,
+      "_boardConditions": [],
+      "_conditions": [
+        {
+          "_type": "visitAtLeast",
+          "_value": "2"
+        }
+      ],
+      "_proposal": "벽돌 광장을 깔아 주면 좌판을 펴겠소.",
+      "_hint": "몇 번 들러 본 단골 마을이면 좋겠소.",
+      "_quote": "광장이 생겼다니, 좌판부터 펴야겠네!",
+      "_lines": [
+        "태엽 시계, 놋쇠 단추, 고글까지! 구경은 공짜요.",
+        "사람이 모이는 곳이면 내 좌판도 거기 있지."
+      ]
+    },
+    {
+      "_id": "glass_blower",
+      "_name": "유리공",
+      "_habitatTypeId": "greenhouse",
+      "_hubIds": [
+        "hub-1"
+      ],
+      "_origin": "SOUTH PASS",
+      "_originName": "남쪽 고개",
+      "_chance": 0.3,
+      "_boardConditions": [
+        {
+          "_type": "lapAtLeast",
+          "_value": "1"
+        }
+      ],
+      "_conditions": [
+        {
+          "_type": "npcPresent",
+          "_value": "gardener"
+        }
+      ],
+      "_proposal": "온실을 하나 내주면 유리를 불어 드리지.",
+      "_hint": "원예사가 사는 마을이면 좋겠군.",
+      "_quote": "숨 한 번에 유리 한 장, 서두르면 금이 가오.",
+      "_lines": [
+        "풀무 바람이 고르면 유리도 맑게 나오지.",
+        "온실 유리는 내 손을 거친 게 제일 오래 가오."
+      ]
+    },
+    {
+      "_id": "lamp_oiler",
+      "_name": "등유 배달부",
+      "_habitatTypeId": "lamp_road",
+      "_hubIds": [
+        "hub-1"
+      ],
+      "_origin": "EAST PASS",
+      "_originName": "동쪽 고개",
+      "_chance": 0.35,
+      "_boardConditions": [],
+      "_conditions": [
+        {
+          "_type": "habitatComplete",
+          "_value": "lamp_street"
+        }
+      ],
+      "_proposal": "가로등 길을 놓아 주면 기름을 대겠소.",
+      "_hint": "가스등 거리가 이미 있는 마을이라면 좋겠어.",
+      "_quote": "기름통이 무거워야 밤이 가벼운 법이오.",
+      "_lines": [
+        "등잔마다 기름이 찰랑하면 마음이 놓여요.",
+        "심지 그을음은 아침마다 내가 닦소."
+      ]
+    },
+    {
+      "_id": "chimney_sweep",
+      "_name": "굴뚝 청소부",
+      "_habitatTypeId": "boiler_room",
+      "_hubIds": [
+        "hub-1",
+        "hub-4"
+      ],
+      "_origin": "*",
+      "_originName": "떠돌이 선로",
+      "_chance": 0.35,
+      "_boardConditions": [],
+      "_conditions": [
+        {
+          "_type": "phaseAtLeast",
+          "_value": "Recovering"
+        }
+      ],
+      "_proposal": "보일러실 곁에 살게 해 주면 굴뚝을 쓸겠소.",
+      "_hint": "폐허 말고, 다시 숨 쉬기 시작한 마을이면 좋겠어.",
+      "_quote": "검댕은 내 훈장이오.",
+      "_lines": [
+        "굴뚝이 막히면 마을이 기침을 하지.",
+        "솔 한 자루면 지붕 위가 내 길이오."
+      ]
+    },
+    {
+      "_id": "clockmaker",
+      "_name": "시계공",
+      "_habitatTypeId": "cogworks",
+      "_hubIds": [
+        "hub-1"
+      ],
+      "_origin": "NORTH PASS",
+      "_originName": "북쪽 고개",
+      "_chance": 0.3,
+      "_boardConditions": [
+        {
+          "_type": "lapAtLeast",
+          "_value": "2"
+        }
+      ],
+      "_conditions": [
+        {
+          "_type": "prosperityAtLeast",
+          "_value": "25"
+        }
+      ],
+      "_proposal": "톱니 공방을 내주면 시계탑을 고치겠소.",
+      "_hint": "번영이 제법 오른 마을이면 좋겠소.",
+      "_quote": "초침 하나 어긋나면 하루가 통째로 어긋나지.",
+      "_lines": [
+        "태엽은 너무 감아도, 덜 감아도 탈이오.",
+        "이 마을 종소리를 맞춰 놓고 싶군."
+      ]
+    },
+    {
+      "_id": "mechanic",
+      "_name": "기계공",
+      "_habitatTypeId": "cogworks",
+      "_hubIds": [
+        "hub-2"
+      ],
+      "_origin": "NORTH PASS",
+      "_originName": "북쪽 고개",
+      "_chance": 0.5,
+      "_boardConditions": [],
+      "_conditions": [],
+      "_proposal": "톱니 공방을 지어 주면 거기 자리 잡을게요.",
+      "_hint": "기름 냄새 나는 곳이면 어디든 좋아요.",
+      "_quote": "톱니 하나만 맞아도 마을이 돌아가요.",
+      "_lines": [
+        "기름칠을 거르면 톱니가 먼저 비명을 질러요.",
+        "오늘은 태엽 장치 세 개를 손봤어요. 손이 근질근질하네요."
+      ]
+    },
+    {
+      "_id": "pipefitter",
+      "_name": "배관공",
+      "_habitatTypeId": "pipe_gallery",
+      "_hubIds": [
+        "hub-2"
+      ],
+      "_origin": "*",
+      "_originName": "떠돌이 선로",
+      "_chance": 0.5,
+      "_boardConditions": [],
+      "_conditions": [
+        {
+          "_type": "habitatComplete",
+          "_value": "boiler_room"
+        }
+      ],
+      "_proposal": "증기관 회랑을 놓아 주면 이음매를 맡겠소.",
+      "_hint": "보일러실이 있는 마을이면 좋겠어.",
+      "_quote": "새는 데가 있으면 소리로 먼저 알지.",
+      "_lines": [
+        "증기 새는 쉭 소리, 그게 이 동네의 경보음이지.",
+        "렌치 하나, 삼베 한 줌이면 웬만한 이음매는 막아."
+      ]
+    },
+    {
+      "_id": "coal_merchant",
+      "_name": "석탄 상인",
+      "_habitatTypeId": "coal_yard",
+      "_hubIds": [
+        "hub-2",
+        "hub-3"
+      ],
+      "_origin": "EAST PASS",
+      "_originName": "동쪽 고개",
+      "_chance": 0.45,
+      "_boardConditions": [],
+      "_conditions": [
+        {
+          "_type": "prosperityAtLeast",
+          "_value": "15"
+        }
+      ],
+      "_proposal": "석탄 야적장을 만들어 주면 거기서 장사하겠소.",
+      "_hint": "돈이 좀 도는, 번영이 오른 마을이면 좋겠소.",
+      "_quote": "좋은 석탄은 오래 타고 값도 정직하지.",
+      "_lines": [
+        "무연탄은 연기가 적고 갈탄은 싸지. 골라 보시게.",
+        "철로가 이어지는 한 석탄 장사는 망하지 않네."
+      ]
     },
     {
       "_id": "telegrapher",
       "_name": "전신 기사",
-      "_quote": "선만 이어지면 소식은 바퀴보다 빠르죠.",
-      "_eligibleHubIds": [],
-      "_requiresCompleteHabitat": true,
       "_habitatTypeId": "telegraph_line",
-      "_lines": ["딱, 따닥. 저쪽 거점에서 안부를 보내왔어요.", "구리선이 젖지 않게 애자를 매일 살핀답니다."]
+      "_hubIds": [
+        "hub-2"
+      ],
+      "_origin": "*",
+      "_originName": "떠돌이 선로",
+      "_chance": 0.4,
+      "_boardConditions": [
+        {
+          "_type": "lapAtLeast",
+          "_value": "1"
+        }
+      ],
+      "_conditions": [
+        {
+          "_type": "visitAtLeast",
+          "_value": "2"
+        }
+      ],
+      "_proposal": "전신선을 이어 주면 소식을 전하겠어요.",
+      "_hint": "자주 오가는 마을이면 좋겠어요.",
+      "_quote": "선만 이어지면 소식은 바퀴보다 빠르죠.",
+      "_lines": [
+        "딱, 따닥. 저쪽 거점에서 안부를 보내왔어요.",
+        "구리선이 젖지 않게 애자를 매일 살핀답니다."
+      ]
     },
     {
-      "_id": "chief_engineer",
-      "_name": "수석 기술자",
-      "_quote": "이 정도 공방이면 열차도 새로 짜겠군.",
-      "_eligibleHubIds": [],
-      "_requiresCompleteHabitat": true,
-      "_habitatTypeId": "grand_cogworks",
-      "_lines": ["설계도는 머릿속에 있소. 필요한 건 쇠와 시간뿐.", "이 공방이면 장갑판 두께를 한 치는 더 올릴 수 있겠군."]
+      "_id": "gas_fitter",
+      "_name": "가스관 기술자",
+      "_habitatTypeId": "lamp_street",
+      "_hubIds": [
+        "hub-2"
+      ],
+      "_origin": "NORTH PASS",
+      "_originName": "북쪽 고개",
+      "_chance": 0.5,
+      "_boardConditions": [],
+      "_conditions": [],
+      "_proposal": "가스등 거리를 깔아 주면 가스관을 이어 드리지.",
+      "_hint": "가스관만 이어지면 어느 마을이든 좋소.",
+      "_quote": "가스 냄새가 나면 먼저 나를 부르시오.",
+      "_lines": [
+        "밸브는 오른쪽으로 잠그는 거요, 잊지 마시오.",
+        "등불 하나 켜질 때마다 내 관이 숨 쉬는 거지."
+      ]
     },
     {
       "_id": "engine_driver",
       "_name": "기관사",
-      "_quote": "기관이 숨 쉬는 소리가 들리나? 아주 건강해.",
-      "_eligibleHubIds": [],
-      "_requiresCompleteHabitat": true,
       "_habitatTypeId": "engine_room",
-      "_lines": ["실린더가 고르게 뛰면 바퀴가 노래를 하지.", "기적은 함부로 울리는 게 아니야. 그건 약속이거든."]
+      "_hubIds": [
+        "hub-2"
+      ],
+      "_origin": "*",
+      "_originName": "떠돌이 선로",
+      "_chance": 0.35,
+      "_boardConditions": [],
+      "_conditions": [
+        {
+          "_type": "habitatComplete",
+          "_value": "pipe_gallery"
+        }
+      ],
+      "_proposal": "증기 기관실을 마련해 주면 기관을 몰겠소.",
+      "_hint": "증기관 회랑이 있는 마을이면 좋겠어.",
+      "_quote": "기관이 숨 쉬는 소리가 들리나? 아주 건강해.",
+      "_lines": [
+        "실린더가 고르게 뛰면 바퀴가 노래를 하지.",
+        "기적은 함부로 울리는 게 아니야. 그건 약속이거든."
+      ]
+    },
+    {
+      "_id": "brass_polisher",
+      "_name": "황동 연마공",
+      "_habitatTypeId": "toolshop",
+      "_hubIds": [
+        "hub-2"
+      ],
+      "_origin": "EAST PASS",
+      "_originName": "동쪽 고개",
+      "_chance": 0.4,
+      "_boardConditions": [],
+      "_conditions": [
+        {
+          "_type": "npcPresent",
+          "_value": "mechanic"
+        }
+      ],
+      "_proposal": "공구점을 내주면 황동을 반짝이게 닦겠소.",
+      "_hint": "기계공이 사는 마을이면 손이 잘 맞겠지.",
+      "_quote": "녹슨 황동도 사흘이면 거울이 되오.",
+      "_lines": [
+        "광택제는 아끼면 안 되지.",
+        "반짝이는 손잡이가 마을의 얼굴이오."
+      ]
+    },
+    {
+      "_id": "signal_keeper",
+      "_name": "신호수",
+      "_habitatTypeId": "lamp_road",
+      "_hubIds": [
+        "hub-2"
+      ],
+      "_origin": "*",
+      "_originName": "떠돌이 선로",
+      "_chance": 0.35,
+      "_boardConditions": [],
+      "_conditions": [
+        {
+          "_type": "phaseAtLeast",
+          "_value": "Recovering"
+        }
+      ],
+      "_proposal": "가로등 길을 놓아 주면 신호등을 지키겠소.",
+      "_hint": "다시 불이 들어오기 시작한 마을이면 좋겠어.",
+      "_quote": "붉은 등은 멈춤, 푸른 등은 출발이오.",
+      "_lines": [
+        "안개 낀 밤엔 내 깃발이 열차의 눈이오.",
+        "신호 하나 놓치면 철로가 울지."
+      ]
+    },
+    {
+      "_id": "dirigible_rigger",
+      "_name": "비행선 삭구공",
+      "_habitatTypeId": "repair_bay",
+      "_hubIds": [
+        "hub-2",
+        "hub-4"
+      ],
+      "_origin": "NORTH PASS",
+      "_originName": "북쪽 고개",
+      "_chance": 0.25,
+      "_boardConditions": [
+        {
+          "_type": "lapAtLeast",
+          "_value": "2"
+        }
+      ],
+      "_conditions": [
+        {
+          "_type": "prosperityAtLeast",
+          "_value": "30"
+        }
+      ],
+      "_proposal": "수리고를 지어 주면 비행선 밧줄을 손보겠소.",
+      "_hint": "번영이 꽤 오른 큰 마을이라면 좋겠소.",
+      "_quote": "바람을 읽을 줄 알아야 밧줄도 읽지.",
+      "_lines": [
+        "기낭 이음새는 바늘땀 하나도 허투루 못 하오.",
+        "언젠가 이 마을 위로 비행선을 띄우고 싶소."
+      ]
+    },
+    {
+      "_id": "steam_cook",
+      "_name": "증기 요리사",
+      "_habitatTypeId": "barracks",
+      "_hubIds": [
+        "hub-2"
+      ],
+      "_origin": "*",
+      "_originName": "떠돌이 선로",
+      "_chance": 0.45,
+      "_boardConditions": [],
+      "_conditions": [
+        {
+          "_type": "visitAtLeast",
+          "_value": "3"
+        }
+      ],
+      "_proposal": "숙소를 지어 주면 따뜻한 밥을 짓겠어요.",
+      "_hint": "자주 들르는 정든 마을이면 좋겠어요.",
+      "_quote": "증기 솥 하나면 서른 그릇은 거뜬해요.",
+      "_lines": [
+        "감자는 증기에 쪄야 제맛이죠.",
+        "배부른 일꾼이 톱니도 잘 돌려요."
+      ]
+    },
+    {
+      "_id": "ironworker",
+      "_name": "철공",
+      "_habitatTypeId": "iron_depot",
+      "_hubIds": [
+        "hub-3"
+      ],
+      "_origin": "EAST PASS",
+      "_originName": "동쪽 고개",
+      "_chance": 0.5,
+      "_boardConditions": [],
+      "_conditions": [],
+      "_proposal": "철골 창고를 세워 주면 거기서 일하겠소.",
+      "_hint": "쇠 두드리는 소리가 나는 곳이면 좋소.",
+      "_quote": "철골만 튼튼하면 폭풍도 버티오.",
+      "_lines": [
+        "리벳은 달궈서 박아야 식으면서 꽉 물지.",
+        "녹은 게으름의 다른 이름이오. 매일 긁어내야 하오."
+      ]
     },
     {
       "_id": "smelter",
       "_name": "제련공",
-      "_quote": "용광로가 달아오르면 철이 노래하지.",
-      "_eligibleHubIds": [],
-      "_requiresCompleteHabitat": true,
       "_habitatTypeId": "blast_furnace",
-      "_lines": ["쇳물 색이 주황에서 흰빛으로 바뀌면 그때가 붓는 때요.", "슬래그를 걷어내야 철이 맑아지지."]
+      "_hubIds": [
+        "hub-3"
+      ],
+      "_origin": "SOUTH PASS",
+      "_originName": "남쪽 고개",
+      "_chance": 0.35,
+      "_boardConditions": [
+        {
+          "_type": "lapAtLeast",
+          "_value": "1"
+        }
+      ],
+      "_conditions": [
+        {
+          "_type": "habitatComplete",
+          "_value": "coal_yard"
+        }
+      ],
+      "_proposal": "용광로를 지어 주면 쇳물을 다루겠소.",
+      "_hint": "석탄 야적장이 있는 마을이면 좋겠소.",
+      "_quote": "용광로가 달아오르면 철이 노래하지.",
+      "_lines": [
+        "쇳물 색이 주황에서 흰빛으로 바뀌면 그때가 붓는 때요.",
+        "슬래그를 걷어내야 철이 맑아지지."
+      ]
     },
     {
-      "_id": "patrol",
-      "_name": "순찰대원",
-      "_quote": "가로등길을 따라 한 바퀴 돌고 오겠습니다.",
-      "_eligibleHubIds": [],
-      "_requiresCompleteHabitat": true,
-      "_habitatTypeId": "lamp_road",
-      "_lines": ["가로등 아래로는 도적이 얼씬도 못 합니다.", "순찰 일지에 오늘도 이상 없음이라고 적겠습니다."]
+      "_id": "night_watch",
+      "_name": "야간 경비",
+      "_habitatTypeId": "barracks",
+      "_hubIds": [
+        "hub-3"
+      ],
+      "_origin": "*",
+      "_originName": "떠돌이 선로",
+      "_chance": 0.45,
+      "_boardConditions": [],
+      "_conditions": [
+        {
+          "_type": "prosperityAtLeast",
+          "_value": "10"
+        }
+      ],
+      "_proposal": "숙소를 지어 주면 밤을 지키겠소.",
+      "_hint": "지킬 만한 것이 좀 있는, 번영이 오른 마을이면 좋겠소.",
+      "_quote": "눈 붙이세요. 밤은 내가 지킵니다.",
+      "_lines": [
+        "랜턴 기름은 넉넉히 채워 뒀습니다.",
+        "철로 쪽에서 쇳소리가 나면 제일 먼저 알려 드리죠."
+      ]
+    },
+    {
+      "_id": "riveter",
+      "_name": "리벳공",
+      "_habitatTypeId": "iron_depot",
+      "_hubIds": [
+        "hub-3"
+      ],
+      "_origin": "*",
+      "_originName": "떠돌이 선로",
+      "_chance": 0.4,
+      "_boardConditions": [],
+      "_conditions": [
+        {
+          "_type": "npcPresent",
+          "_value": "ironworker"
+        }
+      ],
+      "_proposal": "철골 창고를 내주면 리벳을 박겠소.",
+      "_hint": "철공이 사는 마을이면 좋겠어.",
+      "_quote": "리벳 하나가 다리 하나를 붙들지.",
+      "_lines": [
+        "달군 리벳은 식기 전에 박아야 하오.",
+        "귀가 먹먹해도 망치 소리가 좋소."
+      ]
+    },
+    {
+      "_id": "foundry_hand",
+      "_name": "주조공",
+      "_habitatTypeId": "blast_furnace",
+      "_hubIds": [
+        "hub-3"
+      ],
+      "_origin": "EAST PASS",
+      "_originName": "동쪽 고개",
+      "_chance": 0.3,
+      "_boardConditions": [],
+      "_conditions": [
+        {
+          "_type": "phaseAtLeast",
+          "_value": "Recovering"
+        }
+      ],
+      "_proposal": "용광로 곁에 살게 해 주면 거푸집을 짜겠소.",
+      "_hint": "주조소처럼 다시 불이 붙는 마을이라면 좋겠어.",
+      "_quote": "쇳물은 기다려 주지 않소.",
+      "_lines": [
+        "거푸집 모래가 고와야 톱니가 매끈하지.",
+        "불똥 튀는 자리가 내 자리요."
+      ]
+    },
+    {
+      "_id": "chief_engineer",
+      "_name": "수석 기술자",
+      "_habitatTypeId": "grand_cogworks",
+      "_hubIds": [
+        "hub-3"
+      ],
+      "_origin": "*",
+      "_originName": "떠돌이 선로",
+      "_chance": 0.25,
+      "_boardConditions": [
+        {
+          "_type": "lapAtLeast",
+          "_value": "2"
+        }
+      ],
+      "_conditions": [
+        {
+          "_type": "prosperityAtLeast",
+          "_value": "30"
+        },
+        {
+          "_type": "habitatComplete",
+          "_value": "cogworks"
+        }
+      ],
+      "_proposal": "대톱니 공장을 세워 주면 공장장을 맡겠소.",
+      "_hint": "톱니 공방이 있고 번영이 꽤 오른 마을이면 좋겠소.",
+      "_quote": "이 정도 공방이면 열차도 새로 짜겠군.",
+      "_lines": [
+        "설계도는 머릿속에 있소. 필요한 건 쇠와 시간뿐.",
+        "이 공방이면 장갑판 두께를 한 치는 더 올릴 수 있겠군."
+      ]
+    },
+    {
+      "_id": "boilermaker",
+      "_name": "보일러 제작공",
+      "_habitatTypeId": "boiler_room",
+      "_hubIds": [
+        "hub-3"
+      ],
+      "_origin": "SOUTH PASS",
+      "_originName": "남쪽 고개",
+      "_chance": 0.4,
+      "_boardConditions": [],
+      "_conditions": [],
+      "_proposal": "보일러실을 내주면 새 보일러를 짜 드리지.",
+      "_hint": "증기만 돌면 어디든 좋소.",
+      "_quote": "철판을 말아 붙이면 그게 보일러의 심장이오.",
+      "_lines": [
+        "압력 시험은 두 번 하는 게 내 원칙이오.",
+        "새 보일러 첫 김은 늘 가슴이 뛰지."
+      ]
+    },
+    {
+      "_id": "scrap_dealer",
+      "_name": "고철상",
+      "_habitatTypeId": "coal_yard",
+      "_hubIds": [
+        "hub-3"
+      ],
+      "_origin": "*",
+      "_originName": "떠돌이 선로",
+      "_chance": 0.45,
+      "_boardConditions": [],
+      "_conditions": [
+        {
+          "_type": "visitAtLeast",
+          "_value": "2"
+        }
+      ],
+      "_proposal": "석탄 야적장 한쪽을 내주면 고철을 모으겠소.",
+      "_hint": "몇 번 들러 본 마을이면 좋겠소.",
+      "_quote": "버린 쇠붙이도 내 눈엔 보물이오.",
+      "_lines": [
+        "나사 하나라도 주워 두면 언젠간 쓰지.",
+        "고철 무게만큼 마을이 무거워지는 거요."
+      ]
     },
     {
       "_id": "tower_keeper",
       "_name": "급수탑지기",
-      "_quote": "열차가 목마르면 언제든 들르시오.",
-      "_eligibleHubIds": [],
-      "_requiresCompleteHabitat": true,
       "_habitatTypeId": "water_tower",
-      "_lines": ["급수탑 꼭대기에서 보면 철환이 한눈에 들어오지.", "주둥이를 내리는 데 딱 열 초면 충분하오."]
+      "_hubIds": [
+        "hub-4"
+      ],
+      "_origin": "WEST PASS",
+      "_originName": "서쪽 고개",
+      "_chance": 0.45,
+      "_boardConditions": [],
+      "_conditions": [
+        {
+          "_type": "habitatComplete",
+          "_value": "cistern"
+        }
+      ],
+      "_proposal": "급수탑을 세워 주면 물을 대겠소.",
+      "_hint": "저수조가 있는 마을이면 좋겠어.",
+      "_quote": "열차가 목마르면 언제든 들르시오.",
+      "_lines": [
+        "급수탑 꼭대기에서 보면 철환이 한눈에 들어오지.",
+        "주둥이를 내리는 데 딱 열 초면 충분하오."
+      ]
+    },
+    {
+      "_id": "patrol",
+      "_name": "순찰대원",
+      "_habitatTypeId": "lamp_road",
+      "_hubIds": [
+        "hub-4"
+      ],
+      "_origin": "*",
+      "_originName": "떠돌이 선로",
+      "_chance": 0.45,
+      "_boardConditions": [],
+      "_conditions": [],
+      "_proposal": "가로등 길을 놓아 주면 순찰을 돌겠소.",
+      "_hint": "밤길이 환하면 어디든 좋소.",
+      "_quote": "가로등길을 따라 한 바퀴 돌고 오겠습니다.",
+      "_lines": [
+        "가로등 아래로는 도적이 얼씬도 못 합니다.",
+        "순찰 일지에 오늘도 이상 없음이라고 적겠습니다."
+      ]
     },
     {
       "_id": "repairer",
       "_name": "정비사",
-      "_quote": "정비창이 있으니 열차를 맡겨도 됩니다.",
-      "_eligibleHubIds": [],
-      "_requiresCompleteHabitat": true,
       "_habitatTypeId": "repair_bay",
-      "_lines": ["바퀴 축이 조금만 휘어도 열차 전체가 떨려요.", "장갑판 리벳을 새로 갈아 두었습니다. 한결 단단할 거예요."]
+      "_hubIds": [
+        "hub-4"
+      ],
+      "_origin": "SOUTH PASS",
+      "_originName": "남쪽 고개",
+      "_chance": 0.45,
+      "_boardConditions": [],
+      "_conditions": [],
+      "_proposal": "수리고를 지어 주면 고장 난 건 다 고치겠소.",
+      "_hint": "고칠 게 많은 마을이면 더 좋소.",
+      "_quote": "정비창이 있으니 열차를 맡겨도 됩니다.",
+      "_lines": [
+        "바퀴 축이 조금만 휘어도 열차 전체가 떨려요.",
+        "장갑판 리벳을 새로 갈아 두었습니다. 한결 단단할 거예요."
+      ]
     },
     {
       "_id": "electrician",
       "_name": "전기 기사",
-      "_quote": "불꽃이 튀는 걸 보니 발전기가 제대로군.",
-      "_eligibleHubIds": [],
-      "_requiresCompleteHabitat": true,
       "_habitatTypeId": "power_house",
-      "_lines": ["전구 필라멘트가 노랗게 타오르면 성공이지.", "구리 코일을 감을 땐 숨도 고르게 쉬어야 해."]
+      "_hubIds": [
+        "hub-4"
+      ],
+      "_origin": "WEST PASS",
+      "_originName": "서쪽 고개",
+      "_chance": 0.3,
+      "_boardConditions": [
+        {
+          "_type": "lapAtLeast",
+          "_value": "1"
+        }
+      ],
+      "_conditions": [
+        {
+          "_type": "habitatComplete",
+          "_value": "telegraph_line"
+        }
+      ],
+      "_proposal": "발전소를 지어 주면 전기를 돌리겠소.",
+      "_hint": "전신선이 이어진 마을이면 좋겠어.",
+      "_quote": "불꽃이 튀는 걸 보니 발전기가 제대로군.",
+      "_lines": [
+        "전구 필라멘트가 노랗게 타오르면 성공이지.",
+        "구리 코일을 감을 땐 숨도 고르게 쉬어야 해."
+      ]
+    },
+    {
+      "_id": "lineman",
+      "_name": "전신 가설공",
+      "_habitatTypeId": "telegraph_line",
+      "_hubIds": [
+        "hub-4"
+      ],
+      "_origin": "*",
+      "_originName": "떠돌이 선로",
+      "_chance": 0.4,
+      "_boardConditions": [],
+      "_conditions": [
+        {
+          "_type": "prosperityAtLeast",
+          "_value": "15"
+        }
+      ],
+      "_proposal": "전신선을 이어 주면 전봇대를 세우겠소.",
+      "_hint": "번영이 좀 오른 마을이면 좋겠소.",
+      "_quote": "전봇대 꼭대기에선 마을이 한눈에 보이지.",
+      "_lines": [
+        "애자 하나 깨지면 소식이 끊기오.",
+        "바람 부는 날엔 전선이 노래를 하오."
+      ]
+    },
+    {
+      "_id": "pump_operator",
+      "_name": "양수기 기사",
+      "_habitatTypeId": "cistern",
+      "_hubIds": [
+        "hub-4"
+      ],
+      "_origin": "WEST PASS",
+      "_originName": "서쪽 고개",
+      "_chance": 0.4,
+      "_boardConditions": [],
+      "_conditions": [],
+      "_proposal": "저수조를 지어 주면 양수기를 돌리겠소.",
+      "_hint": "물만 고이면 어디든 좋소.",
+      "_quote": "피스톤 박자가 고르면 물도 고르게 오르지.",
+      "_lines": [
+        "가뭄엔 내 양수기가 마을의 심장이오.",
+        "물 새는 소리엔 잠이 안 와."
+      ]
+    },
+    {
+      "_id": "valve_keeper",
+      "_name": "밸브 관리인",
+      "_habitatTypeId": "pipe_gallery",
+      "_hubIds": [
+        "hub-4"
+      ],
+      "_origin": "*",
+      "_originName": "떠돌이 선로",
+      "_chance": 0.35,
+      "_boardConditions": [],
+      "_conditions": [
+        {
+          "_type": "npcPresent",
+          "_value": "tower_keeper"
+        }
+      ],
+      "_proposal": "증기관 회랑을 놓아 주면 밸브를 지키겠소.",
+      "_hint": "급수탑지기가 사는 마을이면 좋겠어.",
+      "_quote": "밸브 하나 잘못 열면 온 동네가 김으로 덮이지.",
+      "_lines": [
+        "압력은 늘 반만 믿으시오.",
+        "밸브 손잡이마다 이름표를 달아 두었소."
+      ]
     }
   ]
 }
