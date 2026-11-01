@@ -2,7 +2,9 @@ using UnityEngine;
 
 using IronRing.Contracts;
 using IronRing.Contracts.Presentation;
+using IronRing.Localization;
 using IronRing.Presentation.Effects;
+using IronRing.Presentation.Map;
 
 using DevPhase = IronRing.Contracts.HubPhase;
 
@@ -73,6 +75,25 @@ namespace IronRing.Presentation.HubPhase
             // Story 019: chimney smoke (prefab child "Smoke") only for Recovering/Settled hubs.
             foreach (Transform child in anchor.GetComponentsInChildren<Transform>(true))
                 if (child.name == SmokeName && child.gameObject.activeSelf == ruined) child.gameObject.SetActive(!ruined);
+            // Story 022: world-space TMP labels on the HubBuilding prefab (name + phase), replacing PhaseHud's UI Toolkit map labels.
+            MapLabel label = anchor.GetComponentInChildren<MapLabel>(true);
+            if (label != null)
+            {
+                label.SetName(Strings.Get(hubId.Replace('-', '_')));
+                label.SetPhase(phase, PhaseText(phase));
+            }
+        }
+
+        /// <summary>Korean phase name for phase (same keys as the phase banner).</summary>
+        private static string PhaseText(DevPhase phase)
+        {
+            switch (phase)
+            {
+                case DevPhase.Recovering: return Strings.Get("phase_recovering");
+                case DevPhase.Settled: return Strings.Get("phase_settled");
+                case DevPhase.Collapsed: return Strings.Get("phase_collapsed");
+                default: return Strings.Get("phase_ruined");
+            }
         }
 
         void OnDestroy()

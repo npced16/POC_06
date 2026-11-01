@@ -59,14 +59,18 @@ namespace IronRing.Presentation.Effects
             _settings = UnityEngine.Resources.Load<EffectsSettings>("Story010Effects");
             _anchors = anchors; _hubs = hubs; _npcs = npcs; _facilities = facilities; _waypoints = waypoints;
             _encounter = GameServices.Get<IEncounterPresentationSource>();
-            var document = gameObject.AddComponent<UIDocument>();
-            document.panelSettings = KoreanUi.DefaultPanel;
-            document.sortingOrder = 100;
-            _overlay = document.rootVisualElement;
-            KoreanUi.Apply(_overlay);
-            _overlay.pickingMode = PickingMode.Ignore;
-            _overlay.style.position = Position.Absolute;
-            _overlay.style.left = 0; _overlay.style.right = 0; _overlay.style.top = 0; _overlay.style.bottom = 0;
+            // 스토리 022: MainCanvas(UGUI)가 있으면 문구·그늘은 CombatFx 화면(IronRing.Hud.CombatFxScreen)이 그린다. 없을 때만 옛 UIDocument 오버레이.
+            if (IronRing.Hud.Ui.UiScreens.Instance == null)
+            {
+                var document = gameObject.AddComponent<UIDocument>();
+                document.panelSettings = KoreanUi.DefaultPanel;
+                document.sortingOrder = 100;
+                _overlay = document.rootVisualElement;
+                KoreanUi.Apply(_overlay);
+                _overlay.pickingMode = PickingMode.Ignore;
+                _overlay.style.position = Position.Absolute;
+                _overlay.style.left = 0; _overlay.style.right = 0; _overlay.style.top = 0; _overlay.style.bottom = 0;
+            }
             foreach (string hubId in hubs.HubIds)
             {
                 Transform anchor = anchors.HubAnchor(hubId);
@@ -208,6 +212,11 @@ namespace IronRing.Presentation.Effects
             if (group != null)
                 for (int index = _messages.Count - 1; index >= 0; index--)
                     if (_messages[index].Group == group) { _messages[index].Label.RemoveFromHierarchy(); _messages.RemoveAt(index); }
+            if (_overlay == null)
+            {
+                IronRing.Hud.CombatFxScreen.Message(position, prefix + Strings.Get(key), group, _settings.MessageSeconds, _settings.RiseSpeed, _anchors.MapCamera);
+                return;
+            }
             var label = new Label(prefix + Strings.Get(key));
             label.pickingMode = PickingMode.Ignore;
             label.style.position = Position.Absolute;
@@ -227,6 +236,11 @@ namespace IronRing.Presentation.Effects
         {
             // Story 014: 사유별 제목은 011 HUD의 패배 화면이 보여 주므로, IRunLossInfo가 있으면 겹치는 제목을 만들지 않는다.
             if (GameServices.Get<IRunLossInfo>() != null) return;
+            if (_overlay == null)
+            {
+                IronRing.Hud.CombatFxScreen.ShowShade(Strings.Get("defeat_title"), Strings.Get("defeat_body"), _settings.DefeatShade);
+                return;
+            }
             var shade = new VisualElement { pickingMode = PickingMode.Ignore };
             shade.style.position = Position.Absolute;
             shade.style.left = 0; shade.style.right = 0; shade.style.top = 0; shade.style.bottom = 0;

@@ -62,6 +62,8 @@ namespace IronRing.Hud
         private static void Create()
         {
             if (_instance != null) return;
+            // 스토리 022: MainCanvas(UGUI)가 있으면 TopBar·HubPanel·Defeat 화면이 맡는다.
+            if (IronRing.Hud.Ui.UiScreens.Instance != null) return;
             // 다른 스토리의 독립 데모는 HUD 계약 전체를 등록하지 않는다.
             if (GameServices.Get<ITrackRuntime>() == null || GameServices.Get<IResourceInventory>() == null
                 || GameServices.Get<IHabitatSystem>() == null || GameServices.Get<INpcRecruiter>() == null

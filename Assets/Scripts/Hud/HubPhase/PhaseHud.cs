@@ -62,6 +62,8 @@ namespace IronRing.Hud.HubPhase
         private static void Create()
         {
             if (_instance != null) return;
+            // 스토리 022: MainCanvas(UGUI)가 있으면 PhaseBanner 화면과 지도 프리팹의 MapLabel이 맡는다.
+            if (IronRing.Hud.Ui.UiScreens.Instance != null) return;
             if (GameServices.Get<IHubStateSystem>() == null || GameServices.Get<IHubDevelopment>() == null
                 || GameServices.Get<ITrackRuntime>() == null) return;
             PhaseHud placed = FindAnyObjectByType<PhaseHud>(FindObjectsInactive.Include);
