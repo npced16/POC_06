@@ -24,6 +24,11 @@ namespace IronRing.Npc
         [SerializeField] private string _boardToastFormat = "{0} {1}에서 탔다: \"{2}\" {3}";
         [SerializeField] private string _disembarkToastFormat = "열차에서 {0} 내렸다 · {1} 출신";
         [SerializeField] private string _leaveToastFormat = "{0} 열차에서 내려 떠났다";
+        [Header("POC single station (Story 032)")]
+        [Tooltip("true: a passenger may disembark at any station where its habitat type is complete, ignoring its _hubIds roster.")]
+        [SerializeField] private bool _ignoreHubRoster;
+        [Tooltip("true: a passenger may board at any waypoint, ignoring its _origin (authored waypoints may not be on the track).")]
+        [SerializeField] private bool _ignoreOrigin;
         [SerializeField] private Entry[] _npcs;
         private IReadOnlyList<NpcDefinition> _definitions;
 
@@ -45,6 +50,10 @@ namespace IronRing.Npc
         public string DisembarkToastFormat => _disembarkToastFormat;
         /// <summary>{0} job name.</summary>
         public string LeaveToastFormat => _leaveToastFormat;
+        /// <summary>Story 032: disembarking ignores each NPC's hub roster (habitat type and hidden conditions still apply).</summary>
+        public bool IgnoreHubRoster => _ignoreHubRoster;
+        /// <summary>Story 032: boarding ignores each NPC's origin waypoint (boarding conditions and chance still apply).</summary>
+        public bool IgnoreOrigin => _ignoreOrigin;
         /// <summary>Validated immutable NPC definitions loaded from the JSON.</summary>
         public IReadOnlyList<NpcDefinition> Definitions => _definitions;
 

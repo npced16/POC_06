@@ -129,6 +129,8 @@ namespace IronRing.Hud.Hotbar
 
             _ghost.SelectionChanged += OnSelectionChanged;
             _ghost.Notice += OnNotice;
+            _ghost.Demolished += OnDemolished;
+            _ghost.Undone += OnUndone;
             _view.InteriorChanged += OnInteriorChanged;
             if (_clusters != null) _clusters.HabitatCompleted += OnHabitatCompleted;
             Refresh();
@@ -395,6 +397,27 @@ namespace IronRing.Hud.Hotbar
             if (ToastScreen.Show(text, _data.ToastSeconds)) _interiorToast = true;
         }
 
+        /// <summary>스토리 031. 건물 철거 토스트 "&lt;종류 이름&gt; 철거".</summary>
+        private void OnDemolished(string hubId, string typeId)
+        {
+            string text = string.Format(Strings.Get("placement_demolished"), HabitatName(typeId));
+            if (ToastScreen.Show(text, _data.ToastSeconds)) _interiorToast = true;
+        }
+
+        /// <summary>스토리 031. 되돌림 토스트 "되돌림: &lt;동작&gt;"(InteriorCatalog._undoToast가 꺼져 있으면 띄우지 않는다).</summary>
+        private void OnUndone(PlacementAction action)
+        {
+            if (action == null || _ghost == null || !_ghost.UndoToastEnabled) return;
+            string what;
+            if (action.Kind == PlacementActionKind.Demolish) what = string.Format(Strings.Get("placement_demolished"), HabitatName(action.TypeId));
+            else
+            {
+                string item = action.Tiles.Count > 0 ? DisplayName(new PlacementEntry(PlacementKind.Item, action.Tiles[0].Value)) : "";
+                what = Strings.Get(action.Kind == PlacementActionKind.Place ? "placement_placed" : "placement_picked") + " " + item;
+            }
+            if (ToastScreen.Show(string.Format(Strings.Get("placement_undone"), what), _data.ToastSeconds)) _interiorToast = true;
+        }
+
         /// <summary>토스트 자리에 문구를 띄운다(지도·내부 화면 모두, ToastScreen).</summary>
         public void ShowToast(string text)
         {
@@ -437,7 +460,13 @@ namespace IronRing.Hud.Hotbar
         void OnDestroy()
         {
             GameServices.Ready -= Create;
-            if (_ghost != null) { _ghost.SelectionChanged -= OnSelectionChanged; _ghost.Notice -= OnNotice; }
+            if (_ghost != null)
+            {
+                _ghost.SelectionChanged -= OnSelectionChanged;
+                _ghost.Notice -= OnNotice;
+                _ghost.Demolished -= OnDemolished;
+                _ghost.Undone -= OnUndone;
+            }
             if (_view != null) _view.InteriorChanged -= OnInteriorChanged;
             if (_clusters != null) _clusters.HabitatCompleted -= OnHabitatCompleted;
             if (_instance == this) _instance = null;

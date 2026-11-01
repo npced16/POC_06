@@ -56,6 +56,14 @@ namespace IronRing.Presentation.Interior
         [Tooltip("완성 연출: 지붕이 아래에서 올라오는 시간(초). 0이면 연출 없음.")]
         [SerializeField] private float _buildingRiseSeconds = 0.3f;
         [SerializeField] private float _buildingRiseDistance = 0.3f;
+        [Tooltip("스토리 031. 철거·깨짐 연출: 조각이 내려앉으며 사라지는 시간(초). 0이면 바로 사라진다.")]
+        [SerializeField] private float _buildingCollapseSeconds = 0.25f;
+        [Tooltip("스토리 031. 철거 연출에서 내려앉는 거리(월드 단위).")]
+        [SerializeField] private float _buildingCollapseDistance = 0.3f;
+        [Tooltip("스토리 031. Ctrl+Z로 되돌릴 수 있는 최근 동작 수.")]
+        [SerializeField] private int _undoDepth = 5;
+        [Tooltip("스토리 031. 되돌릴 때 \"되돌림: <동작>\" 토스트를 띄울지.")]
+        [SerializeField] private bool _undoToast = true;
         [SerializeField] private float _buildingSignScale = 0.8f;
         [Tooltip("상징물을 칸 중심에서 위로 올리는 양(타일 배수).")]
         [SerializeField] private float _signLift = 0.1f;
@@ -156,6 +164,14 @@ namespace IronRing.Presentation.Interior
         public int BuildingSignOrder => _buildingSignOrder;
         public float BuildingRiseSeconds => Mathf.Max(0f, _buildingRiseSeconds);
         public float BuildingRiseDistance => _buildingRiseDistance;
+        /// <summary>스토리 031. 철거 연출 시간(초, 0 이상).</summary>
+        public float BuildingCollapseSeconds => Mathf.Max(0f, _buildingCollapseSeconds);
+        /// <summary>스토리 031. 철거 연출에서 내려앉는 거리.</summary>
+        public float BuildingCollapseDistance => _buildingCollapseDistance;
+        /// <summary>스토리 031. 되돌리기 기록 한도(1 이상).</summary>
+        public int UndoDepth => Mathf.Max(1, _undoDepth);
+        /// <summary>스토리 031. 되돌림 토스트를 띄울지.</summary>
+        public bool UndoToast => _undoToast;
         public float BuildingSignScale => _buildingSignScale;
         public float SignLift => _signLift;
         public Vector2 ChimneyOffset => _chimneyOffset;

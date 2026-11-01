@@ -186,6 +186,10 @@ MonoBehaviour:
   _buildingSignOrder: 14
   _buildingRiseSeconds: 0.3
   _buildingRiseDistance: 0.3
+  _buildingCollapseSeconds: 0.25
+  _buildingCollapseDistance: 0.3
+  _undoDepth: 5
+  _undoToast: 1
   _buildingSignScale: 0.8
   _signLift: 0.1
   _chimneyOffset: {x: 0.28, y: 0.2}

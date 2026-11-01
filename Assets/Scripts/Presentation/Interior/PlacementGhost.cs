@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -14,7 +15,8 @@ namespace IronRing.Presentation.Interior
     /// <summary>
     /// 스토리 015. 거점 내부 화면의 배치 고스트와 마우스 배치 입력. 핫바가 고른 대상(Select) 또는 드래그 중인 대상(BeginDrag)의
     /// 반투명 GhostPiece 프리팹(InteriorCatalog)을 마우스 아래 가장 가까운 칸 앵커(IInteriorAnchors)에 스냅해 보이고, 놓을 수 있으면 초록·없으면 붉게 칠한다.
-    /// 좌클릭 = 배치, 우클릭·Esc = 선택/드래그 취소, 선택이 없을 때 우클릭 = 놓인 아이템 회수. UI 위의 클릭과 닫힌 내부 화면에서는 아무것도 하지 않는다.
+    /// 좌클릭 = 배치, 우클릭·Esc = 선택/드래그 취소, 선택이 없을 때 우클릭 = 놓인 아이템 회수(완성된 건물 칸이면 그 건물 전체 철거, 스토리 031),
+    /// Ctrl+Z = 최근 배치·회수·철거 되돌리기(PlacementHistory, 스토리 031). UI 위의 클릭과 닫힌 내부 화면에서는 아무것도 하지 않는다.
     /// 게임 상태는 IItemPlacement, IFacilityBuilder, IInteriorFacilityCells가 소유하며 이 뷰는 명령만 보낸다.
     /// </summary>
     public sealed class PlacementGhost : MonoBehaviour
@@ -30,6 +32,8 @@ namespace IronRing.Presentation.Interior
         private IItemPlacement _placement;
         private IFacilityBuilder _facilities;
         private IInteriorFacilityCells _facilityCells;
+        private IHabitatClusters _clusters;
+        private PlacementHistory _history;
         private InteriorCatalog _catalog;
         private ItemSpriteSet _sprites;
 
@@ -45,6 +49,15 @@ namespace IronRing.Presentation.Interior
         public event Action<PlacementEntry> SelectionChanged;
         /// <summary>배치·회수 결과 안내(한국어 문자열 키, 대상 이름에 쓸 id).</summary>
         public event Action<string, PlacementEntry> Notice;
+        /// <summary>스토리 031. 건물을 철거했을 때(hubId, 서식지 종류 id).</summary>
+        public event Action<string, string> Demolished;
+        /// <summary>스토리 031. Ctrl+Z로 기록 하나를 되돌렸을 때.</summary>
+        public event Action<PlacementAction> Undone;
+
+        /// <summary>스토리 031. 되돌림 토스트를 띄울지(InteriorCatalog._undoToast).</summary>
+        public bool UndoToastEnabled => _catalog == null || _catalog.UndoToast;
+        /// <summary>스토리 031. 남은 되돌리기 기록 수.</summary>
+        public int UndoCount => _history != null ? _history.Count : 0;
 
         /// <summary>현재 선택(없으면 IsValid false).</summary>
         public PlacementEntry Selected => _selected;
@@ -86,11 +99,13 @@ namespace IronRing.Presentation.Interior
             _placement = GameServices.Get<IItemPlacement>();
             _facilities = GameServices.Get<IFacilityBuilder>();
             _facilityCells = GameServices.Get<IInteriorFacilityCells>();
+            _clusters = GameServices.Get<IHabitatClusters>();
             _sprites = ItemSpriteSet.Load();
             foreach (HubInteriorRoot root in UnityEngine.Object.FindObjectsByType<HubInteriorRoot>(FindObjectsInactive.Include, FindObjectsSortMode.None))
                 if (root.Catalog != null) { _catalog = root.Catalog; break; }
             if (_catalog == null || _catalog.GhostPiecePrefab == null)
                 UnityEngine.Debug.LogError("PlacementGhost: InteriorCatalog에 GhostPiece 프리팹이 없습니다. IronRing.Presentation.Interior.Editor.Story012Build.Generate를 실행하세요.");
+            if (_placement != null) _history = new PlacementHistory(_placement, _interior, _catalog != null ? _catalog.UndoDepth : 5);
             _view.InteriorChanged += OnInteriorChanged;
         }
 
@@ -154,7 +169,11 @@ namespace IronRing.Presentation.Interior
         {
             if (!CanPlace(hubId, cellIndex, entry)) { Notice?.Invoke("placement_refused", entry); return false; }
             bool ok;
-            if (entry.Kind == PlacementKind.Item) ok = _placement.TryPlace(hubId, cellIndex, entry.Id);
+            if (entry.Kind == PlacementKind.Item)
+            {
+                ok = _placement.TryPlace(hubId, cellIndex, entry.Id);
+                if (ok) Record(PlacementActionKind.Place, hubId, null, new[] { new KeyValuePair<int, string>(cellIndex, entry.Id) });
+            }
             else
             {
                 ok = _facilityCells.TryBuildFacility(hubId, cellIndex, entry.Id);
@@ -172,8 +191,54 @@ namespace IronRing.Presentation.Interior
             if (cell == null || cell.State != InteriorCellState.ItemPlaced || _placement == null) return false;
             var entry = new PlacementEntry(PlacementKind.Item, cell.ItemId);
             bool ok = _placement.TryPickUp(hubId, cellIndex);
+            if (ok) Record(PlacementActionKind.PickUp, hubId, null, new[] { new KeyValuePair<int, string>(cellIndex, entry.Id) });
             Notice?.Invoke(ok ? "placement_picked" : "placement_refused", entry);
             return ok;
+        }
+
+        /// <summary>스토리 031. hubId의 cellIndex가 속한 완성 서식지 묶음(건물). 없으면 null.</summary>
+        public HabitatCluster BuildingAt(string hubId, int cellIndex)
+        {
+            if (_clusters == null || hubId == null || cellIndex < 0) return null;
+            foreach (HabitatCluster cluster in _clusters.CompletedAt(hubId) ?? Array.Empty<HabitatCluster>())
+                if (cluster?.Cells != null && cluster.Cells.Contains(cellIndex)) return cluster;
+            return null;
+        }
+
+        /// <summary>
+        /// 스토리 031. cellIndex가 완성된 건물 칸이면 그 묶음의 타일을 모두 IItemPlacement.TryPickUp으로 회수한다(서식지가 깨지며
+        /// BuildingView가 무너짐 연출, INpcHomes가 집을 거둬 NPC는 열차 옆 자리로). 하나라도 회수하면 기록·Demolished 후 true.
+        /// </summary>
+        public bool TryDemolish(string hubId, int cellIndex)
+        {
+            HabitatCluster cluster = BuildingAt(hubId, cellIndex);
+            if (cluster == null || _placement == null) return false;
+            var removed = new List<KeyValuePair<int, string>>();
+            foreach (int cell in cluster.Cells.ToList())
+            {
+                IInteriorCell state = Cell(hubId, cell);
+                if (state == null || state.State != InteriorCellState.ItemPlaced) continue;
+                string item = state.ItemId;
+                if (_placement.TryPickUp(hubId, cell)) removed.Add(new KeyValuePair<int, string>(cell, item));
+            }
+            UnityEngine.Debug.Log($"DEMOLISH: {cluster.TypeId} {hubId} cells {string.Join(",", removed.Select(t => t.Key + "=" + t.Value))} (묶음 {cluster.Cells.Count}칸)");
+            if (removed.Count == 0) { Notice?.Invoke("placement_refused", default); return false; }
+            Record(PlacementActionKind.Demolish, hubId, cluster.TypeId, removed);
+            Demolished?.Invoke(hubId, cluster.TypeId);
+            return true;
+        }
+
+        /// <summary>스토리 031. 최근 기록 하나를 되돌린다(Ctrl+Z). 되돌린 것이 없으면 false.</summary>
+        public bool TryUndo()
+        {
+            if (_history == null || !_history.TryUndo(out PlacementAction action)) return false;
+            Undone?.Invoke(action);
+            return true;
+        }
+
+        private void Record(PlacementActionKind kind, string hubId, string typeId, IReadOnlyList<KeyValuePair<int, string>> tiles)
+        {
+            _history?.Record(new PlacementAction { Kind = kind, HubId = hubId, TypeId = typeId, Tiles = tiles });
         }
 
         /// <summary>entry의 아이콘·고스트 스프라이트(아이템은 ItemSpriteSet, 시설은 InteriorCatalog 시설 아이콘). 없으면 null.</summary>
@@ -235,10 +300,11 @@ namespace IronRing.Presentation.Interior
                 return;
             }
             if (escape && _selected.IsValid) { ClearSelection(); return; }
+            if (keyboard != null && keyboard.zKey.wasPressedThisFrame && keyboard.ctrlKey.isPressed) { TryUndo(); return; }
             if (right)
             {
                 if (_selected.IsValid) ClearSelection();
-                else if (!overUi && cell >= 0) TryPickUp(hub, cell);
+                else if (!overUi && cell >= 0 && !TryDemolish(hub, cell)) TryPickUp(hub, cell);
                 return;
             }
             if (mouse != null && mouse.leftButton.wasPressedThisFrame && active.IsValid && !overUi && cell >= 0) TryPlace(hub, cell, active);
@@ -319,6 +385,7 @@ namespace IronRing.Presentation.Interior
             EndDrag(false);
             _parkedCell = -1;
             ClearSelection();
+            _history?.Clear();
         }
 
         void OnDestroy()

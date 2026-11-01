@@ -13,6 +13,8 @@ namespace IronRing.Npc
     /// Leaving: at every ended encounter (defeat included) a passenger that rode PatienceLaps laps (ITrackRuntime.Lap) leaves first
     /// and returns to the pool. Disembarking: NpcRecruiter forwards each hub visit here; a passenger whose hubs include the hub,
     /// whose habitat type is complete there and whose hidden conditions all hold disembarks and joins through NpcRecruiter.TryJoin.
+    /// Story 032 (POC 1 station): NpcPoolData.IgnoreHubRoster drops the roster check on disembarking and NpcPoolData.IgnoreOrigin
+    /// drops the origin check on boarding; boarding conditions are judged at the NPC's first hub when it is in the run, else the first run hub.
     /// </summary>
     public sealed class Passengers : IPassengers, IDisposable
     {
@@ -221,9 +223,22 @@ namespace IronRing.Npc
         private bool IsBoardCandidate(NpcDefinition npc, string waypointId)
         {
             NpcPassengerProfile p = npc.Passenger;
-            if (p.Origin != "*" && p.Origin != waypointId) return false;
+            if (!_pool.IgnoreOrigin && p.Origin != "*" && p.Origin != waypointId) return false;
+            return NpcConditions.AllMet(p.BoardConditions, ConditionHub(npc), Context());
+        }
+
+        /// <summary>
+        /// Hub the boarding conditions are judged at: the NPC's first hub; with IgnoreHubRoster, when that hub is not in the run
+        /// (not a track station) the first run hub instead, so conditions never read a hub the run does not have.
+        /// </summary>
+        private string ConditionHub(NpcDefinition npc)
+        {
             string hub = npc.EligibleHubIds.Count > 0 ? npc.EligibleHubIds[0] : null;
-            return NpcConditions.AllMet(p.BoardConditions, hub, Context());
+            if (!_pool.IgnoreHubRoster) return hub;
+            IReadOnlyList<string> ids = _hubs?.HubIds;
+            if (ids == null || ids.Count == 0) return hub;
+            foreach (string id in ids) if (id == hub) return hub;
+            return ids[0];
         }
 
         private void Board(NpcDefinition npc, string waypointId)
@@ -254,7 +269,7 @@ namespace IronRing.Npc
 
         private bool CanDisembark(NpcDefinition npc, string hubId, int visits)
         {
-            if (!npc.AllowsHub(hubId)) return false;
+            if (!_pool.IgnoreHubRoster && !npc.AllowsHub(hubId)) return false;
             NpcConditionContext context = Context();
             context.Visits = h => h == hubId ? visits : VisitsAt(h);
             if (npc.HabitatTypeId != null && !NpcConditions.IsTypeComplete(context.Clusters, hubId, npc.HabitatTypeId)) return false;

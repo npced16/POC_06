@@ -346,7 +346,7 @@
     { "_key": "interior_item_lantern", "_value": "등불" },
     { "_key": "interior_item_gear", "_value": "톱니바퀴" },
     { "_key": "interior_item_seedling", "_value": "모종" },
-    { "_key": "hotbar_hint", "_value": "1~9 선택 · 좌클릭 배치 · 끌어서 놓기 · 우클릭/Esc 취소 · 빈 손 우클릭 회수" },
+    { "_key": "hotbar_hint", "_value": "1~9 선택 · 좌클릭 배치 · 끌어서 놓기 · 우클릭 회수/철거 · Ctrl+Z 되돌리기 · Esc 취소" },
     { "_key": "hotbar_palette", "_value": "팔레트" },
     { "_key": "hotbar_palette_title", "_value": "배치 팔레트" },
     { "_key": "hotbar_palette_hint", "_value": "항목을 누른 뒤 핫바 칸을 누르면 그 칸에 들어갑니다. 항목을 칸으로 끌어 바로 놓을 수도 있습니다." },
@@ -355,6 +355,8 @@
     { "_key": "placement_placed", "_value": "배치" },
     { "_key": "placement_picked", "_value": "회수" },
     { "_key": "placement_habitat_complete", "_value": "{0} 완성!" },
+    { "_key": "placement_demolished", "_value": "{0} 철거" },
+    { "_key": "placement_undone", "_value": "되돌림: {0}" },
     { "_key": "habitat_completed", "_value": "서식지 완성" },
     { "_key": "habitat_completed_format", "_value": "{0} 완성!" },
     { "_key": "habitat_broken", "_value": "서식지가 흩어졌습니다" },
@@ -495,6 +497,9 @@
     { "_key": "codex_toast_board", "_value": "탑승한 {0}: {1} 설계도를 건넸다" },
     { "_key": "codex_toast_teach", "_value": "합류한 {0}: {1} 설계도를 가르쳐 줬다" },
     { "_key": "codex_teacher", "_value": "가르쳐 주는 이: {0}" },
-    { "_key": "passengers_wants", "_value": "원하는 것: {0}" }
+    { "_key": "passengers_wants", "_value": "원하는 것: {0}" },
+    { "_key": "waypoint_terminal", "_value": "종점" },
+    { "_key": "result_victory_count", "_value": "승리 (정착 {0}/{1})" },
+    { "_key": "result_body_victory_all", "_value": "모든 거점이 정착했다. 철환은 다시 숨을 쉰다." }
 ]
 }

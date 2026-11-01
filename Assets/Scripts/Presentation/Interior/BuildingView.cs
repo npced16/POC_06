@@ -16,6 +16,8 @@ namespace IronRing.Presentation.Interior
     /// 오목 모서리 덧조각을 얹는다. 아래 가장자리 중 가로 중심에 가장 가까운 칸에 문, 맨 윗줄 오른쪽 칸에 굴뚝(+연기), 가운데에 가장 가까운
     /// 칸에 종류 상징물(HabitatTypes.json _buildingStyle·_signProp)을 놓는다. 건물 아래 타일 조각 렌더러는 끄고 묶음이 깨지면 다시 켠다.
     /// 완성·깨짐·배치·제거·내부 열림이 있으면 다음 LateUpdate에 묶음 목록을 다시 읽어(칸이 늘어난 묶음도 반영) 바뀐 건물만 다시 세운다.
+    /// 스토리 031: 사라진 묶음의 칸을 새 묶음이 이어받지 않으면(철거·깨짐) 건물은 바로 지우지 않고 InteriorCatalog._buildingCollapseSeconds 동안
+    /// _buildingCollapseDistance만큼 내려앉으며 투명해진 뒤 지운다(완성 연출의 반대). 무너지는 동안 클릭 충돌체는 끈다.
     /// </summary>
     public sealed class BuildingView : MonoBehaviour
     {
@@ -32,6 +34,17 @@ namespace IronRing.Presentation.Interior
         private bool _warned;
         private readonly Dictionary<string, Building> _buildings = new Dictionary<string, Building>(StringComparer.Ordinal);
         private readonly List<SpriteRenderer> _hidden = new List<SpriteRenderer>();
+        private readonly List<Collapse> _collapsing = new List<Collapse>();
+
+        /// <summary>스토리 031. 무너지는 중인 건물(내려앉기·투명해지기).</summary>
+        private sealed class Collapse
+        {
+            public GameObject Root;
+            public Vector3 Start;
+            public SpriteRenderer[] Renderers;
+            public Color[] Colors;
+            public float Age;
+        }
 
         private sealed class Building
         {
@@ -111,6 +124,50 @@ namespace IronRing.Presentation.Interior
                 building.Root.transform.position = building.RestPosition + Vector3.down * (_catalog.BuildingRiseDistance * (1f - ease));
                 if (t >= 1f) building.Age = -1f;
             }
+            AnimateCollapses();
+        }
+
+        /// <summary>스토리 031. 무너지는 건물을 ease-in으로 내려앉히며 알파를 줄이고, 끝나면 지운다.</summary>
+        private void AnimateCollapses()
+        {
+            float seconds = _catalog != null ? _catalog.BuildingCollapseSeconds : 0f;
+            float distance = _catalog != null ? _catalog.BuildingCollapseDistance : 0f;
+            for (int i = _collapsing.Count - 1; i >= 0; i--)
+            {
+                Collapse collapse = _collapsing[i];
+                if (collapse.Root == null) { _collapsing.RemoveAt(i); continue; }
+                collapse.Age += Time.deltaTime;
+                float t = seconds > 0f ? Mathf.Clamp01(collapse.Age / seconds) : 1f;
+                if (t >= 1f) { Destroy(collapse.Root); _collapsing.RemoveAt(i); continue; }
+                float ease = t * t * t;
+                collapse.Root.transform.position = collapse.Start + Vector3.down * (distance * ease);
+                for (int r = 0; r < collapse.Renderers.Length; r++)
+                {
+                    if (collapse.Renderers[r] == null) continue;
+                    Color c = collapse.Colors[r];
+                    c.a *= 1f - t;
+                    collapse.Renderers[r].color = c;
+                }
+            }
+        }
+
+        /// <summary>스토리 031. building을 무너짐 목록으로 옮긴다(연출 시간이 0이면 바로 지운다).</summary>
+        private void StartCollapse(Building building)
+        {
+            if (building.Root == null) return;
+            if (_catalog == null || _catalog.BuildingCollapseSeconds <= 0f) { Destroy(building.Root); return; }
+            foreach (Collider2D collider in building.Root.GetComponentsInChildren<Collider2D>(true)) collider.enabled = false;
+            foreach (BuildingPiece piece in building.Root.GetComponentsInChildren<BuildingPiece>(true)) piece.enabled = false;
+            building.Root.name += "_Collapsing";
+            SpriteRenderer[] renderers = building.Root.GetComponentsInChildren<SpriteRenderer>(true);
+            _collapsing.Add(new Collapse
+            {
+                Root = building.Root,
+                Start = building.Age >= 0f ? building.RestPosition : building.Root.transform.position,
+                Renderers = renderers,
+                Colors = renderers.Select(r => r.color).ToArray()
+            });
+            UnityEngine.Debug.Log($"BUILDING COLLAPSE: {_hub} {building.TypeId} 칸 {string.Join(",", building.Cells)} {_catalog.BuildingCollapseSeconds:0.##}초");
         }
 
         /// <summary>열린 거점의 완성 서식지 목록과 서 있는 건물을 맞춘다(새 묶음은 세우고 사라진 묶음은 부순다).</summary>
@@ -130,7 +187,10 @@ namespace IronRing.Presentation.Interior
                 if (cluster?.Cells != null && cluster.Cells.Count > 0) wanted[Key(cluster)] = cluster;
             foreach (string key in _buildings.Keys.Where(k => !wanted.ContainsKey(k)).ToList())
             {
-                if (_buildings[key].Root != null) Destroy(_buildings[key].Root);
+                Building gone = _buildings[key];
+                bool replaced = wanted.Values.Any(c => c.Cells.Any(gone.Cells.Contains));
+                if (replaced) { if (gone.Root != null) Destroy(gone.Root); }
+                else StartCollapse(gone);
                 _buildings.Remove(key);
             }
             foreach (KeyValuePair<string, HabitatCluster> pair in wanted)
@@ -252,6 +312,8 @@ namespace IronRing.Presentation.Interior
             RestoreHidden();
             foreach (Building building in _buildings.Values) if (building.Root != null) Destroy(building.Root);
             _buildings.Clear();
+            foreach (Collapse collapse in _collapsing) if (collapse.Root != null) Destroy(collapse.Root);
+            _collapsing.Clear();
         }
 
         private void Warn(string message)

@@ -50,7 +50,7 @@
       "_isStation": true,
       "_position": {
         "x": 320,
-        "y": 180
+        "y": 360
       },
       "_labelKey": "hub_1",
       "_hasBend": false,
@@ -59,144 +59,36 @@
         "y": 0
       },
       "_mapPosition": {
-        "x": -12,
-        "y": 7
+        "x": -8,
+        "y": 2
       }
     },
     {
-      "_id": "NORTH PASS",
+      "_id": "TERMINAL",
       "_isStation": false,
-      "_position": {
-        "x": 640,
-        "y": 150
-      },
-      "_labelKey": "waypoint_north",
-      "_hasBend": false,
-      "_bend": {
-        "x": 0,
-        "y": 0
-      },
-      "_mapPosition": {
-        "x": 0,
-        "y": 7
-      }
-    },
-    {
-      "_id": "hub-2",
-      "_isStation": true,
       "_position": {
         "x": 960,
-        "y": 180
+        "y": 360
       },
-      "_labelKey": "hub_2",
-      "_hasBend": true,
-      "_bend": {
-        "x": 15,
-        "y": 7
-      },
-      "_mapPosition": {
-        "x": 12,
-        "y": 7
-      }
-    },
-    {
-      "_id": "EAST PASS",
-      "_isStation": false,
-      "_position": {
-        "x": 1080,
-        "y": 340
-      },
-      "_labelKey": "waypoint_east",
-      "_hasBend": true,
-      "_bend": {
-        "x": 15,
-        "y": -7
-      },
-      "_mapPosition": {
-        "x": 15,
-        "y": 0
-      }
-    },
-    {
-      "_id": "hub-3",
-      "_isStation": true,
-      "_position": {
-        "x": 960,
-        "y": 500
-      },
-      "_labelKey": "hub_3",
+      "_labelKey": "waypoint_terminal",
       "_hasBend": false,
       "_bend": {
         "x": 0,
         "y": 0
       },
       "_mapPosition": {
-        "x": 12,
-        "y": -7
-      }
-    },
-    {
-      "_id": "SOUTH PASS",
-      "_isStation": false,
-      "_position": {
-        "x": 640,
-        "y": 530
-      },
-      "_labelKey": "waypoint_south",
-      "_hasBend": false,
-      "_bend": {
-        "x": 0,
-        "y": 0
-      },
-      "_mapPosition": {
-        "x": 0,
-        "y": -7
-      }
-    },
-    {
-      "_id": "hub-4",
-      "_isStation": true,
-      "_position": {
-        "x": 320,
-        "y": 500
-      },
-      "_labelKey": "hub_4",
-      "_hasBend": true,
-      "_bend": {
-        "x": -15,
-        "y": -7
-      },
-      "_mapPosition": {
-        "x": -12,
-        "y": -7
-      }
-    },
-    {
-      "_id": "WEST PASS",
-      "_isStation": false,
-      "_position": {
-        "x": 200,
-        "y": 340
-      },
-      "_labelKey": "waypoint_west",
-      "_hasBend": true,
-      "_bend": {
-        "x": -15,
-        "y": 7
-      },
-      "_mapPosition": {
-        "x": -15,
-        "y": 0
+        "x": 8,
+        "y": 2
       }
     }
   ],
   "_map": {
     "_tileSize": 1.0,
     "_cornerRadius": 0.5,
-    "_cameraSize": 11.25,
+    "_cameraSize": 7.5,
     "_cameraPosition": {
       "x": 0,
-      "y": 0,
+      "y": 1,
       "z": -10
     },
     "_hubScale": 2.0,
