@@ -27,10 +27,13 @@ namespace IronRing.Track
         /// train crawls through the occupied segment; null = stand on the node as before.
         /// </summary>
         public Func<float> HeldProgressSource { get; set; }
+        /// <summary>Story 037: when above zero, one edge takes this many seconds instead of the track data (the side-scrolling travel view sets it from travel-side.json).</summary>
+        public float EdgeSecondsOverride { get; set; }
+        private float EdgeSeconds => EdgeSecondsOverride > 0f ? EdgeSecondsOverride : _data.EdgeSeconds;
         /// <summary>Initialized movement model for location queries and arrival subscriptions.</summary>
         public RingTrack Track => _track;
         /// <summary>Normalized progress along the active edge, or zero while standing at a node.</summary>
-        public float TravelProgress => _track.IsMoving ? Mathf.Clamp01(_elapsed / _data.EdgeSeconds)
+        public float TravelProgress => _track.IsMoving ? Mathf.Clamp01(_elapsed / EdgeSeconds)
             : _headStart > 0 ? _headStart : HeldProgressSource != null && !_track.IsStopped ? Mathf.Clamp01(HeldProgressSource()) : 0;
 
         /// <summary>Story 033: the next departure starts this far (0..0.95) into the edge so the train continues from where the raid crawl left it.</summary>
@@ -61,7 +64,7 @@ namespace IronRing.Track
                 _captureStarted = true;
                 StartCoroutine(Capture());
             }
-            if (_elapsed >= _data.EdgeSeconds)
+            if (_elapsed >= EdgeSeconds)
             {
                 _track.Arrive();
                 _elapsed = 0;
@@ -72,7 +75,7 @@ namespace IronRing.Track
         /// <summary>Requests one edge of travel and resets interpolation only when the movement model accepts departure.</summary>
         public void Depart()
         {
-            if (_track.TryDepart()) { _elapsed = _headStart * _data.EdgeSeconds; _headStart = 0; }
+            if (_track.TryDepart()) { _elapsed = _headStart * EdgeSeconds; _headStart = 0; }
         }
 
         /// <summary>Configures the standalone view and keyboard option during scene creation so an integrated HUD can own presentation and input.</summary>

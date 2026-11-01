@@ -16,6 +16,20 @@ namespace IronRing.Combat.Raid
         [SerializeField] private string _hubId = "hub-1";
         [SerializeField] private float _segmentSeconds = 12f;
         [SerializeField] private float _crawlEdgeFraction = 0.3f;
+        // 스토리 037: 달리면서 치르는 습격(enroute). "arrival" = 종점에 멈춰서 치르는 기존 동작.
+        [SerializeField] private string _mode = "arrival";
+        [SerializeField] private float _startProgress = 0.25f;
+        [SerializeField] private float _endProgress = 0.97f;
+        [SerializeField] private float[] _roadsideNests = { 0.45f, 0.62f, 0.8f };
+        [SerializeField] private float _enrouteLength = 40f;
+        [SerializeField] private float _nestSpawnRange = 9f;
+        [SerializeField] private float _edgeSpawnDelay = 1.5f;
+        [SerializeField] private float _edgeSpawnInterval = 3f;
+        [SerializeField] private float _edgeSpawnAhead = 9f;
+        [SerializeField] private float _edgeSpawnBehind = 6f;
+        [SerializeField] private float _edgeSpawnLane = 1.2f;
+        [SerializeField] private float _chaseSpeedFactor = 1f;
+        [SerializeField] private bool _tailContact = true;
         [SerializeField] private int _hullBase = 10;
         [SerializeField] private int _hullPerWall = 5;
         [SerializeField] private string _wallFacilityId = "wall";
@@ -68,6 +82,32 @@ namespace IronRing.Combat.Raid
         public float SegmentSeconds => _segmentSeconds;
         /// <summary>습격 동안 열차가 다음 선로 구간에서 기어가는 비율(0..0.95). 출발은 그 지점부터 이어진다.</summary>
         public float CrawlEdgeFraction => _crawlEdgeFraction;
+        /// <summary>스토리 037: 습격 방식("enroute" = 달리면서, "arrival" = 종점에 멈춰서). 표현 플래그가 RaidSystem.Mode로 덮을 수 있다.</summary>
+        public string Mode => string.IsNullOrEmpty(_mode) ? "arrival" : _mode;
+        /// <summary>enroute: 출발 구간 진행도가 이 값에 닿으면 습격이 시작된다.</summary>
+        public float StartProgress => _startProgress;
+        /// <summary>enroute: 구간 진행도가 이 값에 닿으면 습격이 끝난다(종점 도착 직전).</summary>
+        public float EndProgress => _endProgress;
+        /// <summary>enroute: 길가 둥지의 구간 진행도 위치(둥지 순번 = _nestOffsets 순번, Y는 _nestOffsets.y).</summary>
+        public float RoadsideNest(int index) => _roadsideNests != null && index >= 0 && index < _roadsideNests.Length ? _roadsideNests[index] : 0.5f + 0.1f * index;
+        /// <summary>enroute: 구간 하나의 길이(습격 좌표 단위). 표현이 RaidSystem.EnrouteLength로 덮는다.</summary>
+        public float EnrouteLength => _enrouteLength;
+        /// <summary>enroute: 길가 둥지가 열차(머리·꼬리)에서 이 거리 안일 때만 몬스터를 낸다.</summary>
+        public float NestSpawnRange => _nestSpawnRange;
+        /// <summary>enroute: 화면 가장자리(앞·뒤) 첫 스폰까지 초.</summary>
+        public float EdgeSpawnDelay => _edgeSpawnDelay;
+        /// <summary>enroute: 화면 가장자리 스폰 간격(초). 0 이하면 가장자리 스폰 없음.</summary>
+        public float EdgeSpawnInterval => _edgeSpawnInterval;
+        /// <summary>enroute: 앞 가장자리 스폰 거리(열차 머리 앞).</summary>
+        public float EdgeSpawnAhead => _edgeSpawnAhead;
+        /// <summary>enroute: 뒤 가장자리 스폰 거리(열차 꼬리 뒤).</summary>
+        public float EdgeSpawnBehind => _edgeSpawnBehind;
+        /// <summary>enroute: 가장자리 스폰 열(Y) 범위 ±.</summary>
+        public float EdgeSpawnLane => _edgeSpawnLane;
+        /// <summary>enroute: 열차를 쫓는 몬스터가 자기 속도에 더하는 열차 속도 배율(1 = 열차와 같은 속도 + 자기 속도만큼 따라붙음).</summary>
+        public float ChaseSpeedFactor => _chaseSpeedFactor;
+        /// <summary>enroute: 꼬리도 접촉선인지(뒤에서 온 몬스터가 꼬리에 붙으면 내구도를 깎음).</summary>
+        public bool TailContact => _tailContact;
         /// <summary>기본 내구도.</summary>
         public int HullBase => _hullBase;
         /// <summary>방벽 하나당 내구도.</summary>

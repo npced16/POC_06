@@ -36,6 +36,29 @@ namespace IronRing.Combat.Raid
         private int _heavyDamage;
         private float _repairPerSecond;
         private float _repairCarry;
+        // 스토리 037: 달리면서 치르는 습격(enroute) 상태.
+        private bool _enroute;
+        private bool _enrouteDone;
+        private float _edgeSpawnTimer;
+        private bool _edgeAhead;
+        private float _lastFrontX;
+        private bool _hasLastFront;
+        private ITrackNode _enrouteNode;
+        private string _mode;
+        private float _enrouteLength;
+
+        /// <summary>스토리 037: 습격 방식("enroute" | "arrival"). 기본은 데이터 _mode. 횡스크롤 여정 화면이 "enroute"로 바꾼다.</summary>
+        public string Mode { get => _mode ?? _data.Mode; set => _mode = value; }
+        /// <summary>스토리 037: 지금 방식이 달리면서 치르는 습격인지.</summary>
+        public bool IsEnroute => Mode == "enroute";
+        /// <summary>스토리 037: 이번 습격이 달리면서 치르는 습격으로 시작되었는지.</summary>
+        public bool ActiveEnroute => IsActive && _enroute;
+        /// <summary>스토리 037: enroute 구간 길이(습격 좌표 단위, 0 이하면 데이터 _enrouteLength). 길가 둥지 X = 진행도 × 이 값.</summary>
+        public float EnrouteLength { get => _enrouteLength > 0f ? _enrouteLength : _data.EnrouteLength; set => _enrouteLength = value; }
+        /// <summary>스토리 037: 출발 구간 진행도 0..1(표현이 TrainController.TravelProgress를 넣는다). null이면 enroute 습격은 시작되지 않는다.</summary>
+        public Func<float> EdgeProgress { get; set; }
+        /// <summary>스토리 037: 열차 꼬리 위치(습격 좌표). null이면 머리에서 _trainFallbackLength 뒤.</summary>
+        public Func<(float x, float y)> TrainTailPosition { get; set; }
 
         /// <summary>표현이 넣는 열차 월드 위치. null이면 종점을 가로지르는 가상 직선 위 위치를 쓴다.</summary>
         public Func<(float x, float y)> TrainPosition { get; set; }
@@ -59,7 +82,9 @@ namespace IronRing.Combat.Raid
         public float PlayerCooldownLeft => Math.Max(0f, _playerTimer);
 
         public bool IsActive { get; private set; }
-        public float Progress => Math.Min(1f, _elapsed / SegmentSeconds);
+        public float Progress => _enroute && EdgeProgress != null
+            ? Math.Max(0f, Math.Min(1f, (EdgeProgress() - _data.StartProgress) / Math.Max(0.01f, _data.EndProgress - _data.StartProgress)))
+            : Math.Min(1f, _elapsed / SegmentSeconds);
         public int Hull { get; private set; }
         public int HullMax { get; private set; }
         public int MonstersAlive => _monsters.Count;
@@ -106,12 +131,35 @@ namespace IronRing.Combat.Raid
         /// <summary>node가 아직 점령된 경유지(데이터 _waypointId, 해방 전)인지.</summary>
         public bool IsOccupied(ITrackNode node)
         {
-            if (TerminalLiberated || node == null) return false;
+            if (TerminalLiberated || node == null || IsEnroute) return false;
             return string.IsNullOrEmpty(_data.WaypointId) || node.Id == _data.WaypointId;
         }
 
         /// <summary>습격을 시작한다: 내구도를 (기본 + 방벽 × 방벽당)으로 채우고 둥지 스폰 시계와 포탑 시계를 맞춘다.</summary>
         public void Begin(ITrackNode node)
+        {
+            _enroute = false;
+            BeginCore();
+        }
+
+        /// <summary>
+        /// 스토리 037: 달리면서 치르는 습격을 시작한다. 둥지를 길가(진행도 × EnrouteLength)에 놓고 가장자리 스폰 시계를 맞춘다.
+        /// 열차는 멈추지 않으며, 끝나면 WaypointResolver.CompleteEnrouteRaid(승패, 종점 노드)로 보상·벌칙이 적용된다.
+        /// </summary>
+        public void BeginEnroute(ITrackNode node)
+        {
+            _enroute = true;
+            _enrouteDone = true;
+            _enrouteNode = node;
+            float length = EnrouteLength;
+            for (int i = 0; i < _nests.Count; i++) { _nests[i].X = _data.RoadsideNest(i) * length; _nests[i].Y = _data.NestOffsets[i].y; }
+            _edgeSpawnTimer = _data.EdgeSpawnDelay;
+            _edgeAhead = true;
+            _hasLastFront = false;
+            BeginCore();
+        }
+
+        private void BeginCore()
         {
             IRaidLoadout loadout = _loadout?.Invoke();
             int walls = Math.Max(0, OverrideWalls ?? loadout?.ArmorPlates ?? 0);
@@ -147,7 +195,8 @@ namespace IronRing.Combat.Raid
         /// <summary>dt초만큼 습격을 진행한다(스폰 → 이동·접촉 → 포탑 → 승패). 습격 중이 아니면 아무것도 하지 않는다.</summary>
         public void Tick(float dt)
         {
-            if (!IsActive || dt <= 0f) return;
+            if (dt <= 0f) return;
+            if (!IsActive) { CheckEnrouteStart(); if (!IsActive) return; }
             _elapsed += dt;
             _playerTimer -= dt;
             Spawn(dt);
@@ -156,7 +205,35 @@ namespace IronRing.Combat.Raid
             FireTurrets(dt);
             Repair(dt);
             if (Hull <= 0) End(false);
+            else if (_enroute) { if (EnrouteFinished()) End(true); }
             else if (_elapsed >= SegmentSeconds) End(true);
+        }
+
+        /// <summary>스토리 037: enroute 방식이면 출발 거점(_hubId)에서 종점으로 가는 구간의 진행도가 _startProgress에 닿을 때 한 번 시작한다.</summary>
+        private void CheckEnrouteStart()
+        {
+            if (!IsEnroute || EdgeProgress == null || _track == null || TerminalLiberated || NestsAlive == 0) return;
+            float progress = EdgeProgress();
+            bool outbound = _track.CurrentNode != null && _track.CurrentNode.Id == _data.HubId && !_track.IsHeld;
+            if (!outbound || progress < _data.StartProgress * 0.5f) { _enrouteDone = false; return; }
+            if (_enrouteDone || progress < _data.StartProgress || progress >= _data.EndProgress) return;
+            ITrackNode terminal = null;
+            foreach (ITrackNode node in _track.Nodes) if (node.Id == _data.WaypointId) terminal = node;
+            if (terminal == null) return;
+            BeginEnroute(terminal);
+        }
+
+        private bool EnrouteFinished()
+        {
+            if (EdgeProgress == null || _track == null) return true;
+            return _track.CurrentNode == null || _track.CurrentNode.Id != _data.HubId || EdgeProgress() >= _data.EndProgress;
+        }
+
+        private (float x, float y) Tail()
+        {
+            if (TrainTailPosition != null) return TrainTailPosition();
+            (float x, float y) = Train();
+            return (x - _data.TrainFallbackLength, y);
         }
 
         public bool ShootMonster(int monsterId)
@@ -216,6 +293,7 @@ namespace IronRing.Combat.Raid
             for (int i = 0; i < _nests.Count; i++)
             {
                 if (!_nests[i].Alive) continue;
+                if (_enroute && !NearTrain(_nests[i].X)) continue;
                 _spawnTimers[i] -= dt;
                 if (_spawnTimers[i] > 0f) continue;
                 float jitter = 1f + (Next() * 2f - 1f) * _data.SpawnJitter;
@@ -231,15 +309,55 @@ namespace IronRing.Combat.Raid
                 _kinds[monster.Id] = kind;
                 MonsterSpawned?.Invoke(monster.Id);
             }
+            if (_enroute) SpawnAtEdge(dt, wave);
+        }
+
+        /// <summary>스토리 037: 길가 둥지가 열차(머리~꼬리)에서 _nestSpawnRange 안인지.</summary>
+        private bool NearTrain(float x)
+        {
+            float fx = Train().x, bx = Tail().x;
+            float range = _data.NestSpawnRange;
+            return x <= Math.Max(fx, bx) + range && x >= Math.Min(fx, bx) - range;
+        }
+
+        /// <summary>스토리 037: 화면 가장자리(앞·뒤 번갈아)에서 몬스터를 낸다.</summary>
+        private void SpawnAtEdge(float dt, RaidWave wave)
+        {
+            if (_data.EdgeSpawnInterval <= 0f) return;
+            _edgeSpawnTimer -= dt;
+            if (_edgeSpawnTimer > 0f) return;
+            _edgeSpawnTimer += Math.Max(0.1f, _data.EdgeSpawnInterval * (1f + (Next() * 2f - 1f) * _data.SpawnJitter));
+            if (_monsters.Count >= wave.MaxAlive) return;
+            (float fx, float fy) = Train();
+            (float bx, float by) = Tail();
+            RaidMonsterData kind = _data.Monster(Next() < wave.AutomatonChance ? "automaton" : "spider");
+            bool ahead = _edgeAhead || !_data.TailContact;
+            _edgeAhead = !_edgeAhead;
+            var monster = new RaidUnit
+            {
+                Id = _nextId++, Kind = kind.Id, Hp = kind.Hp, HpMax = kind.Hp,
+                X = ahead ? fx + _data.EdgeSpawnAhead : bx - _data.EdgeSpawnBehind,
+                Y = (ahead ? fy : by) + (Next() * 2f - 1f) * _data.EdgeSpawnLane,
+            };
+            _monsters.Add(monster);
+            _kinds[monster.Id] = kind;
+            MonsterSpawned?.Invoke(monster.Id);
         }
 
         private void Move(float dt)
         {
-            (float tx, float ty) = Train();
+            (float fx, float fy) = Train();
+            (float bx, float by) = Tail();
+            // 스토리 037: enroute에서는 열차 속도를 머리 위치 변화로 재서, 열차를 쫓는 몬스터가 그만큼(× _chaseSpeedFactor) 더 달린다.
+            float vx = 0f;
+            if (_enroute && _hasLastFront) vx = (fx - _lastFrontX) / dt;
+            _lastFrontX = fx; _hasLastFront = true;
             for (int i = _monsters.Count - 1; i >= 0; i--)
             {
                 RaidUnit monster = _monsters[i];
                 RaidMonsterData kind = _kinds[monster.Id];
+                bool tail = _enroute && _data.TailContact && monster.X < (fx + bx) * 0.5f;
+                float tx = tail ? bx : fx, ty = tail ? by : fy;
                 float dx = tx - monster.X, dy = ty - monster.Y;
                 float distance = (float)Math.Sqrt(dx * dx + dy * dy);
                 float step = kind.Speed * dt;
@@ -254,6 +372,7 @@ namespace IronRing.Combat.Raid
                 }
                 monster.X += dx / distance * step;
                 monster.Y += dy / distance * step;
+                if (_enroute && vx > 0f && dx > 0f) monster.X += vx * _data.ChaseSpeedFactor * dt;
             }
         }
 
@@ -269,6 +388,7 @@ namespace IronRing.Combat.Raid
                 foreach (RaidUnit monster in _monsters)
                 {
                     float d = (monster.X - tx) * (monster.X - tx) + (monster.Y - ty) * (monster.Y - ty);
+                    if (_enroute) { (float bx, float by) = Tail(); d = Math.Min(d, (monster.X - bx) * (monster.X - bx) + (monster.Y - by) * (monster.Y - by)); }
                     if (d <= best) { best = d; target = monster; }
                 }
                 if (target == null) { _turretTimers[i] = 0f; continue; } // 대상이 나타나면 바로 쏜다
@@ -309,7 +429,8 @@ namespace IronRing.Combat.Raid
             _monsters.Clear();
             UnityEngine.Debug.Log($"RAID: end victory={victory} hull={Hull}/{HullMax} nests={NestsAlive} liberated={TerminalLiberated} t={_elapsed:F1}");
             RaidEnded?.Invoke(victory);
-            _resolver?.CompleteRaid(victory);
+            if (_enroute) _resolver?.CompleteEnrouteRaid(victory, _enrouteNode);
+            else _resolver?.CompleteRaid(victory);
         }
 
         /// <summary>결정적 LCG(Bootstrap.SeededRandom과 같은 식). [0,1).</summary>

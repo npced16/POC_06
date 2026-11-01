@@ -1,5 +1,6 @@
 {
   "_npcSeed": 1,
+  "_travelView": "side",
   "_combatSeed": 690,
   "_combatStepSeconds": 1.2,
   "_stationDwellSeconds": 1.0,

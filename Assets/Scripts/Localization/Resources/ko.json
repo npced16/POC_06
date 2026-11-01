@@ -523,6 +523,8 @@
     { "_key": "hotbar_tiles", "_value": "타일" },
     { "_key": "hotbar_hint_equipment", "_value": "열차 장비 · 1~9 선택 · 좌클릭 장착 · 우클릭 떼기 · Ctrl+Z 되돌리기 · T/Esc 나가기" },
     { "_key": "equip_mode_on", "_value": "열차 장비 칸 {0}/{1}" },
-    { "_key": "result_equipment", "_value": "열차 장비 {0}칸" }
+    { "_key": "result_equipment", "_value": "열차 장비 {0}칸" },
+    { "_key": "travel_passing", "_value": "{0}{1} 지나는 중" },
+    { "_key": "travel_raid_start", "_value": "습격! 달리면서 막아라" }
 ]
 }

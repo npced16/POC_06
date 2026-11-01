@@ -1,7 +1,7 @@
 # Story 037: 1차 — 횡스크롤 여정·전투 화면(프리미티브): 출발하면 옆에서 본 열차가 달리고, 역·풍경이 지나가고, 습격을 그 화면에서 치른다
 
 > **Epic**: 철환 장갑열차 MVP (iron-ring-train)
-> **Status**: Ready
+> **Status**: Done (2026-11-02 03:15 KST 코디네이터 — 컴파일 통과, TravelSideBuild 멱등, 캡처 4장; 달리면서 전투(enroute) 포함)
 > **Layer**: Presentation
 > **Type**: Visual/Feel
 > **Estimate**: L
