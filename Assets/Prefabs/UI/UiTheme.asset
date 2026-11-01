@@ -24,7 +24,7 @@ MonoBehaviour:
   _fontNormal: 18
   _fontTitle: 28
   _fontHeading: 22
-  _lineHeightFactor: 1.3
+  _lineHeightFactor: 1.5
   _buttonHeight: 36
   _buttonHeightSmall: 28
   _panelSprite: {fileID: 21300000, guid: 2792aae06f3f0f54ab44fae657fec367, type: 3}

@@ -35,8 +35,8 @@ namespace IronRing.Hud.Ui
         [SerializeField] private float _fontTitle = 28f;
         [Tooltip("스토리 024: 패널 소제목·배너")]
         [SerializeField] private float _fontHeading = 22f;
-        [Tooltip("스토리 024: 라벨 줄 높이 = 글자 크기 × 이 값 이상(잘림 방지)")]
-        [SerializeField] private float _lineHeightFactor = 1.3f;
+        [Tooltip("스토리 024: 라벨 줄 높이 = 글자 크기 × 이 값 이상(잘림 방지). Noto Sans KR 줄 높이가 약 ×1.45라 1.5")]
+        [SerializeField] private float _lineHeightFactor = 1.5f;
         [Tooltip("스토리 024: 모든 글자 버튼의 높이")]
         [SerializeField] private float _buttonHeight = 40f;
         [Tooltip("스토리 024: 좁은 줄(시설 줄 짓기 등)의 작은 버튼 높이")]

@@ -64,3 +64,13 @@
 - Play 캡처와 겹침·잘림 확인(코디네이터 몫)
 - Defeat 카드(760×220)·배너 상자 높이(40)처럼 024에서 빌더에 넣은 시트 기준 크기는 그대로다. Simple에서 너무 크면 빌더 쪽 조정이 필요하다
 - 대화 패널(빌더 한 줄 수정): 오른쪽 여백을 스킨에 따라 둔다. Sheet는 둥근 X 반지름 24, Simple은 "닫기" 폭 64 + 8. 머리줄(이름·집·출신지)이 "닫기"와 겹치지 않게 하려는 것이다. refresh 122aa714 → 표식 NpcDialog Generate ×2(2회차 변경 없음) → scene-status 956bac05 isDirty=false. 대신 Simple에서는 대화 본문 폭이 72px 줄어든다
+
+## 6. Simple 캡처 검수 뒤 수정 2건
+
+- **제목이 안 보임 (도감·승객·거점·패배)**
+  - 원인: 줄 높이 계수 1.3으로 계산한 Heading 라벨 높이가 29px였다. Noto Sans KR 22pt 줄 높이(약 32px)보다 낮아서, Ellipsis가 줄 전체를 지웠다(022 phase3 도감 카드와 같은 원인).
+  - 수정: 테마 `_lineHeightFactor`를 1.5로 올렸다(기본값과 Apply 두 메서드 모두). 이제 제목 높이는 33px이고, Codex 프리팹의 Title RectTransform이 높이 33, 왼쪽 12, 오른쪽 84(닫기 64 + 8 + pad 12)임을 확인했다. `_title` 바인딩은 끊기지 않았다.
+- **대화 패널 "닫기"가 집·출신지 줄과 겹침**
+  - 머리줄에는 이름만 두고, 오른쪽에 닫기 자리를 비웠다(header padding.right = 닫기 폭 + 8).
+  - 집·출신지는 그 아래 별도 줄 `Meta`로 옮겼다(Small, 오른쪽 정렬). 본문은 그 아래이고, 세로 레이아웃 오른쪽 여백은 pad만 남겼다.
+- 브리지: refresh 085ebd02(failed=false) · ApplySimpleTheme 801e220e · 표식 Codex·Passengers·HubPanel·Defeat·NpcDialog → Generate bba9d284(REBUILT 5) · Generate d7d20a33(변경 없음) · scene-status 794c36c3(isDirty=false).

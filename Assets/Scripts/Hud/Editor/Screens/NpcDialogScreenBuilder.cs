@@ -30,7 +30,7 @@ namespace IronRing.Hud.Editor.Screens
             RectOffset pad = UiKit.FramePad(theme);
             // 오른쪽 위 닫기 자리: Sheet는 둥근 X 반지름, Simple은 "닫기" 텍스트 버튼 폭(스토리 026)
             int closeReserve = theme.Skin == UiSkin.Simple ? (int)UiKit.SIMPLE_CLOSE_WIDTH + 8 : (int)(UiKit.CLOSE_SIZE / 2);
-            column.padding = new RectOffset(pad.left, pad.right + closeReserve, pad.top, pad.bottom);
+            column.padding = new RectOffset(pad.left, pad.right, pad.top, pad.bottom);
             column.spacing = 6;
             column.childControlWidth = true; column.childControlHeight = true;
             column.childForceExpandWidth = true; column.childForceExpandHeight = false;
@@ -38,15 +38,21 @@ namespace IronRing.Hud.Editor.Screens
 
             HorizontalOrVerticalLayoutGroup header = UiKit.Row(panel.transform, "Header", false, 8);
             header.childControlWidth = true; header.childControlHeight = true;
-            header.childAlignment = TextAnchor.LowerLeft;
+            header.childAlignment = TextAnchor.MiddleLeft;
+            header.padding = new RectOffset(0, closeReserve, 0, 0); // 스토리 026: 닫기는 제목 줄 오른쪽 끝
             TextMeshProUGUI title = UiKit.Label(header.transform, "Title", Strings.Get("ui_sample_npc_title"), UiTextSize.Heading, theme, TextAlignmentOptions.BottomLeft);
             title.color = theme.Accent;
             title.fontStyle = FontStyles.Bold;
             title.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1;
-            TextMeshProUGUI home = UiKit.Label(header.transform, "Home", Strings.Get("ui_sample_npc_home"), UiTextSize.Small, theme, TextAlignmentOptions.BottomRight);
+            // 스토리 026: 집·출신지는 제목 아래 별도 한 줄(Small, 오른쪽 정렬)
+            HorizontalOrVerticalLayoutGroup meta = UiKit.Row(panel.transform, "Meta", false, 8);
+            meta.childControlWidth = true; meta.childControlHeight = true;
+            meta.childForceExpandWidth = false;
+            meta.childAlignment = TextAnchor.MiddleRight;
+            TextMeshProUGUI home = UiKit.Label(meta.transform, "Home", Strings.Get("ui_sample_npc_home"), UiTextSize.Small, theme, TextAlignmentOptions.BottomRight);
             home.color = theme.Muted;
             home.textWrappingMode = TextWrappingModes.NoWrap;
-            TextMeshProUGUI origin = UiKit.Label(header.transform, "Origin", string.Format(Strings.Get("npc_dialog_origin"), Strings.Get("ui_sample_passenger_1_origin")), UiTextSize.Small, theme, TextAlignmentOptions.BottomRight);
+            TextMeshProUGUI origin = UiKit.Label(meta.transform, "Origin", string.Format(Strings.Get("npc_dialog_origin"), Strings.Get("ui_sample_passenger_1_origin")), UiTextSize.Small, theme, TextAlignmentOptions.BottomRight);
             origin.color = theme.Muted;
             origin.textWrappingMode = TextWrappingModes.NoWrap;
 

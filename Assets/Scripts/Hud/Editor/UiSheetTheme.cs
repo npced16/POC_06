@@ -54,7 +54,7 @@ namespace IronRing.Hud.Editor
             so.FindProperty("_fontHeading").floatValue = 22f;
             so.FindProperty("_fontNormal").floatValue = 18f;
             so.FindProperty("_fontSmall").floatValue = 14f;
-            so.FindProperty("_lineHeightFactor").floatValue = 1.3f;
+            so.FindProperty("_lineHeightFactor").floatValue = 1.5f; // 1.3이면 Heading 줄이 Ellipsis로 통째 지워졌다(026 검수)
             so.FindProperty("_buttonHeight").floatValue = 40f;
             so.FindProperty("_buttonHeightSmall").floatValue = 32f;
             bool changed = so.ApplyModifiedPropertiesWithoutUndo();
@@ -81,6 +81,7 @@ namespace IronRing.Hud.Editor
                 so.FindProperty(field).vector4Value = field == "_slotPad" ? new Vector4(3, 3, 3, 3) : pad;
             so.FindProperty("_sliceMultiplier").floatValue = 1f;
             so.FindProperty("_buttonHeight").floatValue = 36f;
+            so.FindProperty("_lineHeightFactor").floatValue = 1.5f;
             so.FindProperty("_buttonHeightSmall").floatValue = 28f;
             so.FindProperty("_skin").enumValueIndex = (int)UiSkin.Simple;
             bool changed = so.ApplyModifiedPropertiesWithoutUndo();
