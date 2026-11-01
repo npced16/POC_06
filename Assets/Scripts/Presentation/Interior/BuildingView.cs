@@ -18,6 +18,8 @@ namespace IronRing.Presentation.Interior
     /// 완성·깨짐·배치·제거·내부 열림이 있으면 다음 LateUpdate에 묶음 목록을 다시 읽어(칸이 늘어난 묶음도 반영) 바뀐 건물만 다시 세운다.
     /// 스토리 031: 사라진 묶음의 칸을 새 묶음이 이어받지 않으면(철거·깨짐) 건물은 바로 지우지 않고 InteriorCatalog._buildingCollapseSeconds 동안
     /// _buildingCollapseDistance만큼 내려앉으며 투명해진 뒤 지운다(완성 연출의 반대). 무너지는 동안 클릭 충돌체는 끈다.
+    /// QA 후속(건물 장식): 종류의 HabitatType.Decor(_decor)로 지붕 색조 계열, 문 칸을 뺀 아래 가장자리 칸의 창 무늬 덧조각,
+    /// 굴뚝·상징물 칸을 피한 칸의 지붕 덧소품 1~2개(첫째는 왼쪽 위부터, 둘째는 오른쪽 아래부터 빈 칸)를 고른다. 모두 종류별로 결정적이다.
     /// </summary>
     public sealed class BuildingView : MonoBehaviour
     {
@@ -225,6 +227,8 @@ namespace IronRing.Presentation.Interior
             if (grid.Count == 0) return null;
             HabitatType type = HabitatsInstaller.Catalog?.Get(cluster.TypeId);
             string style = type?.BuildingStyle;
+            HabitatDecor decor = type?.Decor;
+            string tint = decor?.RoofTint;
             var container = new GameObject("Building_" + cluster.TypeId);
             container.transform.SetParent(root.transform, false);
             container.transform.position = root.transform.position;
@@ -240,13 +244,13 @@ namespace IronRing.Presentation.Interior
                 piece.name = "Roof_" + mask;
                 piece.transform.position = at;
                 SpriteRenderer renderer = piece.GetComponentInChildren<SpriteRenderer>(true);
-                if (renderer != null) { renderer.sprite = _catalog.RoofSprite(style, mask); renderer.sortingOrder = _catalog.BuildingOrder; }
+                if (renderer != null) { renderer.sprite = _catalog.RoofSprite(style, tint, mask); renderer.sortingOrder = _catalog.BuildingOrder; }
                 (piece.GetComponent<BuildingPiece>() ?? piece.AddComponent<BuildingPiece>()).Bind(_hub, cluster.TypeId, cells);
                 for (int c = 0; c < Diagonals.Length; c++)
                 {
                     Vector2Int d = Diagonals[c];
                     if (grid.ContainsKey(g + new Vector2Int(d.x, 0)) && grid.ContainsKey(g + new Vector2Int(0, d.y)) && !grid.ContainsKey(g + d))
-                        Prop(container, at, _catalog.InnerCornerSprite(style, c), _catalog.BuildingDoorOrder, "Corner_" + c);
+                        Prop(container, at, _catalog.InnerCornerSprite(style, tint, c), _catalog.BuildingDoorOrder, "Corner_" + c);
                 }
             }
             float centerX = grid.Keys.Average(g => (float)g.x);
@@ -269,13 +273,42 @@ namespace IronRing.Presentation.Interior
             int signCell = positions.OrderBy(p => (p.Value - centroid).sqrMagnitude).First().Key;
             GameObject sign = Prop(container, positions[signCell] + Vector3.up * (_catalog.SignLift * tile), _catalog.BuildingSign(type?.SignProp), _catalog.BuildingSignOrder, "Sign_" + type?.SignProp);
             sign.transform.localScale *= _catalog.BuildingSignScale;
+            Decorate(container, decor, grid, positions, doorCell, chimneyCell, signCell);
             if (_animateNext && _catalog.BuildingRiseSeconds > 0f)
             {
                 building.Age = 0f;
                 container.transform.position = building.RestPosition + Vector3.down * _catalog.BuildingRiseDistance;
             }
-            UnityEngine.Debug.Log($"BUILDING: {_hub} {cluster.TypeId} 칸 {string.Join(",", cells)} 지붕 {style ?? "?"} 상징물 {type?.SignProp ?? "?"} 문 칸 {grid[doorCell]}");
+            UnityEngine.Debug.Log($"BUILDING: {_hub} {cluster.TypeId} 칸 {string.Join(",", cells)} 지붕 {style ?? "?"}/{tint ?? "base"} 창 {decor?.WindowPattern ?? 0} 소품 {(decor != null ? string.Join(",", decor.Props) : "-")} 상징물 {type?.SignProp ?? "?"} 문 칸 {grid[doorCell]}");
             return building;
+        }
+
+        /// <summary>QA 후속(건물 장식). 창 무늬 덧조각(문 칸을 뺀 아래 가장자리 칸)과 지붕 덧소품(굴뚝·상징물 칸을 피한 빈 칸)을 놓는다.</summary>
+        private void Decorate(GameObject container, HabitatDecor decor, Dictionary<Vector2Int, int> grid, Dictionary<int, Vector3> positions,
+            Vector2Int doorCell, Vector2Int chimneyCell, int signCell)
+        {
+            if (decor == null) return;
+            float tile = _catalog.TileSize;
+            Sprite window = _catalog.BuildingWindow(decor.WindowPattern);
+            if (window != null)
+                foreach (Vector2Int g in grid.Keys.Where(g => !grid.ContainsKey(g + Vector2Int.down) && g != doorCell).OrderBy(g => g.x))
+                    Prop(container, positions[grid[g]], window, _catalog.BuildingDoorOrder, "Window_" + decor.WindowPattern);
+            var used = new HashSet<Vector2Int> { chimneyCell };
+            foreach (KeyValuePair<Vector2Int, int> pair in grid) if (pair.Value == signCell) used.Add(pair.Key);
+            for (int i = 0; i < decor.Props.Count; i++)
+            {
+                Sprite sprite = _catalog.BuildingDecor(decor.Props[i]);
+                if (sprite == null) continue;
+                IEnumerable<Vector2Int> order = i == 0
+                    ? grid.Keys.OrderByDescending(g => g.y).ThenBy(g => g.x)
+                    : grid.Keys.OrderBy(g => g.y).ThenByDescending(g => g.x);
+                Vector2Int? free = null;
+                foreach (Vector2Int g in order) if (!used.Contains(g)) { free = g; break; }
+                if (free == null) continue; // 칸이 모자란 작은 건물은 남는 소품을 생략한다
+                used.Add(free.Value);
+                GameObject prop = Prop(container, positions[grid[free.Value]] + Vector3.up * (_catalog.DecorLift * tile), sprite, _catalog.BuildingSignOrder, "Decor_" + decor.Props[i]);
+                prop.transform.localScale *= _catalog.BuildingDecorScale;
+            }
         }
 
         private GameObject Prop(GameObject container, Vector3 at, Sprite sprite, int order, string name)

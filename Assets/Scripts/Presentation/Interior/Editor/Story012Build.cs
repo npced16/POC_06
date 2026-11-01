@@ -298,12 +298,34 @@ namespace IronRing.Presentation.Interior.Editor
                 var inner = new Sprite[corners.Length];
                 for (int i = 0; i < corners.Length; i++) inner[i] = Sprite(global::IronRing.Art.Editor.SpriteGenBuildings.CornerName(style, corners[i]));
                 styles.Add(new InteriorCatalog.BuildingStyleSet(style, pieces, inner));
+                // QA 후속(건물 장식): 색조 계열("style@tint")
+                foreach (string tint in global::IronRing.Art.Editor.SpriteGenBuildings.TINTS)
+                {
+                    var tPieces = new Sprite[16];
+                    for (int mask = 0; mask < 16; mask++) tPieces[mask] = Sprite(global::IronRing.Art.Editor.SpriteGenBuildings.RoofName(style, tint, mask));
+                    var tInner = new Sprite[corners.Length];
+                    for (int i = 0; i < corners.Length; i++) tInner[i] = Sprite(global::IronRing.Art.Editor.SpriteGenBuildings.CornerName(style, tint, corners[i]));
+                    if (tPieces[15] != null) styles.Add(new InteriorCatalog.BuildingStyleSet(InteriorCatalog.TintedStyleId(style, tint), tPieces, tInner));
+                }
             }
             var signs = new System.Collections.Generic.List<InteriorCatalog.FacilitySprite>();
             foreach (string id in global::IronRing.Art.Editor.SpriteGenBuildings.SIGNS)
                 signs.Add(new InteriorCatalog.FacilitySprite(id, Sprite(global::IronRing.Art.Editor.SpriteGenBuildings.SignName(id))));
             if (styles[0].Piece(15) == null) UnityEngine.Debug.LogWarning("Story012Build: 건물 스프라이트가 없습니다. IronRing/Art/Generate Building Sprites를 실행하세요.");
             catalog.SetBuildingArt(styles.ToArray(), new[] { Sprite("bld_door_0"), Sprite("bld_door_1") }, Sprite("bld_chimney"), signs.ToArray());
+            var windows = new System.Collections.Generic.List<Sprite>();
+            for (int p = 1; p <= global::IronRing.Art.Editor.SpriteGenBuildings.WINDOW_PATTERNS; p++)
+            {
+                Sprite window = Sprite(global::IronRing.Art.Editor.SpriteGenBuildings.WindowName(p));
+                if (window != null) windows.Add(window);
+            }
+            var decor = new System.Collections.Generic.List<InteriorCatalog.FacilitySprite>();
+            foreach (string id in global::IronRing.Art.Editor.SpriteGenBuildings.DECOR)
+            {
+                Sprite sprite = Sprite(global::IronRing.Art.Editor.SpriteGenBuildings.DecorName(id));
+                if (sprite != null) decor.Add(new InteriorCatalog.FacilitySprite(id, sprite));
+            }
+            catalog.SetBuildingDecor(windows.ToArray(), decor.ToArray());
             EditorUtility.SetDirty(catalog);
             var serialized = new SerializedObject(catalog);
             SerializedProperty pieceProperty = serialized.FindProperty("_buildingPiecePrefab");
