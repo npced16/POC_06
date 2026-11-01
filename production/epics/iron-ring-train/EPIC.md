@@ -64,12 +64,19 @@ Brief Build order: 이동 → 서식지·NPC → 거점 상태·패배 → 전�
 | 037 | 1차 횡스크롤 여정 + 달리면서 치르는 전투(프리미티브) | Visual/Feel | Removed(039) | N/A |
 | 038 | 2차 중간역 정차 — 탑뷰 디펜스·고철 파밍·장비 비용(프리미티브) | Integration | Removed(039) | N/A |
 | 039 | 전투 전부 제거, 원형 선로 + 휴식지 3(이벤트), 거점 지명 "황동골" | Integration | Ready | N/A |
+| 040 | 경제 기반 — 마르크·품목 6종·휴식지 시장·화물칸·거래 패널·정산·파산 | Integration | Ready | N/A |
+| 041 | 생산 건물 — 레시피를 생산 데이터로, 창고, 타일 비용, 적재 | Integration | Ready | N/A |
+| 042 | 주민·노동·만족도·마을 등급·해금 | Logic | Ready | N/A |
+| 043 | 열차 업그레이드·선로 확장 | Integration | Ready | N/A |
+| 044 | 경영 HUD — 장부·건물 정보·목표·결과·경제 이벤트 | UI | Ready | N/A |
 
 배치 개편(2026-11-01 16:30): 사용자 결정으로 잔해 조사를 없애고, 핫바(1~9)·고스트·드래그 앤 드롭으로 타일을 배치하며, 서식지는 묶음형(같은 타일 N칸 상하좌우 연결, 모양 무관, 크기 3·4·9칸 등)과 패턴형(타일 배열 템플릿이 회전·거울상 8변형 중 하나로 들어맞으면 완성, 예: 물-불-풀 = 풀-불-물, 불-풀-물은 불인정)으로 완성된다. 서식지 종류는 데이터 카탈로그(묶음형 13종·패턴형 3종 이상). 자원·제작 시스템은 당분간 없애고 타일·아이템·시설은 무제한으로 놓는다. 015(UI)와 016(로직)을 병렬로 진행해 2026-11-01 17:00 KST에 둘 다 Done(브리지 컴파일 통과, 캡처 `story-015-placement-hotbar-dragdrop/01~04(-v2).png`, `story-016-habitat-types-clusters/habitat-demo-v2.png`·`-v3-pattern.png` 육안 확인). 코디네이터 통합 수정: 붉은 고스트 색 진하게(카탈로그), 서식지 테두리 정렬 순서 15(타일 위), 칸 클릭 건설 메뉴는 `hub_phase_view.json` `_buildMenuOnCellClick:false`로 꺼서 핫바 7~9와 충돌 제거, 내부 패널에 완성 서식지 이름 나열. 세계관 수정(17:10, 사용자): 타일·서식지를 자연물이 아닌 스팀펑크 마을 요소(보일러·증기관·톱니장치·가스등·석탄더미·철골·벽돌길·물탱크·온실유리·침상·작업대·전신주·굴뚝, 서식지 19종)로 전면 교체 — 2026-11-01 17:25 KST 재검증 완료(캡처 `habitat-demo-v4-steampunk.png`, `story-015/*-steampunk.png`). 012의 조사, 013의 태그 합산·제작, 002의 자원 슬롯은 코드만 보존한다.
 
 프리팹·씬 배치 전환(2026-11-01 16시): 사용자 요구("코드로 배치하지 말고 씬에 직접 배치, 프리팹 기반으로 편집 쉽게")에 따라 고정 배치의 런타임 생성을 없앴다. `Assets/Scenes/Main.unity`의 고정 배치는 모두 프리팹 인스턴스다 — `HubInteriors` 루트 아래 `HubInterior` 인스턴스 4개(`Assets/Prefabs/Interior/HubInterior.prefab`, 중첩 `InteriorCell`·`FloorTile`·`TrackTile`·`TrainCar`)와 선로 화면의 거점·경유지·열차·선로 프리팹(`Assets/Prefabs/Map/HubBuilding`·`WaypointMarker`·`Train`·`TrackTile.prefab`). 그림·재질·폰트·조각 프리팹 참조는 카탈로그 `Assets/Prefabs/Interior/InteriorCatalog.asset`과 `Assets/Prefabs/Map/MapCatalog.asset`에 있다. 재생성은 편집기 메서드(브리지 execute-method) `IronRing.Bootstrap.Editor.BuildTopDownMain.Rebuild`(Main 전체를 지우고 다시 놓는 파괴적 재생성)와 `IronRing.Presentation.Interior.Editor.Story012Build.Generate`(프리팹·카탈로그 보장 + 빠진 내부 인스턴스만 추가, 여러 번 실행해도 결과가 같음)로 한다. 아이템·시설·NPC 같은 동적 조각은 카탈로그가 가리키는 프리팹(`ItemPiece.prefab` 등)을 런타임에 인스턴스화한다. 전환 뒤 전체 EditMode 154/154(`production/qa/evidence/integration/editmode-prefab.xml`), 012~014 스크린샷 8장 재캡처·육안 확인, `Main.unity` 저장(isDirty=false). 편집 규칙은 `design/game-brief.md`의 Art & audio direction 아래 한 줄로 고정했다. 남은 항목: 내부 화면 실제 마우스 조작 기록(사용자 확인), `InteriorViewSettings.cs` 스텁 삭제(사용자), 선로 화면 단계 라벨 겹침(014 에이전트 수정 중).
 
 NPC 집·대화(017, 2026-11-01 18:05 KST): 사용자 지시로 합류 NPC는 자기 종류의 완성 서식지를 집으로 받아 그 곁(집 칸 + 붙은 빈 칸)만 배회하고, 빈 손 좌클릭이면 대화 패널(직업명·집·대사 순환·격려(정차 1회 번영 +3, 데이터)·닫기)이 열린다. 계약 `INpcHomes`/`INpcInteraction`/`INpcClickSource`, 로직 `Assets/Scripts/Npc/`(NpcHomes·NpcInteraction·NpcInstaller·데이터), 표현 `InteriorNpcWalker`+`NpcBody`+프리팹 콜라이더, HUD `Assets/Scripts/Hud/Npc/NpcDialogHud`. 캡처 `story-017-npc-homes-dialogue/017-homes|panel|encouraged.png`. 메모: 격려 횟수는 출발 이벤트가 없어 다음 도착 때 초기화.
+
+경영 시뮬레이션 전환(040~044, 2026-11-02 04:20 KST): 사용자 "완전 경영 시뮬레이션 쪽으로 싹 다 가주라" → 브리프 전면 재작성("황동골 철도 회사"): 돈(마르크)·품목 6종·휴식지 시장 거래·생산 건물(레시피에 입력/출력/노동자/유지비)·창고·타일 비용·주민/노동/만족도/마을 등급·열차 업그레이드·선로 확장·장부·경제 이벤트. 20바퀴 안에 도시 등급 = 승리, 파산 = 패배. 039 뒤 040부터 순서대로.
 
 전투 제거(039, 2026-11-02 04:05 KST): 사용자 "둘 다 빼자, 전투 별로다. 전투 싹 다 빼고 종점 말고 중간중간 이벤트 생기도록. 테스트맵도 원형으로 만들어 중간 휴식지(이벤트)로, 맨 처음 거점을 지명으로." → 033·034·037·038과 005 주사위 전투 제거(archive/combat-2026-11-02/ 보관), 선로 = 거점 1(황동골) + 휴식지 3 원형, 휴식지마다 이벤트 1개, 검증은 파이프라인만.
 
