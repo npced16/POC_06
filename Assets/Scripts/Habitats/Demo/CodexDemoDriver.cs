@@ -10,7 +10,7 @@ using IronRing.Contracts.Presentation;
 namespace IronRing.Habitats.Demo
 {
     /// <summary>
-    /// 스토리 021 캡처용 스크립트 데모(--codex-demo, 단계 --codex-stage start|lap|discover, 기본 start). 실행 인자 또는 진행 중인 브리지 캡처의
+    /// 스토리 021 캡처용 스크립트 데모(--codex-demo, 단계 --codex-stage start|lap|discover|npc, 기본 start). 실행 인자 또는 진행 중인 브리지 캡처의
     /// extraArgs에서 읽는다. start = 런 시작 상태(시작 레시피 3개) 그대로, lap = 데이터의 바퀴 수만큼 HabitatCodex.OnLapCompleted를 불러
     /// 바퀴 완료 신호를 흉내 낸다(PhaseDemoDriver가 RunState.OnLapCompleted를 직접 부르는 것과 같은 방식, 열차는 정박 그대로),
     /// discover = 데모 거점 내부를 열고 아직 모르는 레시피(데이터, 기본 전신선)의 타일을 IItemPlacement로 놓아 완성·발견시킨다.
@@ -24,6 +24,8 @@ namespace IronRing.Habitats.Demo
         public const string STAGE_START = "start";
         public const string STAGE_LAP = "lap";
         public const string STAGE_DISCOVER = "discover";
+        /// <summary>스토리 030: 승객 한 명을 태워(board 해금) hub-1에 합류시켜(teach 해금) 도감을 연다.</summary>
+        public const string STAGE_NPC = "npc";
 
         private static CodexDemoDriver _instance;
         private static Action _stageReady;
@@ -115,7 +117,27 @@ namespace IronRing.Habitats.Demo
                 for (int i = 1; i <= Math.Max(1, _settings._laps); i++) codex.OnLapCompleted(lap + i);
             }
             else if (Stage == STAGE_DISCOVER) PlaceDiscovery();
+            else if (Stage == STAGE_NPC) BoardAndJoin(codex);
             UnityEngine.Debug.Log($"CODEX DEMO: 해금 {codex.UnlockedTypeIds.Count}/{codex.TotalCount} → {string.Join(", ", codex.UnlockedTypeIds)}");
+        }
+
+        /// <summary>
+        /// 스토리 030. 데이터의 NPC(기본 원예사)를 강제로 태워 원하는 종류를 "board"로 열고, 데모 거점에 합류시켜 가르치는 종류를 "teach"로 연다.
+        /// 합류는 NpcRecruiter.TryJoin(실제 하차가 부르는 같은 합류 경로, NpcJoined 발생)으로 직접 하며, 원하는 서식지 완성·숨은 조건 검사는 건너뛴다.
+        /// </summary>
+        private void BoardAndJoin(HabitatCodex codex)
+        {
+            string npcId = _settings._npcId;
+            IPassengers passengers = GameServices.Get<IPassengers>();
+            int before = codex.UnlockedTypeIds.Count;
+            if (passengers == null) { UnityEngine.Debug.LogError("CODEX DEMO: IPassengers가 등록되지 않았습니다."); return; }
+            bool boarded = passengers.TryBoard(npcId, "demo", true);
+            UnityEngine.Debug.Log($"CODEX DEMO: 탑승 {npcId} = {boarded}, 해금 {before} → {codex.UnlockedTypeIds.Count}/{codex.TotalCount}");
+            int afterBoard = codex.UnlockedTypeIds.Count;
+            bool joined = GameServices.Get<INpcRecruiter>() is IronRing.Npc.NpcRecruiter recruiter && recruiter.TryJoin(npcId, _settings._hubId);
+            UnityEngine.Debug.Log($"CODEX DEMO: 합류 {npcId} → {_settings._hubId} = {joined}, 해금 {afterBoard} → {codex.UnlockedTypeIds.Count}/{codex.TotalCount}");
+            foreach (string id in codex.UnlockedTypeIds)
+                UnityEngine.Debug.Log($"CODEX DEMO: {id} 출처={codex.UnlockSourceOf(id)} npc={codex.UnlockNpcOf(id)}");
         }
 
         private void PlaceDiscovery()
@@ -164,6 +186,7 @@ namespace IronRing.Habitats.Demo
             public string _hubId = "hub-1";
             public int _waitFrames = 20;
             public int _laps = 1;
+            public string _npcId = "gardener";
             public Placement[] _discoverPlacements;
         }
 

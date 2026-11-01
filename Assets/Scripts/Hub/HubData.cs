@@ -16,6 +16,8 @@ namespace IronRing.Hub
     {
         [Header("Run rules (Story 014)")]
         [SerializeField] private int _deadlineLaps;
+        [Tooltip("Story 030: end the run as Victory the moment every hub is Settled.")]
+        [SerializeField] private bool _earlyWin;
         [Header("Hub profiles")]
         [SerializeField] private HubProfile[] _hubs;
 
@@ -25,7 +27,7 @@ namespace IronRing.Hub
             HubData data = JsonUtility.FromJson<HubData>(json);
             if (data == null || data._hubs == null || data._hubs.Length == 0)
                 throw new ArgumentException("Hub data is empty.", nameof(json));
-            var rules = new HubRunRules(data._deadlineLaps);
+            var rules = new HubRunRules(data._deadlineLaps, data._earlyWin);
             var definitions = new List<HubDefinition>();
             foreach (HubProfile profile in data._hubs) definitions.Add(profile.ToDefinition(rules));
             return definitions.AsReadOnly();

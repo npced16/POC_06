@@ -121,8 +121,19 @@ namespace IronRing.Hud.Codex
 
         private void OnRecipeUnlocked(string typeId, string source)
         {
-            string key = source == HabitatCodex.SOURCE_DISCOVER ? "codex_toast_discover" : "codex_toast_new";
-            _toasts.Enqueue(string.Format(Text(key), HabitatName(typeId)));
+            string npcId = _codex.UnlockNpcOf(typeId);
+            if (npcId != null && (source == HabitatCodex.SOURCE_BOARD || source == HabitatCodex.SOURCE_TEACH))
+            {
+                // 스토리 030: "탑승: <직업>이 <서식지> 설계도를 건넸다" / "<직업>이 <서식지> 설계도를 가르쳐 줬다"
+                string toast = string.Format(Text(source == HabitatCodex.SOURCE_BOARD ? "codex_toast_board" : "codex_toast_teach"), NpcName(npcId), HabitatName(typeId));
+                _toasts.Enqueue(toast);
+                UnityEngine.Debug.Log("CODEX TOAST: " + toast);
+            }
+            else
+            {
+                string key = source == HabitatCodex.SOURCE_DISCOVER ? "codex_toast_discover" : "codex_toast_new";
+                _toasts.Enqueue(string.Format(Text(key), HabitatName(typeId)));
+            }
             if (IsOpen) Rebuild();
         }
 
@@ -197,6 +208,7 @@ namespace IronRing.Hud.Codex
                     KindName(type.Kind) + "  ·  " + string.Format(Text("codex_cells"), CellCount(type)),
                     string.Format(Text("codex_bonus"), type.ProsperityBonus.ToString("0")),
                     string.Format(Text("codex_npc"), Visitors(type)),
+                    Teacher(type.Id),
                     completed.Contains(type.Id));
                 FillDiagram(card, type);
             }
@@ -220,6 +232,21 @@ namespace IronRing.Hud.Codex
             }
             for (int i = 0; i < unknown; i++) names.Add(Text("codex_visitor_unknown"));
             return string.Join(", ", names);
+        }
+
+        /// <summary>스토리 030. board·teach로 열린 종류면 "가르쳐 주는 이: 직업", 아니면 null.</summary>
+        private string Teacher(string typeId)
+        {
+            string source = _codex.UnlockSourceOf(typeId);
+            string npcId = _codex.UnlockNpcOf(typeId);
+            if (npcId == null || (source != HabitatCodex.SOURCE_BOARD && source != HabitatCodex.SOURCE_TEACH)) return null;
+            return string.Format(Text("codex_teacher"), NpcName(npcId));
+        }
+
+        private string NpcName(string npcId)
+        {
+            ResolveNpcServices();
+            return _interaction != null ? _interaction.DisplayName(npcId) : npcId;
         }
 
         /// <summary>같은 타일: 아이콘×개수. 혼합: 타일별 아이콘×최소 수 + "+k 아무거나". 패턴: 템플릿 격자(빈 칸은 흐린 칸).</summary>

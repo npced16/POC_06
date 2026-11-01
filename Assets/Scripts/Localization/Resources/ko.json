@@ -435,6 +435,7 @@
     { "_key": "npc_dialog_home", "_value": "집" },
     { "_key": "npc_dialog_home_none", "_value": "집 없음" },
     { "_key": "npc_dialog_close", "_value": "닫기" },
+    { "_key": "npc_dialog_continue", "_value": "계속하기" },
     { "_key": "codex_open", "_value": "도감 (C)" },
     { "_key": "codex_title", "_value": "서식지 도감 (해금 {0}/{1})" },
     { "_key": "codex_hint", "_value": "C 키로 열고 닫는다 · 미해금 설계도는 선로 위에서 얻는다" },
@@ -490,6 +491,10 @@
     { "_key": "result_hub_line", "_value": "{0}  ·  {1}  ·  번영 {2}  ·  합류 {3}명" },
     { "_key": "result_laps", "_value": "총 {0}바퀴" },
     { "_key": "result_restart", "_value": "다시 시작" },
-    { "_key": "building_empty", "_value": "{0} — 아직 아무도 살지 않는다. 승객이 찾아오길 기다린다." }
+    { "_key": "building_empty", "_value": "{0} — 아직 아무도 살지 않는다. 승객이 찾아오길 기다린다." },
+    { "_key": "codex_toast_board", "_value": "탑승한 {0}: {1} 설계도를 건넸다" },
+    { "_key": "codex_toast_teach", "_value": "합류한 {0}: {1} 설계도를 가르쳐 줬다" },
+    { "_key": "codex_teacher", "_value": "가르쳐 주는 이: {0}" },
+    { "_key": "passengers_wants", "_value": "원하는 것: {0}" }
 ]
 }

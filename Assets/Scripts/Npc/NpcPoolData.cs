@@ -108,6 +108,8 @@ namespace IronRing.Npc
             [SerializeField] private ConditionEntry[] _conditions;
             [SerializeField] private string _proposal;
             [SerializeField] private string _hint;
+            [Tooltip("Story 030: habitat type id this NPC teaches when it joins (unlocks the recipe, source \"teach\").")]
+            [SerializeField] private string _teachesTypeId;
 
             /// <summary>Copies serialized identity, text and condition fields into a validated immutable NPC definition.</summary>
             public NpcDefinition ToDefinition()
@@ -116,7 +118,7 @@ namespace IronRing.Npc
                 NpcPassengerProfile passenger = _chance >= 0f
                     ? new NpcPassengerProfile(_origin, _originName, _chance, Convert(_boardConditions), Convert(_conditions), _proposal, _hint)
                     : null;
-                return new NpcDefinition(_id, _name, _quote, hubs, _requiresCompleteHabitat, _habitatTypeId, _lines, passenger);
+                return new NpcDefinition(_id, _name, _quote, hubs, _requiresCompleteHabitat, _habitatTypeId, _lines, passenger, _teachesTypeId);
             }
 
             private static List<NpcCondition> Convert(ConditionEntry[] entries)

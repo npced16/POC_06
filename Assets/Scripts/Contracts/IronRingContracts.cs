@@ -330,8 +330,12 @@ namespace IronRing.Contracts
         bool IsUnlocked(string typeId);
         /// <summary>해금된 종류 id들(해금 순서).</summary>
         IReadOnlyList<string> UnlockedTypeIds { get; }
-        /// <summary>typeId를 해금한다. 카탈로그에 없거나 이미 해금이면 false. source: "start" | "lap" | "event" | "victory" | "discover".</summary>
+        /// <summary>typeId를 해금한다. 카탈로그에 없거나 이미 해금이면 false. source: "start" | "lap" | "event" | "victory" | "discover" | "board" | "teach".</summary>
         bool TryUnlock(string typeId, string source);
+        /// <summary>스토리 030. typeId를 연 출처("start"·"board"·"teach"·"discover" 등). 모르면 null.</summary>
+        string UnlockSourceOf(string typeId) => null;
+        /// <summary>스토리 030. typeId를 건네거나 가르쳐 준 NPC id("board"·"teach"일 때만). 없으면 null.</summary>
+        string UnlockNpcOf(string typeId) => null;
         /// <summary>typeId, source. 새로 해금될 때 1회(시작 레시피는 생성 때 해금되므로 발생하지 않는다).</summary>
         event Action<string, string> RecipeUnlocked;
     }
