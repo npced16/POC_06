@@ -70,6 +70,7 @@ namespace IronRing.Presentation.Interior
             foreach (HabitatCluster cluster in clusters)
             {
                 if (cluster?.Cells == null) continue;
+                if (_catalog.HasBuildings) continue; // 스토리 027: 건물이 서는 묶음은 테두리 대신 BuildingView가 보인다.
                 Color color = _catalog.ClusterColor(cluster.TypeId);
                 foreach (int cellIndex in cluster.Cells)
                 {

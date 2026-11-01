@@ -7,6 +7,9 @@ using UnityEngine.InputSystem;
 
 using IronRing.Contracts;
 using IronRing.Contracts.Presentation;
+using IronRing.Habitats;
+using IronRing.Hud.Ui;
+using IronRing.Localization;
 using IronRing.Presentation.Interior;
 
 namespace IronRing.Presentation.HubPhase
@@ -302,6 +305,7 @@ namespace IronRing.Presentation.HubPhase
             foreach (Walker walker in _walkers)
             {
                 if (walker.Renderer == null) continue;
+                if (!_settings.NpcWanders && StandAtDoor(walker)) continue;
                 if (walker.Target == null) walker.Target = RandomTarget(walker);
                 if (walker.Target == null) continue;
                 if (walker.Pause > 0f) { walker.Pause -= Time.deltaTime; continue; }
@@ -344,6 +348,79 @@ namespace IronRing.Presentation.HubPhase
                 NpcClicked?.Invoke(npc.HubId, npc.NpcId);
                 return;
             }
+            foreach (RaycastHit2D hit in hits)
+            {
+                if (hit.collider == null || !hit.collider.TryGetComponent(out BuildingPiece piece) || piece.HubId != _hub) continue;
+                ClickBuilding(piece);
+                return;
+            }
+        }
+
+        /// <summary>
+        /// Story 027: an empty-handed click on a building opens the dialog of the NPC whose home is that cluster (same type, overlapping
+        /// cells); with nobody living there a short toast says the building is waiting for a passenger.
+        /// </summary>
+        private void ClickBuilding(BuildingPiece piece)
+        {
+            ResolveHomes();
+            if (_homes != null)
+                foreach (NpcHome home in _homes.HomesAt(_hub) ?? Array.Empty<NpcHome>())
+                {
+                    if (home == null || home.HabitatTypeId != piece.TypeId || home.Cells == null || piece.Cells == null) continue;
+                    foreach (int cell in home.Cells)
+                        if (ContainsCell(piece.Cells, cell)) { NpcClicked?.Invoke(_hub, home.NpcId); return; }
+                }
+            string name = HabitatsInstaller.Catalog?.Get(piece.TypeId)?.Name ?? piece.TypeId;
+            string format;
+            try { format = Strings.Get("building_empty"); }
+            catch (KeyNotFoundException) { format = "{0}"; }
+            UnityEngine.Debug.Log($"BUILDING CLICK: {_hub} {piece.TypeId} - 사는 NPC 없음");
+            ToastScreen.Show(string.Format(format, name), _settings.EmptyBuildingToastSeconds);
+        }
+
+        private static bool ContainsCell(IReadOnlyList<int> cells, int cell)
+        {
+            foreach (int c in cells) if (c == cell) return true;
+            return false;
+        }
+
+        /// <summary>
+        /// Story 027 (_npcWanders false): walks the NPC to the door of its home building and breathes there facing the camera. False when
+        /// the NPC has no home building at the open hub (it keeps wandering).
+        /// </summary>
+        private bool StandAtDoor(Walker walker)
+        {
+            NpcHome home = _homes?.HomeOf(walker.NpcId);
+            if (home == null || home.HubId != _hub || home.Cells == null || home.Cells.Count == 0) return false;
+            if (!BuildingView.TryGetDoor(_hub, home.HabitatTypeId, home.Cells, out Vector3 door)) return false;
+            if (walker.Pause > 0f) { walker.Pause -= Time.deltaTime; return true; }
+            Transform body = walker.Renderer.transform;
+            door.y += _settings.DoorOffsetY;
+            door.z = body.position.z;
+            float reach = _settings.BreatheAmplitude * 2f + 0.02f;
+            if (walker.Arriving || (body.position - door).sqrMagnitude > reach * reach)
+            {
+                if (Mathf.Abs(door.x - body.position.x) > 0.001f) walker.Renderer.flipX = door.x < body.position.x;
+                body.position = Vector3.MoveTowards(body.position, door, (walker.Arriving ? ArrivalSpeed : _settings.NpcSpeed) * Time.deltaTime);
+                if (walker.Arriving && (body.position - door).sqrMagnitude <= 0.0001f) { walker.Arriving = false; _arriving.Remove(walker.NpcId); }
+                return true;
+            }
+            walker.Renderer.flipX = false;
+            float phase = (Mathf.Abs(walker.NpcId?.GetHashCode() ?? 0) % 100) * 0.1f;
+            body.position = door + Vector3.up * (Mathf.Sin((Time.time + phase) * _settings.BreatheSpeed) * _settings.BreatheAmplitude);
+            return true;
+        }
+
+        /// <summary>Story 027: the body sprite of npcId for the dialog portrait (the spawned body, else the NPC prefab's sprite).</summary>
+        public static Sprite BodySprite(string npcId)
+        {
+            if (_instance != null)
+                foreach (Walker walker in _instance._walkers)
+                    if (walker.NpcId == npcId && walker.Renderer != null) return walker.Renderer.sprite;
+            HubPhasePrefabCatalog catalog = _instance != null ? _instance._catalog : HubPhasePrefabCatalog.Load();
+            GameObject prefab = catalog != null ? catalog.Npc : null;
+            SpriteRenderer renderer = prefab != null ? prefab.GetComponentInChildren<SpriteRenderer>(true) : null;
+            return renderer != null ? renderer.sprite : null;
         }
 
         /// <summary>pointer is over a HUD panel: EventSystem raycast only (Story 025 removed the old registered tests).</summary>

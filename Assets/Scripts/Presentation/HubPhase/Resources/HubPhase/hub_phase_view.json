@@ -15,5 +15,10 @@
   "_npcHighlightColor": { "r": 1.0, "g": 0.86, "b": 0.55, "a": 1.0 },
   "_arrivalSpeed": 0.9,
   "_arrivalPause": 0.8,
-  "_arrivalStagger": 1.0
+  "_arrivalStagger": 1.0,
+  "_npcWanders": false,
+  "_doorOffsetY": -0.42,
+  "_breatheAmplitude": 0.03,
+  "_breatheSpeed": 2.4,
+  "_emptyBuildingToastSeconds": 2.5
 }

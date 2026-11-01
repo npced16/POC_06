@@ -61,6 +61,17 @@ namespace IronRing.Habitats
         public float ProsperityBonus { get; }
         /// <summary>이 서식지를 찾아오는 NPC id(없으면 null).</summary>
         public string NpcTypeId { get; }
+        /// <summary>스토리 027. 건물 지붕 계열(machine|housing|storage|glass). 데이터에 없으면 null(표현이 첫 계열을 쓴다).</summary>
+        public string BuildingStyle { get; private set; }
+        /// <summary>스토리 027. 건물 지붕 위 상징물 id(SpriteGenBuildings.SIGNS). 없으면 null.</summary>
+        public string SignProp { get; private set; }
+
+        /// <summary>스토리 027. 카탈로그 파서가 건물 외관 데이터를 붙인다.</summary>
+        internal void SetBuilding(string style, string signProp)
+        {
+            BuildingStyle = string.IsNullOrWhiteSpace(style) ? null : style.Trim();
+            SignProp = string.IsNullOrWhiteSpace(signProp) ? null : signProp.Trim();
+        }
 
         /// <summary>Cluster 종류를 만든다.</summary>
         public static HabitatType CreateCluster(string id, string name, string tileItemId, int requiredCount, float prosperityBonus, string npcTypeId)
@@ -219,6 +230,7 @@ namespace IronRing.Habitats
                     types.Add(HabitatType.CreateSet(t._id, t._name, tiles, t._requiredCount, t._prosperityBonus, t._npcTypeId));
                 }
                 else throw new ArgumentException("Unknown habitat kind " + t._kind + " on " + t._id, nameof(json));
+                types[types.Count - 1].SetBuilding(t._buildingStyle, t._signProp);
             }
             return new HabitatCatalog(types);
         }
@@ -230,6 +242,7 @@ namespace IronRing.Habitats
         {
             public string _id; public string _name; public string _kind; public string _tileItemId; public int _requiredCount;
             public string[] _pattern; public TileData[] _tiles; public float _prosperityBonus; public string _npcTypeId;
+            public string _buildingStyle; public string _signProp;
         }
         [Serializable] private sealed class TileData { public string _tileItemId; public int _minCount; }
 #pragma warning restore 0649

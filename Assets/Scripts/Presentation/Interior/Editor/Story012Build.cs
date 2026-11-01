@@ -36,6 +36,9 @@ namespace IronRing.Presentation.Interior.Editor
         private const string FRAME_PREFAB = ROOT + "ClusterFrame.prefab";
         private const string FRAME_SPRITE = ROOT + "ClusterFrame.png";
         private const int GHOST_ORDER = 25;
+        private const string BUILDING_PIECE_PREFAB = ROOT + "BuildingPiece.prefab";
+        private const string BUILDING_PROP_PREFAB = ROOT + "BuildingProp.prefab";
+        private const string SMOKE_PREFAB = "Assets/Prefabs/Fx/Smoke.prefab";
         private const int FRAME_ORDER = 5;
         private static readonly string[] FACILITY_SPRITES = { "wall", "turret", "workshop" };
         private const string ART = "Assets/Art/Generated/";
@@ -135,6 +138,7 @@ namespace IronRing.Presentation.Interior.Editor
             if (itemPrefab.objectReferenceValue == null) itemPrefab.objectReferenceValue = item;
             serialized.ApplyModifiedPropertiesWithoutUndo();
             EnsurePlacementPrefabs(catalog, material);
+            EnsureBuildingPrefabs(catalog, material);
             EditorUtility.SetDirty(catalog);
             AssetDatabase.SaveAssets();
             return catalog;
@@ -234,6 +238,65 @@ namespace IronRing.Presentation.Interior.Editor
             }
             if (added > 0) EditorSceneManager.MarkSceneDirty(scene);
             return added;
+        }
+
+        /// <summary>스토리 027. 씬을 건드리지 않고 건물 프리팹과 카탈로그의 건물 그림 표만 보장한다(SpriteGenBuildings.Generate 끝에서 호출).</summary>
+        public static void EnsureBuildingAssets()
+        {
+            InteriorCatalog catalog = AssetDatabase.LoadAssetAtPath<InteriorCatalog>(CATALOG);
+            if (catalog == null) { UnityEngine.Debug.LogWarning("Story012Build: InteriorCatalog가 없습니다. Generate를 먼저 실행하세요."); return; }
+            EnsureBuildingPrefabs(catalog, AssetDatabase.LoadAssetAtPath<Material>(MATERIAL));
+            AssetDatabase.SaveAssets();
+        }
+
+        /// <summary>
+        /// 스토리 027. BuildingPiece.prefab(SpriteRenderer + 트리거 BoxCollider2D + BuildingPiece)과 BuildingProp.prefab을 없을 때만 만들고,
+        /// Art/Generated/buildings의 지붕·모서리·문·굴뚝·상징물 스프라이트로 카탈로그 표를 다시 채운다. 비어 있는 프리팹·연기 참조만 채운다.
+        /// </summary>
+        public static void EnsureBuildingPrefabs(InteriorCatalog catalog, Material material)
+        {
+            GameObject piece = AssetDatabase.LoadAssetAtPath<GameObject>(BUILDING_PIECE_PREFAB);
+            if (piece == null)
+            {
+                var temp = new GameObject("BuildingPiece");
+                var renderer = temp.AddComponent<SpriteRenderer>();
+                renderer.sharedMaterial = material;
+                renderer.sortingOrder = catalog.BuildingOrder;
+                var box = temp.AddComponent<BoxCollider2D>();
+                box.isTrigger = true;
+                box.size = Vector2.one;
+                temp.AddComponent<BuildingPiece>();
+                temp.transform.localScale = Vector3.one * catalog.TileSize;
+                piece = PrefabUtility.SaveAsPrefabAsset(temp, BUILDING_PIECE_PREFAB);
+                UnityEngine.Object.DestroyImmediate(temp);
+            }
+            GameObject prop = EnsureSpritePrefab(BUILDING_PROP_PREFAB, "BuildingProp", null, material, catalog.BuildingSignOrder, Vector3.one * catalog.TileSize, Quaternion.identity);
+            const string dir = ART + "buildings/";
+            Sprite Sprite(string name) => AssetDatabase.LoadAssetAtPath<Sprite>(dir + name + ".png");
+            var styles = new System.Collections.Generic.List<InteriorCatalog.BuildingStyleSet>();
+            foreach (string style in global::IronRing.Art.Editor.SpriteGenBuildings.STYLES)
+            {
+                var pieces = new Sprite[16];
+                for (int mask = 0; mask < 16; mask++) pieces[mask] = Sprite(global::IronRing.Art.Editor.SpriteGenBuildings.RoofName(style, mask));
+                string[] corners = global::IronRing.Art.Editor.SpriteGenBuildings.CORNERS;
+                var inner = new Sprite[corners.Length];
+                for (int i = 0; i < corners.Length; i++) inner[i] = Sprite(global::IronRing.Art.Editor.SpriteGenBuildings.CornerName(style, corners[i]));
+                styles.Add(new InteriorCatalog.BuildingStyleSet(style, pieces, inner));
+            }
+            var signs = new System.Collections.Generic.List<InteriorCatalog.FacilitySprite>();
+            foreach (string id in global::IronRing.Art.Editor.SpriteGenBuildings.SIGNS)
+                signs.Add(new InteriorCatalog.FacilitySprite(id, Sprite(global::IronRing.Art.Editor.SpriteGenBuildings.SignName(id))));
+            if (styles[0].Piece(15) == null) UnityEngine.Debug.LogWarning("Story012Build: 건물 스프라이트가 없습니다. IronRing/Art/Generate Building Sprites를 실행하세요.");
+            catalog.SetBuildingArt(styles.ToArray(), new[] { Sprite("bld_door_0"), Sprite("bld_door_1") }, Sprite("bld_chimney"), signs.ToArray());
+            EditorUtility.SetDirty(catalog);
+            var serialized = new SerializedObject(catalog);
+            SerializedProperty pieceProperty = serialized.FindProperty("_buildingPiecePrefab");
+            if (pieceProperty.objectReferenceValue == null) pieceProperty.objectReferenceValue = piece;
+            SerializedProperty propProperty = serialized.FindProperty("_buildingPropPrefab");
+            if (propProperty.objectReferenceValue == null) propProperty.objectReferenceValue = prop;
+            SerializedProperty smokeProperty = serialized.FindProperty("_buildingSmokePrefab");
+            if (smokeProperty.objectReferenceValue == null) smokeProperty.objectReferenceValue = AssetDatabase.LoadAssetAtPath<GameObject>(SMOKE_PREFAB);
+            serialized.ApplyModifiedPropertiesWithoutUndo();
         }
 
         /// <summary>path의 단일 SpriteRenderer 프리팹이 없으면 name, sprite, material, order, scale, rotation으로 만들어 돌려준다.</summary>

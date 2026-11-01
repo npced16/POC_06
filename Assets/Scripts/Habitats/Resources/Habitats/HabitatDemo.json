@@ -18,8 +18,8 @@
     {
       "_itemId": "tile_gaslamp",
       "_upper": true,
-      "_row": 3,
-      "_column": 10
+      "_row": 2,
+      "_column": 9
     },
     {
       "_itemId": "tile_boiler",
@@ -124,6 +124,62 @@
       "_upper": false,
       "_row": 2,
       "_column": 9
+    }
+  ],
+  "_furnacePlacements": [
+    {
+      "_itemId": "tile_girder",
+      "_upper": true,
+      "_row": 1,
+      "_column": 5
+    },
+    {
+      "_itemId": "tile_girder",
+      "_upper": true,
+      "_row": 1,
+      "_column": 6
+    },
+    {
+      "_itemId": "tile_girder",
+      "_upper": true,
+      "_row": 1,
+      "_column": 7
+    },
+    {
+      "_itemId": "tile_girder",
+      "_upper": true,
+      "_row": 2,
+      "_column": 5
+    },
+    {
+      "_itemId": "tile_chimney",
+      "_upper": true,
+      "_row": 2,
+      "_column": 6
+    },
+    {
+      "_itemId": "tile_girder",
+      "_upper": true,
+      "_row": 2,
+      "_column": 7
+    },
+    {
+      "_itemId": "tile_girder",
+      "_upper": true,
+      "_row": 3,
+      "_column": 5
+    },
+    {
+      "_itemId": "tile_girder",
+      "_upper": true,
+      "_row": 3,
+      "_column": 6
+    },
+    {
+      "_itemId": "tile_girder",
+      "_upper": true,
+      "_row": 3,
+      "_column": 7
     }
   ]
 }

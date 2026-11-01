@@ -43,6 +43,14 @@ namespace IronRing.Hud.Npc
         [Tooltip("선택지 버튼 부품(Parts/DialogOption.prefab).")]
         [SerializeField] private DialogOptionView _optionPrefab;
         [SerializeField] private Button _close;
+        [Tooltip("스토리 027: 대화 상자(대사 위 클릭 = 타자기 즉시 완성 영역).")]
+        [SerializeField] private RectTransform _panel;
+        [Tooltip("스토리 027: NPC 초상(몸체 스프라이트를 키운 상자).")]
+        [SerializeField] private Image _portrait;
+        [Tooltip("스토리 027: 타자기 속도(초당 글자). 0이면 한 번에 보인다.")]
+        [SerializeField] private float _typeSpeed = 28f;
+        [Tooltip("스토리 027: 닫기 버튼의 대화 상자 오른쪽 위 모서리 기준 위치(pad 안쪽).")]
+        [SerializeField] private Vector2 _closeInset = new Vector2(-12f, -12f);
 
         private UiScreens _screens;
         private UiScreen _screen;
@@ -53,6 +61,9 @@ namespace IronRing.Hud.Npc
         private INpcClickSource _clicks;
         private string _hub;
         private string _npc;
+        private string _typedLine;
+        private float _typed;
+        private bool _typing;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStatics() { GameServices.Ready -= Create; _instance = null; _loggedMissing = false; }
@@ -80,6 +91,17 @@ namespace IronRing.Hud.Npc
             TMP_Text closeLabel = _close.GetComponentInChildren<TMP_Text>(true);
             if (closeLabel != null) closeLabel.text = Strings.Get("npc_dialog_close");
             _close.onClick.AddListener(Close);
+            // 스토리 027: 닫기 버튼은 제목 줄과 분리해 대화 상자 오른쪽 위 모서리(pad 안쪽)에 런타임에서도 고정한다(씬·레이아웃 재정의 방지).
+            if (_panel != null)
+            {
+                var closeRect = (RectTransform)_close.transform;
+                if (closeRect.parent != _panel) closeRect.SetParent(_panel, false);
+                LayoutElement ignore = _close.GetComponent<LayoutElement>() ?? _close.gameObject.AddComponent<LayoutElement>();
+                ignore.ignoreLayout = true;
+                closeRect.anchorMin = closeRect.anchorMax = closeRect.pivot = Vector2.one;
+                closeRect.anchoredPosition = _closeInset;
+                closeRect.SetAsLastSibling();
+            }
             _view.InteriorChanged += OnInteriorChanged;
             ResolveServices();
             Hide();
@@ -126,6 +148,8 @@ namespace IronRing.Hud.Npc
             if (string.IsNullOrEmpty(hubId) || string.IsNullOrEmpty(npcId)) return;
             _hub = hubId;
             _npc = npcId;
+            _typedLine = null;
+            SetPortrait(npcId);
             _screens.Show(_screen.Id);
             SetResult(null, true);
             Refresh();
@@ -168,7 +192,7 @@ namespace IronRing.Hud.Npc
                 _origin.text = known ? string.Format(Strings.Get("npc_dialog_origin"), origin) : string.Empty;
                 if (_origin.gameObject.activeSelf != known) _origin.gameObject.SetActive(known);
             }
-            _line.text = _interaction.CurrentLine(_npc);
+            SetLine(_interaction.CurrentLine(_npc));
             BuildOptions();
         }
 
@@ -262,6 +286,46 @@ namespace IronRing.Hud.Npc
             if (!_view.InteriorOpen || _view.InteriorHubId != _hub) { Hide(); return; }
             Keyboard keyboard = Keyboard.current;
             if (keyboard != null && keyboard.escapeKey.wasPressedThisFrame) Hide();
+            if (_npc != null) TickTyping();
+        }
+
+        /// <summary>스토리 027: 대사가 바뀌었을 때만 타자기를 처음부터 시작한다(같은 대사로 다시 그리면 그대로 둔다).</summary>
+        private void SetLine(string line)
+        {
+            line = line ?? string.Empty;
+            if (line == _typedLine) return;
+            _typedLine = line;
+            _line.text = line;
+            _typing = _typeSpeed > 0f && line.Length > 0;
+            _typed = 0f;
+            _line.maxVisibleCharacters = _typing ? 0 : int.MaxValue;
+        }
+
+        /// <summary>스토리 027: 초당 _typeSpeed 글자씩 드러내고, 대화 상자 위 왼쪽 클릭이면 즉시 완성한다.</summary>
+        private void TickTyping()
+        {
+            if (!_typing || _line == null) return;
+            int total = Mathf.Max(1, _line.textInfo != null && _line.textInfo.characterCount > 0 ? _line.textInfo.characterCount : _typedLine.Length);
+            _typed += _typeSpeed * Time.unscaledDeltaTime;
+            Mouse mouse = Mouse.current;
+            if (mouse != null && mouse.leftButton.wasPressedThisFrame && _panel != null)
+            {
+                Canvas canvas = _panel.GetComponentInParent<Canvas>();
+                Camera eye = canvas != null && canvas.rootCanvas.renderMode != RenderMode.ScreenSpaceOverlay ? canvas.rootCanvas.worldCamera : null;
+                if (RectTransformUtility.RectangleContainsScreenPoint(_panel, mouse.position.ReadValue(), eye)) _typed = total;
+            }
+            if (_typed >= total) { _typing = false; _line.maxVisibleCharacters = int.MaxValue; return; }
+            _line.maxVisibleCharacters = (int)_typed;
+        }
+
+        /// <summary>스토리 027: 초상 상자에 NPC 몸체 스프라이트를 넣는다(없으면 숨김).</summary>
+        private void SetPortrait(string npcId)
+        {
+            if (_portrait == null) return;
+            Sprite sprite = InteriorNpcWalker.BodySprite(npcId);
+            _portrait.sprite = sprite;
+            _portrait.preserveAspect = true;
+            _portrait.enabled = sprite != null;
         }
 
         void OnDestroy()

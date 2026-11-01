@@ -42,6 +42,155 @@ MonoBehaviour:
     _sprite: {fileID: 21300000, guid: 396c315ad6376d949ab559c3d898350c, type: 3}
   - _id: workshop
     _sprite: {fileID: 21300000, guid: c548c7e423d2a5949b8ce9073f8c7887, type: 3}
+  _buildingPiecePrefab: {fileID: 4403550517391783781, guid: 97aa409874334544b99f55bbab541ed4, type: 3}
+  _buildingPropPrefab: {fileID: 7241096613422828736, guid: 4d422e78ebf921c4894bcb2df15495cc, type: 3}
+  _buildingSmokePrefab: {fileID: 1162208155780925468, guid: 272f2944d3898d848a16c3fdfa8896a1, type: 3}
+  _buildingStyles:
+  - _id: machine
+    _pieces:
+    - {fileID: 21300000, guid: f0697e7cd58a3a14cbef9194d8b61892, type: 3}
+    - {fileID: 21300000, guid: 4e0b9231c72c8634aaf6f99d0b0cc32f, type: 3}
+    - {fileID: 21300000, guid: c206d594daf7ec245ad4de614aeeea3d, type: 3}
+    - {fileID: 21300000, guid: 5b0e08ca32f3cd540901965c3363072d, type: 3}
+    - {fileID: 21300000, guid: c02b047ba93d02148b7d08f85b9bd9a3, type: 3}
+    - {fileID: 21300000, guid: 3c4ef855d7deca44fa154171c23a3b62, type: 3}
+    - {fileID: 21300000, guid: 4a9241d595babaf449117d7ad40d5117, type: 3}
+    - {fileID: 21300000, guid: cc9ba6181fe22294da86f5913ec57cc2, type: 3}
+    - {fileID: 21300000, guid: f9e8b04c615382a4b8daa4f249a9e659, type: 3}
+    - {fileID: 21300000, guid: e66530794ac49554a9dfdf72f20c39d1, type: 3}
+    - {fileID: 21300000, guid: b2322ceea5bf1224894f4c1f66ed87c5, type: 3}
+    - {fileID: 21300000, guid: eef7366797a782746ba820fcfd97c4bc, type: 3}
+    - {fileID: 21300000, guid: 78afa1d64eee1014e900c5f54d585451, type: 3}
+    - {fileID: 21300000, guid: 77ca80b9565d0a446a46c22ab6f3377c, type: 3}
+    - {fileID: 21300000, guid: c294bccb95dcf024ea651660bb6e0577, type: 3}
+    - {fileID: 21300000, guid: 765344e22765aea41bf922adc0f613c3, type: 3}
+    _innerCorners:
+    - {fileID: 21300000, guid: c6a44a57117acef41a21223688d28c04, type: 3}
+    - {fileID: 21300000, guid: d8c1348093bddb340b066c0a37f0075b, type: 3}
+    - {fileID: 21300000, guid: 037ff9948594f354795e863e763ac6ad, type: 3}
+    - {fileID: 21300000, guid: 45ac574dfd0090c4e8e67a96fd6ce0a7, type: 3}
+  - _id: housing
+    _pieces:
+    - {fileID: 21300000, guid: 40ba0d978807b0c44a9df8773091d2af, type: 3}
+    - {fileID: 21300000, guid: 348b99e2d1d1737418a2ca760a2973eb, type: 3}
+    - {fileID: 21300000, guid: 7313cf8cdcb4b2d42855b6112fd04d35, type: 3}
+    - {fileID: 21300000, guid: a6a3a2fa6c8641d4fb001abfd6362bea, type: 3}
+    - {fileID: 21300000, guid: b5ac5b4952179574496b37b5724bb08e, type: 3}
+    - {fileID: 21300000, guid: ce5a0203e5da3f245b9ac81d708bf8c7, type: 3}
+    - {fileID: 21300000, guid: 66a42811303013448b8d40fe58511fde, type: 3}
+    - {fileID: 21300000, guid: 5f62b34e958f2074d97556e2afcf001c, type: 3}
+    - {fileID: 21300000, guid: 71c0a7d6404b8004a92a70ac63c6e89b, type: 3}
+    - {fileID: 21300000, guid: 5edb56f58c6f8c64d9b0f9b90a657f57, type: 3}
+    - {fileID: 21300000, guid: 21cf14b88ad264443b4ef32131b56658, type: 3}
+    - {fileID: 21300000, guid: 82052a37c08be1645a516ac2b30bc365, type: 3}
+    - {fileID: 21300000, guid: 4988885f404d20144af1770c160b0e07, type: 3}
+    - {fileID: 21300000, guid: 51206d9e295e213468b024b74b4e760b, type: 3}
+    - {fileID: 21300000, guid: 3d59ae90e5952024387267f61752516f, type: 3}
+    - {fileID: 21300000, guid: e47d65a5b14767d4589c32e7c496bda6, type: 3}
+    _innerCorners:
+    - {fileID: 21300000, guid: 48a70cfce09d2c94da9b2394214f5171, type: 3}
+    - {fileID: 21300000, guid: 84799d10fd008124a941b14eeee30cc1, type: 3}
+    - {fileID: 21300000, guid: 991e92ffe7547ad45a6923cc5f5acb39, type: 3}
+    - {fileID: 21300000, guid: 368355e711e9e9f4c8a0875213deb3d9, type: 3}
+  - _id: storage
+    _pieces:
+    - {fileID: 21300000, guid: c6f62fe847c7d1345a18025a8dab5f04, type: 3}
+    - {fileID: 21300000, guid: 1fe90287b09346a4a885ff8a57e0a337, type: 3}
+    - {fileID: 21300000, guid: e86e3cf30d279a34ead2cc7386717849, type: 3}
+    - {fileID: 21300000, guid: 638103e4b01dfd44d95d52a8108b4b35, type: 3}
+    - {fileID: 21300000, guid: 0aba9f84ee3b5494dbd44144229dca1e, type: 3}
+    - {fileID: 21300000, guid: 8a8b225ee2a6a684d91fab6db37ba577, type: 3}
+    - {fileID: 21300000, guid: d10cc75e301b48447b428cae358617d3, type: 3}
+    - {fileID: 21300000, guid: df6ea401f9dc7d145a5ee4633d9671b3, type: 3}
+    - {fileID: 21300000, guid: 6deea9759b0137a45bcc3f4ad4779129, type: 3}
+    - {fileID: 21300000, guid: 799b9ccdbde6dc3428dbaa550016113c, type: 3}
+    - {fileID: 21300000, guid: 3c9b501428d51d240bf84f5db12a7722, type: 3}
+    - {fileID: 21300000, guid: 2b00b0ab46ef646439ce6f39dacd2cc1, type: 3}
+    - {fileID: 21300000, guid: b20aa71b1146ea34ca01473dff9cc9d2, type: 3}
+    - {fileID: 21300000, guid: 390d8506b5eff4a4fb0b5ffcaca27d80, type: 3}
+    - {fileID: 21300000, guid: d0f5b5aab7c631341aa259946fe39d6d, type: 3}
+    - {fileID: 21300000, guid: 86989c0a6ff6735468fe3f54f05e58a9, type: 3}
+    _innerCorners:
+    - {fileID: 21300000, guid: d94b63b4389e39449977e80eccc44578, type: 3}
+    - {fileID: 21300000, guid: 71160b46b641e0a40a365e472f65a0a9, type: 3}
+    - {fileID: 21300000, guid: 49880741844b5954a9da5257c93e1d03, type: 3}
+    - {fileID: 21300000, guid: c1df24872d1f1174083f91604a0351dd, type: 3}
+  - _id: glass
+    _pieces:
+    - {fileID: 21300000, guid: fb2589adbd0388349893e260094592cc, type: 3}
+    - {fileID: 21300000, guid: abc33d871b5db59429d1d3ab885ad28d, type: 3}
+    - {fileID: 21300000, guid: df4c2c6503505ca499da69e3cd6b715c, type: 3}
+    - {fileID: 21300000, guid: 819efe17416190249b9080587ff45b29, type: 3}
+    - {fileID: 21300000, guid: 47204127ffd4bc04097407d3fba3c29f, type: 3}
+    - {fileID: 21300000, guid: 9608ea3e64e65b943a4df6fabe63f470, type: 3}
+    - {fileID: 21300000, guid: ded4010f87909e34c93f0a719e246efd, type: 3}
+    - {fileID: 21300000, guid: 0df520af2a20a424fb470f4a5563dca5, type: 3}
+    - {fileID: 21300000, guid: 500c95bb5b68b694cbcd91d18cfee97d, type: 3}
+    - {fileID: 21300000, guid: 79ad3b5f18750d141bb4f5d0f4508328, type: 3}
+    - {fileID: 21300000, guid: 6abd7628e7f502d458d1137bb1e47db5, type: 3}
+    - {fileID: 21300000, guid: a5a6a757641708242b7158a03b0169d9, type: 3}
+    - {fileID: 21300000, guid: 533cadf89252edf49a0e802352172fbc, type: 3}
+    - {fileID: 21300000, guid: 713e8294a04964f458d0893193975959, type: 3}
+    - {fileID: 21300000, guid: 783be9f6593e4a24fa0d4d30e62c3f84, type: 3}
+    - {fileID: 21300000, guid: 7cb576ef09b72bf4d9cf3c161468e0ae, type: 3}
+    _innerCorners:
+    - {fileID: 21300000, guid: ed833194a9900cc4cbea42a007c82518, type: 3}
+    - {fileID: 21300000, guid: e4ccb82a3e4c81c43a21af7d6887df11, type: 3}
+    - {fileID: 21300000, guid: 3de372e865f9682498b15a695cecca6c, type: 3}
+    - {fileID: 21300000, guid: ff6de2460fcb5cd40b197f6a4104a506, type: 3}
+  _buildingDoors:
+  - {fileID: 21300000, guid: 60c4ca15d8ad7d646bbf06a30f387651, type: 3}
+  - {fileID: 21300000, guid: 6e1619b5002e7964f8f059122ffbdaa0, type: 3}
+  _buildingChimney: {fileID: 21300000, guid: cf2822f339e12184bb049b2c2d52dbe7, type: 3}
+  _buildingSigns:
+  - _id: lamp_post
+    _sprite: {fileID: 21300000, guid: 0200c0add0f97134e95e4cc7de663cbb, type: 3}
+  - _id: coal_heap
+    _sprite: {fileID: 21300000, guid: b842ca9624f7c304685ed6b11106be4f, type: 3}
+  - _id: cobble_arch
+    _sprite: {fileID: 21300000, guid: 9ad54be8f85366344a37082e85b259cd, type: 3}
+  - _id: big_gear
+    _sprite: {fileID: 21300000, guid: a468db8f51c7121499c748adf0b4012c, type: 3}
+  - _id: boiler_dome
+    _sprite: {fileID: 21300000, guid: dac642fe31488b14d8d79697b0173215, type: 3}
+  - _id: pipe_valve
+    _sprite: {fileID: 21300000, guid: b30c1ed38151aae4fadb139be491d8c9, type: 3}
+  - _id: small_gear
+    _sprite: {fileID: 21300000, guid: 0768bac6c75769c47a548daccd740b5a, type: 3}
+  - _id: girder
+    _sprite: {fileID: 21300000, guid: 7861eb98e3e64454f9b92363861adec7, type: 3}
+  - _id: tank
+    _sprite: {fileID: 21300000, guid: 982a482c9c982a94693f93e6208c5e0f, type: 3}
+  - _id: glass_roof
+    _sprite: {fileID: 21300000, guid: ca9ca8570d2a20248b4bc47fe919efdb, type: 3}
+  - _id: bunk
+    _sprite: {fileID: 21300000, guid: a58cbda686df38840b4bb05d63805e50, type: 3}
+  - _id: bench_tools
+    _sprite: {fileID: 21300000, guid: 73197bf4847459349a8f8c60fe51548b, type: 3}
+  - _id: wire_pole
+    _sprite: {fileID: 21300000, guid: dbeebbd8a880dbe44ba91914992b8f98, type: 3}
+  - _id: water_tower
+    _sprite: {fileID: 21300000, guid: c3c5dbae328e24d4d98eb2f2c5e01b66, type: 3}
+  - _id: twin_lamps
+    _sprite: {fileID: 21300000, guid: acee7fe3ea355d04abfe40445f9aec25, type: 3}
+  - _id: engine
+    _sprite: {fileID: 21300000, guid: 3ceba5aa5ca50e24f86fb7c9e36c8cc2, type: 3}
+  - _id: dynamo
+    _sprite: {fileID: 21300000, guid: d1723c28d13aaa446b0ddd6b9878ff1b, type: 3}
+  - _id: crane
+    _sprite: {fileID: 21300000, guid: cf71bc210e2873947a0ea0875349f49c, type: 3}
+  - _id: chimney_stack
+    _sprite: {fileID: 21300000, guid: d3d6e2051d2ff48459245e03eeebf735, type: 3}
+  _buildingOrder: 12
+  _buildingDoorOrder: 13
+  _buildingSignOrder: 14
+  _buildingRiseSeconds: 0.3
+  _buildingRiseDistance: 0.3
+  _buildingSignScale: 0.8
+  _signLift: 0.1
+  _chimneyOffset: {x: 0.28, y: 0.2}
+  _smokeOffset: {x: 0, y: 0.45}
+  _buildingDepth: 0.05
   _defaultOrigin: {x: 1000, y: 0, z: 0}
   _defaultSpacing: {x: 200, y: 0, z: 0}
   _defaultCameraSize: 7

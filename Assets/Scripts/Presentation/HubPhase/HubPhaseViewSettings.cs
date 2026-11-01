@@ -40,6 +40,13 @@ namespace IronRing.Presentation.HubPhase
         [SerializeField] private float _arrivalPause = 0.8f;
         [Tooltip("Story 023: delay between NPCs leaving the train in the same docking (s).")]
         [SerializeField] private float _arrivalStagger = 1f;
+        [Tooltip("스토리 027: false면 건물이 선 집의 NPC는 배회 대신 문 앞에 선다(건물 없는 NPC는 배회).")]
+        [SerializeField] private bool _npcWanders = true;
+        [Tooltip("스토리 027: 문 앞 위치 = 문 칸 중심에서의 세로 오프셋(월드).")]
+        [SerializeField] private float _doorOffsetY = -0.42f;
+        [SerializeField] private float _breatheAmplitude = 0.03f;
+        [SerializeField] private float _breatheSpeed = 2.4f;
+        [SerializeField] private float _emptyBuildingToastSeconds = 2.5f;
 
         public float NpcSpeed => _npcSpeed;
         public float NpcPauseMin => _npcPauseMin;
@@ -63,6 +70,16 @@ namespace IronRing.Presentation.HubPhase
         public float ArrivalPause => Mathf.Max(0f, _arrivalPause);
         /// <summary>Story 023: delay between successive arrivals.</summary>
         public float ArrivalStagger => Mathf.Max(0f, _arrivalStagger);
+        /// <summary>스토리 027: NPC 배회 여부(false = 문 앞 대기).</summary>
+        public bool NpcWanders => _npcWanders;
+        /// <summary>스토리 027: 문 앞 세로 오프셋.</summary>
+        public float DoorOffsetY => _doorOffsetY;
+        /// <summary>스토리 027: 문 앞 숨쉬기 흔들림 진폭(월드).</summary>
+        public float BreatheAmplitude => Mathf.Max(0f, _breatheAmplitude);
+        /// <summary>스토리 027: 숨쉬기 각속도.</summary>
+        public float BreatheSpeed => _breatheSpeed;
+        /// <summary>스토리 027: 빈 건물 안내 토스트 시간(초).</summary>
+        public float EmptyBuildingToastSeconds => Mathf.Max(0.5f, _emptyBuildingToastSeconds);
 
         /// <summary>Loads the JSON tuning; logs and falls back to the serialized defaults when missing.</summary>
         public static HubPhaseViewSettings Load()
