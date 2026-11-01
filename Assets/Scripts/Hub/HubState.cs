@@ -63,6 +63,18 @@ namespace IronRing.Hub
             }
         }
 
+        /// <summary>
+        /// Story 042: sets the phase from the town tier mapping (RunState.TownLink) instead of the thresholds. Collapsed stays terminal.
+        /// Appends the entered phase to transitions when it changes.
+        /// </summary>
+        internal void SetPhase(HubPhase target, List<HubPhase> transitions)
+        {
+            if (Phase == HubPhase.Collapsed || Phase == target) return;
+            Phase = target;
+            if (target == HubPhase.Settled) HasEverSettled = true;
+            transitions.Add(target);
+        }
+
         /// <summary>Explicit transition table; returns the phase that follows current for the given conditions.</summary>
         private static HubPhase Next(HubPhase current, bool alive, bool settles)
         {

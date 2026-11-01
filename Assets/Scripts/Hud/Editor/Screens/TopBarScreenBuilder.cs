@@ -24,7 +24,7 @@ namespace IronRing.Hud.Editor.Screens
             TextMeshProUGUI location = UiKit.Label(bar.transform, "Location", Strings.Get("hud_location") + "  " + Strings.Get("hub_1"), UiTextSize.Normal, theme, TextAlignmentOptions.MidlineLeft);
             UiKit.Place(location.rectTransform, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(18, 0), new Vector2(300, 44));
             TextMeshProUGUI lap = UiKit.Label(bar.transform, "Lap", Strings.Get("hud_turn") + "  3", UiTextSize.Normal, theme, TextAlignmentOptions.MidlineLeft);
-            UiKit.Place(lap.rectTransform, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(570, 0), new Vector2(140, 44));
+            UiKit.Place(lap.rectTransform, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(744, 0), new Vector2(140, 44));
             lap.color = theme.Accent;
             IconCatalog icons = AssetDatabase.LoadAssetAtPath<IconCatalog>("Assets/Prefabs/UI/IconCatalog.asset");
             var coin = UiKit.Image(bar.transform, "Coin", icons.Get("ui_coin"), Color.white, false);
@@ -32,6 +32,11 @@ namespace IronRing.Hud.Editor.Screens
             var balance = UiKit.Label(bar.transform, "Balance", string.Format(Strings.Get("ui_topbar_balance"), 0), UiTextSize.Normal, theme, TextAlignmentOptions.MidlineLeft);
             UiKit.Place(balance.rectTransform, new Vector2(0, .5f), new Vector2(0, .5f), new Vector2(364, 0), new Vector2(200, 44));
             UiKit.Bind(screen, "_balance", balance); UiKit.Bind(screen, "_coin", coin); UiKit.Bind(screen, "_icons", icons);
+            var peopleIcon = UiKit.Image(bar.transform, "PeopleIcon", icons.Get("ui_people"), Color.white, false);
+            UiKit.Place(peopleIcon.rectTransform, new Vector2(0, .5f), new Vector2(0, .5f), new Vector2(574, 0), new Vector2(28, 28));
+            var people = UiKit.Label(bar.transform, "People", string.Format(Strings.Get("ui_topbar_people"), 0), UiTextSize.Normal, theme, TextAlignmentOptions.MidlineLeft);
+            UiKit.Place(people.rectTransform, new Vector2(0, .5f), new Vector2(0, .5f), new Vector2(610, 0), new Vector2(128, 44));
+            UiKit.Bind(screen, "_people", people); UiKit.Bind(screen, "_peopleIcon", peopleIcon);
             Button codex = UiKit.Button(bar.transform, "Codex", Strings.Get("codex_open"), theme);
             UiKit.Place((RectTransform)codex.transform, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-14, 0), new Vector2(132, theme.ButtonHeight));
             // 스토리 025: 승객 수 버튼(도감 버튼 왼쪽)

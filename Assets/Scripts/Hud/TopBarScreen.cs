@@ -24,6 +24,8 @@ namespace IronRing.Hud
         private static TopBarScreen _instance;
 
         [Header("상단 상태") ]
+        [SerializeField] private TMP_Text _people;
+        [SerializeField] private UnityEngine.UI.Image _peopleIcon;
         [SerializeField] private TMP_Text _balance;
         [SerializeField] private UnityEngine.UI.Image _coin;
         [SerializeField] private IconCatalog _icons;
@@ -38,6 +40,7 @@ namespace IronRing.Hud
         [Tooltip("노드 id → 문자열 키 표(HudCatalog.json).")]
         [SerializeField] private TextAsset _catalogJson;
 
+        private IPopulation _population;
         private IMoney _money;
         private ITrackRuntime _track;
         private IHubStateSystem _hubs;
@@ -69,6 +72,10 @@ namespace IronRing.Hud
         private void Initialize(UiScreens screens)
         {
             _theme = screens.Theme;
+            _people.gameObject.SetActive(false); _peopleIcon.gameObject.SetActive(false);
+            _peopleIcon.sprite = _icons.Get("ui_people");
+            ScreenTicker.Add(ResolvePopulation);
+            ResolvePopulation();
             _money = GameServices.Get<IMoney>();
             _balance.gameObject.SetActive(_money != null);
             _coin.gameObject.SetActive(_money != null);
@@ -129,6 +136,20 @@ namespace IronRing.Hud
             if (label != null && _theme != null) label.color = on ? _theme.Text : _theme.Muted;
         }
 
+        /// <summary>늦게 등록되는 주민 서비스를 찾아 이벤트에 연결하고 준비 후 탐색을 중단한다.</summary>
+        private void ResolvePopulation()
+        {
+            if (_population != null) return;
+            _population = GameServices.Get<IPopulation>();
+            if (_population == null) return;
+            _population.Changed += RefreshPeople;
+            _people.gameObject.SetActive(true); _peopleIcon.gameObject.SetActive(true);
+            RefreshPeople(); ScreenTicker.Remove(ResolvePopulation);
+        }
+
+        /// <summary>현재 일반 주민 수를 읽어 상단 주민 라벨을 갱신한다.</summary>
+        private void RefreshPeople() { _people.text = string.Format(Strings.Get("ui_topbar_people"), _population.Residents); }
+
         /// <summary>현재 잔고를 읽어 상단 라벨을 갱신하고 음수 잔고를 테마 강조색으로 표시한다.</summary>
         private void RefreshBalance()
         {
@@ -156,6 +177,8 @@ namespace IronRing.Hud
         {
             GameServices.Ready -= Create;
             if (_money != null) _money.Changed -= RefreshBalance;
+            ScreenTicker.Remove(ResolvePopulation);
+            if (_population != null) _population.Changed -= RefreshPeople;
             if (_instance == this) _instance = null;
             if (_riders != null) { _riders.Boarded -= OnBoarded; _riders.Disembarked -= OnDisembarked; _riders.Left -= OnLeft; }
             if (_track == null) return;

@@ -16,6 +16,8 @@ namespace IronRing.Art.Editor
         private const string OUTPUT = "Assets/Art/Generated/icons/";
         private const string CATALOG = "Assets/Prefabs/UI/IconCatalog.asset";
         private const string EVIDENCE = "production/qa/evidence/story-040-economy-market-ledger/";
+        private const string TOWN_EVIDENCE = "production/qa/evidence/story-045-light-economy/";
+        private static readonly string[] TOWN_IDS = { "ui_people" };
         private static readonly string[] IDS = { "goods_coal", "goods_iron", "goods_parts", "goods_food", "goods_glass", "goods_brass", "ui_coin", "ui_cargo", "ui_depart" };
 
         /// <summary>팔레트로 아홉 아이콘 PNG와 콘택트 시트를 만들고 Sprite 임포터 및 카탈로그 참조를 저장한다.</summary>
@@ -48,11 +50,50 @@ namespace IronRing.Art.Editor
             Debug.Log("UI040 ICONS: 9 sprites, catalog and contact sheet saved.");
         }
 
+        /// <summary>팔레트로 주민 아이콘 PNG와 콘택트 시트를 만들고 Sprite 임포터 및 카탈로그 참조를 저장한다.</summary>
+        public static void GenerateTown()
+        {
+            Load(); Directory.CreateDirectory(OUTPUT); Directory.CreateDirectory(TOWN_EVIDENCE);
+            var pixels = new List<Color32[]>();
+            foreach (string id in TOWN_IDS)
+            {
+                Begin(); Layer(); Draw(id); EndLayer();
+                C.Save(OUTPUT + id + ".png"); pixels.Add(C.Px);
+            }
+            File.WriteAllBytes(TOWN_EVIDENCE + "icons_contact_sheet.png", Sheet(pixels, 1));
+            AssetDatabase.Refresh();
+            foreach (string id in TOWN_IDS) ConfigureImporter(OUTPUT + id + ".png");
+            IconCatalog catalog = AssetDatabase.LoadAssetAtPath<IconCatalog>(CATALOG);
+            if (catalog == null) { catalog = ScriptableObject.CreateInstance<IconCatalog>(); AssetDatabase.CreateAsset(catalog, CATALOG); }
+            var serialized = new SerializedObject(catalog);
+            SerializedProperty entries = serialized.FindProperty("_entries");
+            for (int i = entries.arraySize - 1; i >= 0; i--)
+                if (entries.GetArrayElementAtIndex(i).FindPropertyRelative("_id").stringValue.StartsWith("status_", System.StringComparison.Ordinal))
+                    entries.DeleteArrayElementAtIndex(i);
+            foreach (string id in TOWN_IDS)
+            {
+                int index = -1;
+                for (int i = 0; i < entries.arraySize; i++) if (entries.GetArrayElementAtIndex(i).FindPropertyRelative("_id").stringValue == id) index = i;
+                if (index < 0) { index = entries.arraySize; entries.InsertArrayElementAtIndex(index); }
+                SerializedProperty entry = entries.GetArrayElementAtIndex(index);
+                entry.FindPropertyRelative("_id").stringValue = id;
+                entry.FindPropertyRelative("_sprite").objectReferenceValue = AssetDatabase.LoadAssetAtPath<Sprite>(OUTPUT + id + ".png");
+            }
+            serialized.ApplyModifiedPropertiesWithoutUndo(); AssetDatabase.SaveAssets();
+            Debug.Log("UI045 ICONS: 1 sprites, catalog and contact sheet saved.");
+        }
+
         /// <summary>id 품목 또는 UI 기호를 현재 64픽셀 캔버스에 팔레트 명암으로 그린다.</summary>
         private static void Draw(string id)
         {
             switch (id)
             {
+                case "ui_people":
+                    C.Disc(18, 39, 8, Cu.B); C.Ellipse(18, 21, 12, 13, Cu.B);
+                    C.Disc(46, 39, 8, Cu.B); C.Ellipse(46, 21, 12, 13, Cu.B);
+                    C.Disc(32, 45, 10, Bs.B); C.Disc(30, 48, 5, Bs.L);
+                    C.Ellipse(32, 22, 15, 16, Bs.B); C.Rect(19, 9, 26, 4, Bs.S);
+                    C.Line(23, 29, 26, 33, Bs.L, 2); break;
                 case "goods_coal":
                     C.Ellipse(23, 24, 16, 12, R.S); C.Ellipse(42, 25, 14, 12, R.B); C.Ellipse(31, 39, 13, 14, R.B);
                     C.Line(23, 43, 31, 49, R.L, 3); C.Line(14, 26, 22, 31, R.L, 3);

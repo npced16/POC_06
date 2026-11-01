@@ -20,6 +20,8 @@ namespace IronRing.Hud
     {
         private static HubPanelScreen _instance;
 
+        [Header("마을 상태")]
+        [SerializeField] private TMP_Text _nextTier;
         [SerializeField] private TMP_Text _title;
         [SerializeField] private TMP_Text _state;
         [SerializeField] private TMP_Text _habitatLine;
@@ -30,6 +32,8 @@ namespace IronRing.Hud
         [Tooltip("노드 id → 문자열 키 표(HudCatalog.json).")]
         [SerializeField] private TextAsset _catalogJson;
 
+        private ITownTier _town;
+        private IPopulation _population;
         private ITrackRuntime _track;
         private IHabitatSystem _habitat;
         private INpcRecruiter _npcs;
@@ -62,6 +66,7 @@ namespace IronRing.Hud
             placed.Initialize(screens);
         }
 
+        /// <summary>screens와 거점 서비스들을 저장하고 화면 및 마을 상태 갱신 이벤트를 연결한다.</summary>
         private void Initialize(UiScreens screens)
         {
             _screens = screens;
@@ -92,6 +97,7 @@ namespace IronRing.Hud
             _waypoints.EncounterStarted += OnArrived; _waypoints.EncounterEnded += OnEncounterEnded;
             _facilities.FacilityBuilt += OnPair; _clicks.HubClicked += OpenHub;
             if (_viewMode != null) _viewMode.InteriorChanged += OnInteriorChanged;
+            ScreenTicker.Add(ResolveTown); ResolveTown();
             Refresh();
         }
 
@@ -112,7 +118,15 @@ namespace IronRing.Hud
             _state.text = Strings.Get(_hubs.IsRuined(_selectedHub) ? "hub_ruined" : "hud_prosperity") + "  " + _hubs.GetProsperity(_selectedHub).ToString("0")
                 + "    " + Strings.Get("hud_npcs") + "  " + _npcs.NpcsAt(_selectedHub).Count;
             _habitatLine.text = Strings.Get("hud_habitat") + "  " + Strings.Get(_habitat.IsHabitatComplete(_selectedHub) ? "hud_complete" : "hud_incomplete")
-                + SettleText(_selectedHub);
+                + (_town == null ? SettleText(_selectedHub) : "");
+            _nextTier.gameObject.SetActive(_town != null);
+            if (_town != null)
+            {
+                int residents = _population?.Residents ?? 0;
+                int prosperity = Mathf.RoundToInt(_hubs.GetProsperity(_selectedHub));
+                _state.text = string.Format(Strings.Get("ui_tier_state"), _town.TierName, residents, prosperity);
+                _nextTier.text = TownUiText.Next(_town, residents, prosperity);
+            }
             _message.text = canManage ? Strings.Get("train_stopped") : Strings.Get("hud_unavailable");
             for (int i = 0; i < _rows.Length && i < _catalog.Facilities.Length; i++)
             {
@@ -129,6 +143,27 @@ namespace IronRing.Hud
                 if (label != null && _theme != null) label.color = on ? _theme.Text : _theme.Muted;
             }
         }
+
+        /// <summary>늦게 준비되는 주민·등급 서비스를 찾아 변경 이벤트에 연결하고 준비 후 탐색을 끝낸다.</summary>
+        private void ResolveTown()
+        {
+            bool changed = false;
+            if (_town == null)
+            {
+                _town = GameServices.Get<ITownTier>();
+                if (_town != null) { _town.TierChanged += OnTierChanged; changed = true; }
+            }
+            if (_population == null)
+            {
+                _population = GameServices.Get<IPopulation>();
+                if (_population != null) { _population.Changed += Refresh; changed = true; }
+            }
+            if (changed) Refresh();
+            if (_town != null && _population != null) ScreenTicker.Remove(ResolveTown);
+        }
+
+        /// <summary>number 등급 상승을 받아 거점 패널의 이름과 다음 조건을 갱신한다.</summary>
+        private void OnTierChanged(int number) { Refresh(); }
 
         /// <summary>등록된 거점이면 선택하고 패널을 연다.</summary>
         private void OpenHub(string hubId)
@@ -171,6 +206,9 @@ namespace IronRing.Hud
         void OnDestroy()
         {
             GameServices.Ready -= Create;
+            ScreenTicker.Remove(ResolveTown);
+            if (_town != null) _town.TierChanged -= OnTierChanged;
+            if (_population != null) _population.Changed -= Refresh;
             if (_instance == this) _instance = null;
             if (_track == null) return;
             _track.Arrived -= OnArrived; _track.LapCompleted -= OnLap;

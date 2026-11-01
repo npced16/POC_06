@@ -18,6 +18,10 @@ namespace IronRing.Hub
         [SerializeField] private int _deadlineLaps;
         [Tooltip("Story 030: end the run as Victory the moment every hub is Settled.")]
         [SerializeField] private bool _earlyWin;
+        [Tooltip("Story 042: the town hub phase and the run outcome follow the town tier (TownTiers.json). false = old prosperity thresholds.")]
+        [SerializeField] private bool _useTownTiers;
+        [Tooltip("Story 042/045: prosperity per lap for each resident of the town hub.")]
+        [SerializeField] private float _perResident;
         [Header("Hub profiles")]
         [SerializeField] private HubProfile[] _hubs;
 
@@ -27,7 +31,7 @@ namespace IronRing.Hub
             HubData data = JsonUtility.FromJson<HubData>(json);
             if (data == null || data._hubs == null || data._hubs.Length == 0)
                 throw new ArgumentException("Hub data is empty.", nameof(json));
-            var rules = new HubRunRules(data._deadlineLaps, data._earlyWin);
+            var rules = new HubRunRules(data._deadlineLaps, data._earlyWin, data._useTownTiers, data._perResident);
             var definitions = new List<HubDefinition>();
             foreach (HubProfile profile in data._hubs) definitions.Add(profile.ToDefinition(rules));
             return definitions.AsReadOnly();

@@ -12,49 +12,40 @@ using IronRing.Localization;
 namespace IronRing.Economy
 {
     /// <summary>
-    /// 스토리 040 조립기. GameServices.Composing에서 Resources/Economy/{Economy,Goods,Markets}.json을 읽어 경제를 만들고
-    /// IMoney·ICargo·IMarkets·ILedger·ITradeSession으로 등록한다. ITrackRuntime이 없는 씬(다른 스토리의 독립 데모)에서는 아무것도 하지 않는다.
-    /// Ready에서 IPassengers(운임)를 연결하고, 매 프레임 일(거래 세션 자동 출발, 데모)은 ScreenTicker로 돌린다.
-    /// 정산 토스트(로직 문구 econ_lap_settled)는 ToastScreen으로 띄운다. 파산은 RunState.DeclareBankrupt(econ_bankrupt).
-    /// 도메인 재로드가 꺼져 있으므로 정적 상태는 SubsystemRegistration에서 지운다(RunResultScreen.Restart도 이 훅을 다시 부른다).
+    /// 스토리 040·042·045(가벼운 경제) 조립기.
+    /// Composing: Resources/Economy/Economy.json으로 돈·장부·정산·배치 비용을 만들고 IMoney·ILedger·IPlacementCost로 등록한다.
+    /// Ready: 승객 운임을 연결하고, 서식지(같은 Composing의 HabitatsInstaller·ItemsInstaller)가 생긴 뒤 TownTiers.json으로
+    /// 주민(IPopulation)과 마을 등급(ITownTier)을 만들어 정산에 건다:
+    ///   Settlement.Income = 완성 건물 _income 합, AfterSettle = 마을 등급 판정(주민·번영) → 주민 증감 → RunState.RefreshPhase.
+    /// RunState에 TownLink(등급 → HubPhase 사상, 등급, 주민)를 붙이고, 레시피 도감에 등급 해금을 연결한다.
+    /// ITrackRuntime이 없는 씬(다른 스토리의 독립 데모)에서는 아무것도 하지 않는다. 정적 상태는 SubsystemRegistration에서 지운다.
     /// </summary>
     public static class EconomyInstaller
     {
         /// <summary>경제 수치 리소스 경로.</summary>
         public const string SettingsPath = "Economy/Economy";
-        /// <summary>품목 리소스 경로.</summary>
-        public const string GoodsPath = "Economy/Goods";
-        /// <summary>시장 리소스 경로.</summary>
-        public const string MarketsPath = "Economy/Markets";
+        /// <summary>마을 등급 리소스 경로.</summary>
+        public const string TownPath = "Economy/TownTiers";
 
         /// <summary>설치된 수치(설치 전 null).</summary>
         public static EconomySettings Settings { get; private set; }
-        /// <summary>설치된 품목 카탈로그(이름·아이콘 키·색; 설치 전 null).</summary>
-        public static GoodsCatalog Goods { get; private set; }
         /// <summary>설치된 돈.</summary>
         public static MoneyStore Money { get; private set; }
-        /// <summary>설치된 화물칸.</summary>
-        public static Cargo Cargo { get; private set; }
-        /// <summary>설치된 시장.</summary>
-        public static Markets Markets { get; private set; }
         /// <summary>설치된 장부.</summary>
         public static Ledger Ledger { get; private set; }
-        /// <summary>설치된 정산·파산 규칙.</summary>
+        /// <summary>설치된 정산 규칙.</summary>
         public static Settlement Settlement { get; private set; }
-        /// <summary>설치된 거래 세션.</summary>
-        public static TradeSession Session { get; private set; }
-
-        /// <summary>스토리 041. 설치된 거점 창고.</summary>
-        public static Warehouse Warehouse { get; private set; }
-        /// <summary>스토리 041. 설치된 창고 ↔ 화물칸 이동.</summary>
-        public static Transfer Transfer { get; private set; }
         /// <summary>스토리 041. 설치된 배치 비용.</summary>
         public static PlacementCost Cost { get; private set; }
-        /// <summary>스토리 041. 설치된 생산(Ready에서 만든다).</summary>
-        public static Production Production { get; private set; }
+        /// <summary>스토리 042. 마을 수치.</summary>
+        public static TownSettings Town { get; private set; }
+        /// <summary>스토리 042. 주민.</summary>
+        public static Population Population { get; private set; }
+        /// <summary>스토리 042. 마을 등급.</summary>
+        public static TownTiers Tiers { get; private set; }
 
         private static EconomyDemoDriver _demo;
-        private static ProductionDemoDriver _productionDemo;
+        private static TownDemoDriver _townDemo;
         private static IronRing.Items.ItemPlacement _paidPlacement;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -77,101 +68,117 @@ namespace IronRing.Economy
         private static void Teardown()
         {
             ScreenTicker.Remove(Tick);
-            _demo?.Dispose();
             _demo = null;
-            _productionDemo?.Dispose();
-            _productionDemo = null;
+            _townDemo = null;
             if (_paidPlacement != null) { _paidPlacement.TryCharge = null; _paidPlacement.CanAfford = null; _paidPlacement.Refund = null; _paidPlacement = null; }
-            Production?.Dispose();
-            Production = null; Warehouse = null; Transfer = null; Cost = null;
+            Tiers?.Clear();
+            Population?.Dispose();
             Settlement?.Dispose();
-            Session?.Dispose();
-            Settlement = null; Session = null; Markets = null; Ledger = null; Cargo = null; Money = null; Goods = null; Settings = null;
+            Tiers = null; Population = null; Town = null; Cost = null;
+            Settlement = null; Ledger = null; Money = null; Settings = null;
         }
 
-        /// <summary>경제를 만들고 등록한다. 선로가 없으면 건너뛴다.</summary>
+        /// <summary>돈·장부·정산·배치 비용을 만들고 등록한다. 선로가 없으면 건너뛴다.</summary>
         private static void Install()
         {
             ITrackRuntime track = GameServices.Get<ITrackRuntime>();
             if (track == null) return;
             Teardown();
             Settings = EconomySettings.Parse(Load(SettingsPath));
-            string stage = EconomyDemoDriver.ReadStage();
-            EconomyDemoDriver.ApplyOverrides(stage, Settings);
-            Goods = GoodsCatalog.Parse(Load(GoodsPath));
             Money = new MoneyStore(Settings.StartBalance);
-            Cargo = new Cargo(Goods, Settings.CargoCapacity);
             Ledger = new Ledger(track.Lap);
-            Markets = new Markets(MarketsData.Parse(Load(MarketsPath)), Goods, Settings, Money, Cargo, Ledger);
             RunState run = GameServices.Get<IHubStateSystem>() as RunState;
             Func<bool> over = () => run != null && run.IsRunLost;
-            Settlement = new Settlement(Settings, Money, Ledger, Markets, track, Strings.Get("econ_lap_settled"), Strings.Get("econ_bankrupt"),
+            Settlement = new Settlement(Settings, Money, Ledger, track, Strings.Get("econ_lap_settled"), Strings.Get("econ_bankrupt"),
                 reason => run?.DeclareBankrupt(reason), over);
             Settlement.Settled += ShowSettleToast;
-            Session = new TradeSession(track, Markets, Settings.AutoDepartSeconds, over);
-            GameServices.Register<IMoney>(Money);
-            GameServices.Register<ICargo>(Cargo);
-            GameServices.Register<IMarkets>(Markets);
-            GameServices.Register<ILedger>(Ledger);
-            GameServices.Register<ITradeSession>(Session);
-            GoodsCatalog goods = Goods;
-            Warehouse = new Warehouse(id => goods.Get(id) != null, Settings.WarehouseCapacity);
-            string hub = Settings.WarehouseHubId;
-            Transfer = new Transfer(Warehouse, Cargo, () =>
-            {
-                IViewMode view = GameServices.Get<IViewMode>();
-                return view != null && view.InteriorOpen && view.InteriorHubId == hub;
-            });
             Cost = new PlacementCost(id => IronRing.Items.ItemsInstaller.Catalog?.Get(id)?.Price ?? 0, Money, Settings.RefundRatio);
-            GameServices.Register<IWarehouse>(Warehouse);
-            GameServices.Register<ITransfer>(Transfer);
+            GameServices.Register<IMoney>(Money);
+            GameServices.Register<ILedger>(Ledger);
             GameServices.Register<IPlacementCost>(Cost);
-            if (stage != null) _demo = new EconomyDemoDriver(stage, Settings, track, Markets, Cargo, Money, Ledger, Session, run);
+            string stage = EconomyDemoDriver.ReadStage();
+            if (stage != null) _demo = new EconomyDemoDriver(stage, Settlement);
             ScreenTicker.Add(Tick);
-            Debug.Log($"ECON: installed balance={Money.Balance} upkeep={Settings.TrainUpkeep} fare={Settings.Fare} cargo={Cargo.Capacity} stops={Markets.StopIds.Count} goods={Goods.Ids.Count} demo={stage ?? "none"}");
+            Debug.Log($"ECON: installed balance={Money.Balance} upkeep={Settings.TrainUpkeep} fare={Settings.Fare} bankruptLaps={Settings.BankruptLaps} demo={stage ?? "none"}");
         }
 
-        /// <summary>승객 서비스는 같은 Composing의 NpcInstaller가 등록하므로 Ready에서 연결한다.</summary>
+        /// <summary>승객·서식지·배치는 같은 Composing의 다른 설치자가 등록하므로 Ready에서 연결한다.</summary>
         private static void OnReady()
         {
             if (Settlement == null) return;
             Settlement.BindPassengers(GameServices.Get<IPassengers>());
-            BindProduction();
+            BindPlacement();
+            BindTown();
         }
 
-        /// <summary>
-        /// 스토리 041. 서식지·배치는 같은 Composing의 ItemsInstaller가 등록하므로 Ready에서 연결한다:
-        /// ItemPlacement에 결제·환급을 걸고, Production을 정산(Settlement.Producing)에 걸어 IProductionStatus로 등록한다.
-        /// </summary>
-        private static void BindProduction()
+        /// <summary>스토리 041. ItemPlacement에 결제·환급을 건다.</summary>
+        private static void BindPlacement()
         {
-            if (Production != null) return;
+            if (_paidPlacement != null) return;
             _paidPlacement = GameServices.Get<IItemPlacement>() as IronRing.Items.ItemPlacement;
-            if (_paidPlacement != null && Cost != null)
-            {
-                _paidPlacement.TryCharge = Cost.TryCharge;
-                _paidPlacement.CanAfford = Cost.CanAfford;
-                _paidPlacement.Refund = Cost.Refund;
-            }
+            if (_paidPlacement == null || Cost == null) return;
+            _paidPlacement.TryCharge = Cost.TryCharge;
+            _paidPlacement.CanAfford = Cost.CanAfford;
+            _paidPlacement.Refund = Cost.Refund;
+        }
+
+        /// <summary>스토리 042. 주민·마을 등급을 만들고 정산·RunState·도감에 건다.</summary>
+        private static void BindTown()
+        {
+            if (Population != null) return;
             IHabitatClusters clusters = GameServices.Get<IHabitatClusters>();
             IronRing.Habitats.HabitatCatalog catalog = IronRing.Habitats.HabitatsInstaller.Catalog;
-            if (clusters == null || catalog == null) { Debug.LogWarning("ECON: 서식지가 없어 생산을 건너뜁니다."); return; }
-            Production = new Production(Settings.WarehouseHubId, catalog, clusters, Warehouse, Money, Ledger, GameServices.Get<IItemPlacement>());
-            Settlement.Producing = Production.Tick;
-            GameServices.Register<IProductionStatus>(Production);
-            string stage = ProductionDemoDriver.ReadStage();
-            if (stage != null)
-                _productionDemo = new ProductionDemoDriver(stage, Settings, GameServices.Get<IItemPlacement>(), GameServices.Get<IHubInterior>(),
-                    GameServices.Get<IInteriorAnchors>(), GameServices.Get<IInteriorNavigation>(), Warehouse, Transfer, Cargo, Money, Ledger, Settlement, Production);
-            Debug.Log($"PROD: installed hub={Settings.WarehouseHubId} warehouse={Warehouse.Capacity} refund={Settings.RefundRatio} placementPaid={_paidPlacement != null} demo={stage ?? "none"}");
+            if (clusters == null || catalog == null) { Debug.LogWarning("TOWN: 서식지가 없어 주민·등급을 건너뜁니다."); return; }
+            Town = TownSettings.Parse(Load(TownPath));
+            Population = new Population(Town, catalog, clusters);
+            Tiers = new TownTiers(Town);
+            RunState run = GameServices.Get<IHubStateSystem>() as RunState;
+            string hub = Town.HubId;
+            Population pop = Population;
+            TownTiers tiers = Tiers;
+            Settlement.Income = () => pop.Income;
+            Settlement.AfterSettle = lap =>
+            {
+                float prosperity = run != null ? run.GetProsperity(hub) : 0f;
+                tiers.Evaluate(pop.Residents, prosperity);
+                pop.Settle(lap);
+                run?.RefreshPhase(hub);
+                Debug.Log($"TOWN: lap={lap} tier={tiers.Tier} {tiers.TierName} residents={pop.Residents} prosperity={prosperity:0.#} next={(tiers.IsMax ? "-" : tiers.NameOf(tiers.NextTier))} need residents {tiers.NextResidentsNeed} prosperity {tiers.NextProsperityNeed} phase={tiers.Phase}");
+            };
+            Tiers.TierChanged += OnTierChanged;
+            Tiers.Collapsing += OnCollapsing;
+            run?.AttachTown(new TownLink
+            {
+                HubId = hub, Phase = () => tiers.Phase, Tier = () => tiers.Tier, Residents = () => pop.Residents,
+                VictoryTier = Town.VictoryTier, PartialTier = Town.PartialTier,
+            });
+            IronRing.Habitats.HabitatsInstaller.Codex?.BindTiers(Tiers);
+            GameServices.Register<IPopulation>(Population);
+            GameServices.Register<ITownTier>(Tiers);
+            string stage = TownDemoDriver.ReadStage();
+            if (stage != null) _townDemo = new TownDemoDriver(stage, Town, Settlement, Population, Tiers, run);
+            Debug.Log($"TOWN: installed hub={hub} residents={Population.Residents} housing={Population.Housing} light={Population.Light} income={Population.Income} tier={Tiers.TierName} townTiers={run?.TownActive ?? false} demo={stage ?? "none"}");
+        }
+
+        private static void OnTierChanged(int tier)
+        {
+            string name = Tiers.NameOf(tier);
+            TownTierData data = Tiers.Data(tier);
+            Debug.Log($"TOWN: tier up {name} ({data.Id}) recipes=[{string.Join(",", data.UnlockRecipes)}] upgrades=[{string.Join(",", data.UnlockUpgrades)}] stops=[{string.Join(",", data.UnlockStops)}]");
+            ToastScreen.Show(string.Format(Strings.Get("town_tier_up"), Town.HubName, name), Settings != null ? Settings.SettleToastSeconds : 4f);
+        }
+
+        private static void OnCollapsing()
+        {
+            Debug.Log($"TOWN: collapsed {Town.HubId}");
+            ToastScreen.Show(string.Format(Strings.Get("town_collapsed"), Town.HubName), Settings != null ? Settings.SettleToastSeconds : 4f);
         }
 
         private static void Tick()
         {
             float dt = Time.deltaTime;
-            Session?.Tick(dt);
             _demo?.Tick(dt);
-            _productionDemo?.Tick(dt);
+            _townDemo?.Tick(dt);
         }
 
         private static void ShowSettleToast(string line) => ToastScreen.Show(line, Settings != null ? Settings.SettleToastSeconds : 4f);

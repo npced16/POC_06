@@ -64,6 +64,8 @@ namespace IronRing.Hud.Hotbar
         [Tooltip("드래그 칩을 포인터에서 띄우는 거리(캔버스 단위).")]
         [SerializeField] private Vector2 _dragChipOffset = new Vector2(34, 34);
 
+        private IMoney _money;
+        private IPlacementCost _cost;
         private IViewMode _view;
         private IHabitatClusters _clusters;
         private PlacementGhost _ghost;
@@ -99,6 +101,7 @@ namespace IronRing.Hud.Hotbar
             placed.Initialize(screens, ghost);
         }
 
+        /// <summary>screens와 ghost 및 경제 서비스를 저장하고 핫바 입력·가격 갱신 이벤트를 연결한다.</summary>
         private void Initialize(UiScreens screens, PlacementGhost ghost)
         {
             _theme = screens.Theme;
@@ -106,6 +109,9 @@ namespace IronRing.Hud.Hotbar
             _view = GameServices.Get<IViewMode>();
             _clusters = GameServices.Get<IHabitatClusters>();
             _items = ItemsInstaller.Catalog;
+            _money = GameServices.Get<IMoney>();
+            _cost = GameServices.Get<IPlacementCost>();
+            if (_money != null) _money.Changed += Refresh;
             _data = HotbarData.Load();
 
             _hint.text = Strings.Get("hotbar_hint");
@@ -245,11 +251,25 @@ namespace IronRing.Hud.Hotbar
                 if (view == null) continue;
                 view.Show(_slots[i].IsValid ? _ghost.IconFor(_slots[i]) : null, DisplayName(_slots[i]));
                 view.SetState(i == _selectedSlot, _pendingAssign.IsValid, _theme);
+                RefreshPrice(view, _slots[i]);
             }
             _palette.SetActive(open && _paletteOpen);
-            foreach (var (entry, view) in _paletteViews) view.SetState(entry.Equals(_pendingAssign), false, _theme);
+            foreach (var (entry, view) in _paletteViews)
+            {
+                view.SetState(entry.Equals(_pendingAssign), false, _theme);
+                RefreshPrice(view, entry);
+            }
         }
 
+        /// <summary>entry의 데이터 가격과 현재 결제 가능 상태를 읽어 view의 가격·부족 표시를 갱신한다.</summary>
+        private void RefreshPrice(HotbarCellView view, PlacementEntry entry)
+        {
+            ItemDefinition item = entry.Kind == PlacementKind.Item ? _items.Get(entry.Id) : null;
+            bool affordable = item == null || _money == null || (_cost != null ? _cost.CanAfford(entry.Id) : _money.Balance >= item.Price);
+            view.SetPrice(item != null ? (_cost != null ? _cost.PriceOf(entry.Id) : item.Price) : (int?)null, affordable);
+        }
+
+        /// <summary>entry에 해당하는 시설 또는 아이템의 표시 이름을 반환한다.</summary>
         private string DisplayName(PlacementEntry entry)
         {
             if (!entry.IsValid) return "";
@@ -258,6 +278,7 @@ namespace IronRing.Hud.Hotbar
             return item != null ? item.Name : entry.Id;
         }
 
+        /// <summary>open에 맞춰 팔레트를 표시하고 닫을 때 배정 대기를 해제한다.</summary>
         private void SetPaletteOpen(bool open)
         {
             _paletteOpen = open;
@@ -267,6 +288,7 @@ namespace IronRing.Hud.Hotbar
 
         // ----- 선택·배정 -----
 
+        /// <summary>slot 클릭 시 대기 중 항목을 배정하거나 해당 슬롯의 선택을 전환한다.</summary>
         private void OnSlotClicked(int slot)
         {
             if (_pendingAssign.IsValid)
@@ -461,6 +483,7 @@ namespace IronRing.Hud.Hotbar
         void OnDestroy()
         {
             GameServices.Ready -= Create;
+            if (_money != null) _money.Changed -= Refresh;
             if (_ghost != null)
             {
                 _ghost.SelectionChanged -= OnSelectionChanged;

@@ -537,52 +537,6 @@ namespace IronRing.Contracts
         event Action Changed;
     }
 
-    /// <summary>스토리 040. 열차 화물칸(칸 수 = 품목 수량 합).</summary>
-    public interface ICargo
-    {
-        /// <summary>전체 칸 수(데이터 Economy.json _cargoCapacity).</summary>
-        int Capacity { get; }
-        /// <summary>쓰인 칸 수.</summary>
-        int Used { get; }
-        /// <summary>품목 수량.</summary>
-        int CountOf(string goodsId);
-        /// <summary>n개 싣는다. 모르는 품목·빈 칸 부족·n&lt;=0이면 false.</summary>
-        bool TryLoad(string goodsId, int n);
-        /// <summary>n개 내린다. 수량 부족·n&lt;=0이면 false.</summary>
-        bool TryUnload(string goodsId, int n);
-        /// <summary>적재가 바뀔 때마다.</summary>
-        event Action Changed;
-    }
-
-    /// <summary>스토리 040. 휴식지 시장. 가격 = round(기준가 × 휴식지 배율 × 변동 계수), 팔 때 가격 = round(가격 × _sellRatio).</summary>
-    public interface IMarkets
-    {
-        /// <summary>품목 id(데이터 순서).</summary>
-        IReadOnlyList<string> GoodsIds { get; }
-        /// <summary>시장이 있는 정차지 id(데이터 순서).</summary>
-        IReadOnlyList<string> StopIds { get; }
-        /// <summary>시장이 있는 정차지인지.</summary>
-        bool HasMarket(string stopId);
-        /// <summary>1개를 살 때 가격(마르크). 모르는 id면 0.</summary>
-        int Price(string stopId, string goodsId);
-        /// <summary>1개를 팔 때 가격(마르크). 모르는 id면 0.</summary>
-        int SellPrice(string stopId, string goodsId);
-        /// <summary>시장 재고(살 수 있는 수, 바퀴마다 데이터 값으로 복귀).</summary>
-        int Stock(string stopId, string goodsId);
-        /// <summary>시장 수요(팔 수 있는 수, 바퀴마다 데이터 값으로 복귀).</summary>
-        int Demand(string stopId, string goodsId);
-        /// <summary>n개 전체 가격(한 개마다 가격이 오르므로 Price×n보다 크다). 살 수 없으면 -1.</summary>
-        int BuyCost(string stopId, string goodsId, int n);
-        /// <summary>n개 전체 판매액. 팔 수 없으면 -1.</summary>
-        int SellValue(string stopId, string goodsId, int n);
-        /// <summary>n개를 산다(돈·화물칸·재고 모두 될 때만, 원자적). 장부에 구매로 적는다.</summary>
-        bool TryBuy(string stopId, string goodsId, int n);
-        /// <summary>n개를 판다(화물·수요 모두 될 때만, 원자적). 장부에 판매로 적는다.</summary>
-        bool TrySell(string stopId, string goodsId, int n);
-        /// <summary>가격·재고·수요가 바뀔 때마다(거래, 바퀴 복귀).</summary>
-        event Action Changed;
-    }
-
     /// <summary>스토리 040. 장부 항목 종류.</summary>
     public enum LedgerKind
     {
@@ -593,7 +547,9 @@ namespace IronRing.Contracts
         /// <summary>화물 구매(지출).</summary>
         Purchase,
         /// <summary>열차 유지비(지출).</summary>
-        Upkeep
+        Upkeep,
+        /// <summary>스토리 045. 완성 건물 수입(_income 합).</summary>
+        Income
     }
 
     /// <summary>스토리 040. 장부 한 줄. Amount는 부호 있음(수입 +, 지출 -).</summary>
@@ -626,54 +582,7 @@ namespace IronRing.Contracts
         event Action<int, int> LapSettled;
     }
 
-    /// <summary>
-    /// 스토리 040. 휴식지 정차 거래 세션(UI가 붙는 곳). 시장이 있는 휴식지에 도착하면 열리고(열차 정차 유지),
-    /// Depart() 또는 자동 출발(Economy.json _autoDepartSeconds)로 닫히면 정차 유지가 풀려 열차가 떠난다.
-    /// </summary>
-    public interface ITradeSession
-    {
-        /// <summary>세션이 열려 있는지.</summary>
-        bool IsOpen { get; }
-        /// <summary>열린 정차지 id(닫혀 있으면 마지막 값 또는 null).</summary>
-        string StopId { get; }
-        /// <summary>자동 출발까지 남은 초(닫혀 있으면 0, 자동 출발이 멈춰 있으면 현재 값 유지).</summary>
-        float SecondsLeft { get; }
-        /// <summary>열릴 때.</summary>
-        event Action Opened;
-        /// <summary>닫힐 때(열차가 출발할 수 있음).</summary>
-        event Action Closed;
-        /// <summary>거래를 끝내고 출발한다. 닫혀 있으면 아무것도 하지 않는다.</summary>
-        void Depart();
-    }
-    // ----- 생산 건물·거점 창고·타일 비용(스토리 041) -----
-
-    /// <summary>스토리 041. 거점(hub-1) 창고. 품목별 수량, 전체 상한(Economy.json _warehouseCapacity).</summary>
-    public interface IWarehouse
-    {
-        /// <summary>전체 상한(품목 수량 합).</summary>
-        int Capacity { get; }
-        /// <summary>품목 수량(모르는 id면 0).</summary>
-        int CountOf(string goodsId);
-        /// <summary>모든 품목 수량 합.</summary>
-        int Total { get; }
-        /// <summary>n개 넣는다. 모르는 품목·상한 초과·n&lt;=0이면 아무것도 바꾸지 않고 false.</summary>
-        bool TryAdd(string goodsId, int n);
-        /// <summary>n개 꺼낸다. 수량 부족·n&lt;=0이면 false.</summary>
-        bool TryTake(string goodsId, int n);
-        /// <summary>수량이 바뀔 때마다.</summary>
-        event Action Changed;
-    }
-
-    /// <summary>스토리 041. 창고 ↔ 열차 화물칸 이동(UI 창고 패널). 거점 내부 화면이 그 거점에서 열려 있을 때만 된다.</summary>
-    public interface ITransfer
-    {
-        /// <summary>지금 옮길 수 있는지(내부 화면이 창고 거점에서 열려 있음).</summary>
-        bool CanTransfer { get; }
-        /// <summary>창고 → 화물칸 n개(원자적). 창고 수량·빈 칸 부족이면 false.</summary>
-        bool TryLoad(string goodsId, int n);
-        /// <summary>화물칸 → 창고 n개(원자적). 화물 수량·창고 상한 부족이면 false.</summary>
-        bool TryUnload(string goodsId, int n);
-    }
+    // ----- 타일 비용(스토리 041) -----
 
     /// <summary>스토리 041. 타일·장식 배치 가격(ItemCatalog.json _price). 배치 때 잔고에서 빠지고, 회수·철거·되돌리기 때 _refundRatio만큼 돌아온다.</summary>
     public interface IPlacementCost
@@ -686,35 +595,46 @@ namespace IronRing.Contracts
         bool CanAfford(string itemId);
     }
 
-    /// <summary>스토리 041. 생산 건물 상태(정산 때 판정 순서: 노동자 → 증기 → 물 → 입력).</summary>
-    public enum BuildingStatus
+    // ── 주민·마을 등급(스토리 042) ─────────────────────────────
+
+    /// <summary>
+    /// 스토리 042·045(가벼운 경제). 마을 거점(hub-1)의 일반 주민. 고유 NPC(INpcRecruiter)는 별도다.
+    /// 바퀴 정산 때: 주거 &gt; 주민이면 +1(빛 ≥ 주민 × _lightPerResident면 +2, 주거를 넘지 않음), 주거 &lt; 주민이면 −1(최소 1).
+    /// </summary>
+    public interface IPopulation
     {
-        /// <summary>가동(입력 소비, 출력 생산).</summary>
-        Running,
-        /// <summary>노동자 부족(042가 노동 공급을 붙인다).</summary>
-        NoWorkers,
-        /// <summary>창고에 입력 품목이 모자람.</summary>
-        NoInput,
-        /// <summary>증기가 필요한데 가동 중인 증기 공급 건물이 없음.</summary>
-        NoSteam,
-        /// <summary>물이 필요한데 물 공급 건물이 없음.</summary>
-        NoWater
+        /// <summary>일반 주민 수(시작 3, 최소 1).</summary>
+        int Residents { get; }
+        /// <summary>주거 = 기본 주거 + 완성 건물 _housing 합.</summary>
+        int Housing { get; }
+        /// <summary>빛 = 완성 건물 _light 합.</summary>
+        int Light { get; }
+        /// <summary>값이 바뀌었을 때(정산, 건물 완성·파손).</summary>
+        event Action Changed;
     }
 
-    /// <summary>스토리 041. 거점 생산 상태(UI·건물 상태 아이콘). clusterIndex는 IHabitatClusters.CompletedAt(HubId)의 순서다.</summary>
-    public interface IProductionStatus
+    /// <summary>스토리 042. 창고 거점의 마을 등급(0 폐허 → 1 정착촌 → 2 마을 → 3 도시, TownTiers.json). 등급은 내려가지 않는다.</summary>
+    public interface ITownTier
     {
-        /// <summary>생산 거점 id(hub-1).</summary>
-        string HubId { get; }
-        /// <summary>
-        /// clusterIndex 건물의 상태 = 지금 창고 상태로 다음 정산을 미리 판정한 결과. 범위 밖이면 Running.
-        /// </summary>
-        BuildingStatus Status(int clusterIndex);
-        /// <summary>상태 아이콘 id(status_running|status_no_workers|status_no_input|status_no_steam|status_no_water).</summary>
-        string IconId(BuildingStatus status);
-        /// <summary>상태가 바뀌었을 수 있을 때(창고·건물 변화, 정산).</summary>
-        event Action Changed;
-        /// <summary>정산 생산이 끝났을 때(바퀴 번호).</summary>
-        event Action<int> Produced;
+        /// <summary>지금 등급 번호(0부터).</summary>
+        int Tier { get; }
+        /// <summary>지금 등급 id(ruin|camp|village|city).</summary>
+        string TierId { get; }
+        /// <summary>지금 등급 이름(폐허·정착촌·마을·도시).</summary>
+        string TierName { get; }
+        /// <summary>다음 등급 번호(최고면 지금 등급).</summary>
+        int NextTier { get; }
+        /// <summary>최고 등급인지.</summary>
+        bool IsMax { get; }
+        /// <summary>다음 등급에 필요한 주민 수(최고면 0).</summary>
+        int NextResidentsNeed { get; }
+        /// <summary>다음 등급에 필요한 번영(최고면 0).</summary>
+        int NextProsperityNeed { get; }
+        /// <summary>등급이 올랐을 때(새 등급 번호).</summary>
+        event Action<int> TierChanged;
+        /// <summary>지금까지 등급이 연 레시피 id(누적).</summary>
+        IReadOnlyList<string> UnlockedRecipeIds { get; }
+        /// <summary>지금까지 등급이 연 열차 업그레이드 id(누적, 043이 쓴다).</summary>
+        IReadOnlyList<string> UnlockedUpgradeIds { get; }
     }
 }

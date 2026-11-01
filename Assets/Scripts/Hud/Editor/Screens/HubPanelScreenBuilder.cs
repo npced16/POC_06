@@ -29,7 +29,7 @@ namespace IronRing.Hud.Editor.Screens
             TextAsset catalogAsset = AssetDatabase.LoadAssetAtPath<TextAsset>(InteriorTitleScreenBuilder.CATALOG);
             HudCatalog catalog = JsonUtility.FromJson<HudCatalog>(catalogAsset.text);
             int rows = catalog.Facilities.Length;
-            float listTop = UiKit.ContentTop(theme) + 94; // 스토리 024: 제목판 아래부터
+            float listTop = UiKit.ContentTop(theme) + 148; // 스토리 024: 제목판 아래부터
             float messageTop = listTop + rows * (ROW_HEIGHT + 2) + 8;
             RectOffset pad = UiKit.FramePad(theme);
             _padLeft = pad.left; _padRight = pad.right;
@@ -43,7 +43,10 @@ namespace IronRing.Hud.Editor.Screens
             TextMeshProUGUI title = UiKit.TitlePlate(panel.transform, "Title", Strings.Get("hub_1"), theme);
             Button close = UiKit.CloseButton(panel.transform, "Close", theme);
             TextMeshProUGUI state = UiKit.Label(panel.transform, "State", Strings.Get("hud_prosperity") + "  12    " + Strings.Get("hud_npcs") + "  2", UiTextSize.Small, theme, TextAlignmentOptions.MidlineLeft);
-            TopLeft(state.rectTransform, listTop - 94, INNER, theme.LineHeight(UiTextSize.Small) + 6);
+            TopLeft(state.rectTransform, listTop - 148, INNER, theme.LineHeight(UiTextSize.Small) + 6);
+            TextMeshProUGUI nextTier = UiKit.Label(panel.transform, "NextTier", "", UiTextSize.Small, theme, TextAlignmentOptions.TopLeft);
+            TopLeft(nextTier.rectTransform, listTop - 116, INNER, 48);
+            UiKit.Bind(screen, "_nextTier", nextTier);
             TextMeshProUGUI habitat = UiKit.Label(panel.transform, "Habitat", Strings.Get("hud_habitat") + "  " + Strings.Get("hud_complete"), UiTextSize.Small, theme, TextAlignmentOptions.MidlineLeft);
             TopLeft(habitat.rectTransform, listTop - 64, INNER, theme.LineHeight(UiTextSize.Small) + 6);
             TextMeshProUGUI section = UiKit.Label(panel.transform, "FacilitiesTitle", Strings.Get("hud_facilities"), UiTextSize.Heading, theme, TextAlignmentOptions.MidlineLeft);

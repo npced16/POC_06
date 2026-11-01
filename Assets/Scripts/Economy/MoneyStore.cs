@@ -45,51 +45,6 @@ namespace IronRing.Economy
         }
     }
 
-    /// <summary>스토리 040. ICargo 구현(열차 화물칸: 칸 수 = 수량 합, 카탈로그에 있는 품목만).</summary>
-    public sealed class Cargo : ICargo
-    {
-        private readonly Dictionary<string, int> _counts = new Dictionary<string, int>();
-        private readonly GoodsCatalog _catalog;
-
-        /// <summary>전체 칸 수.</summary>
-        public int Capacity { get; }
-        /// <summary>쓰인 칸 수.</summary>
-        public int Used { get; private set; }
-        /// <summary>적재가 바뀔 때마다.</summary>
-        public event Action Changed;
-
-        /// <summary>카탈로그와 칸 수(데이터)로 만든다.</summary>
-        public Cargo(GoodsCatalog catalog, int capacity)
-        {
-            _catalog = catalog ?? throw new ArgumentNullException(nameof(catalog));
-            Capacity = Math.Max(0, capacity);
-        }
-
-        /// <summary>품목 수량(모르면 0).</summary>
-        public int CountOf(string goodsId) => goodsId != null && _counts.TryGetValue(goodsId, out int n) ? n : 0;
-
-        /// <summary>빈 칸이 n 이상이고 품목을 알 때만 싣는다.</summary>
-        public bool TryLoad(string goodsId, int n)
-        {
-            if (n <= 0 || _catalog.Get(goodsId) == null || Used + n > Capacity) return false;
-            _counts[goodsId] = CountOf(goodsId) + n;
-            Used += n;
-            Changed?.Invoke();
-            return true;
-        }
-
-        /// <summary>수량이 n 이상일 때만 내린다.</summary>
-        public bool TryUnload(string goodsId, int n)
-        {
-            int have = CountOf(goodsId);
-            if (n <= 0 || have < n) return false;
-            _counts[goodsId] = have - n;
-            Used -= n;
-            Changed?.Invoke();
-            return true;
-        }
-    }
-
     /// <summary>스토리 040. ILedger 구현. 거래·운임은 즉시 적고, Settle에서 유지비를 적은 뒤 바퀴를 닫는다.</summary>
     public sealed class Ledger : ILedger
     {

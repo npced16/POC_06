@@ -104,7 +104,12 @@ namespace IronRing.Hud
             }
             ILedger ledger = GameServices.Get<ILedger>();
             _finance.gameObject.SetActive(ledger != null);
-            if (ledger != null) _finance.text = string.Format(Strings.Get("ui_result_finance"), ledger.TotalIncome, ledger.TotalExpense);
+            if (ledger != null)
+            {
+                _finance.text = string.Format(Strings.Get("ui_result_finance"), ledger.TotalIncome, ledger.TotalExpense);
+                ITownTier town = GameServices.Get<ITownTier>();
+                if (town != null) _finance.text += " · " + string.Format(Strings.Get("ui_tier_result"), town.TierName);
+            }
             _screens.Show(_screen.Id);
         }
 

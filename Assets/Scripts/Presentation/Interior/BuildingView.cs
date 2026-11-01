@@ -32,8 +32,6 @@ namespace IronRing.Presentation.Interior
         private bool _dirty = true;
         private bool _animateNext;
         private bool _warned;
-        private bool _statusDirty = true;
-        private IProductionStatus _production;
         private readonly Dictionary<string, Building> _buildings = new Dictionary<string, Building>(StringComparer.Ordinal);
         private readonly List<SpriteRenderer> _hidden = new List<SpriteRenderer>();
         private readonly List<Collapse> _collapsing = new List<Collapse>();
@@ -54,7 +52,6 @@ namespace IronRing.Presentation.Interior
             public List<int> Cells;
             public GameObject Root;
             public Transform Door;
-            public BuildingStatusIcon Status;
             public Vector3 RestPosition;
             public float Age = -1f;
         }
@@ -116,8 +113,7 @@ namespace IronRing.Presentation.Interior
 
         void LateUpdate()
         {
-            if (_dirty) { _dirty = false; Sync(); _animateNext = false; _statusDirty = true; }
-            if (_statusDirty) { _statusDirty = false; SyncStatus(); }
+            if (_dirty) { _dirty = false; Sync(); _animateNext = false; }
             float seconds = _catalog != null ? _catalog.BuildingRiseSeconds : 0f;
             foreach (Building building in _buildings.Values)
             {
@@ -206,34 +202,6 @@ namespace IronRing.Presentation.Interior
             foreach (Building building in _buildings.Values) HideTiles(building.Cells);
         }
 
-        /// <summary>
-        /// 스토리 041. 생산 거점의 건물마다 IProductionStatus 상태를 보고, 가동(Running)이 아니면 상태 아이콘을 보인다.
-        /// IProductionStatus는 경제 설치 뒤에 생기므로 처음 쓸 때 얻어 Changed를 구독한다.
-        /// </summary>
-        private void SyncStatus()
-        {
-            if (_production == null)
-            {
-                _production = GameServices.Get<IProductionStatus>();
-                if (_production != null) _production.Changed += OnProductionChanged;
-            }
-            IReadOnlyList<HabitatCluster> clusters = _hub != null ? _clusters.CompletedAt(_hub) : null;
-            bool producing = _production != null && _hub == _production.HubId && clusters != null;
-            var shown = new HashSet<Building>();
-            if (producing)
-                for (int i = 0; i < clusters.Count; i++)
-                {
-                    if (clusters[i]?.Cells == null || !_buildings.TryGetValue(Key(clusters[i]), out Building building) || building.Status == null) continue;
-                    BuildingStatus status = _production.Status(i);
-                    building.Status.Show(status == BuildingStatus.Running ? null : _production.IconId(status));
-                    shown.Add(building);
-                }
-            foreach (Building building in _buildings.Values)
-                if (building.Status != null && !shown.Contains(building)) building.Status.Show(null);
-        }
-
-        private void OnProductionChanged() => _statusDirty = true;
-
         private static string Key(HabitatCluster cluster) => cluster.TypeId + ":" + string.Join(",", cluster.Cells.OrderBy(c => c));
 
         /// <summary>묶음 하나의 건물(지붕·모서리·문·굴뚝·상징물)을 세운다.</summary>
@@ -301,15 +269,6 @@ namespace IronRing.Presentation.Interior
             int signCell = positions.OrderBy(p => (p.Value - centroid).sqrMagnitude).First().Key;
             GameObject sign = Prop(container, positions[signCell] + Vector3.up * (_catalog.SignLift * tile), _catalog.BuildingSign(type?.SignProp), _catalog.BuildingSignOrder, "Sign_" + type?.SignProp);
             sign.transform.localScale *= _catalog.BuildingSignScale;
-            if (_catalog.BuildingStatusPrefab != null)
-            {
-                Vector3 statusTop = positions.Values.OrderByDescending(p => p.y).ThenBy(p => (p - centroid).sqrMagnitude).First();
-                GameObject statusPiece = Instantiate(_catalog.BuildingStatusPrefab, container.transform);
-                statusPiece.name = "Status";
-                statusPiece.transform.position = new Vector3(centroid.x, statusTop.y + _catalog.StatusLift * tile, statusTop.z) + Vector3.forward * _catalog.BuildingDepth;
-                building.Status = statusPiece.GetComponent<BuildingStatusIcon>();
-                building.Status?.Show(null);
-            }
             if (_animateNext && _catalog.BuildingRiseSeconds > 0f)
             {
                 building.Age = 0f;
@@ -369,7 +328,6 @@ namespace IronRing.Presentation.Interior
             GameServices.Ready -= Create;
             if (_clusters != null) { _clusters.HabitatCompleted -= OnCompleted; _clusters.HabitatBroken -= OnBroken; }
             if (_view != null) _view.InteriorChanged -= OnInteriorChanged;
-            if (_production != null) _production.Changed -= OnProductionChanged;
             if (_placement != null) { _placement.ItemPlaced -= OnItemChanged; _placement.ItemRemoved -= OnItemChanged; }
             if (_instance == this) _instance = null;
         }

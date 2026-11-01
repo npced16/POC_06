@@ -40,6 +40,15 @@ namespace IronRing.Hud.Editor.Screens
             loss.color = theme.Accent;
             loss.gameObject.SetActive(false);
 
+            TextMeshProUGUI nextTier = UiKit.Label(root.transform, "NextTier", string.Format(Strings.Get("ui_tier_next"), Strings.Get("ui_tier_name_1"), 3, 5, 12, 20), UiTextSize.Normal, theme);
+            UiKit.Place(nextTier.rectTransform, new Vector2(.5f, 1), new Vector2(.5f, 1), new Vector2(0, -116), new Vector2(820, 30));
+            var tierBanner = UiKit.Bar(root.transform, "TierBanner", theme, false);
+            UiKit.Place(tierBanner.rectTransform, new Vector2(.5f, .5f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(760, 80));
+            var tierBannerText = UiKit.Label(tierBanner.transform, "Text", string.Format(Strings.Get("ui_tier_promoted"), Strings.Get("hub_1"), Strings.Get("ui_tier_name_1")), UiTextSize.Title, theme);
+            UiKit.Stretch(tierBannerText.rectTransform, 24, 12, 24, 12);
+            tierBannerText.color = theme.Accent;
+            tierBanner.gameObject.SetActive(false);
+            UiKit.Bind(screen, "_nextTier", nextTier); UiKit.Bind(screen, "_tierBanner", tierBanner.gameObject); UiKit.Bind(screen, "_tierBannerText", tierBannerText);
             UiKit.Bind(screen, "_hubLabel", hub);
             UiKit.Bind(screen, "_deadlineBox", deadline.transform.parent.gameObject);
             UiKit.Bind(screen, "_deadline", deadline);

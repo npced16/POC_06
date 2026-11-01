@@ -64,10 +64,6 @@ namespace IronRing.Presentation.Interior
         [SerializeField] private int _undoDepth = 5;
         [Tooltip("스토리 031. 되돌릴 때 \"되돌림: <동작>\" 토스트를 띄울지.")]
         [SerializeField] private bool _undoToast = true;
-        [Tooltip("스토리 041. 건물 위 생산 상태 아이콘 조각(BuildingStatus.prefab).")]
-        [SerializeField] private GameObject _buildingStatusPrefab;
-        [Tooltip("스토리 041. 상태 아이콘을 건물 맨 윗줄 칸 중심에서 위로 올리는 양(타일 배수).")]
-        [SerializeField] private float _statusLift = 0.75f;
         [SerializeField] private float _buildingSignScale = 0.8f;
         [Tooltip("상징물을 칸 중심에서 위로 올리는 양(타일 배수).")]
         [SerializeField] private float _signLift = 0.1f;
@@ -177,10 +173,6 @@ namespace IronRing.Presentation.Interior
         /// <summary>스토리 031. 되돌림 토스트를 띄울지.</summary>
         public bool UndoToast => _undoToast;
         public float BuildingSignScale => _buildingSignScale;
-        /// <summary>스토리 041. 생산 상태 아이콘 조각 프리팹(없으면 아이콘 없음).</summary>
-        public GameObject BuildingStatusPrefab => _buildingStatusPrefab;
-        /// <summary>스토리 041. 상태 아이콘 높이(타일 배수).</summary>
-        public float StatusLift => _statusLift;
         public float SignLift => _signLift;
         public Vector2 ChimneyOffset => _chimneyOffset;
         public Vector2 SmokeOffset => _smokeOffset;

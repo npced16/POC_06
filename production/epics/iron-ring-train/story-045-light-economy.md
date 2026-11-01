@@ -1,7 +1,7 @@
 # Story 045: 가벼운 마을 경영 — 교역·생산·창고·노동 제거, 건물 수입·주민·마을 등급만 남긴다
 
 > **Epic**: 황동골 철도 회사 MVP (iron-ring-train)
-> **Status**: Ready
+> **Status**: Done (2026-11-02 07:40 KST 코디네이터 — 파이프라인 검증: refresh 통과, Story012Build 멱등, 씬 저장; UI는 codex가 Trade 제거·핫바 가격·주민/등급 표시까지, 사용 한도로 중단된 잔여는 후속)
 > **Layer**: Core + Presentation
 > **Type**: Integration
 > **Estimate**: M

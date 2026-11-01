@@ -22,8 +22,8 @@ namespace IronRing.Hud.Editor.Screens
             GameObject root = UiKit.ScreenRoot("InteriorTitle", false);
             InteriorTitleScreen screen = root.AddComponent<InteriorTitleScreen>();
             UnityEngine.UI.Image box = UiKit.Bar(root.transform, "TitleBox", theme, false);
-            UiKit.Place(box.rectTransform, Vector2.one, Vector2.one, new Vector2(-16, -104), new Vector2(320, 60));
-            TextMeshProUGUI title = UiKit.Label(box.transform, "Title", Strings.Get("hub_1"), UiTextSize.Title, theme);
+            UiKit.Place(box.rectTransform, Vector2.one, Vector2.one, new Vector2(-16, -164), new Vector2(320, 60));
+            TextMeshProUGUI title = UiKit.Label(box.transform, "Title", string.Format(Strings.Get("ui_tier_title"), Strings.Get("hub_1"), Strings.Get("ui_tier_name_0")), UiTextSize.Title, theme);
             UiKit.Stretch(title.rectTransform, 14, 6, 14, 6);
             UiKit.Bind(screen, "_title", title);
             UiKit.Bind(screen, "_catalogJson", AssetDatabase.LoadAssetAtPath<TextAsset>(CATALOG));
