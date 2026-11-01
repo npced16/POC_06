@@ -547,6 +547,8 @@
     { "_key": "event_dust_storm", "_value": "폭풍 — 다음 거점 번영이 줄었다" },
     { "_key": "event_abandoned_warehouse", "_value": "버려진 창고에서 타일을 찾았다 — 번영 상승" },
     { "_key": "event_quiet_rest", "_value": "휴식 — 조용히 쉬어 간다 (번영 +1)" },
-    { "_key": "event_track_repair", "_value": "선로 보수 — 출발이 늦어진다" }
+    { "_key": "event_track_repair", "_value": "선로 보수 — 출발이 늦어진다" },
+    { "_key": "econ_lap_settled", "_value": "바퀴 {0} 정산: +운임 {1} +판매 {2} −구매 {3} −유지비 {4} = {5}" },
+    { "_key": "econ_bankrupt", "_value": "파산" }
 ]
 }

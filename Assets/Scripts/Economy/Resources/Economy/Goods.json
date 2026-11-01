@@ -1,0 +1,10 @@
+{
+  "_goods": [
+    { "_id": "coal",  "_name": "석탄", "_basePrice": 12, "_iconKey": "goods_coal",  "_color": "#3a3f4a" },
+    { "_id": "iron",  "_name": "철",   "_basePrice": 18, "_iconKey": "goods_iron",  "_color": "#7d8590" },
+    { "_id": "parts", "_name": "부품", "_basePrice": 30, "_iconKey": "goods_parts", "_color": "#995636" },
+    { "_id": "food",  "_name": "식량", "_basePrice": 10, "_iconKey": "goods_food",  "_color": "#4f7a3a" },
+    { "_id": "glass", "_name": "유리", "_basePrice": 22, "_iconKey": "goods_glass", "_color": "#5b7983" },
+    { "_id": "brass", "_name": "황동", "_basePrice": 26, "_iconKey": "goods_brass", "_color": "#d6a053" }
+  ]
+}

@@ -133,6 +133,21 @@ namespace IronRing.Hub
             else End(settled >= HubIds.Count ? RunOutcome.Victory : RunOutcome.Partial, RunLossReason.None);
         }
 
+        /// <summary>
+        /// Story 040: bankruptcy (balance below 0 for Economy.json _bankruptLaps consecutive settlements, judged by Economy.Settlement)
+        /// ends the run on the spot as Defeat with RunLossReason.Bankrupt. reasonText (e.g. "파산") is kept in LossReasonText for the result screen.
+        /// Ignored once the run is over.
+        /// </summary>
+        public void DeclareBankrupt(string reasonText)
+        {
+            if (IsRunLost) return;
+            LossReasonText = reasonText;
+            End(RunOutcome.Defeat, RunLossReason.Bankrupt);
+        }
+
+        /// <summary>Story 040: display text of a special loss reason (e.g. "파산" for Bankrupt); null for other outcomes.</summary>
+        public string LossReasonText { get; private set; }
+
         /// <summary>IProsperityForecast: the lap rule's delta for hubId right now (0 for Collapsed); unknown ids throw.</summary>
         public float NextLapDelta(string hubId)
         {

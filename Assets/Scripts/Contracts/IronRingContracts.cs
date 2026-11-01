@@ -401,7 +401,9 @@ namespace IronRing.Contracts
         /// <summary>정착했던 거점이 모두 붕괴.</summary>
         AllSettledCollapsed,
         /// <summary>기한 안에 정착한 거점이 없음.</summary>
-        DeadlineExpired
+        DeadlineExpired,
+        /// <summary>스토리 040. 잔고가 0 아래인 채 정산이 데이터(Economy.json _bankruptLaps) 바퀴 연속 = 파산.</summary>
+        Bankrupt
     }
 
     /// <summary>스토리 014가 구현(선택 계약, IHubDevelopment와 함께 등록). 패배 화면이 제목을 사유별로 고르는 데 쓴다.</summary>
@@ -516,5 +518,131 @@ namespace IronRing.Contracts
     {
         /// <summary>hubId, 서식지 종류 id. 그 종류의 완성 묶음 칸 구성이 바뀔 때마다 1회.</summary>
         event Action<string, string> HabitatChanged;
+    }
+
+    // ----- 경제 기반(스토리 040, design/game-brief.md "돈(마르크)"·"휴식지는 시장이다") -----
+
+    /// <summary>스토리 040. 회사 돈(마르크). 정수만 쓴다.</summary>
+    public interface IMoney
+    {
+        /// <summary>현재 잔고(유지비 강제 지출로 0 아래가 될 수 있다).</summary>
+        int Balance { get; }
+        /// <summary>amount(&gt;=0)를 더한다. 음수면 false.</summary>
+        bool TryGain(int amount, string reason);
+        /// <summary>amount(&gt;=0)를 뺀다. 잔고가 모자라면 아무것도 바꾸지 않고 false.</summary>
+        bool TrySpend(int amount, string reason);
+        /// <summary>강제 지출(유지비). 잔고가 모자라도 빼서 0 아래가 될 수 있다.</summary>
+        void Charge(int amount, string reason);
+        /// <summary>잔고가 바뀔 때마다.</summary>
+        event Action Changed;
+    }
+
+    /// <summary>스토리 040. 열차 화물칸(칸 수 = 품목 수량 합).</summary>
+    public interface ICargo
+    {
+        /// <summary>전체 칸 수(데이터 Economy.json _cargoCapacity).</summary>
+        int Capacity { get; }
+        /// <summary>쓰인 칸 수.</summary>
+        int Used { get; }
+        /// <summary>품목 수량.</summary>
+        int CountOf(string goodsId);
+        /// <summary>n개 싣는다. 모르는 품목·빈 칸 부족·n&lt;=0이면 false.</summary>
+        bool TryLoad(string goodsId, int n);
+        /// <summary>n개 내린다. 수량 부족·n&lt;=0이면 false.</summary>
+        bool TryUnload(string goodsId, int n);
+        /// <summary>적재가 바뀔 때마다.</summary>
+        event Action Changed;
+    }
+
+    /// <summary>스토리 040. 휴식지 시장. 가격 = round(기준가 × 휴식지 배율 × 변동 계수), 팔 때 가격 = round(가격 × _sellRatio).</summary>
+    public interface IMarkets
+    {
+        /// <summary>품목 id(데이터 순서).</summary>
+        IReadOnlyList<string> GoodsIds { get; }
+        /// <summary>시장이 있는 정차지 id(데이터 순서).</summary>
+        IReadOnlyList<string> StopIds { get; }
+        /// <summary>시장이 있는 정차지인지.</summary>
+        bool HasMarket(string stopId);
+        /// <summary>1개를 살 때 가격(마르크). 모르는 id면 0.</summary>
+        int Price(string stopId, string goodsId);
+        /// <summary>1개를 팔 때 가격(마르크). 모르는 id면 0.</summary>
+        int SellPrice(string stopId, string goodsId);
+        /// <summary>시장 재고(살 수 있는 수, 바퀴마다 데이터 값으로 복귀).</summary>
+        int Stock(string stopId, string goodsId);
+        /// <summary>시장 수요(팔 수 있는 수, 바퀴마다 데이터 값으로 복귀).</summary>
+        int Demand(string stopId, string goodsId);
+        /// <summary>n개 전체 가격(한 개마다 가격이 오르므로 Price×n보다 크다). 살 수 없으면 -1.</summary>
+        int BuyCost(string stopId, string goodsId, int n);
+        /// <summary>n개 전체 판매액. 팔 수 없으면 -1.</summary>
+        int SellValue(string stopId, string goodsId, int n);
+        /// <summary>n개를 산다(돈·화물칸·재고 모두 될 때만, 원자적). 장부에 구매로 적는다.</summary>
+        bool TryBuy(string stopId, string goodsId, int n);
+        /// <summary>n개를 판다(화물·수요 모두 될 때만, 원자적). 장부에 판매로 적는다.</summary>
+        bool TrySell(string stopId, string goodsId, int n);
+        /// <summary>가격·재고·수요가 바뀔 때마다(거래, 바퀴 복귀).</summary>
+        event Action Changed;
+    }
+
+    /// <summary>스토리 040. 장부 항목 종류.</summary>
+    public enum LedgerKind
+    {
+        /// <summary>승객 운임(수입).</summary>
+        Fare,
+        /// <summary>화물 판매(수입).</summary>
+        Sale,
+        /// <summary>화물 구매(지출).</summary>
+        Purchase,
+        /// <summary>열차 유지비(지출).</summary>
+        Upkeep
+    }
+
+    /// <summary>스토리 040. 장부 한 줄. Amount는 부호 있음(수입 +, 지출 -).</summary>
+    public sealed class LedgerEntry
+    {
+        /// <summary>항목이 속한 바퀴(진행 중인 바퀴 = 완료 바퀴 + 1).</summary>
+        public int Lap;
+        /// <summary>항목 종류.</summary>
+        public LedgerKind Kind;
+        /// <summary>금액(수입 +, 지출 -).</summary>
+        public int Amount;
+        /// <summary>메모(품목 id·수량, 승객 id 등).</summary>
+        public string Note;
+    }
+
+    /// <summary>스토리 040. 바퀴 장부. 거점 복귀(LapCompleted)마다 유지비를 적고 정산한다.</summary>
+    public interface ILedger
+    {
+        /// <summary>모든 항목(적은 순서).</summary>
+        IReadOnlyList<LedgerEntry> Entries { get; }
+        /// <summary>지금 적히는 바퀴 번호.</summary>
+        int CurrentLap { get; }
+        /// <summary>lap 바퀴의 kind 합계(부호 있음).</summary>
+        int Total(int lap, LedgerKind kind);
+        /// <summary>런 전체 수입 합(양수).</summary>
+        int TotalIncome { get; }
+        /// <summary>런 전체 지출 합(양수).</summary>
+        int TotalExpense { get; }
+        /// <summary>정산 직후: 바퀴 번호, 그 바퀴 순이익.</summary>
+        event Action<int, int> LapSettled;
+    }
+
+    /// <summary>
+    /// 스토리 040. 휴식지 정차 거래 세션(UI가 붙는 곳). 시장이 있는 휴식지에 도착하면 열리고(열차 정차 유지),
+    /// Depart() 또는 자동 출발(Economy.json _autoDepartSeconds)로 닫히면 정차 유지가 풀려 열차가 떠난다.
+    /// </summary>
+    public interface ITradeSession
+    {
+        /// <summary>세션이 열려 있는지.</summary>
+        bool IsOpen { get; }
+        /// <summary>열린 정차지 id(닫혀 있으면 마지막 값 또는 null).</summary>
+        string StopId { get; }
+        /// <summary>자동 출발까지 남은 초(닫혀 있으면 0, 자동 출발이 멈춰 있으면 현재 값 유지).</summary>
+        float SecondsLeft { get; }
+        /// <summary>열릴 때.</summary>
+        event Action Opened;
+        /// <summary>닫힐 때(열차가 출발할 수 있음).</summary>
+        event Action Closed;
+        /// <summary>거래를 끝내고 출발한다. 닫혀 있으면 아무것도 하지 않는다.</summary>
+        void Depart();
     }
 }

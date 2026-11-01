@@ -1,0 +1,22 @@
+{
+  "_startBalance": 200,
+  "_trainUpkeep": 20,
+  "_fare": 8,
+  "_bankruptLaps": 3,
+  "_cargoCapacity": 12,
+  "_autoDepartSeconds": 20.0,
+  "_buyPriceStep": 0.05,
+  "_sellPriceStep": 0.05,
+  "_minPriceFactor": 0.4,
+  "_maxPriceFactor": 3.0,
+  "_sellRatio": 0.8,
+  "_recoverRatio": 1.0,
+  "_settleToastSeconds": 4.0,
+  "_demoBankruptStart": 10,
+  "_demoBankruptUpkeep": 50,
+  "_demoTradeStop": "REST-1",
+  "_demoTradeGoods": "coal",
+  "_demoTradeCount": 4,
+  "_demoSellStop": "REST-2",
+  "_demoHubDwellSeconds": 1.0
+}
