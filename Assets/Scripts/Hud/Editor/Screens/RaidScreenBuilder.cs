@@ -26,6 +26,9 @@ namespace IronRing.Hud.Editor.Screens
             fillRect.anchorMin = Vector2.zero; fillRect.anchorMax = new Vector2(0.7f, 1f); fillRect.offsetMin = Vector2.zero; fillRect.offsetMax = Vector2.zero;
             TextMeshProUGUI hull = UiKit.Label(back.transform, "HullLabel", string.Format(Strings.Get("raid_hull"), 7, 10), UiTextSize.Normal, theme);
             UiKit.Stretch(hull.rectTransform);
+            // 노란(Accent) 채움 위에서도 읽히도록 어두운 잉크색 굵은 글자(사용자 피드백 01:25).
+            hull.color = new Color32(34, 24, 18, 255);
+            hull.fontStyle = FontStyles.Bold;
 
             TextMeshProUGUI counts = UiKit.Label(panel.transform, "Counts", string.Format(Strings.Get("raid_counts"), 3, 4), UiTextSize.Normal, theme);
             UiKit.Place(counts.rectTransform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -48), new Vector2(400, 28));

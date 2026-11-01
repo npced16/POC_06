@@ -34,6 +34,9 @@ namespace IronRing.Combat.Raid
         [SerializeField] private float _spawnJitter = 0.3f;
         [SerializeField] private RaidOffset[] _nestOffsets;
         [SerializeField] private float _trainFallbackLength = 4f;
+        [SerializeField] private int _trainCars = 3;
+        [SerializeField] private float _cameraOffsetX = 1.8f;
+        [SerializeField] private float _nestLabelGap = 1f;
         [SerializeField] private RaidMonsterData[] _monsters;
         [SerializeField] private RaidWave[] _waves;
         [SerializeField] private float _liberatedBoardBonus = 0.15f;
@@ -100,6 +103,12 @@ namespace IronRing.Combat.Raid
         public RaidOffset[] NestOffsets => _nestOffsets;
         /// <summary>표현이 열차 위치를 주지 않을 때 쓰는 가상 구간 길이.</summary>
         public float TrainFallbackLength => _trainFallbackLength;
+        /// <summary>열차 칸 수(표현: 칸 위치 조회·발사 위치. 0번 = 맨 앞 칸).</summary>
+        public int TrainCars => Mathf.Max(1, _trainCars);
+        /// <summary>습격 카메라 중심을 종점에서 둥지 쪽(+X)으로 미는 거리.</summary>
+        public float CameraOffsetX => _cameraOffsetX;
+        /// <summary>"둥지 N" 라벨을 가장 아래 둥지보다 얼마나 아래에 둘지.</summary>
+        public float NestLabelGap => _nestLabelGap;
         /// <summary>몬스터 종류 표.</summary>
         public RaidMonsterData[] Monsters => _monsters;
         /// <summary>바퀴별 스폰 표.</summary>

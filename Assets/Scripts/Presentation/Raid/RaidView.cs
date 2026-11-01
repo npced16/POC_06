@@ -57,7 +57,8 @@ namespace IronRing.Presentation.Raid
             _terminal = _anchors.NodeAnchor(_data.WaypointId);
             if (_terminal == null) yield break;
             _raid.SetOrigin(_terminal.position.x, _terminal.position.y);
-            _raid.TrainPosition = () => _anchors.TrainAnchor != null ? ((float, float))(_anchors.TrainAnchor.position.x, _anchors.TrainAnchor.position.y) : (_terminal.position.x, _terminal.position.y);
+            // 구도(사용자 01:25): 몬스터는 둥지(종점 오른쪽)에서 왼쪽으로 달려와 열차 머리(맨 앞 끝)에 부딪힌다.
+            _raid.TrainPosition = () => { Vector3 front = TrainFront(); return (front.x, front.y); };
             _train = FindFirstObjectByType<TrainController>();
             if (_train != null) _train.HeldProgressSource = () => _raid.IsActive ? _raid.Progress * _data.CrawlEdgeFraction : 0f;
             BuildSite();
@@ -82,6 +83,42 @@ namespace IronRing.Presentation.Raid
             _raid.NestDestroyed -= OnNestDestroyed;
             _raid.ShotFired -= OnShot;
             if (_train != null) _train.HeldProgressSource = null;
+        }
+
+        /// <summary>
+        /// 열차 칸 index(0 = 맨 앞 칸, 데이터 _trainCars개)의 중심 월드 위치. 열차 스프라이트의 진행 방향 길이를 칸 수로 고르게 나눈다.
+        /// 스토리 034의 칸 위 장비 스프라이트와 습격 발사 위치가 쓴다. 열차가 없으면 종점 위치.
+        /// </summary>
+        public Vector3 CarPosition(int index)
+        {
+            if (!TrainAxis(out Vector3 center, out Vector3 forward, out float length)) return _terminal != null ? _terminal.position : transform.position;
+            int cars = _data != null ? _data.TrainCars : 3;
+            index = Mathf.Clamp(index, 0, cars - 1);
+            return center + forward * (length * 0.5f - (index + 0.5f) * length / cars);
+        }
+
+        /// <summary>열차 머리(진행 방향 맨 앞 끝)의 월드 위치.</summary>
+        public Vector3 TrainFront()
+        {
+            if (!TrainAxis(out Vector3 center, out Vector3 forward, out float length)) return _terminal != null ? _terminal.position : transform.position;
+            return center + forward * (length * 0.5f);
+        }
+
+        /// <summary>열차 중심·진행 방향(MapView의 스프라이트 전방 = 로컬 +Y)·진행 방향 길이를 구한다.</summary>
+        private bool TrainAxis(out Vector3 center, out Vector3 forward, out float length)
+        {
+            Transform train = _anchors?.TrainAnchor;
+            center = Vector3.zero; forward = Vector3.right; length = 0f;
+            if (train == null) return false;
+            center = train.position;
+            forward = train.up;
+            foreach (SpriteRenderer renderer in train.GetComponentsInChildren<SpriteRenderer>())
+            {
+                Vector3 size = renderer.bounds.size;
+                length = Mathf.Max(length, Mathf.Abs(forward.x) * size.x + Mathf.Abs(forward.y) * size.y);
+            }
+            if (length <= 0f) length = 1f;
+            return true;
         }
 
         /// <summary>종점 배경·둥지·라벨을 만든다(씬에 _site가 있으면 그 아래에).</summary>
@@ -117,7 +154,10 @@ namespace IronRing.Presentation.Raid
             {
                 var labelGo = new GameObject("NestLabel");
                 labelGo.transform.SetParent(_site, false);
-                labelGo.transform.position = _terminal.position + new Vector3(0f, -1.4f, 0f);
+                // 둥지 쪽 아래(가장 아래 둥지보다 _nestLabelGap 아래, 둥지들 가로 평균)에 둬 배경·"종점" 라벨과 겹치지 않게 한다.
+                float sumX = 0f, minY = float.MaxValue;
+                foreach (RaidUnit nest in _raid.Nests) { sumX += nest.X; minY = Mathf.Min(minY, nest.Y); }
+                labelGo.transform.position = new Vector3(sumX / Mathf.Max(1, _raid.Nests.Count), minY - _data.NestLabelGap, _terminal.position.z);
                 var text = labelGo.AddComponent<TextMeshPro>();
                 TMP_Text sample = _terminal.GetComponentInChildren<TMP_Text>(true);
                 if (sample != null) text.font = sample.font;
@@ -183,7 +223,7 @@ namespace IronRing.Presentation.Raid
             float t = 1f - Mathf.Exp(-_data.CameraLerpPerSecond * Time.unscaledDeltaTime);
             if (_raid.IsActive)
             {
-                Vector3 target = new Vector3(_terminal.position.x, _terminal.position.y, camera.transform.position.z);
+                Vector3 target = new Vector3(_terminal.position.x + _data.CameraOffsetX, _terminal.position.y, camera.transform.position.z);
                 camera.transform.position = Vector3.Lerp(camera.transform.position, target, t);
                 camera.orthographicSize = Mathf.Lerp(camera.orthographicSize, _data.RaidCameraSize, t);
             }
@@ -261,7 +301,8 @@ namespace IronRing.Presentation.Raid
 
         private void OnShot(bool player, float x, float y)
         {
-            Vector3 from = _anchors.TrainAnchor != null ? _anchors.TrainAnchor.position : _terminal.position;
+            // 포탑·열차 대포 모두 맨 앞 칸에서 쏜다(034에서 칸별 장비 위치로 나눌 수 있다).
+            Vector3 from = CarPosition(0);
             StartCoroutine(FlyShell(from, new Vector3(x, y, from.z)));
         }
 

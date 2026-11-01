@@ -70,3 +70,30 @@
 - 브리지 `refresh` failed=false(편집기 편집 모드 전환 직후). `RaidBuild.Generate` 2회, `.bridge/rebuild/Raid` + `BuildMainCanvas.Generate`, `SpriteGenRaid.Generate`(카탈로그 배정 포함) 실행, `scene-status` isDirty=false.
 - 캡처: `033-raid-start.png`(1000프레임: 종점 폐허 배경·둥지 3·거미 1, 내구도 15/15, 둥지 3·몬스터 1, "클릭으로 사격"), `033-raid-mid.png`(1300프레임: 내구도 13/15, 열차가 종점 구간을 기어가는 중, 포탑 격추 로그 `RAID: kill spider#0 by turret`), `033-raid-win.png`(1900프레임: `RAID: end victory=True hull=25/25`, 승객 3/3, 복구 중), `033-raid-lose.png`(1500프레임: `RAID: end victory=False hull=0/4 … t=3.1`, 폐허 유지).
 - 후속(사용자 01:25): 구도를 "열차 쪽 포탑 전선 ← 둥지에서 달려오는 적"으로 바꿀 것(둥지를 종점 너머 한쪽에, 열차는 종점에 멈춰 정면을 보고, 몬스터는 한 방향으로 돌진). 내구도 글자 대비(노랑 위 노랑) 수정.
+
+## 구도 수정 (사용자 01:25 "포탑이랑 전선으로, 적들이 달려오게")
+
+- 이전 캡처의 문제: 둥지 3개가 종점을 삼각형으로 둘러싸고 열차가 한가운데 있었다. 습격 중에는 열차가 hub-1 쪽으로 기어가면서 적에게 등을 보였다.
+- 바꾼 구도: 열차 쪽 전선에 맞서 적이 한 방향에서 달려온다.
+  - 둥지: 종점 오른쪽(선로 끝 너머)에 세로로 지그재그 배치.
+  - 몬스터: 왼쪽으로 열차 머리(진행 방향 맨 앞 끝)를 향해 달려온다. 머리에서 `_contactRadius` 0.45 안에 들어오면 내구도를 깎는다.
+  - 열차: 습격 중에는 종점에 멈춰 오른쪽을 본 채 버티고, 끝나면 이전처럼 왼쪽으로 출발한다.
+- 바뀐 데이터 (`Raid.json`):
+  - `_nestOffsets`: (−1.8, 1.3) / (1.9, 1.1) / (0.3, −1.9) → (4.2, 1.7) / (4.7, 0) / (4.2, −1.7)
+  - `_crawlEdgeFraction`: 0.3 → 0 (0이면 정지)
+  - 새 값 `_trainCars` 3: 열차 칸 수. 칸 위치 계산에 쓴다.
+  - 새 값 `_cameraOffsetX` 1.8: 습격 카메라 중심을 둥지 쪽으로 민다.
+  - 새 값 `_nestLabelGap` 1.0: "둥지 N" 라벨을 가장 아래 둥지 아래, 둥지들 가로 평균 위치에 둔다. 배경·"종점" 라벨과 겹치지 않는다.
+- 사격: 포탑 자동 사격과 클릭 포탄 모두 맨 앞 칸(`RaidView.CarPosition(0)`)에서 나간다.
+  - 공개 조회 함수 `RaidView.CarPosition(int index)`: 0 = 맨 앞 칸. 열차 스프라이트의 진행 방향 길이를 칸 수로 나눈 중심 위치이며, 034의 칸 위 장비가 쓴다.
+  - 공개 조회 함수 `RaidView.TrainFront()`: 몬스터가 노리는 지점.
+- HUD: 내구도 글자를 어두운 잉크색 (34, 24, 18)과 굵은 글씨로 바꿨다. 노란 채움 위에서 읽힌다. `Raid.prefab`의 m_fontColor와 m_fontStyle 두 줄이 바뀌었다.
+- 데모 4단계(start/mid/win/lose)의 로직은 바꾸지 않았다.
+- 브리지 (2026-11-02 01:23):
+  - `refresh`: ok, failed=false, 오류 없음.
+  - `RaidBuild.Generate` 2회: 둘 다 ok. 씬 변경 없음(멱등).
+  - `.bridge/rebuild/Raid` 표식과 `BuildMainCanvas.Generate`: ok. 표식은 소비되었다.
+  - `scene-status`: Main.unity, isDirty=false, playing=false.
+- 남은 확인(캡처): 둥지와 몬스터가 화면 안에 들어오는지(카메라 크기 5, 중심 +1.8), 그리고 열차가 오른쪽을 보는지. 열차 방향은 hub-1에서 들어올 때의 마지막 방향을 그대로 쓴다.
+
+- 코디네이터 캡처(01:45): `033-raid-mid-v2.png`(--raid-demo --raid-stage mid 1300프레임) — 열차가 종점에 멈춰 오른쪽을 보고, 둥지 3개가 오른쪽에 세로 지그재그, 자동인형이 왼쪽으로 열차 머리를 향해 돌진, "내구도 13/15" 어두운 글자로 읽힘, "둥지 3" 라벨이 둥지 아래. 구도 확인. 남은 메모: 습격 HUD 패널이 맨 위 둥지와 가깝다(034에서 HUD 위치 조정 가능).
