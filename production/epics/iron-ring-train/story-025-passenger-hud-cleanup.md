@@ -1,12 +1,12 @@
 # Story 025: 승객 화면 반영과 UI 잔재 정리
 
 > **Epic**: 철환 장갑열차 MVP (iron-ring-train)
-> **Status**: Ready
+> **Status**: Done (2026-11-01 22:05 KST 코디네이터 브리지 검증 — 컴파일 통과, Generate 멱등, UiHitTests·HudSortingOrder 0건, Play 캡처로 승객 화면·상단 바 승객 수·대화 출신지·도감 ??? 확인)
 > **Layer**: Presentation
 > **Type**: UI
 > **Estimate**: M
 > **Manifest Version**: N/A (minimal — no control manifest)
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-11-01
 
 ## Context
 
@@ -26,13 +26,13 @@
 
 ## Acceptance Criteria
 
-- [ ] 상단 바: "승객 N/3"(`IPassengers.PassengerIds.Count`, 정원은 데이터) 라벨과 버튼. 누르면 승객 화면이 열린다(단축키 P).
-- [ ] 승객 화면(새 화면 프리팹 `Passengers`, 상황 화면): 탄 사람마다 한 줄 — 직업명, 출신지, 제안("가스등 거리를 만들어 주면 거기서 살겠소."), 힌트, 탄 지 몇 바퀴. 비어 있으면 "승객이 없다". 탑승·하차·이탈 때 갱신. 닫기·Esc.
-- [ ] 대화 패널: 집 줄 옆에 "<출신지> 출신"(`INpcInteraction.Origin(npcId)`).
-- [ ] 도감 카드 "찾아오는 이": 그 서식지 종류 후보(`INpcRecruiter.CandidatesOf`) 가운데 실제로 합류한 사람(`JoinedOf`)만 이름으로, 나머지는 "???"로(예: "점등부, ???"). 숨은 조건은 어디에도 보이지 않는다.
-- [ ] 탑승 토스트는 그대로 두되, 승객 화면을 열면 같은 제안·힌트를 다시 볼 수 있다.
-- [ ] 잔재 정리: `PlacementGhost.UiHitTests`와 `InteriorNpcWalker`의 사용 제거(EventSystem 판정만), `HubPhaseViewSettings.HudSortingOrder`와 `hub_phase_view.json`의 같은 필드 삭제, `ItemsDemoDriver` 등 남은 죽은 참조 확인. `grep UiHitTests` 0건.
-- [ ] 데모 `--npc-demo --npc-stage passengers`: 승객 2명을 태운 뒤 승객 화면을 연다. 스크린샷: (1) 승객 화면, (2) 상단 바 승객 수, (3) 대화 패널 출신지 줄, (4) 도감 카드 "점등부, ???". `production/qa/evidence/story-025-passenger-hud-cleanup/` + verification.md.
+- [x] 상단 바: "승객 N/3"(`IPassengers.PassengerIds.Count`, 정원은 데이터) 라벨과 버튼. 누르면 승객 화면이 열린다(단축키 P).
+- [x] 승객 화면(새 화면 프리팹 `Passengers`, 상황 화면): 탄 사람마다 한 줄 — 직업명, 출신지, 제안("가스등 거리를 만들어 주면 거기서 살겠소."), 힌트, 탄 지 몇 바퀴. 비어 있으면 "승객이 없다". 탑승·하차·이탈 때 갱신. 닫기·Esc.
+- [x] 대화 패널: 집 줄 옆에 "<출신지> 출신"(`INpcInteraction.Origin(npcId)`).
+- [x] 도감 카드 "찾아오는 이": 그 서식지 종류 후보(`INpcRecruiter.CandidatesOf`) 가운데 실제로 합류한 사람(`JoinedOf`)만 이름으로, 나머지는 "???"로(예: "점등부, ???"). 숨은 조건은 어디에도 보이지 않는다.
+- [x] 탑승 토스트는 그대로 두되, 승객 화면을 열면 같은 제안·힌트를 다시 볼 수 있다.
+- [x] 잔재 정리: `PlacementGhost.UiHitTests`와 `InteriorNpcWalker`의 사용 제거(EventSystem 판정만), `HubPhaseViewSettings.HudSortingOrder`와 `hub_phase_view.json`의 같은 필드 삭제, `ItemsDemoDriver` 등 남은 죽은 참조 확인. `grep UiHitTests` 0건.
+- [x] 데모 `--npc-demo --npc-stage passengers`: 승객 2명을 태운 뒤 승객 화면을 연다. 스크린샷: (1) 승객 화면, (2) 상단 바 승객 수, (3) 대화 패널 출신지 줄, (4) 도감 카드 "점등부, ???". `production/qa/evidence/story-025-passenger-hud-cleanup/` + verification.md.
 
 ---
 
@@ -69,7 +69,7 @@
 **Required evidence**:
 - 브리지 컴파일 확인 + 스크린샷 4장: `production/qa/evidence/story-025-passenger-hud-cleanup/` + `verification.md`
 
-**Status**: [ ] 미완
+**Status**: [x] 024 스킨 캡처에 함께 찍힘 — `story-024-ui-skin-sprite-sheet/024-passengers.png`(--npc-demo --npc-stage passengers: 승객 화면 2줄(점등부·가스관 기술자, 출신지·탄 바퀴·제안·힌트), 상단 바 "승객 2/3 (P)"), `024-npc-panel.png`(--npc-stage panel: "집 가스등 거리 · 떠돌이 선로 출신"), `024-codex.png`(--npc-stage codex: 가스등 거리 카드 "찾아오는 이: 점등부, ???", 미해금 카드 "???, ???").
 
 ---
 

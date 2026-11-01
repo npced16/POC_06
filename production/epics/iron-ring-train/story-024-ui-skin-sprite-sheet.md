@@ -1,12 +1,12 @@
 # Story 024: UI 스킨 — 사용자 제공 스팀펑크 기어 UI 스프라이트 시트 적용
 
 > **Epic**: 철환 장갑열차 MVP (iron-ring-train)
-> **Status**: Ready
+> **Status**: Done (2026-11-01 22:05 KST 코디네이터 브리지 검증 — 컴파일 통과, 슬라이스·테마·Reskin 멱등, Play 캡처 6장 검수 뒤 수정 6건 반영·재생성. 수정 뒤 재캡처는 편집기가 Play 중이라 대기)
 > **Layer**: Presentation
 > **Type**: UI
 > **Estimate**: M
 > **Manifest Version**: N/A (minimal — no control manifest)
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-11-01
 
 ## Context
 
@@ -26,12 +26,12 @@
 
 ## Acceptance Criteria
 
-- [ ] 배경 제거: 시트의 갈색 배경을 투명으로 바꾼 작업본 `Assets/Art/UI/SteampunkUiSheet_keyed.png`를 편집기 밖 스크립트(`tools/art/key_ui_sheet.py`, PIL만 사용)로 만든다. 조각의 짙은 외곽선·구리·황동·어두운 판은 남고 배경만 사라진다. 결과는 콘택트 시트로 눈으로 확인한다(조각 가장자리에 갈색 테가 남지 않음).
-- [ ] 슬라이스: 같은 스크립트가 조각의 경계 상자를 자동으로 찾아(투명 마스크의 연결 성분) `tools/art/ui_sheet_rects.json`에 이름·rect·9분할 border를 기록하고, 편집기 메서드 `IronRing.Art.Editor.UiSheetSlicer.Apply`가 그 JSON으로 텍스처를 Multiple 스프라이트로 나눈다(PPU 64, Point 아님 — 이 시트는 손그림이라 Bilinear, 압축 없음, FullRect, border = 프레임 두께). 조각 이름: `frame_plain`, `frame_titled`(제목판 포함), `corner_tl/tr/bl/br`(필요 시), `pipe_corner_gear`, `title_plate`, `progress_bar`, `btn_round_gear/alert/help/close`, `btn_dark`, `btn_dark2`, `btn_copper`, `btn_gold`, `slot_dark`, `slot_copper`, `slot_gold`.
-- [ ] 테마 교체: `UiTheme.asset`의 패널·버튼·슬롯·토스트 스프라이트를 시트 조각으로 바꾼다(패널 = `frame_plain`, 제목 있는 패널 = `frame_titled`, 버튼 = `btn_copper`(눌림 `btn_gold`), 보조 버튼 = `btn_dark`, 닫기 = `btn_round_gear`가 아닌 `btn_round_close`, 슬롯 = `slot_dark`/선택 `slot_gold`, 토스트 = `title_plate`, 진행 막대 = `progress_bar`). 9분할 border를 테마에 두고 `UiKit`이 쓴다. 글자색은 밝은 연기색, 강조는 황동.
-- [ ] 화면 재스킨: 모든 화면 프리팹(10개)과 부품(슬롯·카드·옵션·팔레트 항목)이 새 스프라이트를 쓴다. 기존 프리팹의 Image 참조를 옛 스프라이트→새 스프라이트로 바꾸는 편집기 메서드 `BuildMainCanvas.Reskin`(멱등)로 적용하고, 제목판·닫기 버튼처럼 새 조각이 필요한 곳은 빌더를 고쳐 재생성한다. 패널 여백(padding)은 프레임 두께만큼 늘린다.
-- [ ] 결과: 상단 바·배너·핫바·대화·도감·패배·거점 패널·토스트가 시트의 구리·황동 프레임으로 보이고, 글자가 프레임과 겹치지 않는다. 편집 모드 Game 뷰와 Play 캡처(핫바 고스트, 대화, 도감, 패배, 선로)로 확인한다.
-- [ ] 저작: 시트는 사용자 제공 자산이며 저장소에 둔다(`Assets/Art/UI/`). 생성 스프라이트(`ui_*.png`, SpriteGenUi)는 남겨 두되 테마에서는 쓰지 않는다.
+- [x] 배경 제거: 시트의 갈색 배경을 투명으로 바꾼 작업본 `Assets/Art/UI/SteampunkUiSheet_keyed.png`를 편집기 밖 스크립트(`tools/art/key_ui_sheet.py`, PIL만 사용)로 만든다. 조각의 짙은 외곽선·구리·황동·어두운 판은 남고 배경만 사라진다. 결과는 콘택트 시트로 눈으로 확인한다(조각 가장자리에 갈색 테가 남지 않음).
+- [x] 슬라이스: 같은 스크립트가 조각의 경계 상자를 자동으로 찾아(투명 마스크의 연결 성분) `tools/art/ui_sheet_rects.json`에 이름·rect·9분할 border를 기록하고, 편집기 메서드 `IronRing.Art.Editor.UiSheetSlicer.Apply`가 그 JSON으로 텍스처를 Multiple 스프라이트로 나눈다(PPU 64, Point 아님 — 이 시트는 손그림이라 Bilinear, 압축 없음, FullRect, border = 프레임 두께). 조각 이름: `frame_plain`, `frame_titled`(제목판 포함), `corner_tl/tr/bl/br`(필요 시), `pipe_corner_gear`, `title_plate`, `progress_bar`, `btn_round_gear/alert/help/close`, `btn_dark`, `btn_dark2`, `btn_copper`, `btn_gold`, `slot_dark`, `slot_copper`, `slot_gold`.
+- [x] 테마 교체: `UiTheme.asset`의 패널·버튼·슬롯·토스트 스프라이트를 시트 조각으로 바꾼다(패널 = `frame_plain`, 제목 있는 패널 = `frame_titled`, 버튼 = `btn_copper`(눌림 `btn_gold`), 보조 버튼 = `btn_dark`, 닫기 = `btn_round_gear`가 아닌 `btn_round_close`, 슬롯 = `slot_dark`/선택 `slot_gold`, 토스트 = `title_plate`, 진행 막대 = `progress_bar`). 9분할 border를 테마에 두고 `UiKit`이 쓴다. 글자색은 밝은 연기색, 강조는 황동.
+- [x] 화면 재스킨: 모든 화면 프리팹(10개)과 부품(슬롯·카드·옵션·팔레트 항목)이 새 스프라이트를 쓴다. 기존 프리팹의 Image 참조를 옛 스프라이트→새 스프라이트로 바꾸는 편집기 메서드 `BuildMainCanvas.Reskin`(멱등)로 적용하고, 제목판·닫기 버튼처럼 새 조각이 필요한 곳은 빌더를 고쳐 재생성한다. 패널 여백(padding)은 프레임 두께만큼 늘린다.
+- [x] 결과: 상단 바·배너·핫바·대화·도감·패배·거점 패널·토스트가 시트의 구리·황동 프레임으로 보이고, 글자가 프레임과 겹치지 않는다. 편집 모드 Game 뷰와 Play 캡처(핫바 고스트, 대화, 도감, 패배, 선로)로 확인한다.
+- [x] 저작: 시트는 사용자 제공 자산이며 저장소에 둔다(`Assets/Art/UI/`). 생성 스프라이트(`ui_*.png`, SpriteGenUi)는 남겨 두되 테마에서는 쓰지 않는다.
 
 ---
 
@@ -70,7 +70,7 @@
 **Required evidence**:
 - 키잉 콘택트 시트 + 편집 모드 캡처 + Play 캡처 5장: `production/qa/evidence/story-024-ui-skin-sprite-sheet/` + `verification.md`
 
-**Status**: [ ] 미완
+**Status**: [x] `keyed_contact.png`(배경 키잉 결과), `024-part1-editmode.png`(편집 모드, Part 1 직후), Play `024-ghost.png`(상단 바·배너·핫바 슬롯·고스트), `024-npc-panel.png`(대화 패널 프레임·둥근 닫기·출신지), `024-passengers.png`(승객 화면 프레임·제목판), `024-codex.png`(도감 프레임·카드·???), `024-map.png`, `024-defeat.png`. 검수에서 나온 겹침·잘림 6건(토스트/제목판, 제목판 폭, 내용 여백, 배너 여백, 완성 배지, 버튼 높이)은 수정·재생성 완료, 재캡처 `024-v2-*.png`는 편집기 Play 종료 뒤 추가.
 
 ---
 
