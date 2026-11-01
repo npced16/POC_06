@@ -7,12 +7,12 @@
     { "_kind": "item", "_id": "tile_gear" },
     { "_kind": "item", "_id": "tile_girder" },
     { "_kind": "item", "_id": "tile_cobble" },
-    { "_kind": "facility", "_id": "wall" },
-    { "_kind": "facility", "_id": "turret" }
+    { "_kind": "item", "_id": "tile_tank" },
+    { "_kind": "item", "_id": "tile_glass" }
   ],
   "_fillMissingFromCatalog": true,
-  "_paletteCategories": ["tile"],
-  "_facilities": ["wall", "turret", "workshop"],
+  "_paletteCategories": ["tile", "deco"],
+  "_facilities": [],
   "_dragThresholdPixels": 8,
   "_toastSeconds": 2.5,
   "_noticeSeconds": 1.8,

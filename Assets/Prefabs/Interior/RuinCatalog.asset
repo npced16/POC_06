@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 529f791f95c353c4995d041e0b1d9579, type: 3}
+  m_Name: RuinCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::IronRing.Presentation.Interior.RuinCatalog
+  _variants:
+  - _kind: puddle
+    _frames:
+    - {fileID: 21300000, guid: 2e271e75e5684634895c76f3f4d7d09e, type: 3}
+    - {fileID: 21300000, guid: 2c63728371dc187419166d0136947546, type: 3}
+  - _kind: puddle
+    _frames:
+    - {fileID: 21300000, guid: cd6b7f1c28be99642b07cdd8a9a1f0de, type: 3}
+    - {fileID: 21300000, guid: 98361d193387daa4db8f0b27d6a0820c, type: 3}
+  - _kind: weeds
+    _frames:
+    - {fileID: 21300000, guid: 439930e0e7704514eba547a459e2148d, type: 3}
+  - _kind: weeds
+    _frames:
+    - {fileID: 21300000, guid: d1243af13060bad4ba1610224ec5323a, type: 3}
+  - _kind: weeds
+    _frames:
+    - {fileID: 21300000, guid: 3e53350c099a9f2439066bdeaee3367f, type: 3}
+  - _kind: rubble
+    _frames:
+    - {fileID: 21300000, guid: e050329b66dc9c54887c7be0e14f9dd4, type: 3}
+  - _kind: rubble
+    _frames:
+    - {fileID: 21300000, guid: bba631c0f2a49524aadc6e82c00e191a, type: 3}
+  - _kind: campfire
+    _frames:
+    - {fileID: 21300000, guid: 2553354af17a2d74ebb0e98229457e5c, type: 3}
+    - {fileID: 21300000, guid: b5d1830728ca31140a542ac97f4155cd, type: 3}
+  - _kind: tent
+    _frames:
+    - {fileID: 21300000, guid: 6f67a96d5966c054d9e7464dea7512cb, type: 3}
+  _propPrefab: {fileID: 5056497415286843455, guid: 0bacfd52642808648b3973dce2638013, type: 3}
+  _smokePrefab: {fileID: 1162208155780925468, guid: 272f2944d3898d848a16c3fdfa8896a1, type: 3}
+  _dataResource: Interior/RuinDressing

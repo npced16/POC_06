@@ -63,3 +63,9 @@ MonoBehaviour:
     _sprite: {fileID: 21300000, guid: 7bf0997752bf8ae41a7917fd0bf39450, type: 3}
   - _id: steam_pipe
     _sprite: {fileID: 21300000, guid: ead0243471f34744dbfc56e9e88d4324, type: 3}
+  - _id: deco_campfire
+    _sprite: {fileID: 21300000, guid: 562a576fd363a57488e59d82bf553978, type: 3}
+  - _id: deco_puddle
+    _sprite: {fileID: 21300000, guid: 93c58d27ff9304942979601a218f4f59, type: 3}
+  - _id: deco_weeds
+    _sprite: {fileID: 21300000, guid: d97258f04e4653d4bafc064fde7917db, type: 3}

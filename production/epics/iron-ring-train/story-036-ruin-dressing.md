@@ -1,7 +1,7 @@
 # Story 036: 폐허 연출 — 웅덩이·잡초·모닥불·잔해로 "완전 폐허"처럼 보이게, 복구될수록 걷힌다
 
 > **Epic**: 철환 장갑열차 MVP (iron-ring-train)
-> **Status**: Ready
+> **Status**: Done (2026-11-02 02:05 KST 코디네이터 — 장식 태그 수정 뒤 컴파일 통과, RuinBuild 멱등, 캡처 2장 + 콘택트 시트)
 > **Layer**: Presentation
 > **Type**: Visual/Feel
 > **Estimate**: M
