@@ -1,0 +1,13 @@
+{
+  "_edgeSeconds": 24,
+  "_passToasts": true,
+  "_toastSeconds": 1.6,
+  "_landmarks": [
+    { "_progress": 0.0, "_offset": -3.3, "_kind": "station", "_label": "주조소", "_toast": false },
+    { "_progress": 0.16, "_offset": 0, "_kind": "signal", "_label": "신호기", "_toast": false },
+    { "_progress": 0.36, "_offset": 0, "_kind": "halt", "_label": "폐역 — 잿더미", "_toast": true },
+    { "_progress": 0.55, "_offset": 0, "_kind": "bridge", "_label": "녹슨 다리", "_toast": true },
+    { "_progress": 0.72, "_offset": 0, "_kind": "watertower", "_label": "급수탑", "_toast": true },
+    { "_progress": 1.0, "_offset": 2.5, "_kind": "outpost", "_label": "종점", "_toast": true }
+  ]
+}

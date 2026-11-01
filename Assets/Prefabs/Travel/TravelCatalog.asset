@@ -1,0 +1,101 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 370825c8877a2cc478804bbac0fece59, type: 3}
+  m_Name: TravelCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::IronRing.Presentation.Travel.TravelCatalog
+  RectPrefab: {fileID: 2373369201631928500, guid: 1a6248ac6f3496248bd5cdb4bf26d985, type: 3}
+  CirclePrefab: {fileID: 1649474785086824670, guid: 3aec44f39f1846e4b8fec8abef0256ab, type: 3}
+  LabelPrefab: {fileID: 2603450067230900534, guid: ad9c90d8b30335246b0e557f75209521, type: 3}
+  WhiteSprite: {fileID: 21300000, guid: 76b40b2aec149b94d9a880f2e84c6fd3, type: 3}
+  CircleSprite: {fileID: 21300000, guid: 9dad1b371f6e3964689bfb012c75f703, type: 3}
+  CameraSize: 4.5
+  CameraOffsetY: 0.6
+  TrainScreenFraction: 0.33333334
+  GroundY: -2.2
+  SegmentWorldLength: 40
+  ParallaxFar: 0.2
+  ParallaxMid: 0.5
+  ParallaxNear: 1
+  FarSpacing: 3.2
+  MidSpacing: 2.6
+  SleeperSpacing: 0.7
+  FenceSpacing: 1.6
+  LayerMargin: 20
+  CarWidth: 2.1
+  CarHeight: 1
+  CarGap: 0.15
+  WheelSize: 0.42
+  WobbleAmplitude: 0.03
+  WobbleHz: 7
+  WheelSpinDegrees: 540
+  SmokeInterval: 0.18
+  SmokeSeconds: 1.1
+  SlotDotSize: 0.1
+  EquipSize: 0.3
+  PassengerDotSize: 0.12
+  PassengersPerCar: 6
+  LaneScale: 0.3
+  LaneBase: 0.35
+  NestSize: 0.9
+  SpiderSize: 0.42
+  AutomatonSize: 0.6
+  ShellSize: 0.14
+  ShellSeconds: 0.15
+  FlashSeconds: 0.1
+  DebrisCount: 3
+  DebrisSeconds: 0.3
+  ClickRadius: 0.6
+  SortingBase: 200
+  Sky: {r: 0.20392157, g: 0.15686275, b: 0.20392157, a: 1}
+  SkyGlow: {r: 0.47058824, g: 0.27450982, b: 0.19607843, a: 1}
+  Ground: {r: 0.1882353, g: 0.14901961, b: 0.13333334, a: 1}
+  FarColor: {r: 0.30588236, g: 0.22745098, b: 0.25882354, a: 1}
+  MidColor: {r: 0.36078432, g: 0.28235295, b: 0.2509804, a: 1}
+  MidWindow: {r: 0.9019608, g: 0.6666667, b: 0.3137255, a: 1}
+  Rail: {r: 0.5882353, g: 0.54901963, b: 0.50980395, a: 1}
+  Sleeper: {r: 0.32941177, g: 0.23529412, b: 0.17254902, a: 1}
+  Fence: {r: 0.43137255, g: 0.34509805, b: 0.27450982, a: 1}
+  Platform: {r: 0.54901963, g: 0.47058824, b: 0.39215687, a: 1}
+  PlatformRuined: {r: 0.3529412, g: 0.3137255, b: 0.2901961, a: 1}
+  SignBoard: {r: 0.23529412, g: 0.18039216, b: 0.15686275, a: 1}
+  SignText: {r: 1, g: 0.8392157, b: 0.54901963, a: 1}
+  Signal: {r: 0.3137255, g: 0.3137255, b: 0.3137255, a: 1}
+  SignalLight: {r: 0.8627451, g: 0.27450982, b: 0.19607843, a: 1}
+  Bridge: {r: 0.43137255, g: 0.27450982, b: 0.19607843, a: 1}
+  Water: {r: 0.19607843, g: 0.27450982, b: 0.3529412, a: 1}
+  Tower: {r: 0.47058824, g: 0.3764706, b: 0.3137255, a: 1}
+  Ruin: {r: 0.27450982, g: 0.22745098, b: 0.21960784, a: 1}
+  Locomotive: {r: 0.27450982, g: 0.23529412, b: 0.22745098, a: 1}
+  CarBody: {r: 0.47058824, g: 0.30588236, b: 0.19607843, a: 1}
+  CarRoof: {r: 0.21960784, g: 0.17254902, b: 0.15686275, a: 1}
+  Brass: {r: 0.78431374, g: 0.5882353, b: 0.27450982, a: 1}
+  Wheel: {r: 0.11764706, g: 0.101960786, b: 0.101960786, a: 1}
+  Chimney: {r: 0.15686275, g: 0.14117648, b: 0.14117648, a: 1}
+  Smoke: {r: 0.7058824, g: 0.6862745, b: 0.6666667, a: 0.78431374}
+  Window: {r: 0.15686275, g: 0.13333334, b: 0.15686275, a: 1}
+  PassengerDot: {r: 1, g: 0.8627451, b: 0.627451, a: 1}
+  SlotDot: {r: 0.9019608, g: 0.8235294, b: 0.6666667, a: 0.54901963}
+  Turret: {r: 0.78431374, g: 0.27450982, b: 0.23529412, a: 1}
+  HeavyTurret: {r: 0.5882353, g: 0.15686275, b: 0.15686275, a: 1}
+  ArmorPlate: {r: 0.627451, g: 0.6666667, b: 0.7058824, a: 1}
+  Booster: {r: 0.3529412, g: 0.43137255, b: 0.54901963, a: 1}
+  Flame: {r: 1, g: 0.5882353, b: 0.15686275, a: 1}
+  Repair: {r: 0.43137255, g: 0.6666667, b: 0.3529412, a: 1}
+  Nest: {r: 0.47058824, g: 0.15686275, b: 0.27450982, a: 1}
+  NestMound: {r: 0.27450982, g: 0.15686275, b: 0.15686275, a: 1}
+  NestBroken: {r: 0.23529412, g: 0.21176471, b: 0.19607843, a: 1}
+  Spider: {r: 0.5882353, g: 0.11764706, b: 0.15686275, a: 1}
+  Automaton: {r: 0.5882353, g: 0.54901963, b: 0.47058824, a: 1}
+  AutomatonEye: {r: 1, g: 0.3137255, b: 0.23529412, a: 1}
+  Shell: {r: 1, g: 0.9019608, b: 0.54901963, a: 1}
+  Flash: {r: 1, g: 1, b: 1, a: 1}
+  Debris: {r: 0.3529412, g: 0.11764706, b: 0.11764706, a: 1}

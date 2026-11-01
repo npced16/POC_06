@@ -124,6 +124,7 @@ namespace IronRing.Hud.Hotbar
                 _trainToggle.onClick.AddListener(TrainEquipmentMode.Toggle);
             }
             TrainEquipmentMode.Changed += OnEquipmentModeChanged;
+            WireScrap();
             _noticeBox.SetActive(false);
             _dragChip.gameObject.SetActive(false);
 
@@ -253,12 +254,42 @@ namespace IronRing.Hud.Hotbar
             {
                 HotbarCellView view = _slotViews[i];
                 if (view == null) continue;
-                view.Show(_slots[i].IsValid ? _ghost.IconFor(_slots[i]) : null, DisplayName(_slots[i]));
+                view.Show(_slots[i].IsValid ? _ghost.IconFor(_slots[i]) : null, DisplayName(_slots[i]) + CostSuffix(_slots[i]));
+                view.SetAffordable(Affordable(_slots[i]));
                 view.SetState(i == _selectedSlot, _pendingAssign.IsValid, _theme);
             }
             _palette.SetActive(open && _paletteOpen);
             foreach (var (entry, view) in _paletteViews) view.SetState(entry.Equals(_pendingAssign), false, _theme);
         }
+
+        /// <summary>스토리 038: 장비 칸 이름 뒤 " · 고철 N"(비용 0이면 없음).</summary>
+        private static string CostSuffix(PlacementEntry entry)
+        {
+            var loadout = IronRing.Train.Equipment.TrainEquipmentInstaller.Loadout;
+            if (!entry.IsValid || entry.Kind != PlacementKind.Equipment || loadout == null) return "";
+            int cost = loadout.CostOf(entry.Id);
+            return cost > 0 ? "\n" + string.Format(Strings.Get("equip_cost"), cost) : "";
+        }
+
+        /// <summary>스토리 038: 장비 칸이면 지금 고철로 살 수 있는지(타일·시설은 늘 true).</summary>
+        private static bool Affordable(PlacementEntry entry)
+        {
+            var loadout = IronRing.Train.Equipment.TrainEquipmentInstaller.Loadout;
+            return !entry.IsValid || entry.Kind != PlacementKind.Equipment || loadout == null || loadout.CanAfford(entry.Id);
+        }
+
+        private IScrap _scrap;
+
+        /// <summary>스토리 038: 고철이 바뀌면 칸을 다시 칠하고, 비용 부족 거절은 알림으로 보인다.</summary>
+        private void WireScrap()
+        {
+            _scrap = GameServices.Get<IScrap>();
+            if (_scrap != null) _scrap.Changed += Refresh;
+            var loadout = IronRing.Train.Equipment.TrainEquipmentInstaller.Loadout;
+            if (loadout != null) loadout.PlacementRefused += OnPlacementRefused;
+        }
+
+        private void OnPlacementRefused(string id, int cost, int have) => ShowNotice(string.Format(Strings.Get("equip_no_scrap"), cost, have));
 
         private string DisplayName(PlacementEntry entry)
         {
@@ -496,6 +527,8 @@ namespace IronRing.Hud.Hotbar
         void OnDestroy()
         {
             TrainEquipmentMode.Changed -= OnEquipmentModeChanged;
+            if (_scrap != null) _scrap.Changed -= Refresh;
+            if (IronRing.Train.Equipment.TrainEquipmentInstaller.Loadout != null) IronRing.Train.Equipment.TrainEquipmentInstaller.Loadout.PlacementRefused -= OnPlacementRefused;
             GameServices.Ready -= Create;
             if (_ghost != null)
             {

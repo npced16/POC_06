@@ -16,6 +16,20 @@ namespace IronRing.Combat.Raid
         [SerializeField] private string _hubId = "hub-1";
         [SerializeField] private float _segmentSeconds = 12f;
         [SerializeField] private float _crawlEdgeFraction = 0.3f;
+        // 스토리 037: 달리면서 치르는 습격(enroute). "arrival" = 종점에 멈춰서 치르는 기존 동작.
+        [SerializeField] private string _mode = "arrival";
+        [SerializeField] private float _startProgress = 0.25f;
+        [SerializeField] private float _endProgress = 0.97f;
+        [SerializeField] private float[] _roadsideNests = { 0.45f, 0.62f, 0.8f };
+        [SerializeField] private float _enrouteLength = 40f;
+        [SerializeField] private float _nestSpawnRange = 9f;
+        [SerializeField] private float _edgeSpawnDelay = 1.5f;
+        [SerializeField] private float _edgeSpawnInterval = 3f;
+        [SerializeField] private float _edgeSpawnAhead = 9f;
+        [SerializeField] private float _edgeSpawnBehind = 6f;
+        [SerializeField] private float _edgeSpawnLane = 1.2f;
+        [SerializeField] private float _chaseSpeedFactor = 1f;
+        [SerializeField] private bool _tailContact = true;
         [SerializeField] private int _hullBase = 10;
         [SerializeField] private int _hullPerWall = 5;
         [SerializeField] private string _wallFacilityId = "wall";
@@ -49,6 +63,21 @@ namespace IronRing.Combat.Raid
         [SerializeField] private float _smokeScale = 0.5f;
         [SerializeField] private float _monsterScale = 1f;
         [SerializeField] private float _nestScale = 1f;
+        // 스토리 038(+03:30): 중간역 정차 디펜스. 입구는 열차 머리 기준, 파도는 버틴 시간으로 세진다(끝 시간 없음).
+        [SerializeField] private RaidOffset[] _stopEntrances;
+        [SerializeField] private int _stopEntranceHp = 16;
+        [SerializeField] private bool _stopEntranceRespawn = true;
+        [SerializeField] private float _stopWaveEverySeconds = 6f;
+        [SerializeField] private float _stopSpawnIntervalStart = 3.2f;
+        [SerializeField] private float _stopSpawnIntervalStep = 0.35f;
+        [SerializeField] private float _stopSpawnIntervalMin = 0.9f;
+        [SerializeField] private float _stopAutomatonStart = 0.1f;
+        [SerializeField] private float _stopAutomatonStep = 0.08f;
+        [SerializeField] private float _stopAutomatonMax = 0.6f;
+        [SerializeField] private int _stopMaxAliveStart = 4;
+        [SerializeField] private int _stopMaxAliveStep = 2;
+        [SerializeField] private int _stopMaxAliveCap = 16;
+        [SerializeField] private int _stopLapWaveBonus = 1;
         [Header("Demo (--raid-demo)")]
         [SerializeField] private int _demoTurretsMid = 2;
         [SerializeField] private int _demoWallsMid = 1;
@@ -68,6 +97,32 @@ namespace IronRing.Combat.Raid
         public float SegmentSeconds => _segmentSeconds;
         /// <summary>습격 동안 열차가 다음 선로 구간에서 기어가는 비율(0..0.95). 출발은 그 지점부터 이어진다.</summary>
         public float CrawlEdgeFraction => _crawlEdgeFraction;
+        /// <summary>스토리 037: 습격 방식("enroute" = 달리면서, "arrival" = 종점에 멈춰서). 표현 플래그가 RaidSystem.Mode로 덮을 수 있다.</summary>
+        public string Mode => string.IsNullOrEmpty(_mode) ? "arrival" : _mode;
+        /// <summary>enroute: 출발 구간 진행도가 이 값에 닿으면 습격이 시작된다.</summary>
+        public float StartProgress => _startProgress;
+        /// <summary>enroute: 구간 진행도가 이 값에 닿으면 습격이 끝난다(종점 도착 직전).</summary>
+        public float EndProgress => _endProgress;
+        /// <summary>enroute: 길가 둥지의 구간 진행도 위치(둥지 순번 = _nestOffsets 순번, Y는 _nestOffsets.y).</summary>
+        public float RoadsideNest(int index) => _roadsideNests != null && index >= 0 && index < _roadsideNests.Length ? _roadsideNests[index] : 0.5f + 0.1f * index;
+        /// <summary>enroute: 구간 하나의 길이(습격 좌표 단위). 표현이 RaidSystem.EnrouteLength로 덮는다.</summary>
+        public float EnrouteLength => _enrouteLength;
+        /// <summary>enroute: 길가 둥지가 열차(머리·꼬리)에서 이 거리 안일 때만 몬스터를 낸다.</summary>
+        public float NestSpawnRange => _nestSpawnRange;
+        /// <summary>enroute: 화면 가장자리(앞·뒤) 첫 스폰까지 초.</summary>
+        public float EdgeSpawnDelay => _edgeSpawnDelay;
+        /// <summary>enroute: 화면 가장자리 스폰 간격(초). 0 이하면 가장자리 스폰 없음.</summary>
+        public float EdgeSpawnInterval => _edgeSpawnInterval;
+        /// <summary>enroute: 앞 가장자리 스폰 거리(열차 머리 앞).</summary>
+        public float EdgeSpawnAhead => _edgeSpawnAhead;
+        /// <summary>enroute: 뒤 가장자리 스폰 거리(열차 꼬리 뒤).</summary>
+        public float EdgeSpawnBehind => _edgeSpawnBehind;
+        /// <summary>enroute: 가장자리 스폰 열(Y) 범위 ±.</summary>
+        public float EdgeSpawnLane => _edgeSpawnLane;
+        /// <summary>enroute: 열차를 쫓는 몬스터가 자기 속도에 더하는 열차 속도 배율(1 = 열차와 같은 속도 + 자기 속도만큼 따라붙음).</summary>
+        public float ChaseSpeedFactor => _chaseSpeedFactor;
+        /// <summary>enroute: 꼬리도 접촉선인지(뒤에서 온 몬스터가 꼬리에 붙으면 내구도를 깎음).</summary>
+        public bool TailContact => _tailContact;
         /// <summary>기본 내구도.</summary>
         public int HullBase => _hullBase;
         /// <summary>방벽 하나당 내구도.</summary>
@@ -148,6 +203,23 @@ namespace IronRing.Combat.Raid
         public float DemoMidSeconds => _demoMidSeconds;
         /// <summary>데모 start 캡처 시점(습격 경과 초).</summary>
         public float DemoStartSeconds => _demoStartSeconds;
+
+        /// <summary>스토리 038: 정차 입구(열차 머리 기준 X = 선로 방향, Y = 옆). 비면 정차 디펜스 없음.</summary>
+        public RaidOffset[] StopEntrances => _stopEntrances ?? System.Array.Empty<RaidOffset>();
+        /// <summary>정차 입구 체력.</summary>
+        public int StopEntranceHp => Mathf.Max(1, _stopEntranceHp);
+        /// <summary>정차마다 입구 체력을 되살릴지.</summary>
+        public bool StopEntranceRespawn => _stopEntranceRespawn;
+        /// <summary>정차 파도 간격(초): 버틴 시간 ÷ 이 값 = 파도 번호.</summary>
+        public float StopWaveEverySeconds => Mathf.Max(0.5f, _stopWaveEverySeconds);
+        /// <summary>파도 번호 w의 입구당 스폰 간격 = max(최소, 시작 − w × 감소).</summary>
+        public float StopSpawnInterval(int wave) => Mathf.Max(_stopSpawnIntervalMin, _stopSpawnIntervalStart - wave * _stopSpawnIntervalStep);
+        /// <summary>파도 번호 w의 자동인형 확률 = min(상한, 시작 + w × 증가).</summary>
+        public float StopAutomatonChance(int wave) => Mathf.Min(_stopAutomatonMax, _stopAutomatonStart + wave * _stopAutomatonStep);
+        /// <summary>파도 번호 w의 동시 몬스터 상한 = min(상한, 시작 + w × 증가).</summary>
+        public int StopMaxAlive(int wave) => Mathf.Min(_stopMaxAliveCap, _stopMaxAliveStart + wave * _stopMaxAliveStep);
+        /// <summary>바퀴 하나마다 파도 번호에 더하는 값(바퀴가 돌수록 정차가 처음부터 세다).</summary>
+        public int StopLapWaveBonus => Mathf.Max(0, _stopLapWaveBonus);
 
         /// <summary>JSON을 읽고 범위를 검사한다. 잘못된 값이면 ArgumentException.</summary>
         public static RaidData Parse(string json)

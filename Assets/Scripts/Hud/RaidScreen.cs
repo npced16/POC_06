@@ -41,7 +41,18 @@ namespace IronRing.Hud
             float ratio = _raid.HullMax > 0 ? Mathf.Clamp01((float)_raid.Hull / _raid.HullMax) : 0f;
             if (_hullFill != null) _hullFill.anchorMax = new Vector2(ratio, 1f);
             if (_hullLabel != null) _hullLabel.text = string.Format(Strings.Get("raid_hull"), _raid.Hull, _raid.HullMax);
-            if (_countLabel != null) _countLabel.text = string.Format(Strings.Get("raid_counts"), _raid.NestsAlive, _raid.MonstersAlive);
+            if (_countLabel != null) _countLabel.text = string.Format(Strings.Get("raid_counts"), _raid.NestsAlive, _raid.MonstersAlive) + StopLine();
+        }
+
+        /// <summary>스토리 038(+03:30): 정차 디펜스 중이면 "\n버틴 시간 N초 · 파도 W · 고철 N(+인부 운반 중 n) · 인부 a/b".</summary>
+        private string StopLine()
+        {
+            var system = IronRing.Combat.Raid.RaidInstaller.System;
+            var farming = IronRing.Train.Scrap.ScrapInstaller.Farming;
+            IScrap scrap = GameServices.Get<IScrap>();
+            if (system == null || !system.ActiveStop || farming == null || scrap == null) return "";
+            return "\n" + string.Format(Strings.Get("stop_status_line"), Mathf.FloorToInt(system.Elapsed), system.StopWave + 1,
+                scrap.Amount, farming.Carried, farming.Busy, farming.Workers.Count);
         }
 
         private void OnStarted() => ToastScreen.Show(Strings.Get("raid_toast_start"), _toastSeconds);

@@ -102,6 +102,9 @@ namespace IronRing.Hud
                 // 스토리 034: 열차 장비 칸 수를 같은 줄에 덧붙인다.
                 IronRing.Contracts.ITrainLoadout train = GameServices.Get<IronRing.Contracts.ITrainLoadout>();
                 if (train != null) _laps.text += "  ·  " + string.Format(Strings.Get("result_equipment"), train.UsedCells);
+                // 스토리 038: 고철.
+                IronRing.Contracts.IScrap scrap = GameServices.Get<IronRing.Contracts.IScrap>();
+                if (scrap != null) _laps.text += "  ·  " + string.Format(Strings.Get("result_scrap"), scrap.Amount);
             }
             _screens.Show(_screen.Id);
         }

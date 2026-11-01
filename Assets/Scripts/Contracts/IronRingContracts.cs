@@ -668,4 +668,19 @@ namespace IronRing.Contracts
         /// <summary>중포 한 발 피해.</summary>
         int HeavyTurretDamage { get; }
     }
+
+    /// <summary>
+    /// 스토리 038(design/game-brief.md MVP 4·5). 고철 1종 경제: 중간역 정차 때 인부가 캐 오고, 열차 장비를 놓을 때 쓰고 떼면 돌려받는다.
+    /// </summary>
+    public interface IScrap
+    {
+        /// <summary>지금 가진 고철.</summary>
+        int Amount { get; }
+        /// <summary>amount(0 이상)만큼 늘린다. 음수면 false.</summary>
+        bool TryGain(int amount);
+        /// <summary>amount(0 이상)만큼 쓴다. 모자라거나 음수면 아무것도 바꾸지 않고 false.</summary>
+        bool TrySpend(int amount);
+        /// <summary>양이 바뀌었을 때.</summary>
+        event Action Changed;
+    }
 }

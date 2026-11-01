@@ -107,6 +107,20 @@ namespace IronRing.Combat
             Finish(outcome);
         }
 
+        /// <summary>
+        /// Story 037: an en-route raid (fought while the train keeps running toward node) reports its outcome outside a waypoint
+        /// encounter: applies the same reward/penalty as CompleteRaid and raises EncounterEnded for node without holding the track.
+        /// </summary>
+        public void CompleteEnrouteRaid(bool victory, ITrackNode node)
+        {
+            if (_disposed || node == null) return;
+            _nextHub = FindNextHub(node);
+            EncounterOutcome outcome = victory ? EncounterOutcome.Victory : EncounterOutcome.Defeat;
+            ApplyCombatResult(outcome);
+            LastOutcome = outcome;
+            EncounterEnded?.Invoke(node, outcome);
+        }
+
         /// <summary>Applies the combat reward (victory) or penalty (defeat) to the inventory and the next hub's prosperity.</summary>
         private void ApplyCombatResult(EncounterOutcome result)
         {

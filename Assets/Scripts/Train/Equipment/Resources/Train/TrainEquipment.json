@@ -3,11 +3,11 @@
   "_columns": 3,
   "_rows": 2,
   "_equipment": [
-    { "_id": "turret", "_width": 1, "_shotsPerSecond": 0.8, "_damage": 1, "_hull": 0, "_speedBonus": 0, "_repairPerSecond": 0 },
-    { "_id": "heavy_turret", "_width": 2, "_shotsPerSecond": 0.3, "_damage": 3, "_hull": 0, "_speedBonus": 0, "_repairPerSecond": 0 },
-    { "_id": "armor_plate", "_width": 1, "_shotsPerSecond": 0, "_damage": 0, "_hull": 4, "_speedBonus": 0, "_repairPerSecond": 0 },
-    { "_id": "steam_booster", "_width": 1, "_shotsPerSecond": 0, "_damage": 0, "_hull": 0, "_speedBonus": 0.15, "_repairPerSecond": 0 },
-    { "_id": "repair_rig", "_width": 1, "_shotsPerSecond": 0, "_damage": 0, "_hull": 0, "_speedBonus": 0, "_repairPerSecond": 0.2 }
+    { "_id": "turret", "_cost": 3, "_width": 1, "_shotsPerSecond": 0.8, "_damage": 1, "_hull": 0, "_speedBonus": 0, "_repairPerSecond": 0 },
+    { "_id": "heavy_turret", "_cost": 6, "_width": 2, "_shotsPerSecond": 0.3, "_damage": 3, "_hull": 0, "_speedBonus": 0, "_repairPerSecond": 0 },
+    { "_id": "armor_plate", "_cost": 2, "_width": 1, "_shotsPerSecond": 0, "_damage": 0, "_hull": 4, "_speedBonus": 0, "_repairPerSecond": 0 },
+    { "_id": "steam_booster", "_cost": 4, "_width": 1, "_shotsPerSecond": 0, "_damage": 0, "_hull": 0, "_speedBonus": 0.15, "_repairPerSecond": 0 },
+    { "_id": "repair_rig", "_cost": 3, "_width": 1, "_shotsPerSecond": 0, "_damage": 0, "_hull": 0, "_speedBonus": 0, "_repairPerSecond": 0.2 }
   ],
   "_demoLoadouts": [
     { "_stage": "placed", "_pieces": [
