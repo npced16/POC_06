@@ -43,7 +43,7 @@ Brief Build order: 이동 → 서식지·NPC → 거점 상태·패배 → 전�
 | 016 | 서식지 종류 카탈로그와 연결 판정 | Logic | Done | N/A |
 | 017 | NPC 집 배정, 서식지 곁 배회, 클릭 대화·상호작용 | Integration | Done | N/A |
 | 018 | MainUI 프리팹 — 씬에 놓인 UI 문서와 편집 모드 미리보기 | UI | Done | N/A |
-| 019 | 탑뷰 스팀펑크 환경 아트 적용 (참고 이미지 기준) | Visual/Feel | Ready | N/A |
+| 019 | 탑뷰 스팀펑크 환경 아트 적용 (참고 이미지 기준) | Visual/Feel | Done | N/A |
 | 020 | 서식지 카탈로그 재설계(혼합 묶음·크기 다양화)와 설치칸 확장 | Logic | Done | N/A |
 | 021 | 레시피 해금과 도감 | Integration | Ready | N/A |
 
