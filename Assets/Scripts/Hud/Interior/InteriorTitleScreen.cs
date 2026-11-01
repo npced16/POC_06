@@ -2,6 +2,7 @@ using UnityEngine;
 
 using TMPro;
 
+using IronRing.Contracts;
 using IronRing.Contracts.Presentation;
 using IronRing.Hud.Ui;
 using IronRing.Localization;
@@ -21,6 +22,7 @@ namespace IronRing.Hud.Interior
         [Tooltip("노드 id → 문자열 키 표(HudCatalog.json).")]
         [SerializeField] private TextAsset _catalogJson;
 
+        private ITownTier _town;
         private IViewMode _viewMode;
         private HudCatalog _catalog;
         private UiScreens _screens;
@@ -43,6 +45,7 @@ namespace IronRing.Hud.Interior
             placed.Initialize(screens);
         }
 
+        /// <summary>screens와 내부 화면 서비스를 저장하고 제목 갱신 및 늦은 등급 서비스 연결을 등록한다.</summary>
         private void Initialize(UiScreens screens)
         {
             _screens = screens;
@@ -50,6 +53,7 @@ namespace IronRing.Hud.Interior
             _viewMode = GameServices.Get<IViewMode>();
             _catalog = JsonUtility.FromJson<HudCatalog>(_catalogJson.text);
             _viewMode.InteriorChanged += OnInteriorChanged;
+            ScreenTicker.Add(ResolveTown); ResolveTown();
             Refresh();
         }
 
@@ -58,15 +62,35 @@ namespace IronRing.Hud.Interior
         {
             if (_screens == null) return;
             bool open = _viewMode.InteriorOpen;
-            if (open) _title.text = Strings.Get(_catalog.NodeKey(_viewMode.InteriorHubId));
+            if (open)
+            {
+                string name = Strings.Get(_catalog.NodeKey(_viewMode.InteriorHubId));
+                _title.text = _town != null ? string.Format(Strings.Get("ui_tier_title"), name, _town.TierName) : name;
+            }
             if (open) _screens.Show(_screen.Id); else _screens.Hide(_screen.Id);
         }
 
+        /// <summary>내부 표시 open 변경을 받아 현재 제목과 화면 표시 상태를 갱신한다.</summary>
         private void OnInteriorChanged(bool open) { Refresh(); }
+
+        /// <summary>준비된 마을 등급을 찾아 상승 이벤트를 연결하고 탐색을 중단한다.</summary>
+        private void ResolveTown()
+        {
+            if (_town != null) return;
+            _town = GameServices.Get<ITownTier>();
+            if (_town == null) return;
+            _town.TierChanged += OnTierChanged;
+            Refresh(); ScreenTicker.Remove(ResolveTown);
+        }
+
+        /// <summary>새 등급 number의 이벤트를 받아 내부 제목을 최신 등급 이름으로 갱신한다.</summary>
+        private void OnTierChanged(int number) { Refresh(); }
 
         void OnDestroy()
         {
             GameServices.Ready -= Create;
+            ScreenTicker.Remove(ResolveTown);
+            if (_town != null) _town.TierChanged -= OnTierChanged;
             if (_viewMode != null) _viewMode.InteriorChanged -= OnInteriorChanged;
             if (_instance == this) _instance = null;
         }

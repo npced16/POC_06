@@ -6,6 +6,27 @@ using IronRing.Contracts;
 namespace IronRing.Hub
 {
     /// <summary>
+    /// Story 042: the town hub link to the economy town tier (TownTiers.json), attached by EconomyInstaller.
+    /// Phase gives the tier mapped HubPhase (Collapsed after the town collapse rule), Tier the current tier number,
+    /// Residents the town residents (prosperity _perResident each).
+    /// </summary>
+    public sealed class TownLink
+    {
+        /// <summary>Town hub id (hub-1).</summary>
+        public string HubId;
+        /// <summary>Mapped phase of the current tier.</summary>
+        public Func<HubPhase> Phase;
+        /// <summary>Current tier number (0 = ruins).</summary>
+        public Func<int> Tier;
+        /// <summary>Current residents.</summary>
+        public Func<int> Residents;
+        /// <summary>Tier that wins the run.</summary>
+        public int VictoryTier;
+        /// <summary>Lowest tier that counts as partial success at the deadline.</summary>
+        public int PartialTier;
+    }
+
+    /// <summary>
     /// Pure C# hub simulation (Stories 004, 014 and 028): prosperity, development phases, deadline and run ending.
     /// Composition wires track LapCompleted to OnLapCompleted; Story 014's installer attaches item/habitat sources.
     /// Per lap per hub (Collapsed skipped; Story 028: ruins also take the base decay, floored at Minimum):
@@ -17,6 +38,9 @@ namespace IronRing.Hub
     /// "the run is over" for every outcome so the train and controls freeze; IRunResult tells the outcome.
     /// Story 030: with data `_earlyWin` the run ends as Victory the moment every hub is Settled (Laps = laps applied so far);
     /// the deadline still ends it otherwise.
+    /// Story 042: with `_useTownTiers` and an attached TownLink, the town hub phase follows the town tier, the deadline ends the run by tier
+    /// (victory tier = Victory, partial tier = Partial, below = Defeat), reaching the victory tier ends it early as Victory (_earlyWin),
+    /// and the town collapsing is Defeat. Other hubs keep the threshold rules but no longer decide the outcome. Prosperity adds _perResident x residents.
     /// </summary>
     public sealed class RunState : IHubStateSystem, IHubDevelopment, IRunLossInfo, IRunResult, IProsperityForecast
     {
@@ -84,6 +108,19 @@ namespace IronRing.Hub
             LapsUntilDeadline = _rules?.DeadlineLaps ?? int.MaxValue;
         }
 
+        /// <summary>Story 042: attached town link (null until EconomyInstaller attaches it).</summary>
+        public TownLink Town { get; private set; }
+
+        /// <summary>Story 042: true when the town link is attached and HubProfiles.json `_useTownTiers` is on.</summary>
+        public bool TownActive => Town != null && _rules != null && _rules.UseTownTiers;
+
+        /// <summary>Story 042: attaches the town tier link and re-evaluates the town hub phase.</summary>
+        public void AttachTown(TownLink link)
+        {
+            Town = link;
+            if (link != null && _states.ContainsKey(link.HubId)) RefreshPhase(link.HubId);
+        }
+
         /// <summary>Attaches placed-item and habitat readers (Story 014 installer); until then both read as 0/false.</summary>
         public void AttachSources(IProsperitySources sources)
         {
@@ -128,10 +165,33 @@ namespace IronRing.Hub
             if (_rules == null) return;
             if (LapsUntilDeadline > 0) LapsUntilDeadline--;
             if (LapsUntilDeadline > 0) return;
+            if (TownActive)
+            {
+                int tier = Town.Tier();
+                if (tier >= Town.VictoryTier) End(RunOutcome.Victory, RunLossReason.None);
+                else if (tier >= Town.PartialTier) End(RunOutcome.Partial, RunLossReason.None);
+                else End(RunOutcome.Defeat, RunLossReason.DeadlineExpired);
+                return;
+            }
             int settled = CountSettled();
             if (settled == 0) End(RunOutcome.Defeat, RunLossReason.DeadlineExpired);
             else End(settled >= HubIds.Count ? RunOutcome.Victory : RunOutcome.Partial, RunLossReason.None);
         }
+
+        /// <summary>
+        /// Story 040: bankruptcy (balance below 0 for Economy.json _bankruptLaps consecutive settlements, judged by Economy.Settlement)
+        /// ends the run on the spot as Defeat with RunLossReason.Bankrupt. reasonText (e.g. "파산") is kept in LossReasonText for the result screen.
+        /// Ignored once the run is over.
+        /// </summary>
+        public void DeclareBankrupt(string reasonText)
+        {
+            if (IsRunLost) return;
+            LossReasonText = reasonText;
+            End(RunOutcome.Defeat, RunLossReason.Bankrupt);
+        }
+
+        /// <summary>Story 040: display text of a special loss reason (e.g. "파산" for Bankrupt); null for other outcomes.</summary>
+        public string LossReasonText { get; private set; }
 
         /// <summary>IProsperityForecast: the lap rule's delta for hubId right now (0 for Collapsed); unknown ids throw.</summary>
         public float NextLapDelta(string hubId)
@@ -152,14 +212,17 @@ namespace IronRing.Hub
                 + data.PerHabitatCell * _sources.HabitatCellCount(id)
                 + _sources.HabitatBonus(id, data.HabitatBonus)
                 + data.PerNpc * _npcs.NpcsAt(id).Count
-                + data.PerFacility * _facilities.FacilitiesAt(id).Count;
+                + data.PerFacility * _facilities.FacilitiesAt(id).Count
+                + (Town != null && id == Town.HubId && _rules != null ? _rules.PerResident * (Town.Residents?.Invoke() ?? 0) : 0f);
         }
 
         /// <summary>Runs hubId's transition table and raises PhaseChanged/HubRuined per transition, then checks the collapse loss.</summary>
         private void Evaluate(string hubId, HubState state)
         {
             var transitions = new List<HubPhase>(2);
-            state.Evaluate(_sources.IsHabitatComplete(hubId), transitions);
+            bool town = TownActive && hubId == Town.HubId;
+            if (town) state.SetPhase(Town.Phase(), transitions);
+            else state.Evaluate(_sources.IsHabitatComplete(hubId), transitions);
             bool collapsed = false;
             foreach (HubPhase phase in transitions)
             {
@@ -167,6 +230,14 @@ namespace IronRing.Hub
                 if (phase == HubPhase.Ruined || phase == HubPhase.Collapsed) HubRuined?.Invoke(hubId);
                 collapsed |= phase == HubPhase.Collapsed;
             }
+            if (town)
+            {
+                // Story 042: the town collapsing is Defeat; reaching the victory tier is an early Victory (with _earlyWin).
+                if (collapsed && !IsRunLost) End(RunOutcome.Defeat, RunLossReason.AllSettledCollapsed);
+                if (!IsRunLost && _rules.EarlyWin && Town.Tier() >= Town.VictoryTier) End(RunOutcome.Victory, RunLossReason.None, true);
+                return;
+            }
+            if (TownActive) return;
             if (collapsed && !IsRunLost && AllSettledCollapsed()) End(RunOutcome.Defeat, RunLossReason.AllSettledCollapsed);
             // Story 030: early win the moment the last hub enters Settled.
             if (!IsRunLost && _rules != null && _rules.EarlyWin && transitions.Contains(HubPhase.Settled) && CountSettled() >= HubIds.Count)

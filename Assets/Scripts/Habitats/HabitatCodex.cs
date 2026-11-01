@@ -68,6 +68,9 @@ namespace IronRing.Habitats
         public const string SOURCE_DISCOVER = "discover";
         public const string SOURCE_BOARD = "board";
         public const string SOURCE_TEACH = "teach";
+        /// <summary>스토리 042. 마을 등급이 연 레시피.</summary>
+        public const string SOURCE_TIER = "tier";
+        private ITownTier _tiers;
 
         private readonly HabitatCatalog _catalog;
         private readonly CodexUnlockSettings _settings;
@@ -213,9 +216,30 @@ namespace IronRing.Habitats
             if (!IsUnlocked(typeId)) TryUnlock(typeId, SOURCE_DISCOVER);
         }
 
+        /// <summary>
+        /// 스토리 042. 마을 등급 해금을 연결한다(다시 부르면 이전 연결을 푼다). 연결 즉시 지금까지의 누적 해금(등급 0 포함)을,
+        /// 그 뒤로는 TierChanged마다 ITownTier.UnlockedRecipeIds 중 잠긴 것을 "tier"로 연다.
+        /// </summary>
+        public void BindTiers(ITownTier tiers)
+        {
+            if (_tiers != null) _tiers.TierChanged -= OnTierChanged;
+            _tiers = tiers;
+            if (_tiers == null) return;
+            _tiers.TierChanged += OnTierChanged;
+            OnTierChanged(_tiers.Tier);
+        }
+
+        private void OnTierChanged(int tier)
+        {
+            if (_tiers == null) return;
+            foreach (string id in _tiers.UnlockedRecipeIds) if (!IsUnlocked(id)) TryUnlock(id, SOURCE_TIER);
+        }
+
         /// <summary>구독을 푼다.</summary>
         public void Dispose()
         {
+            if (_tiers != null) _tiers.TierChanged -= OnTierChanged;
+            _tiers = null;
             if (_track != null) _track.LapCompleted -= OnLapCompleted;
             if (_waypoints != null) _waypoints.EncounterEnded -= OnEncounterEnded;
             if (_clusters != null) _clusters.HabitatCompleted -= OnHabitatCompleted;

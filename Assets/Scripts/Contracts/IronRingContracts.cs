@@ -401,7 +401,9 @@ namespace IronRing.Contracts
         /// <summary>정착했던 거점이 모두 붕괴.</summary>
         AllSettledCollapsed,
         /// <summary>기한 안에 정착한 거점이 없음.</summary>
-        DeadlineExpired
+        DeadlineExpired,
+        /// <summary>스토리 040. 잔고가 0 아래인 채 정산이 데이터(Economy.json _bankruptLaps) 바퀴 연속 = 파산.</summary>
+        Bankrupt
     }
 
     /// <summary>스토리 014가 구현(선택 계약, IHubDevelopment와 함께 등록). 패배 화면이 제목을 사유별로 고르는 데 쓴다.</summary>
@@ -516,5 +518,123 @@ namespace IronRing.Contracts
     {
         /// <summary>hubId, 서식지 종류 id. 그 종류의 완성 묶음 칸 구성이 바뀔 때마다 1회.</summary>
         event Action<string, string> HabitatChanged;
+    }
+
+    // ----- 경제 기반(스토리 040, design/game-brief.md "돈(마르크)"·"휴식지는 시장이다") -----
+
+    /// <summary>스토리 040. 회사 돈(마르크). 정수만 쓴다.</summary>
+    public interface IMoney
+    {
+        /// <summary>현재 잔고(유지비 강제 지출로 0 아래가 될 수 있다).</summary>
+        int Balance { get; }
+        /// <summary>amount(&gt;=0)를 더한다. 음수면 false.</summary>
+        bool TryGain(int amount, string reason);
+        /// <summary>amount(&gt;=0)를 뺀다. 잔고가 모자라면 아무것도 바꾸지 않고 false.</summary>
+        bool TrySpend(int amount, string reason);
+        /// <summary>강제 지출(유지비). 잔고가 모자라도 빼서 0 아래가 될 수 있다.</summary>
+        void Charge(int amount, string reason);
+        /// <summary>잔고가 바뀔 때마다.</summary>
+        event Action Changed;
+    }
+
+    /// <summary>스토리 040. 장부 항목 종류.</summary>
+    public enum LedgerKind
+    {
+        /// <summary>승객 운임(수입).</summary>
+        Fare,
+        /// <summary>화물 판매(수입).</summary>
+        Sale,
+        /// <summary>화물 구매(지출).</summary>
+        Purchase,
+        /// <summary>열차 유지비(지출).</summary>
+        Upkeep,
+        /// <summary>스토리 045. 완성 건물 수입(_income 합).</summary>
+        Income
+    }
+
+    /// <summary>스토리 040. 장부 한 줄. Amount는 부호 있음(수입 +, 지출 -).</summary>
+    public sealed class LedgerEntry
+    {
+        /// <summary>항목이 속한 바퀴(진행 중인 바퀴 = 완료 바퀴 + 1).</summary>
+        public int Lap;
+        /// <summary>항목 종류.</summary>
+        public LedgerKind Kind;
+        /// <summary>금액(수입 +, 지출 -).</summary>
+        public int Amount;
+        /// <summary>메모(품목 id·수량, 승객 id 등).</summary>
+        public string Note;
+    }
+
+    /// <summary>스토리 040. 바퀴 장부. 거점 복귀(LapCompleted)마다 유지비를 적고 정산한다.</summary>
+    public interface ILedger
+    {
+        /// <summary>모든 항목(적은 순서).</summary>
+        IReadOnlyList<LedgerEntry> Entries { get; }
+        /// <summary>지금 적히는 바퀴 번호.</summary>
+        int CurrentLap { get; }
+        /// <summary>lap 바퀴의 kind 합계(부호 있음).</summary>
+        int Total(int lap, LedgerKind kind);
+        /// <summary>런 전체 수입 합(양수).</summary>
+        int TotalIncome { get; }
+        /// <summary>런 전체 지출 합(양수).</summary>
+        int TotalExpense { get; }
+        /// <summary>정산 직후: 바퀴 번호, 그 바퀴 순이익.</summary>
+        event Action<int, int> LapSettled;
+    }
+
+    // ----- 타일 비용(스토리 041) -----
+
+    /// <summary>스토리 041. 타일·장식 배치 가격(ItemCatalog.json _price). 배치 때 잔고에서 빠지고, 회수·철거·되돌리기 때 _refundRatio만큼 돌아온다.</summary>
+    public interface IPlacementCost
+    {
+        /// <summary>아이템 1개 배치 가격(마르크, 모르는 id면 0).</summary>
+        int PriceOf(string itemId);
+        /// <summary>아이템 1개 회수 때 돌려받는 금액.</summary>
+        int RefundOf(string itemId);
+        /// <summary>지금 잔고로 놓을 수 있는지.</summary>
+        bool CanAfford(string itemId);
+    }
+
+    // ── 주민·마을 등급(스토리 042) ─────────────────────────────
+
+    /// <summary>
+    /// 스토리 042·045(가벼운 경제). 마을 거점(hub-1)의 일반 주민. 고유 NPC(INpcRecruiter)는 별도다.
+    /// 바퀴 정산 때: 주거 &gt; 주민이면 +1(빛 ≥ 주민 × _lightPerResident면 +2, 주거를 넘지 않음), 주거 &lt; 주민이면 −1(최소 1).
+    /// </summary>
+    public interface IPopulation
+    {
+        /// <summary>일반 주민 수(시작 3, 최소 1).</summary>
+        int Residents { get; }
+        /// <summary>주거 = 기본 주거 + 완성 건물 _housing 합.</summary>
+        int Housing { get; }
+        /// <summary>빛 = 완성 건물 _light 합.</summary>
+        int Light { get; }
+        /// <summary>값이 바뀌었을 때(정산, 건물 완성·파손).</summary>
+        event Action Changed;
+    }
+
+    /// <summary>스토리 042. 창고 거점의 마을 등급(0 폐허 → 1 정착촌 → 2 마을 → 3 도시, TownTiers.json). 등급은 내려가지 않는다.</summary>
+    public interface ITownTier
+    {
+        /// <summary>지금 등급 번호(0부터).</summary>
+        int Tier { get; }
+        /// <summary>지금 등급 id(ruin|camp|village|city).</summary>
+        string TierId { get; }
+        /// <summary>지금 등급 이름(폐허·정착촌·마을·도시).</summary>
+        string TierName { get; }
+        /// <summary>다음 등급 번호(최고면 지금 등급).</summary>
+        int NextTier { get; }
+        /// <summary>최고 등급인지.</summary>
+        bool IsMax { get; }
+        /// <summary>다음 등급에 필요한 주민 수(최고면 0).</summary>
+        int NextResidentsNeed { get; }
+        /// <summary>다음 등급에 필요한 번영(최고면 0).</summary>
+        int NextProsperityNeed { get; }
+        /// <summary>등급이 올랐을 때(새 등급 번호).</summary>
+        event Action<int> TierChanged;
+        /// <summary>지금까지 등급이 연 레시피 id(누적).</summary>
+        IReadOnlyList<string> UnlockedRecipeIds { get; }
+        /// <summary>지금까지 등급이 연 열차 업그레이드 id(누적, 043이 쓴다).</summary>
+        IReadOnlyList<string> UnlockedUpgradeIds { get; }
     }
 }

@@ -24,8 +24,8 @@ namespace IronRing.Hud.Editor.Screens
         /// <summary>팔레트 항목 부품 경로.</summary>
         public const string PALETTE_PART = BuildMainCanvas.PARTS_FOLDER + "/PaletteItem.prefab";
 
-        private static readonly Vector2 SlotSize = new Vector2(66, 74);
-        private static readonly Vector2 EntrySize = new Vector2(78, 72);
+        private static readonly Vector2 SlotSize = new Vector2(66, 98);
+        private static readonly Vector2 EntrySize = new Vector2(78, 98);
 
         /// <summary>화면 루트(UiScreen "Hotbar", 항상 켜짐) + HotbarScreen + 내용.</summary>
         public static GameObject Build(UiTheme theme)
@@ -41,7 +41,7 @@ namespace IronRing.Hud.Editor.Screens
 
             // 팔레트(기본 꺼짐: 토글 버튼으로 연다)
             Image palette = UiKit.Panel(content, "Palette", theme);
-            UiKit.Place(palette.rectTransform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 150), new Vector2(760, 330));
+            UiKit.Place(palette.rectTransform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 178), new Vector2(760, 330));
             TextMeshProUGUI paletteTitle = UiKit.Label(palette.transform, "Title", Strings.Get("hotbar_palette_title"), UiTextSize.Title, theme, TextAlignmentOptions.MidlineLeft);
             UiKit.StretchTop(paletteTitle.rectTransform, 34, 8, 16, 100);
             paletteTitle.color = theme.Accent;
@@ -64,7 +64,7 @@ namespace IronRing.Hud.Editor.Screens
 
             // 하단 막대: 9칸 + 팔레트 버튼
             Image bar = UiKit.Bar(content, "Bar", theme);
-            UiKit.Place(bar.rectTransform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 14), new Vector2(758, 90));
+            UiKit.Place(bar.rectTransform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 14), new Vector2(758, 114));
             HorizontalOrVerticalLayoutGroup row = UiKit.Row(bar.transform, "Slots", false, 6);
             row.childAlignment = TextAnchor.MiddleLeft;
             UiKit.Stretch((RectTransform)row.transform, 10, 8, 104, 8);
@@ -83,12 +83,12 @@ namespace IronRing.Hud.Editor.Screens
 
             // 안내 줄과 알림
             Image hintBox = UiKit.Sliced(content, "HintBox", theme.ToastSprite, theme, false);
-            UiKit.Place(hintBox.rectTransform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 108), new Vector2(520, 26));
+            UiKit.Place(hintBox.rectTransform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 132), new Vector2(520, 26));
             TextMeshProUGUI hint = UiKit.Label(hintBox.transform, "Hint", Strings.Get("hotbar_hint"), UiTextSize.Small, theme);
             UiKit.Stretch(hint.rectTransform, 8, 1, 8, 1);
             hint.color = theme.Muted;
             Image noticeBox = UiKit.Sliced(content, "Notice", theme.ToastSprite, theme, false);
-            UiKit.Place(noticeBox.rectTransform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 138), new Vector2(460, 32));
+            UiKit.Place(noticeBox.rectTransform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 162), new Vector2(460, 32));
             TextMeshProUGUI notice = UiKit.Label(noticeBox.transform, "Text", Strings.Get("ui_sample_notice"), UiTextSize.Normal, theme);
             UiKit.Stretch(notice.rectTransform, 10, 2, 10, 2);
             notice.color = theme.Accent;
@@ -129,12 +129,16 @@ namespace IronRing.Hud.Editor.Screens
             TextMeshProUGUI label = UiKit.Label(frame.transform, "Name", "", UiTextSize.Small, theme);
             RectTransform labelRect = label.rectTransform;
             labelRect.anchorMin = Vector2.zero; labelRect.anchorMax = new Vector2(1, 0); labelRect.pivot = new Vector2(0.5f, 0);
-            labelRect.offsetMin = new Vector2(3, 3); labelRect.offsetMax = new Vector2(-3, 22);
+            labelRect.offsetMin = new Vector2(3, 26); labelRect.offsetMax = new Vector2(-3, 47);
             label.textWrappingMode = TextWrappingModes.NoWrap;
             label.overflowMode = TextOverflowModes.Ellipsis;
             label.enableAutoSizing = true;
             label.fontSizeMax = theme.Size(UiTextSize.Small);
             label.fontSizeMin = theme.Size(UiTextSize.Small) * 0.6f;
+            TextMeshProUGUI price = UiKit.Label(frame.transform, "Price", "", UiTextSize.Small, theme);
+            UiKit.Place(price.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 3), new Vector2(size.x - 6, 21));
+            price.textWrappingMode = TextWrappingModes.NoWrap;
+            UiKit.Bind(view, "_price", price);
             UiKit.Bind(view, "_frame", frame);
             UiKit.Bind(view, "_icon", icon);
             UiKit.Bind(view, "_name", label);
@@ -157,6 +161,9 @@ namespace IronRing.Hud.Editor.Screens
             string name = Lookup((entry.Kind == PlacementKind.Facility ? "facility_" : "item_") + entry.Id) ?? entry.Id;
             Sprite sprite = entry.Kind == PlacementKind.Item && sprites != null ? sprites.Get(entry.Id) : null;
             view.Show(sprite, name);
+            TextAsset catalogJson = UnityEngine.Resources.Load<TextAsset>("Items/ItemCatalog");
+            var item = entry.Kind == PlacementKind.Item && catalogJson != null ? IronRing.Items.ItemCatalog.Parse(catalogJson.text).Get(entry.Id) : null;
+            view.SetPrice(item != null ? item.Price : (int?)null, true);
         }
 
         private static string Lookup(string key)

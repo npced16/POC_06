@@ -22,6 +22,12 @@ namespace IronRing.Hud.HubPhase
     {
         private static PhaseBannerScreen _instance;
 
+        [Header("마을 등급")]
+        [SerializeField] private TMP_Text _nextTier;
+        [SerializeField] private GameObject _tierBanner;
+        [SerializeField] private TMP_Text _tierBannerText;
+        [SerializeField] private float _tierBannerSeconds = 2f;
+        [Header("거점 상태")]
         [SerializeField] private TMP_Text _hubLabel;
         [Tooltip("정착 기한 상자(라벨의 부모). 기한이 없으면 끈다.")]
         [SerializeField] private GameObject _deadlineBox;
@@ -33,6 +39,10 @@ namespace IronRing.Hud.HubPhase
             new Color32(196, 140, 108, 255), new Color32(255, 207, 106, 255), new Color32(150, 205, 140, 255), new Color32(214, 96, 80, 255),
         };
 
+        private ITownTier _town;
+        private IPopulation _population;
+        private readonly System.Collections.Generic.Queue<string> _tierMessages = new System.Collections.Generic.Queue<string>();
+        private float _tierBannerUntil;
         private IHubStateSystem _hubs;
         private IHubDevelopment _development;
         private ITrackRuntime _track;
@@ -69,11 +79,14 @@ namespace IronRing.Hud.HubPhase
         private void ClearSample()
         {
             if (_instance == this) return;
+            _tierBanner.SetActive(false);
+            _nextTier.gameObject.SetActive(false);
             if (_hubLabel != null) _hubLabel.transform.parent.gameObject.SetActive(false);
             if (_deadlineBox != null) _deadlineBox.SetActive(false);
             if (_loss != null) _loss.gameObject.SetActive(false);
         }
 
+        /// <summary>현재 거점·선로·발전 서비스를 저장하고 상태줄의 초기 표시를 갱신한다.</summary>
         private void Initialize()
         {
             HubPhaseViewSettings settings = HubPhaseViewSettings.Load();
@@ -123,7 +136,7 @@ namespace IronRing.Hud.HubPhase
             IProsperityForecast forecast = GameServices.Get<IProsperityForecast>();
             int threshold = forecast != null ? Mathf.RoundToInt(forecast.SettledThreshold(hub)) : 0;
             int next = forecast != null ? Mathf.RoundToInt(forecast.NextLapDelta(hub)) : 0;
-            string key = hub + "|" + phase + "|" + prosperity + "|" + laps + "|" + anySettled + "|" + _hubs.IsRunLost + "|" + habitats + "|" + threshold + "|" + next;
+            string key = (_town != null ? _town.TierId : "") + "|" + (_population?.Residents ?? 0) + "|" + hub + "|" + phase + "|" + prosperity + "|" + laps + "|" + anySettled + "|" + _hubs.IsRunLost + "|" + habitats + "|" + threshold + "|" + next;
             if (!force && key == _bannerKey) return;
             _bannerKey = key;
             _hubLabel.transform.parent.gameObject.SetActive(true);
@@ -131,6 +144,12 @@ namespace IronRing.Hud.HubPhase
             if (forecast != null) prosperityText += "  ·  " + Strings.Get("phase_next_lap") + " " + next.ToString("+0;-0;+0");
             _hubLabel.text = Strings.Get(hub.Replace('-', '_')) + "  ·  " + PhaseText(phase) + "  ·  " + prosperityText
                 + "  ·  " + Strings.Get("phase_habitats") + " " + habitats;
+            if (_town != null)
+            {
+                _hubLabel.text = Strings.Get(hub.Replace('-', '_')) + "  ·  " + _town.TierName + "  ·  " + Strings.Get("phase_prosperity") + " " + prosperity;
+                _nextTier.text = TownUiText.Next(_town, _population?.Residents ?? 0, prosperity);
+            }
+            _nextTier.gameObject.SetActive(_town != null);
             int index = (int)phase;
             if (index >= 0 && index < _phaseColors.Length) _hubLabel.color = _phaseColors[index];
             // 스토리 028: 기한은 정착해도 꺼지지 않고 런을 끝낸다(IRunResult가 없으면 옛 규칙: 첫 정착까지만).
@@ -148,14 +167,41 @@ namespace IronRing.Hud.HubPhase
             }
         }
 
+        /// <summary>늦게 준비된 등급·주민 서비스를 연결하고 등급 상승 이벤트를 구독한다.</summary>
+        private void ResolveTown()
+        {
+            if (_population == null) _population = GameServices.Get<IPopulation>();
+            if (_town != null) return;
+            _town = GameServices.Get<ITownTier>();
+            if (_town != null) _town.TierChanged += OnTierChanged;
+        }
+
+        /// <summary>number 등급의 상승 문구를 큐에 넣어 각 상승을 Inspector 지정 시간 동안 표시한다.</summary>
+        private void OnTierChanged(int number)
+        {
+            string hub = CurrentHub();
+            if (hub == null) return;
+            _tierMessages.Enqueue(string.Format(Strings.Get("ui_tier_promoted"), Strings.Get(hub.Replace('-', '_')), TownUiText.Name(_town, number)));
+            Refresh(true);
+        }
+
         void LateUpdate()
         {
-            if (_instance == this && _development != null) Refresh(false);
+            if (_instance != this || _development == null) return;
+            ResolveTown(); Refresh(false);
+            if (_tierBanner.activeSelf && Time.unscaledTime >= _tierBannerUntil) _tierBanner.SetActive(false);
+            if (!_tierBanner.activeSelf && _tierMessages.Count > 0)
+            {
+                _tierBannerText.text = _tierMessages.Dequeue();
+                _tierBannerUntil = Time.unscaledTime + _tierBannerSeconds;
+                _tierBanner.SetActive(true);
+            }
         }
 
         void OnDestroy()
         {
             GameServices.Ready -= Create;
+            if (_town != null) _town.TierChanged -= OnTierChanged;
             if (_instance == this) _instance = null;
         }
     }

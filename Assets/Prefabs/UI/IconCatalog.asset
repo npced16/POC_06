@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e13ab16061270f242a08011ff7cd4c8b, type: 3}
+  m_Name: IconCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::IronRing.Hud.Ui.IconCatalog
+  _entries:
+  - _id: goods_coal
+    _sprite: {fileID: 21300000, guid: 1d164e4f0e213e146bbe2c9b868d10e8, type: 3}
+  - _id: goods_iron
+    _sprite: {fileID: 21300000, guid: 7ef2a830f7ae2d649b6eae98c92a8a99, type: 3}
+  - _id: goods_parts
+    _sprite: {fileID: 21300000, guid: 8db7b8e8aa5dc0d43824c95037b25a78, type: 3}
+  - _id: goods_food
+    _sprite: {fileID: 21300000, guid: 583520e9c86c21247a70cc526641e166, type: 3}
+  - _id: goods_glass
+    _sprite: {fileID: 21300000, guid: bdd104536d73bd34bb9c07ef33b5890d, type: 3}
+  - _id: goods_brass
+    _sprite: {fileID: 21300000, guid: 4c06f1b383e10964aa114c5a2644a9a0, type: 3}
+  - _id: ui_coin
+    _sprite: {fileID: 21300000, guid: 7f7d9dab7da41974d8ef1a34161e95c4, type: 3}
+  - _id: ui_cargo
+    _sprite: {fileID: 21300000, guid: 74095ab27c756a146bbdb619e6e4c744, type: 3}
+  - _id: ui_depart
+    _sprite: {fileID: 21300000, guid: 834d47b1579dcea4996ca03a7945fcff, type: 3}
+  - _id: status_running
+    _sprite: {fileID: 21300000, guid: b305c41dea6213945b137e9c1e4c658b, type: 3}
+  - _id: status_no_workers
+    _sprite: {fileID: 21300000, guid: f1fb82c9162c2f34384c6621126b4dfd, type: 3}
+  - _id: status_no_input
+    _sprite: {fileID: 21300000, guid: 9e78c73c8be76a949baed5bc24c6a953, type: 3}
+  - _id: status_no_steam
+    _sprite: {fileID: 21300000, guid: de841f58e763f87498bf4d6f73282cdd, type: 3}

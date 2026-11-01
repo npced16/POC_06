@@ -1,0 +1,25 @@
+{
+  "_markets": [
+    { "_stopId": "REST-1", "_note": "잿더미 쉼터: 석탄과 철이 싸다", "_goods": [
+      { "_id": "coal",  "_multiplier": 0.70, "_stock": 12, "_demand": 3 },
+      { "_id": "iron",  "_multiplier": 0.75, "_stock": 10, "_demand": 3 },
+      { "_id": "parts", "_multiplier": 1.10, "_stock": 3,  "_demand": 5 },
+      { "_id": "food",  "_multiplier": 1.10, "_stock": 4,  "_demand": 6 },
+      { "_id": "glass", "_multiplier": 1.00, "_stock": 4,  "_demand": 4 },
+      { "_id": "brass", "_multiplier": 1.00, "_stock": 3,  "_demand": 4 } ] },
+    { "_stopId": "REST-2", "_note": "녹슨 다리: 부품과 황동을 비싸게 산다", "_goods": [
+      { "_id": "coal",  "_multiplier": 1.20, "_stock": 3,  "_demand": 8 },
+      { "_id": "iron",  "_multiplier": 1.15, "_stock": 3,  "_demand": 8 },
+      { "_id": "parts", "_multiplier": 1.45, "_stock": 1,  "_demand": 6 },
+      { "_id": "food",  "_multiplier": 1.00, "_stock": 5,  "_demand": 5 },
+      { "_id": "glass", "_multiplier": 1.10, "_stock": 3,  "_demand": 5 },
+      { "_id": "brass", "_multiplier": 1.40, "_stock": 1,  "_demand": 6 } ] },
+    { "_stopId": "REST-3", "_note": "급수탑 쉼터: 식량과 유리가 싸다", "_goods": [
+      { "_id": "coal",  "_multiplier": 1.00, "_stock": 5,  "_demand": 5 },
+      { "_id": "iron",  "_multiplier": 1.00, "_stock": 4,  "_demand": 5 },
+      { "_id": "parts", "_multiplier": 1.20, "_stock": 2,  "_demand": 5 },
+      { "_id": "food",  "_multiplier": 0.70, "_stock": 12, "_demand": 3 },
+      { "_id": "glass", "_multiplier": 0.75, "_stock": 10, "_demand": 3 },
+      { "_id": "brass", "_multiplier": 1.10, "_stock": 3,  "_demand": 5 } ] }
+  ]
+}

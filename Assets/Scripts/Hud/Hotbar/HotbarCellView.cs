@@ -8,6 +8,7 @@ using TMPro;
 
 using IronRing.Presentation.Interior;
 using IronRing.Hud.Ui;
+using IronRing.Localization;
 
 namespace IronRing.Hud.Hotbar
 {
@@ -18,6 +19,11 @@ namespace IronRing.Hud.Hotbar
     public sealed class HotbarCellView : MonoBehaviour, IPointerDownHandler, IPointerClickHandler,
         IInitializePotentialDragHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
     {
+        [Header("가격 표시")]
+        [SerializeField] private TMP_Text _price;
+        [SerializeField] private Color _unaffordableTint = new Color(1f, 0.45f, 0.4f, 0.55f);
+        [SerializeField] private Color _unaffordableText = new Color(1f, 0.5f, 0.45f, 1f);
+        [Header("칸 참조")]
         [SerializeField] private Image _frame;
         [SerializeField] private Image _icon;
         [SerializeField] private TMP_Text _name;
@@ -48,9 +54,18 @@ namespace IronRing.Hud.Hotbar
         /// <summary>스토리 038: 살 수 없으면 아이콘·이름을 붉고 흐리게.</summary>
         public void SetAffordable(bool affordable)
         {
-            Color tint = affordable ? Color.white : new Color(1f, 0.45f, 0.4f, 0.55f);
+            Color tint = affordable ? Color.white : _unaffordableTint;
             if (_icon != null) _icon.color = tint;
-            if (_name != null) _name.color = affordable ? Color.white : new Color(1f, 0.5f, 0.45f, 1f);
+            if (_name != null) _name.color = affordable ? Color.white : _unaffordableText;
+        }
+
+        /// <summary>price가 있으면 한국어 가격을 쓰고 affordable로 가격·아이콘·이름·테두리의 부족 표시를 변경한다.</summary>
+        public void SetPrice(int? price, bool affordable)
+        {
+            _price.text = price.HasValue ? string.Format(Strings.Get("ui_hotbar_price"), price.Value) : string.Empty;
+            _price.color = affordable ? Color.white : _unaffordableText;
+            SetAffordable(affordable);
+            if (!affordable) _frame.color = _unaffordableTint;
         }
 
         /// <summary>키 번호 문구(편집기 미리보기·생성기용).</summary>

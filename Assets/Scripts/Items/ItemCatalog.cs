@@ -22,6 +22,8 @@ namespace IronRing.Items
         public IReadOnlyDictionary<string, int> Cost { get; }
         /// <summary>스토리 016: 분류(데이터). "tile"은 서식지를 이루는 바닥 타일, 그 밖은 장식("decor" 기본).</summary>
         public string Category { get; }
+        /// <summary>스토리 041. 배치 가격(마르크, ItemCatalog.json _price, 0 이상).</summary>
+        public int Price { get; internal set; }
         /// <summary>스토리 016: 서식지 타일인지(Category == "tile").</summary>
         public bool IsTile => Category == TileCategory;
         /// <summary>타일 분류 문자열.</summary>
@@ -131,7 +133,7 @@ namespace IronRing.Items
                     if (c == null || string.IsNullOrWhiteSpace(c._resource)) throw new ArgumentException("Invalid cost on " + item._id, nameof(json));
                     cost[c._resource] = (cost.TryGetValue(c._resource, out int v) ? v : 0) + c._amount;
                 }
-                items.Add(new ItemDefinition(item._id, item._name, item._tags ?? Array.Empty<string>(), cost, item._category));
+                items.Add(new ItemDefinition(item._id, item._name, item._tags ?? Array.Empty<string>(), cost, item._category) { Price = Math.Max(0, item._price) });
             }
             if (data._unlimited && data._unlimitedCount < 1) throw new ArgumentException("_unlimitedCount must be positive in unlimited mode.", nameof(json));
             return new ItemCatalog(items, tags)
@@ -145,7 +147,7 @@ namespace IronRing.Items
 #pragma warning disable 0649
         [Serializable] private sealed class CatalogData { public bool _unlimited; public int _unlimitedCount; public bool _craftingDisabled; public TagData[] _tags; public ItemData[] _items; }
         [Serializable] private sealed class TagData { public string _id; public string _name; }
-        [Serializable] private sealed class ItemData { public string _id; public string _name; public string _category; public string[] _tags; public CostData[] _cost; }
+        [Serializable] private sealed class ItemData { public string _id; public string _name; public string _category; public string[] _tags; public CostData[] _cost; public int _price; }
         [Serializable] private sealed class CostData { public string _resource; public int _amount; }
 #pragma warning restore 0649
     }

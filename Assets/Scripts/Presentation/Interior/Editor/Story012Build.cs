@@ -38,6 +38,7 @@ namespace IronRing.Presentation.Interior.Editor
         private const int GHOST_ORDER = 25;
         private const string BUILDING_PIECE_PREFAB = ROOT + "BuildingPiece.prefab";
         private const string BUILDING_PROP_PREFAB = ROOT + "BuildingProp.prefab";
+        private const string ICON_CATALOG = "Assets/Prefabs/UI/IconCatalog.asset";
         private const string SMOKE_PREFAB = "Assets/Prefabs/Fx/Smoke.prefab";
         private const int FRAME_ORDER = 5;
         private static readonly string[] FACILITY_SPRITES = { "wall", "turret", "workshop" };

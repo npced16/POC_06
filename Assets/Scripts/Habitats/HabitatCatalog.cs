@@ -66,6 +66,20 @@ namespace IronRing.Habitats
         /// <summary>스토리 027. 건물 지붕 위 상징물 id(SpriteGenBuildings.SIGNS). 없으면 null.</summary>
         public string SignProp { get; private set; }
 
+        /// <summary>스토리 045(가벼운 경제). 완성된 건물 하나가 바퀴 정산마다 버는 마르크(_income).</summary>
+        public int Income { get; private set; }
+        /// <summary>스토리 042. 주거 칸(사는 사람 수, _housing).</summary>
+        public int Housing { get; private set; }
+        /// <summary>스토리 042. 빛(가스등 계열, _light).</summary>
+        public int Light { get; private set; }
+
+        /// <summary>스토리 045. 카탈로그 파서가 수입·주거·빛을 붙인다.</summary>
+        internal void SetEconomy(int income, int housing, int light)
+        {
+            if (income < 0 || housing < 0 || light < 0) throw new ArgumentException("Habitat economy numbers must be >= 0: " + Id);
+            Income = income; Housing = housing; Light = light;
+        }
+
         /// <summary>스토리 027. 카탈로그 파서가 건물 외관 데이터를 붙인다.</summary>
         internal void SetBuilding(string style, string signProp)
         {
@@ -233,6 +247,7 @@ namespace IronRing.Habitats
                 }
                 else throw new ArgumentException("Unknown habitat kind " + t._kind + " on " + t._id, nameof(json));
                 types[types.Count - 1].SetBuilding(t._buildingStyle, t._signProp);
+                types[types.Count - 1].SetEconomy(t._income, t._housing, t._light);
             }
             return new HabitatCatalog(types) { LockCompleted = data._lockCompleted };
         }
@@ -245,6 +260,7 @@ namespace IronRing.Habitats
             public string _id; public string _name; public string _kind; public string _tileItemId; public int _requiredCount;
             public string[] _pattern; public TileData[] _tiles; public float _prosperityBonus; public string _npcTypeId;
             public string _buildingStyle; public string _signProp;
+            public int _income; public int _housing; public int _light;
         }
         [Serializable] private sealed class TileData { public string _tileItemId; public int _minCount; }
 #pragma warning restore 0649

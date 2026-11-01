@@ -1,0 +1,64 @@
+{
+  "_comment": "Story 042/045 (가벼운 경제). 마을 거점 주민과 마을 등급. 정산: 주거>주민 → +_growPerLap(빛>=주민x_lightPerResident면 +_growPerLapLit, 주거 상한), 주거<주민 → -_shrinkPerLap(최소 _minResidents). 표: production/qa/evidence/story-045-light-economy/verification.md",
+  "_hubId": "hub-1",
+  "_startResidents": 3,
+  "_minResidents": 1,
+  "_baseHousing": 3,
+  "_hubName": "황동골",
+  "_growPerLap": 1,
+  "_growPerLapLit": 2,
+  "_shrinkPerLap": 1,
+  "_lightPerResident": 0.5,
+  "_collapseResidents": 1,
+  "_collapseProsperity": 0,
+  "_collapseLaps": 2,
+  "_collapseMinTier": 1,
+  "_victoryTier": 3,
+  "_partialTier": 1,
+  "_tiers": [
+    {
+      "_id": "ruin",
+      "_name": "폐허",
+      "_residents": 0,
+      "_prosperity": 0,
+      "_phase": "Ruined",
+      "_unlockRecipes": ["barracks", "greenhouse"],
+      "_unlockUpgrades": [],
+      "_unlockStops": []
+    },
+    {
+      "_id": "camp",
+      "_name": "정착촌",
+      "_residents": 5,
+      "_prosperity": 20,
+      "_phase": "Recovering",
+      "_unlockRecipes": ["cobble_plaza", "water_tower", "iron_depot", "toolshop"],
+      "_unlockUpgrades": ["cargo_plus"],
+      "_unlockStops": ["REST-2"]
+    },
+    {
+      "_id": "village",
+      "_name": "마을",
+      "_residents": 12,
+      "_prosperity": 50,
+      "_phase": "Settled",
+      "_unlockRecipes": ["cogworks", "power_house", "telegraph_line", "lamp_road", "engine_room"],
+      "_unlockUpgrades": ["boiler_plus", "car_plus"],
+      "_unlockStops": ["REST-3"]
+    },
+    {
+      "_id": "city",
+      "_name": "도시",
+      "_residents": 25,
+      "_prosperity": 100,
+      "_phase": "Settled",
+      "_unlockRecipes": ["grand_cogworks", "blast_furnace", "repair_bay"],
+      "_unlockUpgrades": ["express"],
+      "_unlockStops": []
+    }
+  ],
+  "_demoSettles": 3,
+  "_demoGrowBuildings": ["barracks", "greenhouse", "lamp_road"],
+  "_demoTierResidents": 5,
+  "_demoTierProsperity": 20
+}

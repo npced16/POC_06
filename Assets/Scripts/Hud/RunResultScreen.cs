@@ -30,6 +30,8 @@ namespace IronRing.Hud
     {
         private static RunResultScreen _instance;
 
+        [Header("결과 표시")]
+        [SerializeField] private TMP_Text _finance;
         [SerializeField] private TMP_Text _title;
         [SerializeField] private TMP_Text _body;
         [SerializeField] private TMP_Text _hubs;
@@ -85,7 +87,7 @@ namespace IronRing.Hud
                 default:
                     RunLossReason reason = GameServices.Get<IRunLossInfo>()?.LastLossReason ?? RunLossReason.None;
                     _title.text = Strings.Get("result_defeat");
-                    _body.text = Strings.Get(reason == RunLossReason.AllSettledCollapsed ? "result_body_collapse" : "result_body_deadline");
+                    _body.text = Strings.Get(reason == RunLossReason.Bankrupt ? "econ_bankrupt" : reason == RunLossReason.AllSettledCollapsed ? "result_body_collapse" : "result_body_deadline");
                     break;
             }
             var lines = new StringBuilder();
@@ -99,6 +101,14 @@ namespace IronRing.Hud
             if (_laps != null)
             {
                 _laps.text = string.Format(Strings.Get("result_laps"), _result.Laps);
+            }
+            ILedger ledger = GameServices.Get<ILedger>();
+            _finance.gameObject.SetActive(ledger != null);
+            if (ledger != null)
+            {
+                _finance.text = string.Format(Strings.Get("ui_result_finance"), ledger.TotalIncome, ledger.TotalExpense);
+                ITownTier town = GameServices.Get<ITownTier>();
+                if (town != null) _finance.text += " · " + string.Format(Strings.Get("ui_tier_result"), town.TierName);
             }
             _screens.Show(_screen.Id);
         }

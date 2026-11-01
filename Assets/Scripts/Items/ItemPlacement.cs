@@ -33,6 +33,13 @@ namespace IronRing.Items
         /// <summary>hubId, cellIndex, itemId.</summary>
         public event Action<string, int, string> ItemRemoved;
 
+        /// <summary>스토리 041. 배치 비용 결제(아이템 id → 잔고에서 빼기, 모자라면 false). null이면 무료.</summary>
+        public Func<string, bool> TryCharge { get; set; }
+        /// <summary>스토리 041. 배치 가능 여부의 잔고 검사(아이템 id). null이면 언제나 가능.</summary>
+        public Func<string, bool> CanAfford { get; set; }
+        /// <summary>스토리 041. 회수 환급(아이템 id). null이면 환급 없음.</summary>
+        public Action<string> Refund { get; set; }
+
         /// <summary>canEdit가 null이면 언제나 편집 가능(테스트). 통합은 내부 화면이 그 거점일 때만 true를 준다.</summary>
         public ItemPlacement(IItemInventory inventory, IHubInterior interior, IInteriorItemSlots slots, Func<string, bool> canEdit = null)
         {
@@ -47,7 +54,7 @@ namespace IronRing.Items
         {
             if (string.IsNullOrEmpty(itemId) || !CanEdit(hubId)) return false;
             IInteriorCell cell = Cell(hubId, cellIndex);
-            return cell != null && cell.State == InteriorCellState.Empty && _inventory.Count(itemId) > 0;
+            return cell != null && cell.State == InteriorCellState.Empty && _inventory.Count(itemId) > 0 && (CanAfford == null || CanAfford(itemId));
         }
 
         /// <summary>인벤토리에서 1개를 빼 칸에 놓는다. 칸 쓰기가 거부되면 되돌리고 false.</summary>
@@ -56,6 +63,12 @@ namespace IronRing.Items
             if (!CanPlace(hubId, cellIndex, itemId)) return false;
             if (!_inventory.TryRemove(itemId, 1)) return false;
             if (!_slots.TryPlaceItem(hubId, cellIndex, itemId)) { _inventory.Add(itemId, 1); return false; }
+            if (TryCharge != null && !TryCharge(itemId))
+            {
+                _slots.TryRemoveItem(hubId, cellIndex);
+                _inventory.Add(itemId, 1);
+                return false;
+            }
             ItemPlaced?.Invoke(hubId, cellIndex, itemId);
             return true;
         }
@@ -69,6 +82,7 @@ namespace IronRing.Items
             string itemId = cell.ItemId;
             if (!_slots.TryRemoveItem(hubId, cellIndex)) return false;
             _inventory.Add(itemId, 1);
+            Refund?.Invoke(itemId);
             ItemRemoved?.Invoke(hubId, cellIndex, itemId);
             return true;
         }

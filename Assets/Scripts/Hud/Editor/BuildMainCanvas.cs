@@ -58,7 +58,7 @@ namespace IronRing.Hud.Editor
         };
 
         /// <summary>스토리 039: 보관함으로 옮긴 화면 id. MainCanvas에 인스턴스가 남아 있으면 지운다.</summary>
-        private static readonly string[] REMOVED_SCREEN_IDS = { "Raid", "CombatFx" };
+        private static readonly string[] REMOVED_SCREEN_IDS = { "Raid", "CombatFx", "Trade", "Warehouse" };
 
         /// <summary>SCREEN_IDS 순서대로, 빌더 형식이 존재하는 화면만 (id, 생성 함수) 쌍으로 돌려준다.</summary>
         public static (string Id, Func<UiTheme, GameObject> Build)[] SCREENS => ResolveScreens();
@@ -198,6 +198,9 @@ namespace IronRing.Hud.Editor
                 var so = new SerializedObject(screens);
                 FillRef(so, "_theme", theme);
                 SerializedProperty list = so.FindProperty("_screens");
+                // 제거된 화면을 가리키던 빈 참조도 목록에서 정리한다.
+                for (int k = list.arraySize - 1; k >= 0; k--)
+                    if (list.GetArrayElementAtIndex(k).objectReferenceValue == null) list.DeleteArrayElementAtIndex(k);
                 var registered = new HashSet<UnityEngine.Object>();
                 for (int k = 0; k < list.arraySize; k++) registered.Add(list.GetArrayElementAtIndex(k).objectReferenceValue);
                 for (int i = 0; i < SCREENS.Length; i++)

@@ -9,10 +9,16 @@ namespace IronRing.Hub
         public int DeadlineLaps { get; }
         /// <summary>Story 030: when true the run ends as Victory the moment every hub is Settled (HubProfiles.json `_earlyWin`).</summary>
         public bool EarlyWin { get; }
+        /// <summary>Story 042: when true the town hub phase follows the town tier (TownTiers.json) and the run outcome follows the tier (HubProfiles.json `_useTownTiers`).</summary>
+        public bool UseTownTiers { get; }
+        /// <summary>Story 042/045: prosperity per lap for each resident of the town hub (HubProfiles.json `_perResident`).</summary>
+        public float PerResident { get; }
 
         /// <summary>Validates and stores the data-driven deadline in laps (at least 1) and the Story 030 early-win switch.</summary>
-        public HubRunRules(int deadlineLaps, bool earlyWin = false)
+        public HubRunRules(int deadlineLaps, bool earlyWin = false, bool useTownTiers = false, float perResident = 0f)
         {
+            UseTownTiers = useTownTiers;
+            PerResident = perResident;
             if (deadlineLaps < 1) throw new ArgumentOutOfRangeException(nameof(deadlineLaps), "Deadline must be at least one lap.");
             DeadlineLaps = deadlineLaps;
             EarlyWin = earlyWin;
