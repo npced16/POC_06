@@ -280,7 +280,6 @@ namespace IronRing.Art.Editor
                     for (int y = 4; y < 60; y += 13) C.Rect(5, y, 54, 1, R.S);
                     C.Rect(32, 5, 1, 54, R.S); C.Rect(33, 5, 1, 54, R.L);
                     RivetsH(7, 57, 7, 6, Bs.S); RivetsH(7, 57, 56, 6, Bs.S); RivetsV(7, 13, 50, 6, Bs.S); RivetsV(56, 13, 50, 6, Bs.S);
-                    C.Disc(32, 32, 4, Bs.S); C.Disc(32, 32, 3, Bs.B); C.Disc(31.5f, 32.5f, 1.2f, Bs.L);
                     EndLayer();
                     break;
                 case "interior_plot":
