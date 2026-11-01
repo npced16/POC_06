@@ -1,0 +1,51 @@
+Reviewed-Content-Hash: Assets/Scenes/Demo/Story007/Story007Hud.unity 2a727dd279041b9b873c163e88ea4662fc761a41
+Reviewed-Content-Hash: Assets/Scenes/Demo/Story007/Story007Hud.unity.meta 1a270b4ecb4881e35a1e882db68f61a89be11117
+Reviewed-Content-Hash: Assets/Scenes/Demo/Story007.meta cf8cfdfd865b347f6e55eacc6fa50b6f7570c1c0
+Reviewed-Content-Hash: Assets/Scripts/UI/Demo/HudDemoBootstrap.cs 7635d05dee73ab38a8616de6468d726db1c8a229
+Reviewed-Content-Hash: Assets/Scripts/UI/Demo/HudDemoBootstrap.cs.meta acd7a34ea1b3a9094e1a6763fb165183db922d96
+Reviewed-Content-Hash: Assets/Scripts/UI/Demo/HudDemoData.cs 6a42f26849de6e4d6ce6b529be2ed2a582f2329f
+Reviewed-Content-Hash: Assets/Scripts/UI/Demo/HudDemoData.cs.meta 26738e117da0b81b14e53ed3e23bf3aa01b5cb75
+Reviewed-Content-Hash: Assets/Scripts/UI/Demo/HudDemoSystems.cs d55b5d1ecf2898ce5e237741e6466bf55ff27cf5
+Reviewed-Content-Hash: Assets/Scripts/UI/Demo/HudDemoSystems.cs.meta 3b7bde9cd2600a4d22fe1e258a1536222d832c7e
+Reviewed-Content-Hash: Assets/Scripts/UI/Demo.meta 98c7a5249e3ac7f3593399686a93e9b0ad75f748
+Reviewed-Content-Hash: Assets/Scripts/UI/Editor/Story007Build.cs daf355e75d50532e48f14e1391f990916501f336
+Reviewed-Content-Hash: Assets/Scripts/UI/Editor/Story007Build.cs.meta a1e44c8182d212bd6c886402e6d1b842e506a51e
+Reviewed-Content-Hash: Assets/Scripts/UI/Editor.meta 686117fb52784072480045d0495fd26de87a8871
+Reviewed-Content-Hash: Assets/Scripts/UI/HubStatusView.cs 35cae5ad1d54a590fef4798cda6dbee348960b77
+Reviewed-Content-Hash: Assets/Scripts/UI/HubStatusView.cs.meta 68548592114f0c522c949ba53e5f0c92cdb2d4f0
+Reviewed-Content-Hash: Assets/Scripts/UI/HudController.cs 8ad3692969abf7979958f0e9d81a4d9bde8ee72e
+Reviewed-Content-Hash: Assets/Scripts/UI/HudController.cs.meta 71bd540e6c3dff1553b842254f758ee698cdca69
+Reviewed-Content-Hash: Assets/Scripts/UI/HudDocument.cs 28dcd52d4b4429b4b93568808b2f3e0a3de900a6
+Reviewed-Content-Hash: Assets/Scripts/UI/HudDocument.cs.meta 3b434908b618d7507397bd7c9e8626cf3461d891
+Reviewed-Content-Hash: Assets/Scripts/UI.meta d0df4d54190633854f5ebf41394e6a796b50a9df
+Reviewed-Content-Hash: Assets/UI/Story007/DemoData.json 5f9ab01c0b33e10b6204ed14db0b373826751afe
+Reviewed-Content-Hash: Assets/UI/Story007/DemoData.json.meta 92d95284a99e7cc252d71120c1418f24d9b57f79
+Reviewed-Content-Hash: Assets/UI/Story007/Hud.uss 90778929c5a0d0889abef37ac898d76c9567505e
+Reviewed-Content-Hash: Assets/UI/Story007/Hud.uss.meta 16114f4831ac25947234610b56f169cd09882faa
+Reviewed-Content-Hash: Assets/UI/Story007/Hud.uxml 547719d91b61d74784e0adb4d8c1781272e1cdbb
+Reviewed-Content-Hash: Assets/UI/Story007/Hud.uxml.meta 2e5140a8b35b430c9af64c873de8e165dfb3ce69
+Reviewed-Content-Hash: Assets/UI/Story007/HudPanel.asset df01c7a1a1ce72c1be67a700a800f2fc5722713c
+Reviewed-Content-Hash: Assets/UI/Story007/HudPanel.asset.meta 107ff28138614544ab5ab25c6d5037461fbe1d5d
+Reviewed-Content-Hash: Assets/UI/Story007.meta 2f613da66afd4603045767adc82fd755ce9a4800
+Reviewed-Content-Hash: Assets/UI Toolkit/UnityThemes/UnityDefaultRuntimeTheme.tss 1056e07ed4f47c0353c25119d72f3d4e3493d578
+Reviewed-Content-Hash: Assets/UI Toolkit/UnityThemes/UnityDefaultRuntimeTheme.tss.meta 1b49a99efcaab678a65a90411873c626a08f60d6
+Reviewed-Content-Hash: Assets/UI Toolkit/UnityThemes.meta 9fac2e404167a7edbfe0b021e487ae97613cc782
+Reviewed-Content-Hash: Assets/UI Toolkit.meta 3359e101cfbb4d33bddaebe5c24f3b06712957c1
+Reviewed-Content-Hash: Assets/UI.meta 0bcbf917b9a69f8bacf25cff1f02e2b109daa323
+Reviewed-Content-Hash: production/epics/iron-ring-train/story-007-minimal-hud.md c0947f0779e32a1f575c7fa27005e8a66c3b528d
+Reviewed-Content-Hash: production/qa/evidence/story-007-minimal-hud/01-normal.png f56bf48674ec25391185934e35a02c50244b9dad
+Reviewed-Content-Hash: production/qa/evidence/story-007-minimal-hud/02-ruined.png e90558695aa2f5fc3b8b24b70fe0cb74e0206ce1
+Reviewed-Content-Hash: production/qa/evidence/story-007-minimal-hud/03-defeat.png d55904bafb14d5d8d44a87fbd6b8e53480a1cfce
+Reviewed-Content-Hash: production/qa/evidence/story-007-minimal-hud/04-mouse-actions-window.jpg eabd292a3d8c52d775301c56ccc9e4427ae52cc9
+Reviewed-Content-Hash: production/qa/evidence/story-007-minimal-hud/build-r.log 6453aa37aaa0d76860294351ca9d9103411b39b7
+Reviewed-Content-Hash: production/qa/evidence/story-007-minimal-hud/build.log e22bdb7e11dec3417a325162c17ae9de04509aff
+Reviewed-Content-Hash: production/qa/evidence/story-007-minimal-hud/editmode-all.log dd5790b71dae84302ed1a2f00dcfccc606d2fc08
+Reviewed-Content-Hash: production/qa/evidence/story-007-minimal-hud/editmode-all.xml e8b3415df8102203a1adba089deb43ef0893feea
+Reviewed-Content-Hash: production/qa/evidence/story-007-minimal-hud/player-213141.log d4f51dd6be5a56e45d4227fa25992404957b9fbb
+Reviewed-Content-Hash: production/qa/evidence/story-007-minimal-hud/player-213226.log 5f214728725f2d054fe373e11a6efd4fbad1abc0
+Reviewed-Content-Hash: production/qa/evidence/story-007-minimal-hud/player-213236.log fc370c58fb171a4ecd02d9cc809800e5d82a74b6
+Reviewed-Content-Hash: production/qa/evidence/story-007-minimal-hud/player-manual.log 727d4c5d7a3a7eaf03a3aeefff45a06f72bbb529
+Reviewed-Content-Hash: production/qa/evidence/story-007-minimal-hud/player-r-01-normal.log ce77fcb5ab6edb1eb2124cdc51569bb6aaf6aa4b
+Reviewed-Content-Hash: production/qa/evidence/story-007-minimal-hud/player-r-02-ruined.log 95c5889c5835691ecd68887feeefd17f0b180d2b
+Reviewed-Content-Hash: production/qa/evidence/story-007-minimal-hud/player-r-03-defeat.log 31a542fff8b2db7c317be1148d950c0d371fe612
+Reviewed-Content-Hash: production/qa/evidence/story-007-minimal-hud/verification.md ebb65814d35d6b8bb7a5168fc5cba18c7247af33

@@ -1,0 +1,50 @@
+# Coordinator validation for story 006 (2026-10-31T21:15:21Z)
+## 1. EditMode tests  filter=IronRing.Defense.Tests
+[lock] acquired after 810s
+VBCSCompilerServerWatchdog: watching VBCSCompiler (PID 19696)
+[lock] released
+[unity] exit=0 log=C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/story-006-defense-facilities/tests.log
+tests exit=0
+testcasecount="9" result="Passed" total="9" passed="9" failed="0" testcasecount="67" 
+## 2. Demo build  method=IronRing.Defense.Editor.FacilityDemoBuild.Build
+[lock] acquired after 0s
+VBCSCompilerServerWatchdog: watching VBCSCompiler (PID 25544)
+[lock] released
+[unity] exit=0 log=C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/story-006-defense-facilities/build.log
+build exit=0
+player exe present: C:/Users/JUNGLE/Documents/GitHub/POC_06/Builds/Demo/Story006/Game.exe
+## 3. Player capture
+[UnityMemory] Configuration Parameters - Can be set up in boot.config
+    "memorysetup-allocator-temp-initial-block-size-main=262144"
+    "memorysetup-allocator-temp-initial-block-size-worker=262144"
+    "memorysetup-temp-allocator-size-background-worker=32768"
+    "memorysetup-temp-allocator-size-job-worker=262144"
+    "memorysetup-temp-allocator-size-preload-manager=262144"
+    "memorysetup-remapper-allocator-initial-capacity=32768"
+    "memorysetup-temp-allocator-size-nav-mesh-worker=65536"
+    "memorysetup-temp-allocator-size-audio-worker=65536"
+    "memorysetup-temp-allocator-size-cloud-worker=32768"
+    "memorysetup-bucket-allocator-granularity=16"
+    "memorysetup-bucket-allocator-bucket-count=8"
+    "memorysetup-bucket-allocator-block-size=4194304"
+    "memorysetup-bucket-allocator-block-count=1"
+    "memorysetup-main-allocator-block-size=16777216"
+    "memorysetup-thread-allocator-block-size=16777216"
+    "memorysetup-gfx-main-allocator-block-size=16777216"
+    "memorysetup-gfx-thread-allocator-block-size=16777216"
+    "memorysetup-cache-allocator-block-size=4194304"
+    "memorysetup-typetree-allocator-block-size=2097152"
+    "memorysetup-profiler-bucket-allocator-granularity=16"
+    "memorysetup-profiler-bucket-allocator-bucket-count=8"
+    "memorysetup-profiler-bucket-allocator-block-size=4194304"
+    "memorysetup-profiler-bucket-allocator-block-count=1"
+    "memorysetup-profiler-allocator-block-size=16777216"
+    "memorysetup-profiler-editor-allocator-block-size=1048576"
+    "memorysetup-temp-allocator-size-main=4194304"
+    "memorysetup-job-temp-allocator-block-size=2097152"
+    "memorysetup-job-temp-allocator-block-size-background=1048576"
+    "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+    "memorysetup-temp-allocator-size-gfx=262144"
+player exit=0
+## 4. Retained images
+-rw-r--r-- 1 JUNGLE 197121 63462 Nov  1 06:34 C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/story-006-defense-facilities/01-built-facilities.png

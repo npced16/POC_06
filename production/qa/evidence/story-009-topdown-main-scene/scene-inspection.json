@@ -1,0 +1,16 @@
+{
+  "scene": "Assets/Scenes/Main.unity",
+  "nodes": {
+    "EAST PASS": "{x: 10, y: 0, z: 0}",
+    "SOUTH PASS": "{x: 0, y: -4, z: 0}",
+    "hub-3": "{x: 8, y: -4, z: 0}",
+    "hub-4": "{x: -8, y: -4, z: 0}",
+    "WEST PASS": "{x: -10, y: 0, z: 0}",
+    "NORTH PASS": "{x: 0, y: 4, z: 0}",
+    "hub-1": "{x: -8, y: 4, z: 0}",
+    "hub-2": "{x: 8, y: 4, z: 0}"
+  },
+  "worldLabels": 8,
+  "railSprites": 56,
+  "hubTargets": 4
+}

@@ -1,0 +1,51 @@
+# Coordinator validation for story 004 (2026-10-31T21:08:45Z)
+## 1. EditMode tests  filter=IronRing.Hub.Tests
+[lock] acquired after 0s
+VBCSCompilerServerWatchdog: watching VBCSCompiler (PID 37436)
+[lock] released
+[unity] exit=0 log=C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/story-004-hub-growth-ruin-defeat/tests.log
+tests exit=0
+testcasecount="12" result="Passed" total="12" passed="12" failed="0" testcasecount="67" 
+## 2. Demo build  method=IronRing.Hub.Editor.HubDemoBuild.Build
+[lock] acquired after 0s
+VBCSCompilerServerWatchdog: watching VBCSCompiler (PID 6252)
+[lock] released
+[unity] exit=0 log=C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/story-004-hub-growth-ruin-defeat/build.log
+build exit=0
+player exe present: C:/Users/JUNGLE/Documents/GitHub/POC_06/Builds/Demo/Story004/Game.exe
+## 3. Player capture
+[UnityMemory] Configuration Parameters - Can be set up in boot.config
+    "memorysetup-allocator-temp-initial-block-size-main=262144"
+    "memorysetup-allocator-temp-initial-block-size-worker=262144"
+    "memorysetup-temp-allocator-size-background-worker=32768"
+    "memorysetup-temp-allocator-size-job-worker=262144"
+    "memorysetup-temp-allocator-size-preload-manager=262144"
+    "memorysetup-remapper-allocator-initial-capacity=32768"
+    "memorysetup-temp-allocator-size-nav-mesh-worker=65536"
+    "memorysetup-temp-allocator-size-audio-worker=65536"
+    "memorysetup-temp-allocator-size-cloud-worker=32768"
+    "memorysetup-bucket-allocator-granularity=16"
+    "memorysetup-bucket-allocator-bucket-count=8"
+    "memorysetup-bucket-allocator-block-size=4194304"
+    "memorysetup-bucket-allocator-block-count=1"
+    "memorysetup-main-allocator-block-size=16777216"
+    "memorysetup-thread-allocator-block-size=16777216"
+    "memorysetup-gfx-main-allocator-block-size=16777216"
+    "memorysetup-gfx-thread-allocator-block-size=16777216"
+    "memorysetup-cache-allocator-block-size=4194304"
+    "memorysetup-typetree-allocator-block-size=2097152"
+    "memorysetup-profiler-bucket-allocator-granularity=16"
+    "memorysetup-profiler-bucket-allocator-bucket-count=8"
+    "memorysetup-profiler-bucket-allocator-block-size=4194304"
+    "memorysetup-profiler-bucket-allocator-block-count=1"
+    "memorysetup-profiler-allocator-block-size=16777216"
+    "memorysetup-profiler-editor-allocator-block-size=1048576"
+    "memorysetup-temp-allocator-size-main=4194304"
+    "memorysetup-job-temp-allocator-block-size=2097152"
+    "memorysetup-job-temp-allocator-block-size-background=1048576"
+    "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+    "memorysetup-temp-allocator-size-gfx=262144"
+player exit=0
+## 4. Retained images
+-rw-r--r-- 1 JUNGLE 197121 91738 Nov  1 06:15 C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/story-004-hub-growth-ruin-defeat/01-ruined-hub.png
+-rw-r--r-- 1 JUNGLE 197121 88653 Nov  1 06:15 C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/story-004-hub-growth-ruin-defeat/02-run-lost.png

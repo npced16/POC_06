@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="10" result="Passed" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-31 23:37:09Z" end-time="2026-10-31 23:37:09Z" duration="0.1544956">
+  <test-suite type="TestSuite" id="1000" name="POC_06" fullname="POC_06" runstate="Runnable" testcasecount="81" result="Passed" start-time="2026-10-31 23:37:09Z" end-time="2026-10-31 23:37:09Z" duration="0.154496" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="1100" name="Assembly-CSharp-Editor.dll" fullname="C:/Users/JUNGLE/Documents/GitHub/POC_06/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="81" result="Passed" start-time="2026-10-31 23:37:09Z" end-time="2026-10-31 23:37:09Z" duration="0.127150" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="38248" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestSuite" id="1101" name="IronRing" fullname="IronRing" runstate="Runnable" testcasecount="81" result="Passed" start-time="2026-10-31 23:37:09Z" end-time="2026-10-31 23:37:09Z" duration="0.122563" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1102" name="Track" fullname="IronRing.Track" runstate="Runnable" testcasecount="10" result="Passed" start-time="2026-10-31 23:37:09Z" end-time="2026-10-31 23:37:09Z" duration="0.118433" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestSuite" id="1103" name="Tests" fullname="IronRing.Track.Tests" runstate="Runnable" testcasecount="10" result="Passed" start-time="2026-10-31 23:37:09Z" end-time="2026-10-31 23:37:09Z" duration="0.117915" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-suite type="TestFixture" id="1001" name="RingTrackTests" fullname="IronRing.Track.Tests.RingTrackTests" classname="IronRing.Track.Tests.RingTrackTests" runstate="Runnable" testcasecount="10" result="Passed" start-time="2026-10-31 23:37:09Z" end-time="2026-10-31 23:37:09Z" duration="0.116143" total="10" passed="10" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1003" name="Arrival_StopsAtStationsAndPublishesWaypointAndPositionEvents" fullname="IronRing.Track.Tests.RingTrackTests.Arrival_StopsAtStationsAndPublishesWaypointAndPositionEvents" methodname="Arrival_StopsAtStationsAndPublishesWaypointAndPositionEvents" classname="IronRing.Track.Tests.RingTrackTests" runstate="Runnable" seed="433801381" result="Passed" start-time="2026-10-31 23:37:09Z" end-time="2026-10-31 23:37:09Z" duration="0.039635" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1011" name="Holds_StackAndPreventDepartureUntilAllReleased" fullname="IronRing.Track.Tests.RingTrackTests.Holds_StackAndPreventDepartureUntilAllReleased" methodname="Holds_StackAndPreventDepartureUntilAllReleased" classname="IronRing.Track.Tests.RingTrackTests" runstate="Runnable" seed="1485041586" result="Passed" start-time="2026-10-31 23:37:09Z" end-time="2026-10-31 23:37:09Z" duration="0.002341" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1008" name="InvalidTopology_IsRejected" fullname="IronRing.Track.Tests.RingTrackTests.InvalidTopology_IsRejected" methodname="InvalidTopology_IsRejected" classname="IronRing.Track.Tests.RingTrackTests" runstate="Runnable" seed="121384792" result="Passed" start-time="2026-10-31 23:37:09Z" end-time="2026-10-31 23:37:09Z" duration="0.002308" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1002" name="Movement_AdvancesOneNodeAndCountsCompletedLaps" fullname="IronRing.Track.Tests.RingTrackTests.Movement_AdvancesOneNodeAndCountsCompletedLaps" methodname="Movement_AdvancesOneNodeAndCountsCompletedLaps" classname="IronRing.Track.Tests.RingTrackTests" runstate="Runnable" seed="1758878739" result="Passed" start-time="2026-10-31 23:37:09Z" end-time="2026-10-31 23:37:09Z" duration="0.000764" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1012" name="SharedContract_ExposesNodesArrivalsAndCompletedLaps" fullname="IronRing.Track.Tests.RingTrackTests.SharedContract_ExposesNodesArrivalsAndCompletedLaps" methodname="SharedContract_ExposesNodesArrivalsAndCompletedLaps" classname="IronRing.Track.Tests.RingTrackTests" runstate="Runnable" seed="1965904599" result="Passed" start-time="2026-10-31 23:37:09Z" end-time="2026-10-31 23:37:09Z" duration="0.005138" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1009" name="ShippedJson_LoadsAuthoredTopologyAndTiming" fullname="IronRing.Track.Tests.RingTrackTests.ShippedJson_LoadsAuthoredTopologyAndTiming" methodname="ShippedJson_LoadsAuthoredTopologyAndTiming" classname="IronRing.Track.Tests.RingTrackTests" runstate="Runnable" seed="221685800" result="Passed" start-time="2026-10-31 23:37:09Z" end-time="2026-10-31 23:37:09Z" duration="0.013389" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1010" name="SingleNodeRing_RemainsConnected" fullname="IronRing.Track.Tests.RingTrackTests.SingleNodeRing_RemainsConnected" methodname="SingleNodeRing_RemainsConnected" classname="IronRing.Track.Tests.RingTrackTests" runstate="Runnable" seed="1797505443" result="Passed" start-time="2026-10-31 23:37:09Z" end-time="2026-10-31 23:37:09Z" duration="0.000921" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-suite type="ParameterizedMethod" id="1007" name="Topology_IsImmutableAndStationCountComesFromData" fullname="IronRing.Track.Tests.RingTrackTests.Topology_IsImmutableAndStationCountComesFromData" classname="IronRing.Track.Tests.RingTrackTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-10-31 23:37:09Z" end-time="2026-10-31 23:37:09Z" duration="0.016089" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1004" name="Topology_IsImmutableAndStationCountComesFromData(1)" fullname="IronRing.Track.Tests.RingTrackTests.Topology_IsImmutableAndStationCountComesFromData(1)" methodname="Topology_IsImmutableAndStationCountComesFromData" classname="IronRing.Track.Tests.RingTrackTests" runstate="Runnable" seed="1747908105" result="Passed" start-time="2026-10-31 23:37:09Z" end-time="2026-10-31 23:37:09Z" duration="0.003079" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1005" name="Topology_IsImmutableAndStationCountComesFromData(4)" fullname="IronRing.Track.Tests.RingTrackTests.Topology_IsImmutableAndStationCountComesFromData(4)" methodname="Topology_IsImmutableAndStationCountComesFromData" classname="IronRing.Track.Tests.RingTrackTests" runstate="Runnable" seed="225892446" result="Passed" start-time="2026-10-31 23:37:09Z" end-time="2026-10-31 23:37:09Z" duration="0.000415" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1006" name="Topology_IsImmutableAndStationCountComesFromData(5)" fullname="IronRing.Track.Tests.RingTrackTests.Topology_IsImmutableAndStationCountComesFromData(5)" methodname="Topology_IsImmutableAndStationCountComesFromData" classname="IronRing.Track.Tests.RingTrackTests" runstate="Runnable" seed="807988423" result="Passed" start-time="2026-10-31 23:37:09Z" end-time="2026-10-31 23:37:09Z" duration="0.000212" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                  <output><![CDATA[Saving results to: C:/Users/JUNGLE/AppData/LocalLow/DefaultCompany/POC_06\TestResults.xml
+]]></output>
+                </test-case>
+              </test-suite>
+            </test-suite>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

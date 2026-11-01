@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="3" result="Passed" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-11-01 06:44:50Z" end-time="2026-11-01 06:44:50Z" duration="0.3722479">
+  <test-suite type="TestSuite" id="1214" name="POC_06" fullname="POC_06" runstate="Runnable" testcasecount="154" result="Passed" start-time="2026-11-01 06:44:50Z" end-time="2026-11-01 06:44:50Z" duration="0.372248" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="1182" name="Assembly-CSharp-Editor.dll" fullname="C:/Users/JUNGLE/Documents/GitHub/POC_06/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="154" result="Passed" start-time="2026-11-01 06:44:50Z" end-time="2026-11-01 06:44:50Z" duration="0.273016" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="38248" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestSuite" id="1183" name="IronRing" fullname="IronRing" runstate="Runnable" testcasecount="154" result="Passed" start-time="2026-11-01 06:44:50Z" end-time="2026-11-01 06:44:50Z" duration="0.267877" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1194" name="Integration" fullname="IronRing.Integration" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-11-01 06:44:50Z" end-time="2026-11-01 06:44:50Z" duration="0.167302" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestSuite" id="1195" name="Tests" fullname="IronRing.Integration.Tests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-11-01 06:44:50Z" end-time="2026-11-01 06:44:50Z" duration="0.165575" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-suite type="TestFixture" id="1097" name="IntegrationFlowTests" fullname="IronRing.Integration.Tests.IntegrationFlowTests" classname="IronRing.Integration.Tests.IntegrationFlowTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-11-01 06:44:50Z" end-time="2026-11-01 06:44:50Z" duration="0.065490" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1100" name="ProductionData_AlignsAllSystemsAndHud" fullname="IronRing.Integration.Tests.IntegrationFlowTests.ProductionData_AlignsAllSystemsAndHud" methodname="ProductionData_AlignsAllSystemsAndHud" classname="IronRing.Integration.Tests.IntegrationFlowTests" runstate="Runnable" seed="698968957" result="Passed" start-time="2026-11-01 06:44:50Z" end-time="2026-11-01 06:44:50Z" duration="0.037529" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1099" name="RealSystems_NoSettlementBeforeDeadline_LosesRun" fullname="IronRing.Integration.Tests.IntegrationFlowTests.RealSystems_NoSettlementBeforeDeadline_LosesRun" methodname="RealSystems_NoSettlementBeforeDeadline_LosesRun" classname="IronRing.Integration.Tests.IntegrationFlowTests" runstate="Runnable" seed="623372483" result="Passed" start-time="2026-11-01 06:44:50Z" end-time="2026-11-01 06:44:50Z" duration="0.010657" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1098" name="RealSystems_RuinedStartSettlesThroughHabitatAndCollapseLoses" fullname="IronRing.Integration.Tests.IntegrationFlowTests.RealSystems_RuinedStartSettlesThroughHabitatAndCollapseLoses" methodname="RealSystems_RuinedStartSettlesThroughHabitatAndCollapseLoses" classname="IronRing.Integration.Tests.IntegrationFlowTests" runstate="Runnable" seed="2008313800" result="Passed" start-time="2026-11-01 06:44:50Z" end-time="2026-11-01 06:44:50Z" duration="0.015360" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+                <output><![CDATA[Saving results to: C:/Users/JUNGLE/AppData/LocalLow/DefaultCompany/POC_06\TestResults.xml
+]]></output>
+              </test-case>
+            </test-suite>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

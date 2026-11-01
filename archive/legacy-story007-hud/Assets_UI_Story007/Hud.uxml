@@ -1,0 +1,29 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+  <ui:Style src="Hud.uss" />
+  <ui:VisualElement name="hud" class="hud">
+    <ui:Label text="IRON RING  /  TRAIN COMMAND" class="title" />
+    <ui:Label name="position" class="position" />
+    <ui:VisualElement name="resources" class="resources" />
+    <ui:VisualElement class="body">
+      <ui:VisualElement class="network">
+        <ui:Label name="hubCount" class="heading" />
+        <ui:ScrollView name="hubs" class="hubs" />
+      </ui:VisualElement>
+      <ui:VisualElement class="actions">
+        <ui:Label text="HUB OPERATIONS" class="heading" />
+        <ui:Label name="selected" class="selection" />
+        <ui:DropdownField name="resource" label="Resource" />
+        <ui:DropdownField name="slot" label="Habitat slot" />
+        <ui:Button name="place" text="PLACE RESOURCE" />
+        <ui:DropdownField name="facility" label="Facility" />
+        <ui:Button name="build" text="BUILD DEFENSE" />
+        <ui:Label text="Select any hub on the left. Systems validate each order." class="hint" />
+      </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:VisualElement name="defeat" class="defeat hidden">
+      <ui:Label text="RUN LOST — ALL HUBS RUINED" class="heading" />
+      <ui:Label text="The ring remains. No surviving hub can sustain this run." />
+    </ui:VisualElement>
+    <ui:Label name="message" class="message" />
+  </ui:VisualElement>
+</ui:UXML>

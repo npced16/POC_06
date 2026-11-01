@@ -1,0 +1,71 @@
+[21:13:05] === coordinator validation run start ===
+[21:15:07] lock acquired after 120s
+[21:15:07] TESTS: combined EditMode run, filter IronRing
+[21:16:57] editor exit=0 (C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/editmode-all.log)
+overall: {'total': '67', 'passed': '67', 'failed': '0', 'inconclusive': '0', 'skipped': '0', 'result': 'Passed'}
+IronRing.Combat.Tests: passed=13 failed=0 other=0
+IronRing.Defense.Tests: passed=9 failed=0 other=0
+IronRing.Habitat.Tests: passed=8 failed=0 other=0
+IronRing.Hub.Tests: passed=12 failed=0 other=0
+IronRing.Inventory.Tests: passed=4 failed=0 other=0
+IronRing.Npc.Tests: passed=11 failed=0 other=0
+IronRing.Track.Tests: passed=10 failed=0 other=0
+[21:16:59] BUILD story-001-ring-track-train-movement via -buildWindows64Player
+[21:20:04] editor exit=0 (C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/story-001-ring-track-train-movement/build.log)
+[21:20:04]   exe OK
+[21:20:04] BUILD story-002-habitat-combo-flag via IronRing.Habitat.Demo.Story002Builder.Build
+[21:21:36] editor exit=0 (C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/story-002-habitat-combo-flag/build.log)
+[21:21:36]   exe OK: C:/Users/JUNGLE/Documents/GitHub/POC_06/Builds/Demo/Story002/Game.exe
+[21:21:36] BUILD story-003-npc-pool-join via IronRing.Npc.Editor.Story003Build.Build
+[21:23:01] editor exit=0 (C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/story-003-npc-pool-join/build.log)
+[21:23:01]   exe OK: C:/Users/JUNGLE/Documents/GitHub/POC_06/Builds/Demo/Story003/Game.exe
+[21:23:01] BUILD story-004-hub-growth-ruin-defeat via IronRing.Hub.Editor.HubDemoBuild.Build
+[21:24:33] editor exit=0 (C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/story-004-hub-growth-ruin-defeat/build.log)
+[21:24:33]   exe OK: C:/Users/JUNGLE/Documents/GitHub/POC_06/Builds/Demo/Story004/Game.exe
+[21:24:33] BUILD story-005-waypoint-event-combat via IronRing.Combat.Editor.Story005Build.Build
+[21:26:13] editor exit=0 (C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/story-005-waypoint-event-combat/build.log)
+[21:26:13]   exe OK: C:/Users/JUNGLE/Documents/GitHub/POC_06/Builds/Demo/Story005/Game.exe
+[21:26:13] BUILD story-006-defense-facilities via IronRing.Defense.Editor.FacilityDemoBuild.Build
+[21:27:25] editor exit=0 (C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/story-006-defense-facilities/build.log)
+[21:27:25]   exe OK: C:/Users/JUNGLE/Documents/GitHub/POC_06/Builds/Demo/Story006/Game.exe
+[21:27:25] BUILD story-007-minimal-hud via IronRing.UI.Editor.Story007Build.Build
+[21:28:57] editor exit=0 (C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/story-007-minimal-hud/build.log)
+[21:28:57]   exe OK: C:/Users/JUNGLE/Documents/GitHub/POC_06/Builds/Demo/Story007/Game.exe
+[21:28:58] lock released
+[21:28:58] PLAYER --track-demo: --track-demo true --track-screenshot C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/story-001-ring-track-train-movement/01-train-between-nodes.png
+[21:29:06]   player exit=0 (124 = killed at timeout)
+[21:29:06] PLAYER --scene: --scene HabitatDemo --screenshot C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/story-002-habitat-combo-flag/01-complete.png --after 60
+[21:29:32]   player exit=0 (124 = killed at timeout)
+[21:29:32] PLAYER --scene: --scene NpcJoinDemo --screenshot C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/story-003-npc-pool-join/01-npc-joined.png --after 60
+[21:30:17]   player exit=0 (124 = killed at timeout)
+[21:30:18] PLAYER --hub-evidence: --hub-evidence C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/story-004-hub-growth-ruin-defeat
+[21:30:29]   player exit=0 (124 = killed at timeout)
+[21:30:29] PLAYER --scene: --scene Story005Combat --screenshot C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/story-005-waypoint-event-combat/01-combat-in-progress.png --after 60
+[21:30:55]   player exit=0 (124 = killed at timeout)
+[21:30:55] PLAYER --scene: --scene Story005Combat --combat-result --screenshot C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/story-005-waypoint-event-combat/02-combat-result.png --after 150
+[21:31:07]   player exit=0 (124 = killed at timeout)
+[21:31:07] PLAYER --scene: --scene Story005Combat --combat-defeat --combat-result --screenshot C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/story-005-waypoint-event-combat/03-combat-defeat.png --after 150
+[21:31:16]   player exit=0 (124 = killed at timeout)
+[21:31:17] PLAYER --scene: --scene FacilityDemo --screenshot C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/story-006-defense-facilities/01-built-facilities.png --after 60
+[21:31:41]   player exit=0 (124 = killed at timeout)
+[21:31:41] PLAYER --scene: --scene Story007Hud --screenshot C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/story-007-minimal-hud/01-normal.png --after 90
+[21:32:26]   player exit=0 (124 = killed at timeout)
+[21:32:26] PLAYER --scene: --scene Story007Hud --ruined --screenshot C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/story-007-minimal-hud/02-ruined.png --after 90
+[21:32:35]   player exit=0 (124 = killed at timeout)
+[21:32:36] PLAYER --scene: --scene Story007Hud --defeat --screenshot C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/story-007-minimal-hud/03-defeat.png --after 90
+[21:32:47]   player exit=0 (124 = killed at timeout)
+[21:32:47] === retained images ===
+-rw-r--r-- 1 JUNGLE 197121  50297 Nov  1 06:29 C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/story-001-ring-track-train-movement/01-train-between-nodes.png
+-rw-r--r-- 1 JUNGLE 197121 105174 Nov  1 06:29 C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/story-002-habitat-combo-flag/00-initial-overflow.png
+-rw-r--r-- 1 JUNGLE 197121 105174 Nov  1 06:29 C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/story-002-habitat-combo-flag/01-complete.png
+-rw-r--r-- 1 JUNGLE 197121  44982 Nov  1 06:30 C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/story-003-npc-pool-join/01-npc-joined.png
+-rw-r--r-- 1 JUNGLE 197121  91738 Nov  1 06:30 C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/story-004-hub-growth-ruin-defeat/01-ruined-hub.png
+-rw-r--r-- 1 JUNGLE 197121  88653 Nov  1 06:30 C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/story-004-hub-growth-ruin-defeat/02-run-lost.png
+-rw-r--r-- 1 JUNGLE 197121  74448 Nov  1 06:30 C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/story-005-waypoint-event-combat/01-combat-in-progress.png
+-rw-r--r-- 1 JUNGLE 197121  85928 Nov  1 06:31 C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/story-005-waypoint-event-combat/02-combat-result.png
+-rw-r--r-- 1 JUNGLE 197121  85823 Nov  1 06:31 C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/story-005-waypoint-event-combat/03-combat-defeat.png
+-rw-r--r-- 1 JUNGLE 197121  63462 Nov  1 06:31 C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/story-006-defense-facilities/01-built-facilities.png
+-rw-r--r-- 1 JUNGLE 197121 119967 Nov  1 06:32 C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/story-007-minimal-hud/01-normal.png
+-rw-r--r-- 1 JUNGLE 197121 119671 Nov  1 06:32 C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/story-007-minimal-hud/02-ruined.png
+-rw-r--r-- 1 JUNGLE 197121  91305 Nov  1 06:32 C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/story-007-minimal-hud/03-defeat.png
+[21:32:47] === coordinator validation run end ===
