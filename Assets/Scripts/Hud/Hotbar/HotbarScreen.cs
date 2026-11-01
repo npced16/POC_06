@@ -217,11 +217,24 @@ namespace IronRing.Hud.Hotbar
             }
         }
 
+        private bool _suppressed;
+
+        /// <summary>
+        /// 스토리 029: 대화 장면처럼 화면 아래를 덮는 상황 화면이 열려 있는 동안 핫바 내용을 숨긴다(true). 거점 내부 열림·닫힘 규칙은 그대로이며,
+        /// false로 풀면 지금 내부가 열려 있을 때만 다시 보인다.
+        /// </summary>
+        public void SetSuppressed(bool suppressed)
+        {
+            if (_suppressed == suppressed) return;
+            _suppressed = suppressed;
+            Refresh();
+        }
+
         /// <summary>현재 상태로 내용 표시·슬롯 아이콘·이름·선택 틀·팔레트를 다시 그린다.</summary>
         private void Refresh()
         {
             if (_view == null) return;
-            bool open = _view.InteriorOpen;
+            bool open = _view.InteriorOpen && !_suppressed;
             _content.SetActive(open);
             for (int i = 0; i < SLOT_COUNT; i++)
             {

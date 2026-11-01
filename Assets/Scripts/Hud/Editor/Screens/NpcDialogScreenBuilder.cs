@@ -39,11 +39,13 @@ namespace IronRing.Hud.Editor.Screens
         /// <summary>대사 최대 줄 수.</summary>
         private const int BODY_LINES = 4;
         /// <summary>줄 사이 간격, 초상과 글자 사이 간격.</summary>
-        private const float GAP = 6, PORTRAIT_GAP = 12;
+        private const float GAP = 6, PORTRAIT_GAP = 16;
         /// <summary>[계속하기]·[닫기] 버튼 폭, 선택지 부품 폭.</summary>
         private const float ACTION_WIDTH = 120, OPTION_WIDTH = 120;
         /// <summary>그늘 기본 알파(런타임에 NpcDialogScreen._dialogDimAlpha로 덮어씀).</summary>
         private const float DIM_ALPHA = 0.35f;
+        /// <summary>대화 상자 받침 알파(1 = 불투명, 뒤의 핫바가 비치지 않음).</summary>
+        private const float BOX_BACKING_ALPHA = 1f;
 
         /// <summary>화면 루트(UiScreen "NpcDialog", 상황 화면) + NpcDialogScreen + 그늘·상자·초상.</summary>
         public static GameObject Build(UiTheme theme)
@@ -66,6 +68,10 @@ namespace IronRing.Hud.Editor.Screens
             float body = theme.LineHeight(UiTextSize.Normal) * BODY_LINES;
             float boxWidth = REFERENCE.x * BOX_WIDTH_FRACTION;
             float boxHeight = Mathf.Max(BOX_MIN_HEIGHT, pad.top + heading + GAP + body + GAP + theme.ButtonHeight + pad.bottom);
+            // 불투명 받침: Simple 패널 스프라이트 자체가 반투명(알파 224)이라 뒤의 핫바가 비친다. 같은 자리에 테마 Panel 색(알파 BOX_BACKING_ALPHA)을 먼저 깐다.
+            Color backingColor = theme.Panel; backingColor.a = BOX_BACKING_ALPHA;
+            Image backing = UiKit.Image(root.transform, "DialogBacking", null, backingColor, false);
+            UiKit.Place(backing.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0, BOX_BOTTOM + 1), new Vector2(boxWidth - 2, boxHeight - 2));
             Image panel = UiKit.Panel(root.transform, "Dialog", theme);
             UiKit.Place(panel.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0, BOX_BOTTOM), new Vector2(boxWidth, boxHeight));
             RectTransform inner = UiKit.Stretch(UiKit.Node(panel.transform, "InnerLine"), INNER_INSET, INNER_INSET, INNER_INSET, INNER_INSET);

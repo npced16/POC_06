@@ -9,6 +9,7 @@ using TMPro;
 
 using IronRing.Contracts;
 using IronRing.Contracts.Presentation;
+using IronRing.Hud.Hotbar;
 using IronRing.Hud.Ui;
 using IronRing.Localization;
 using IronRing.Npc;
@@ -63,6 +64,12 @@ namespace IronRing.Hud.Npc
         [SerializeField] private float _fallbackPortraitScale = 4f;
         [Tooltip("타자기 속도(초당 글자). 0이면 한 번에 보인다.")]
         [SerializeField] private float _typeSpeed = 28f;
+        [Tooltip("초상이 상자 왼쪽을 덮는 폭에 더하는 글자 여백(px). 이름·집/출신·대사·이유 줄의 왼쪽 시작 = max(_textMinLeft, 겹침 폭 + 이 값).")]
+        [SerializeField] private float _portraitTextGap = 16f;
+        [Tooltip("초상이 없거나 겹치지 않을 때 글자 줄 왼쪽 최소 여백(px, 패널 안쪽).")]
+        [SerializeField] private float _textMinLeft = 24f;
+        [Tooltip("글자 줄 오른쪽 여백(px, 상자 오른쪽 가장자리에서). 이름·집/출신·대사는 오른쪽이 상자에 늘어나 붙는다.")]
+        [SerializeField] private float _textRightPad = 24f;
 
         private UiScreens _screens;
         private UiScreen _screen;
@@ -73,6 +80,8 @@ namespace IronRing.Hud.Npc
         private INpcClickSource _clicks;
         private NpcPortraitCatalog _portraits;
         private float _portraitHeight;
+        private float _textLeft = -1f;
+        private readonly Vector3[] _corners = new Vector3[4];
         private string _hub;
         private string _npc;
         private readonly List<string> _sequence = new List<string>();
@@ -178,8 +187,10 @@ namespace IronRing.Hud.Npc
             _screens.Show(_screen.Id);
             RefreshHeader();
             ShowStep();
+            LayoutText();
             InteriorNpcWalker.SetHighlighted(_npc);
             InteriorNpcWalker.SetTalking(_npc, true);
+            HotbarScreen.Instance?.SetSuppressed(true);
         }
 
         /// <summary>대화를 닫는다(닫기 버튼·Esc·그늘 클릭).</summary>
@@ -202,7 +213,7 @@ namespace IronRing.Hud.Npc
             _npc = null;
             _choosing = false;
             if (_screens != null) _screens.Hide(_screen.Id);
-            if (was != null) { InteriorNpcWalker.SetHighlighted(null); InteriorNpcWalker.SetTalking(was, false); }
+            if (was != null) { InteriorNpcWalker.SetHighlighted(null); InteriorNpcWalker.SetTalking(was, false); HotbarScreen.Instance?.SetSuppressed(false); }
         }
 
         private void OnInteriorChanged(bool open)
@@ -345,7 +356,41 @@ namespace IronRing.Hud.Npc
             if (!_view.InteriorOpen || _view.InteriorHubId != _hub) { Hide(); return; }
             Keyboard keyboard = Keyboard.current;
             if (keyboard != null && keyboard.escapeKey.wasPressedThisFrame) { Hide(); return; }
+            LayoutText();
             TickTyping();
+        }
+
+        /// <summary>
+        /// 초상이 상자 왼쪽을 덮는 폭(초상 오른쪽 가장자리 − 상자 왼쪽 가장자리, 상자 로컬 좌표)을 재서 글자 줄들의 왼쪽 시작을
+        /// max(_textMinLeft, 겹침 + _portraitTextGap)으로 둔다. 화면 비율·초상 폭이 바뀌면 따라간다(값이 같으면 건드리지 않음).
+        /// </summary>
+        private void LayoutText()
+        {
+            if (_panel == null || _line == null) return;
+            float left = _textMinLeft;
+            if (_portrait != null && _portrait.enabled && _portrait.gameObject.activeInHierarchy)
+            {
+                _portrait.rectTransform.GetWorldCorners(_corners);
+                float portraitRight = _panel.InverseTransformPoint(_corners[2]).x;
+                float panelLeft = _panel.rect.xMin;
+                left = Mathf.Max(left, portraitRight - panelLeft + _portraitTextGap);
+            }
+            left = Mathf.Round(left);
+            if (Mathf.Approximately(left, _textLeft)) return;
+            _textLeft = left;
+            SetLeft(_title); SetLeft(_meta); SetLeft(_line);
+            if (_reasons != null) { Vector2 at = _reasons.rectTransform.anchoredPosition; at.x = left; _reasons.rectTransform.anchoredPosition = at; }
+        }
+
+        private void SetLeft(TMP_Text text)
+        {
+            if (text == null) return;
+            RectTransform rect = text.rectTransform;
+            // 가로는 상자 전체로 늘이고(왼쪽 0 ~ 오른쪽 1) 왼쪽 시작만 겹침에 맞춘다. 세로 앵커·여백은 빌더 값을 그대로 둔다.
+            rect.anchorMin = new Vector2(0f, rect.anchorMin.y);
+            rect.anchorMax = new Vector2(1f, rect.anchorMax.y);
+            rect.offsetMin = new Vector2(_textLeft, rect.offsetMin.y);
+            rect.offsetMax = new Vector2(-_textRightPad, rect.offsetMax.y);
         }
 
         /// <summary>대사 칸에 line을 타자기로 시작한다(같은 대사면 그대로). ok가 false면 강조색(실패 이유).</summary>
