@@ -43,6 +43,7 @@ namespace IronRing.Presentation.HubPhase
         private readonly List<Walker> _walkers = new List<Walker>();
         private readonly List<RaycastResult> _uiHits = new List<RaycastResult>();
         private string _highlighted;
+        private string _talking;
         private readonly List<string> _arriving = new List<string>();
 
         /// <summary>Story 023 demo override of the arrival walk speed (0 = data value). Cleared on play start.</summary>
@@ -57,6 +58,11 @@ namespace IronRing.Presentation.HubPhase
             public float Pause;
             /// <summary>Story 023: walking from the train car to its home.</summary>
             public bool Arriving;
+            /// <summary>Story 029: fixed standing post (door slot, home-cell centre or train side) while _npcWanders is false.</summary>
+            public Vector3 Post;
+            public bool HasPost;
+            /// <summary>Story 029: post row (0 = front of the door, 1+ = rows behind).</summary>
+            public int Row;
             /// <summary>Home-based targets; empty means "use the shared all-Empty-cells list".</summary>
             public readonly List<Transform> Targets = new List<Transform>();
         }
@@ -96,6 +102,17 @@ namespace IronRing.Presentation.HubPhase
             if (_instance == null) return;
             _instance._highlighted = npcId;
             _instance.ApplyHighlight();
+        }
+
+        /// <summary>
+        /// Story 029: npcId is (true) or is no longer (false) in an open dialog. The talking NPC holds still at its post facing the camera
+        /// (no breathe bob, flipX off). Presentation only.
+        /// </summary>
+        public static void SetTalking(string npcId, bool talking)
+        {
+            if (_instance == null) return;
+            if (talking) _instance._talking = npcId;
+            else if (_instance._talking == npcId) _instance._talking = null;
         }
 
         /// <summary>Stores injected systems, subscribes to changes and draws the current state.</summary>
@@ -201,8 +218,10 @@ namespace IronRing.Presentation.HubPhase
             {
                 Walker walker = _walkers[i];
                 Transform start = RandomTarget(walker);
-                SpriteRenderer renderer = start != null
-                    ? HubPhaseSprites.Spawn(_catalog != null ? _catalog.Npc : null, transform, start.position, "npc-" + walker.NpcId)
+                if (!_settings.NpcWanders && i == _walkers.Count - 1) ComputePosts();
+                Vector3? spawnAt = !_settings.NpcWanders && walker.HasPost ? walker.Post : start != null ? start.position : (Vector3?)null;
+                SpriteRenderer renderer = spawnAt.HasValue
+                    ? HubPhaseSprites.Spawn(_catalog != null ? _catalog.Npc : null, transform, spawnAt.Value, "npc-" + walker.NpcId)
                     : null;
                 if (renderer == null) { _walkers.RemoveAt(i); continue; }
                 HubPhaseSprites.FitWidth(renderer, width);
@@ -302,10 +321,11 @@ namespace IronRing.Presentation.HubPhase
             if (_targetsDirty) RefreshTargets();
             if (_targets.Count == 0) return;
             float step = _settings.NpcSpeed * Time.deltaTime;
+            if (!_settings.NpcWanders) ComputePosts();
             foreach (Walker walker in _walkers)
             {
                 if (walker.Renderer == null) continue;
-                if (!_settings.NpcWanders && StandAtDoor(walker)) continue;
+                if (!_settings.NpcWanders) { StandAtPost(walker); continue; }
                 if (walker.Target == null) walker.Target = RandomTarget(walker);
                 if (walker.Target == null) continue;
                 if (walker.Pause > 0f) { walker.Pause -= Time.deltaTime; continue; }
@@ -385,30 +405,101 @@ namespace IronRing.Presentation.HubPhase
         }
 
         /// <summary>
-        /// Story 027 (_npcWanders false): walks the NPC to the door of its home building and breathes there facing the camera. False when
-        /// the NPC has no home building at the open hub (it keeps wandering).
+        /// Story 029 (_npcWanders false): assigns every walker a fixed post. Building homes: the door of the building
+        /// (BuildingView.TryGetDoor + _doorOffsetY); home cells without a building: the centre of the home cell anchors; no home:
+        /// the interior train anchor. NPCs sharing one spot (join order) spread sideways by _npcPostSpacing cells, at most
+        /// _npcPostsPerRow per row, further rows sit _npcRowOffset cells behind (up). Positions only; game state is untouched.
         /// </summary>
-        private bool StandAtDoor(Walker walker)
+        private void ComputePosts()
+        {
+            if (_hub == null) return;
+            float cell = HubPhaseSprites.CellSpacing(_anchors, _hub);
+            var groups = new Dictionary<string, List<Walker>>();
+            var bases = new Dictionary<string, Vector3>();
+            foreach (Walker walker in _walkers)
+            {
+                walker.HasPost = false;
+                if (!TryPostBase(walker, out string key, out Vector3 at)) continue;
+                if (!groups.TryGetValue(key, out List<Walker> list)) { groups[key] = list = new List<Walker>(); bases[key] = at; }
+                list.Add(walker);
+            }
+            int perRow = _settings.NpcPostsPerRow;
+            foreach (KeyValuePair<string, List<Walker>> group in groups)
+            {
+                Vector3 at = bases[group.Key];
+                int count = group.Value.Count;
+                for (int i = 0; i < count; i++)
+                {
+                    int row = i / perRow;
+                    int inRow = Mathf.Min(perRow, count - row * perRow);
+                    float slot = i % perRow - (inRow - 1) * 0.5f;
+                    Walker walker = group.Value[i];
+                    walker.Post = at + new Vector3(slot * _settings.NpcPostSpacing * cell, row * _settings.NpcRowOffset * cell, 0f);
+                    walker.Row = row;
+                    walker.HasPost = true;
+                }
+            }
+        }
+
+        /// <summary>Story 029: the shared spot (and its grouping key) the walker's post is spread around.</summary>
+        private bool TryPostBase(Walker walker, out string key, out Vector3 at)
         {
             NpcHome home = _homes?.HomeOf(walker.NpcId);
-            if (home == null || home.HubId != _hub || home.Cells == null || home.Cells.Count == 0) return false;
-            if (!BuildingView.TryGetDoor(_hub, home.HabitatTypeId, home.Cells, out Vector3 door)) return false;
-            if (walker.Pause > 0f) { walker.Pause -= Time.deltaTime; return true; }
-            Transform body = walker.Renderer.transform;
-            door.y += _settings.DoorOffsetY;
-            door.z = body.position.z;
-            float reach = _settings.BreatheAmplitude * 2f + 0.02f;
-            if (walker.Arriving || (body.position - door).sqrMagnitude > reach * reach)
+            if (home != null && home.HubId == _hub && home.Cells != null && home.Cells.Count > 0)
             {
-                if (Mathf.Abs(door.x - body.position.x) > 0.001f) walker.Renderer.flipX = door.x < body.position.x;
-                body.position = Vector3.MoveTowards(body.position, door, (walker.Arriving ? ArrivalSpeed : _settings.NpcSpeed) * Time.deltaTime);
-                if (walker.Arriving && (body.position - door).sqrMagnitude <= 0.0001f) { walker.Arriving = false; _arriving.Remove(walker.NpcId); }
-                return true;
+                if (BuildingView.TryGetDoor(_hub, home.HabitatTypeId, home.Cells, out Vector3 door))
+                {
+                    door.y += _settings.DoorOffsetY;
+                    key = "door:" + Mathf.RoundToInt(door.x * 100f) + "," + Mathf.RoundToInt(door.y * 100f);
+                    at = door;
+                    return true;
+                }
+                Vector3 sum = Vector3.zero;
+                int found = 0;
+                foreach (int index in home.Cells)
+                {
+                    Transform anchor = _anchors.CellAnchor(_hub, index);
+                    if (anchor == null) continue;
+                    sum += anchor.position;
+                    found++;
+                }
+                if (found > 0)
+                {
+                    at = sum / found;
+                    key = "home:" + home.HabitatTypeId + ":" + Mathf.RoundToInt(at.x * 100f) + "," + Mathf.RoundToInt(at.y * 100f);
+                    return true;
+                }
+            }
+            Transform train = _anchors.TrainAnchor(_hub);
+            key = "train";
+            at = train != null ? train.position : Vector3.zero;
+            return train != null;
+        }
+
+        /// <summary>
+        /// Story 029: walks the NPC to its post (arrival speed while Arriving, which ends there), then stands facing the camera with the
+        /// breathe bob (no bob while talking). Rows behind the door draw one sorting step lower.
+        /// </summary>
+        private void StandAtPost(Walker walker)
+        {
+            if (!walker.HasPost) return;
+            if (walker.Pause > 0f) { walker.Pause -= Time.deltaTime; return; }
+            Transform body = walker.Renderer.transform;
+            Vector3 post = walker.Post;
+            post.z = body.position.z;
+            walker.Renderer.sortingOrder = _settings.NpcSortingOrder - walker.Row;
+            float reach = _settings.BreatheAmplitude * 2f + 0.02f;
+            if (walker.Arriving || (body.position - post).sqrMagnitude > reach * reach)
+            {
+                if (Mathf.Abs(post.x - body.position.x) > 0.001f) walker.Renderer.flipX = post.x < body.position.x;
+                body.position = Vector3.MoveTowards(body.position, post, (walker.Arriving ? ArrivalSpeed : _settings.NpcSpeed) * Time.deltaTime);
+                if (walker.Arriving && (body.position - post).sqrMagnitude <= 0.0001f) { walker.Arriving = false; _arriving.Remove(walker.NpcId); }
+                return;
             }
             walker.Renderer.flipX = false;
+            if (walker.NpcId == _talking) { body.position = post; return; }
             float phase = (Mathf.Abs(walker.NpcId?.GetHashCode() ?? 0) % 100) * 0.1f;
-            body.position = door + Vector3.up * (Mathf.Sin((Time.time + phase) * _settings.BreatheSpeed) * _settings.BreatheAmplitude);
-            return true;
+            body.position = post + Vector3.up * (Mathf.Sin((Time.time + phase) * _settings.BreatheSpeed) * _settings.BreatheAmplitude);
         }
 
         /// <summary>Story 027: the body sprite of npcId for the dialog portrait (the spawned body, else the NPC prefab's sprite).</summary>

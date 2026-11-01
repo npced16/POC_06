@@ -11,7 +11,7 @@ using IronRing.Presentation.HubPhase;
 namespace IronRing.Npc.Demo
 {
     /// <summary>
-    /// 스토리 017·023 캡처용 스크립트 데모: `--npc-demo [--npc-stage homes|panel|encouraged|board|arrival|hub2|passengers|codex]`. 실행 인자 또는 진행 중인
+    /// 스토리 017·023 캡처용 스크립트 데모: `--npc-demo [--npc-stage homes|panel|panel-end|encouraged|crowd|board|arrival|hub2|passengers|codex]`. 실행 인자 또는 진행 중인
     /// 브리지 캡처의 extraArgs(SessionState "IronRing.Bridge.Capture.ExtraArgs")에서 읽는다. 설정은 Resources/Npc/NpcHomesDemo.json.
     /// homes|panel|encouraged: 데모 거점 내부를 열고 데이터 배치를 놓은 뒤, 대상 NPC를 승객으로 태우고(IPassengers.TryBoard force)
     /// INpcRecruiter.OnHubVisited로 정차를 일으켜 내리게 한다(합류는 승객 하차로만). 승객 시스템이 없으면 예전처럼 방문을 반복한다.
@@ -20,6 +20,8 @@ namespace IronRing.Npc.Demo
     /// hub2: hub-2 내부를 열어 같은 서식지(배치 앞 `_hub2PlacementCount`개)를 완성하고 hub-2 명단의 NPC(`_hub2NpcId`)가 내리는 것을 보인다.
     /// passengers(스토리 025): `_passengerIds`를 IPassengers.TryBoard(force)로 태우고 StageReady → PassengersScreen이 열린다(내부 화면을 열지 않음).
     /// codex(스토리 025): homes와 같이 hub-1에 합류시킨 뒤 StageReady → CodexScreen이 열린다("찾아오는 이: 점등부, ???").
+    /// panel-end(스토리 029): panel과 같이 준비한 뒤 대화 화면이 [계속하기]를 끝까지 눌러 선택지 줄을 보인다.
+    /// crowd(스토리 029): homes 뒤 `_crowdNpcIds`를 같은 거점에 강제 합류시켜 한 건물 문 앞에 둘이 서게 한다(대화 화면은 닫힘).
     /// 로그 접두사 "NPC DEMO:".
     /// </summary>
     public sealed class NpcHomesDemoDriver : MonoBehaviour
@@ -188,6 +190,7 @@ namespace IronRing.Npc.Demo
             if (!targets.All(joined.Contains))
                 UnityEngine.Debug.LogWarning($"NPC DEMO {hubId}: 방문 {_settings._maxVisits}회 안에 대상({string.Join(", ", targets)})이 모두 합류하지 않았습니다.");
 
+            if (Stage == "crowd") JoinCrowd(hubId, npcs);
             foreach (NpcHome home in homes.HomesAt(hubId))
                 UnityEngine.Debug.Log($"NPC DEMO: homes → {home.NpcId}:{home.HabitatTypeId}[{string.Join(",", home.Cells)}]");
 
@@ -205,6 +208,20 @@ namespace IronRing.Npc.Demo
                                       $"버튼 활성={option?.Enabled} 이유=\"{option?.Reason}\"");
             }
             Ready();
+        }
+
+        /// <summary>
+        /// crowd(스토리 029): homes와 같이 합류시킨 뒤 `_crowdNpcIds`(같은 서식지 종류의 다른 거점 NPC)를 데모 강제로 이 거점에 합류시킨다
+        /// (NpcRecruiter.TryJoin). 같은 종류 묶음이 하나뿐이라 NpcHomes 규칙대로 함께 살고, 한 건물 문 앞에 둘이 선다.
+        /// </summary>
+        private void JoinCrowd(string hubId, INpcRecruiter npcs)
+        {
+            var recruiter = npcs as NpcRecruiter;
+            foreach (string id in _settings._crowdNpcIds ?? Array.Empty<string>())
+            {
+                bool ok = recruiter != null && recruiter.TryJoin(id, hubId);
+                UnityEngine.Debug.Log($"NPC DEMO: crowd {id} → {hubId} 합류 = {ok}");
+            }
         }
 
         /// <summary>arrival: complete the habitat, board the data NPC, dock (visit) so it disembarks and walks from the train car.</summary>
@@ -322,6 +339,8 @@ namespace IronRing.Npc.Demo
             public int _boardMaxFrames = 1800;
             /// <summary>passengers(스토리 025): 강제로 태울 승객 id(제안이 있는 풀 NPC).</summary>
             public string[] _passengerIds = { "lamplighter", "gas_fitter" };
+            /// <summary>crowd(스토리 029): hub-1에 강제로 더 합류시켜 한 건물에 함께 살게 할 NPC id.</summary>
+            public string[] _crowdNpcIds = { "gas_fitter" };
         }
 
         [Serializable]
