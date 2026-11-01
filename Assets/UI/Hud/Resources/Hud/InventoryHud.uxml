@@ -1,0 +1,32 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="InventoryHudStyle.uss" />
+    <ui:VisualElement name="inv-root">
+        <ui:VisualElement name="inv-habitat">
+            <ui:Label name="inv-habitat-title" />
+            <ui:VisualElement name="inv-habitat-tags" />
+            <ui:Label name="inv-habitat-state" />
+        </ui:VisualElement>
+        <ui:Label name="inv-banner" />
+        <ui:VisualElement name="inv-craft-menu" class="inv-menu">
+            <ui:VisualElement class="inv-header">
+                <ui:Label name="inv-craft-title" class="inv-title" />
+                <ui:Button name="inv-craft-close" />
+            </ui:VisualElement>
+            <ui:ScrollView name="inv-craft-list" />
+        </ui:VisualElement>
+        <ui:VisualElement name="inv-cell-menu" class="inv-menu">
+            <ui:VisualElement class="inv-header">
+                <ui:Label name="inv-cell-title" class="inv-title" />
+                <ui:Button name="inv-cell-close" />
+            </ui:VisualElement>
+            <ui:Label name="inv-cell-subtitle" class="inv-subtitle" />
+            <ui:VisualElement name="inv-cell-list" />
+        </ui:VisualElement>
+        <ui:VisualElement name="inv-bar">
+            <ui:Label name="inv-bar-title" />
+            <ui:VisualElement name="inv-items" />
+            <ui:Label name="inv-message" />
+            <ui:Button name="inv-craft-toggle" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

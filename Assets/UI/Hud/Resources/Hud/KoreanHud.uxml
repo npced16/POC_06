@@ -1,0 +1,30 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="KoreanHudStyle.uss" />
+    <ui:VisualElement name="hud">
+        <ui:VisualElement name="topbar">
+            <ui:VisualElement name="resources" />
+            <ui:Label name="location" />
+            <ui:Label name="lap" />
+        </ui:VisualElement>
+        <ui:VisualElement name="actions">
+            <ui:Button name="next-round" />
+            <ui:Button name="depart" />
+        </ui:VisualElement>
+        <ui:VisualElement name="panel">
+            <ui:VisualElement class="panel-header"><ui:Label name="hub-title" /><ui:Button name="close" /></ui:VisualElement>
+            <ui:Label name="hub-state" />
+            <ui:Label name="habitat-state" class="section" />
+            <ui:VisualElement name="resource-choices" />
+            <ui:VisualElement name="slots" />
+            <ui:Label name="hud_facilities" class="localized section" />
+            <ui:VisualElement name="buildings" />
+            <ui:Label name="message" />
+        </ui:VisualElement>
+        <ui:VisualElement name="defeat">
+            <ui:VisualElement name="defeat-card">
+                <ui:Label name="defeat_title" class="localized defeat-title" />
+                <ui:Label name="defeat_body" class="localized" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

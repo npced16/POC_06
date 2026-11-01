@@ -1,0 +1,16 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:VisualElement name="phase-root" picking-mode="Ignore">
+        <ui:VisualElement name="phase-map-labels" picking-mode="Ignore" />
+        <ui:VisualElement name="phase-banner" picking-mode="Ignore">
+            <ui:Label name="phase-hub" picking-mode="Ignore" />
+            <ui:Label name="phase-deadline" picking-mode="Ignore" />
+        </ui:VisualElement>
+        <ui:VisualElement name="phase-build-menu">
+            <ui:Label name="phase-build-title" />
+            <ui:VisualElement name="phase-build-options" />
+            <ui:Label name="phase-build-message" />
+            <ui:Button name="phase-build-close" />
+        </ui:VisualElement>
+        <ui:Label name="phase-loss-reason" picking-mode="Ignore" />
+    </ui:VisualElement>
+</ui:UXML>

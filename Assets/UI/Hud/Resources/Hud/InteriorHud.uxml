@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="InteriorHudStyle.uss" />
+    <ui:VisualElement name="interior">
+        <ui:VisualElement name="interior-panel">
+            <ui:Label name="interior-title" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

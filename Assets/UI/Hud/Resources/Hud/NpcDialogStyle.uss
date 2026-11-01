@@ -1,0 +1,17 @@
+#npc-dialog-root { position: absolute; left: 0; top: 0; right: 0; bottom: 0; color: rgb(238, 228, 207); font-size: 16px; }
+#npc-dialog { display: none; position: absolute; left: 18px; bottom: 150px; width: 300px; padding: 10px 12px; background-color: rgba(19, 29, 32, 0.97); border-width: 2px; border-color: rgb(137, 112, 70); border-left-width: 4px; border-left-color: rgb(231, 186, 99); border-radius: 5px; }
+.npc-dialog-header { flex-direction: row; justify-content: space-between; align-items: flex-end; margin-bottom: 6px; padding-bottom: 4px; border-bottom-width: 1px; border-bottom-color: rgb(97, 82, 56); }
+#npc-dialog-title { font-size: 20px; color: rgb(231, 186, 99); -unity-font-style: bold; }
+#npc-dialog-home { font-size: 13px; color: rgb(157, 186, 173); }
+#npc-dialog-home.npc-dialog-home--none { color: rgb(228, 139, 76); }
+#npc-dialog-line { min-height: 44px; padding: 6px 8px; white-space: normal; font-size: 16px; color: rgb(244, 229, 187); background-color: rgba(48, 40, 34, 0.9); border-radius: 3px; }
+#npc-dialog-result { display: none; margin-top: 6px; white-space: normal; font-size: 15px; color: rgb(169, 197, 186); -unity-font-style: bold; }
+#npc-dialog-result.npc-dialog-result--fail { color: rgb(228, 139, 76); }
+#npc-dialog-buttons { flex-direction: row; flex-wrap: wrap; margin-top: 8px; }
+#npc-dialog-options { flex-direction: row; flex-wrap: wrap; }
+.npc-dialog-option, #npc-dialog-close { height: 32px; min-width: 72px; margin: 2px 6px 2px 0; padding: 0 10px; font-size: 16px; color: rgb(238, 228, 207); background-color: rgb(111, 78, 35); border-width: 1px; border-color: rgb(229, 184, 101); border-radius: 3px; }
+.npc-dialog-option:hover { background-color: rgb(140, 100, 48); }
+.npc-dialog-option:disabled { color: rgb(140, 140, 132); background-color: rgb(46, 52, 52); border-color: rgb(72, 80, 78); }
+#npc-dialog-close { background-color: rgb(40, 54, 56); border-color: rgb(137, 112, 70); }
+#npc-dialog-close:hover { background-color: rgb(56, 74, 76); }
+.npc-dialog-reason { margin-top: 3px; font-size: 13px; white-space: normal; color: rgb(228, 139, 76); }

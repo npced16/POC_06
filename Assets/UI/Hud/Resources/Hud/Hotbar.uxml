@@ -1,0 +1,27 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="HotbarStyle.uss" />
+    <ui:VisualElement name="hotbar-root">
+        <ui:Label name="hotbar-toast" />
+        <ui:VisualElement name="hotbar-palette">
+            <ui:VisualElement class="hotbar-palette-header">
+                <ui:Label name="hotbar-palette-title" />
+                <ui:Button name="hotbar-palette-close" />
+            </ui:VisualElement>
+            <ui:Label name="hotbar-palette-hint" />
+            <ui:ScrollView name="hotbar-palette-scroll">
+                <ui:VisualElement name="hotbar-palette-list" />
+            </ui:ScrollView>
+        </ui:VisualElement>
+        <ui:VisualElement name="hotbar-dock">
+            <ui:Label name="hotbar-notice" />
+            <ui:Label name="hotbar-hint" />
+            <ui:VisualElement name="hotbar-bar">
+                <ui:VisualElement name="hotbar-slots" />
+                <ui:Button name="hotbar-palette-toggle" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="hotbar-drag">
+            <ui:VisualElement name="hotbar-drag-icon" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
