@@ -171,7 +171,6 @@ namespace IronRing.Presentation.Interior
         public bool CanPlace(string hubId, int cellIndex, PlacementEntry entry)
         {
             if (!entry.IsValid || hubId == null) return false;
-            if (entry.Kind == PlacementKind.Equipment) return _surface != null && _surface.CanPlace(cellIndex, entry);
             if (entry.Kind == PlacementKind.Item) return _placement != null && _placement.CanPlace(hubId, cellIndex, entry.Id);
             IInteriorCell cell = Cell(hubId, cellIndex);
             if (cell == null || _facilities == null || _facilityCells == null) return false;
@@ -186,12 +185,6 @@ namespace IronRing.Presentation.Interior
         {
             if (!CanPlace(hubId, cellIndex, entry)) { Notice?.Invoke("placement_refused", entry); return false; }
             bool ok;
-            if (entry.Kind == PlacementKind.Equipment)
-            {
-                ok = _surface.TryPlace(cellIndex, entry);
-                Notice?.Invoke(ok ? "placement_placed" : "placement_refused", entry);
-                return ok;
-            }
             if (entry.Kind == PlacementKind.Item)
             {
                 ok = _placement.TryPlace(hubId, cellIndex, entry.Id);
@@ -268,7 +261,6 @@ namespace IronRing.Presentation.Interior
         public Sprite IconFor(PlacementEntry entry)
         {
             if (!entry.IsValid) return null;
-            if (entry.Kind == PlacementKind.Equipment) return IronRing.Train.Equipment.TrainEquipmentCatalog.Load()?.Icon(entry.Id);
             if (entry.Kind == PlacementKind.Facility) return _catalog != null ? _catalog.FacilityIcon(entry.Id) : null;
             return _sprites != null ? _sprites.Get(entry.Id) : null;
         }
@@ -360,7 +352,7 @@ namespace IronRing.Presentation.Interior
                 _ghostShows = entry;
             }
             if (_ghostRenderer != null) _ghostRenderer.color = HoverValid ? _catalog.GhostValidColor : _catalog.GhostInvalidColor;
-            bool onSurface = _surface != null && entry.Kind == PlacementKind.Equipment;
+            bool onSurface = _surface != null;
             _ghost.transform.localScale = onSurface ? _ghostBaseScale * _surface.GhostScale(entry) : _ghostBaseScale;
             if (_ghostRenderer != null) _ghostRenderer.sortingOrder = onSurface ? _surface.GhostOrder : _ghostBaseOrder;
             _ghost.transform.position = new Vector3(world.x, world.y, 0);

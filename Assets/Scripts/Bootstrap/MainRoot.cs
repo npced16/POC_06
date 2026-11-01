@@ -40,7 +40,6 @@ namespace IronRing.Bootstrap
         private bool _interiorDemo;
         private bool _wasHeld;
         private bool _capturing;
-        private bool _combatCaptured;
         private bool _npcCaptured;
         private bool _finished;
         private float _timer;
@@ -86,7 +85,6 @@ namespace IronRing.Bootstrap
             GameServices.Register<IMapAnchors>(_map);
             GameServices.Register<IHubClickSource>(_map);
             GameServices.Register<IEncounterPresentationSource>(_encounters);
-            GameServices.Register<ICombatRoundCommand>(_encounters);
             // Story 012: 거점 내부 규칙, 조사 보고, 화면 전환 상태, 내부 칸 앵커와 클릭 소스.
             GameServices.Register<IHubInterior>(_game.Interior);
             GameServices.Register<IInvestigationReport>(_game.Interior);
@@ -129,7 +127,7 @@ namespace IronRing.Bootstrap
             _timer += Time.deltaTime;
             if (_game.Waypoints.IsEncounterActive)
             {
-                if (_timer >= _definition.Settings.CombatStepSeconds) Advance();
+                if (_timer >= _definition.Settings.CombatStepSeconds + _game.Waypoints.ExtraHoldSeconds) Advance();
                 return;
             }
             if (!_demo) return;
@@ -153,8 +151,6 @@ namespace IronRing.Bootstrap
                     if (!_npcCaptured && _game.Npcs.NpcsAt(hub).Count > 0)
                     {
                         // 거점이 폐허이거나 건설 조건이 안 되면 건너뛴다(Story 014 이후 거점은 폐허로 시작한다).
-                        if (!_game.Hubs.IsRuined(hub) && _game.Facilities.CanBuild(hub, _definition.Settings.DemoFacilityId))
-                            _game.Facilities.TryBuild(hub, _definition.Settings.DemoFacilityId);
                         _npcCaptured = true; _capturing = true;
                         StartCoroutine(Capture("03-habitat-npc.png", false)); return;
                     }
@@ -191,11 +187,6 @@ namespace IronRing.Bootstrap
         private void OnEncounter(ITrackNode node)
         {
             _timer = 0;
-            if (_demo && !_combatCaptured && _game.Waypoints.Combat != null)
-            {
-                _combatCaptured = true; _capturing = true;
-                StartCoroutine(Capture("02-combat.png", false));
-            }
         }
 
         /// <summary>Requests real departure from a docked hub and resets the presentation clock.</summary>

@@ -152,7 +152,6 @@ namespace IronRing.Npc
         {
             if (_disposed || node == null) return;
             DropImpatient();
-            if (outcome == EncounterOutcome.Defeat) return;
             RollBoarding(node.Id);
         }
 
@@ -186,8 +185,8 @@ namespace IronRing.Npc
             foreach (NpcDefinition npc in order)
             {
                 if (_riders.Count >= _pool.MaxPassengers) return;
-                // 스토리 033: 해방된 종점은 탑승 확률을 올린다(IRaid.BoardChanceBonus, 데이터).
-                float bonus = IronRing.Contracts.Presentation.GameServices.Get<IronRing.Contracts.IRaid>()?.BoardChanceBonus ?? 0f;
+                // 스토리 039: 휴식지 "승객 합승" 이벤트가 이 정차의 탑승 확률을 올린다(IWaypointResolver.BoardChanceBonus, 데이터).
+                float bonus = IronRing.Contracts.Presentation.GameServices.Get<IronRing.Contracts.IWaypointResolver>()?.BoardChanceBonus ?? 0f;
                 if (_random.NextDouble() < npc.Passenger.Chance + bonus) Board(npc, waypointId);
             }
         }

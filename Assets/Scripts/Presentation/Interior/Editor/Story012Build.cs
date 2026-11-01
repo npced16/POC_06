@@ -46,7 +46,6 @@ namespace IronRing.Presentation.Interior.Editor
         private const string SCENE = "Assets/Scenes/Main.unity";
         private const string DATA = "Assets/Scripts/Interior/Resources/Interior/HubInterior.json";
         private const string TRACK = "Assets/Scripts/Track/Resources/Track/ring-track.json";
-        private const string LEGACY_RESOURCES = "Assets/Scripts/Presentation/Interior/Resources";
 
         /// <summary>
         /// 프리팹·카탈로그를 보장하고 Main 씬에서 격자 크기가 다른 거점 인스턴스를 교체하고 빠진 것만 놓은 뒤, 바뀐 것이 있을 때만 씬을 저장한다.
@@ -123,7 +122,7 @@ namespace IronRing.Presentation.Interior.Editor
         /// <summary>카탈로그의 스프라이트·재질 참조를 채우고 없는 프리팹만 만든다. 기존 프리팹은 손대지 않는다.</summary>
         public static InteriorCatalog EnsurePrefabs()
         {
-            if (AssetDatabase.IsValidFolder(LEGACY_RESOURCES)) AssetDatabase.DeleteAsset(LEGACY_RESOURCES);
+            // Story 039: no longer deletes LEGACY_RESOURCES; story 036 keeps RuinDressing.json there (RuinCatalog.Resource).
             Directory.CreateDirectory(ROOT);
             InteriorData data = InteriorData.Parse(File.ReadAllText(DATA));
             Material material = Load<Material>(MATERIAL);

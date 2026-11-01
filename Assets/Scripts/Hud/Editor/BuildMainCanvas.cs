@@ -48,14 +48,17 @@ namespace IronRing.Hud.Editor
 
         /// <summary>
         /// 화면 id(= 프리팹 이름)와 생성 함수, 그리는 순서(하이어라키 순서)대로. 최종 순서:
-        /// TopBar, HubPanel, Defeat, PhaseBanner, InteriorTitle, Hotbar, Toast, NpcDialog, Codex, CombatFx.
+        /// TopBar, HubPanel, Defeat, PhaseBanner, InteriorTitle, Hotbar, Toast, NpcDialog, Codex (스토리 039: Raid·CombatFx 제거).
         /// 2단계는 이 파일을 고치지 않고 Screens/&lt;Id&gt;ScreenBuilder.cs(public static GameObject Build(UiTheme))만 만든다.
         /// 빌더 형식은 리플렉션으로 찾고, 아직 없는 화면은 건너뛴다(병렬 작업 충돌 방지).
         /// </summary>
         public static readonly string[] SCREEN_IDS =
         {
-            "TopBar", "Passengers", "HubPanel", "Defeat", "RunResult", "PhaseBanner", "Raid", "InteriorTitle", "Hotbar", "Toast", "NpcDialog", "Codex", "CombatFx",
+            "TopBar", "Passengers", "HubPanel", "Defeat", "RunResult", "PhaseBanner", "InteriorTitle", "Hotbar", "Toast", "NpcDialog", "Codex",
         };
+
+        /// <summary>스토리 039: 보관함으로 옮긴 화면 id. MainCanvas에 인스턴스가 남아 있으면 지운다.</summary>
+        private static readonly string[] REMOVED_SCREEN_IDS = { "Raid", "CombatFx" };
 
         /// <summary>SCREEN_IDS 순서대로, 빌더 형식이 존재하는 화면만 (id, 생성 함수) 쌍으로 돌려준다.</summary>
         public static (string Id, Func<UiTheme, GameObject> Build)[] SCREENS => ResolveScreens();
@@ -170,6 +173,14 @@ namespace IronRing.Hud.Editor
                 if (contents.GetComponent<GraphicRaycaster>() == null) { contents.AddComponent<GraphicRaycaster>(); changed = true; }
                 UiScreens screens = contents.GetComponent<UiScreens>();
                 if (screens == null) { screens = contents.AddComponent<UiScreens>(); changed = true; }
+                // 스토리 039: SCREEN_IDS에서 빠진 화면(Raid·CombatFx)의 인스턴스는 캔버스에서 지운다.
+                for (int c = contents.transform.childCount - 1; c >= 0; c--)
+                {
+                    Transform child = contents.transform.GetChild(c);
+                    if (!Array.Exists(REMOVED_SCREEN_IDS, id => child.name == id || child.name.StartsWith(id + " ("))) continue;
+                    UnityEngine.Object.DestroyImmediate(child.gameObject);
+                    changed = true;
+                }
                 for (int i = 0; i < SCREENS.Length; i++)
                 {
                     if (FindScreen(contents.transform, prefabs[i], SCREENS[i].Id) != null) continue;

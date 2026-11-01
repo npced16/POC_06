@@ -4,7 +4,7 @@ namespace IronRing.Presentation.Interior
 {
     /// <summary>
     /// 스토리 034. PlacementGhost가 거점 칸 대신 쓰는 배치 면(열차 장비 그리드). 설정되면 고스트 스냅·배치·우클릭 떼기·Ctrl+Z가 이 면으로 간다.
-    /// 칸 키는 면이 정하는 정수(열차 장비는 ITrainLoadout.Slots 색인).
+    /// 칸 키는 면이 정하는 정수(스토리 039: 열차 장비 제거 후 남은 범용 면).
     /// </summary>
     public interface IPlacementSurface
     {

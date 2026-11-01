@@ -143,20 +143,20 @@ namespace IronRing.Contracts
     /// <summary>Result of a waypoint encounter.</summary>
     public enum EncounterOutcome
     {
-        /// <summary>An event (non-combat) resolved.</summary>
-        EventResolved,
-        /// <summary>Combat won.</summary>
-        Victory,
-        /// <summary>Combat lost.</summary>
-        Defeat
+        /// <summary>An event resolved (story 039: rest stops only run events; combat outcomes were removed).</summary>
+        EventResolved
     }
 
-    /// <summary>Story 005. Waypoint events and the single combat type.</summary>
+    /// <summary>Story 005 / 039. Rest-stop (waypoint) events: every arrival at a rest stop resolves exactly one event.</summary>
     public interface IWaypointResolver
     {
+        /// <summary>Story 039: boarding-chance bonus granted by the event that just resolved at this stop (0 = none). Read by passengers on EncounterEnded.</summary>
+        float BoardChanceBonus => 0f;
+        /// <summary>Story 039: extra recipes the event that just resolved unlocks in the codex (on top of the per-event amount).</summary>
+        int CodexUnlocks => 0;
         /// <summary>Called when the train arrives at a waypoint (integration wires it to ITrackRuntime.Arrived). Holds the track while active.</summary>
         void OnWaypointArrived(ITrackNode node);
-        /// <summary>True while an event or combat is in progress.</summary>
+        /// <summary>True while an event is in progress.</summary>
         bool IsEncounterActive { get; }
         /// <summary>Node where an encounter began.</summary>
         event Action<ITrackNode> EncounterStarted;
@@ -516,171 +516,5 @@ namespace IronRing.Contracts
     {
         /// <summary>hubId, 서식지 종류 id. 그 종류의 완성 묶음 칸 구성이 바뀔 때마다 1회.</summary>
         event Action<string, string> HabitatChanged;
-    }
-
-    /// <summary>스토리 033. 습격 중 움직이는 몬스터 하나 또는 둥지 하나의 읽기 전용 상태(월드 좌표).</summary>
-    public sealed class RaidUnit
-    {
-        /// <summary>몬스터 id(런 안에서 유일, 0부터) 또는 둥지 순번.</summary>
-        public int Id { get; set; }
-        /// <summary>몬스터 종류 id("spider", "automaton") 또는 "nest".</summary>
-        public string Kind { get; set; }
-        /// <summary>월드 X.</summary>
-        public float X { get; set; }
-        /// <summary>월드 Y.</summary>
-        public float Y { get; set; }
-        /// <summary>남은 체력.</summary>
-        public int Hp { get; set; }
-        /// <summary>최대 체력.</summary>
-        public int HpMax { get; set; }
-        /// <summary>살아 있으면 true(둥지는 파괴 전까지 true).</summary>
-        public bool Alive => Hp > 0;
-    }
-
-    /// <summary>
-    /// 스토리 033/034. 습격에 쓰는 열차 장비 요약. 033은 거점 시설 수를 감싼 임시 제공자(FacilityLoadoutAdapter)를 등록하고,
-    /// 034가 열차 장비 그리드 제공자로 교체한다(GameServices.Register&lt;IRaidLoadout&gt; 덮어쓰기). RaidSystem은 습격 시작마다 다시 읽는다.
-    /// </summary>
-    public interface IRaidLoadout
-    {
-        /// <summary>일반 포탑 수(자동 사격).</summary>
-        int Turrets { get; }
-        /// <summary>중포탑 수(자동 사격, 피해가 큼).</summary>
-        int HeavyTurrets { get; }
-        /// <summary>방벽판 수(최대 내구도 가산).</summary>
-        int ArmorPlates { get; }
-        /// <summary>통과 속도 가산 비율(0 = 기본, 0.25 = 25% 빨리 통과).</summary>
-        float SpeedBonus { get; }
-        /// <summary>장비가 바뀌었을 때.</summary>
-        event Action Changed;
-    }
-
-    /// <summary>
-    /// 스토리 033. 몬스터에게 점령된 종점(경유지)을 열차가 천천히 통과하는 실시간 습격. 경유지 전투 조우가 습격 모드이면
-    /// RaidSystem이 결과를 정하고 IWaypointResolver.EncounterEnded(Victory|Defeat)로 넘긴다. 둥지가 모두 부서지면 종점이 해방된다.
-    /// </summary>
-    public interface IRaid
-    {
-        /// <summary>습격이 진행 중이면 true.</summary>
-        bool IsActive { get; }
-        /// <summary>구간 통과 진척 0..1.</summary>
-        float Progress { get; }
-        /// <summary>지금 열차 내구도.</summary>
-        int Hull { get; }
-        /// <summary>이번 습격의 최대 내구도(기본 + 방벽 수 × 방벽당).</summary>
-        int HullMax { get; }
-        /// <summary>살아 있는 몬스터 수.</summary>
-        int MonstersAlive { get; }
-        /// <summary>남은 둥지 수(습격 밖에서도 유지).</summary>
-        int NestsAlive { get; }
-        /// <summary>둥지를 모두 부숴 종점이 해방되었으면 true(그 뒤로 습격 없음).</summary>
-        bool TerminalLiberated { get; }
-        /// <summary>해방 뒤 승객 탑승 확률에 더하는 값(데이터). 해방 전에는 0.</summary>
-        float BoardChanceBonus { get; }
-        /// <summary>지금 움직이는 몬스터 목록(살아 있는 것만).</summary>
-        IReadOnlyList<RaidUnit> Monsters { get; }
-        /// <summary>둥지 목록(부서진 것 포함, Hp 0).</summary>
-        IReadOnlyList<RaidUnit> Nests { get; }
-        /// <summary>열차 대포로 몬스터 id를 쏜다. 습격 중이 아니거나 재장전 중이거나 대상이 없으면 false.</summary>
-        bool ShootMonster(int monsterId);
-        /// <summary>열차 대포로 둥지 순번을 쏜다. 습격 중이 아니거나 재장전 중이거나 이미 부서졌으면 false.</summary>
-        bool ShootNest(int nestIndex);
-        /// <summary>습격 시작.</summary>
-        event Action RaidStarted;
-        /// <summary>습격 끝(true = 통과 성공).</summary>
-        event Action<bool> RaidEnded;
-        /// <summary>몬스터 id가 나타남.</summary>
-        event Action<int> MonsterSpawned;
-        /// <summary>몬스터 id가 사격으로 죽음.</summary>
-        event Action<int> MonsterKilled;
-        /// <summary>몬스터 id가 열차에 닿아 내구도를 깎고 사라짐.</summary>
-        event Action<int> MonsterReached;
-        /// <summary>둥지 순번이 부서짐.</summary>
-        event Action<int> NestDestroyed;
-        /// <summary>내구도가 바뀜(시작 포함).</summary>
-        event Action HullChanged;
-        /// <summary>발사(true = 플레이어 대포, false = 포탑), 맞은 지점 X, Y.</summary>
-        event Action<bool, float, float> ShotFired;
-    }
-
-    /// <summary>스토리 034. 열차 장비 그리드의 칸 하나(읽기 전용 보기). 2칸짜리 장비는 차지한 두 칸 모두 같은 id를 갖고 앞쪽(작은 열) 칸만 IsAnchor다.</summary>
-    public sealed class EquipmentSlot
-    {
-        /// <summary>열차 칸 순번(0 = 맨 앞 칸).</summary>
-        public int Car { get; set; }
-        /// <summary>칸 안 열(0 = 진행 방향 앞쪽).</summary>
-        public int Column { get; set; }
-        /// <summary>칸 안 행(0 = 위, 1 = 아래).</summary>
-        public int Row { get; set; }
-        /// <summary>놓인 장비 id(비었으면 null).</summary>
-        public string EquipmentId { get; set; }
-        /// <summary>이 칸이 장비가 시작하는 칸이면 true(표현은 이 칸에서만 장비를 그린다).</summary>
-        public bool IsAnchor { get; set; }
-        /// <summary>장비가 차지하는 가로 칸 수(빈 칸이면 0).</summary>
-        public int Width { get; set; }
-    }
-
-    /// <summary>
-    /// 스토리 034. 열차 칸마다 Columns×Rows(3×2) 장비 그리드. 거점 내부의 장비 모드가 놓고 떼며, 습격(IRaidLoadout)이 이 배치를 읽는다.
-    /// 칸 수가 상한(Cars×Columns×Rows)이라 무제한 타일과 달리 무엇을 실을지가 선택이다. 런 동안 유지된다.
-    /// </summary>
-    public interface ITrainLoadout
-    {
-        /// <summary>열차 칸 수.</summary>
-        int Cars { get; }
-        /// <summary>칸당 가로 칸 수.</summary>
-        int Columns { get; }
-        /// <summary>칸당 세로 칸 수.</summary>
-        int Rows { get; }
-        /// <summary>모든 장비 칸(색인 = (car × Rows + row) × Columns + column).</summary>
-        IReadOnlyList<EquipmentSlot> Slots { get; }
-        /// <summary>차 있는 장비 칸 수(2칸 장비는 2).</summary>
-        int UsedCells { get; }
-        /// <summary>equipmentId를 (car, column, row)에서 시작해 놓을 수 있는지(범위·빈 칸·가로 폭).</summary>
-        bool CanPlace(int car, int column, int row, string equipmentId);
-        /// <summary>장비를 놓는다. 성공하면 EquipmentPlaced(시작 칸).</summary>
-        bool TryPlace(int car, int column, int row, string equipmentId);
-        /// <summary>(car, column, row)를 차지한 장비 전체를 뗀다. 성공하면 EquipmentRemoved(뗀 장비의 시작 칸 상태, 떼기 전 id).</summary>
-        bool TryRemove(int car, int column, int row);
-        /// <summary>놓인 equipmentId 장비 개수(칸 수가 아니라 개수).</summary>
-        int CountOf(string equipmentId);
-        /// <summary>장비를 놓았을 때(시작 칸).</summary>
-        event Action<EquipmentSlot> EquipmentPlaced;
-        /// <summary>장비를 뗐을 때(시작 칸 위치와 뗀 장비 id를 담은 사본).</summary>
-        event Action<EquipmentSlot> EquipmentRemoved;
-    }
-
-    /// <summary>
-    /// 스토리 034. IRaidLoadout 제공자가 장비 효과 수치까지 줄 때 함께 구현한다(선택). RaidSystem은 이 값이 있으면 Raid.json의 같은 값 대신 쓴다.
-    /// </summary>
-    public interface IRaidLoadoutStats
-    {
-        /// <summary>방벽판이 더하는 최대 내구도 합.</summary>
-        int HullBonus { get; }
-        /// <summary>습격 중 초당 내구도 회복(수리 장치 합).</summary>
-        float RepairPerSecond { get; }
-        /// <summary>포탑 한 문의 초당 발사 수.</summary>
-        float TurretShotsPerSecond { get; }
-        /// <summary>포탑 한 발 피해.</summary>
-        int TurretDamage { get; }
-        /// <summary>중포 한 문의 초당 발사 수.</summary>
-        float HeavyTurretShotsPerSecond { get; }
-        /// <summary>중포 한 발 피해.</summary>
-        int HeavyTurretDamage { get; }
-    }
-
-    /// <summary>
-    /// 스토리 038(design/game-brief.md MVP 4·5). 고철 1종 경제: 중간역 정차 때 인부가 캐 오고, 열차 장비를 놓을 때 쓰고 떼면 돌려받는다.
-    /// </summary>
-    public interface IScrap
-    {
-        /// <summary>지금 가진 고철.</summary>
-        int Amount { get; }
-        /// <summary>amount(0 이상)만큼 늘린다. 음수면 false.</summary>
-        bool TryGain(int amount);
-        /// <summary>amount(0 이상)만큼 쓴다. 모자라거나 음수면 아무것도 바꾸지 않고 false.</summary>
-        bool TrySpend(int amount);
-        /// <summary>양이 바뀌었을 때.</summary>
-        event Action Changed;
     }
 }

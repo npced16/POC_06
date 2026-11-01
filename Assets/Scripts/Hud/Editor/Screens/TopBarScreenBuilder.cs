@@ -36,16 +36,13 @@ namespace IronRing.Hud.Editor.Screens
             UiKit.Place(actions, Vector2.zero, Vector2.zero, new Vector2(24, 24), new Vector2(320, theme.ButtonHeight));
             HorizontalOrVerticalLayoutGroup row = UiKit.Row(actions, "Row", false, 6);
             row.childAlignment = TextAnchor.MiddleLeft;
-            Button next = UiKit.Button(row.transform, "NextRound", Strings.Get("hud_next_round"), theme);
-            ((RectTransform)next.transform).sizeDelta = new Vector2(150, theme.ButtonHeight);
             Button depart = UiKit.Button(row.transform, "Depart", Strings.Get("hud_depart"), theme);
             ((RectTransform)depart.transform).sizeDelta = new Vector2(150, theme.ButtonHeight);
-            foreach (Button button in new[] { next, depart })
+            foreach (Button button in new[] { depart })
 
             UiKit.Bind(screen, "_location", location);
             UiKit.Bind(screen, "_lap", lap);
             UiKit.Bind(screen, "_depart", depart);
-            UiKit.Bind(screen, "_nextRound", next);
             UiKit.Bind(screen, "_codex", codex);
             UiKit.Bind(screen, "_passengers", passengers);
             UiKit.Bind(screen, "_catalogJson", AssetDatabase.LoadAssetAtPath<TextAsset>(InteriorTitleScreenBuilder.CATALOG));

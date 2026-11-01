@@ -49,43 +49,79 @@
       "_id": "hub-1",
       "_isStation": true,
       "_position": {
-        "x": 320,
+        "x": 380,
         "y": 360
       },
       "_labelKey": "hub_1",
-      "_hasBend": false,
+      "_hasBend": true,
       "_bend": {
-        "x": 0,
-        "y": 0
+        "x": -7,
+        "y": 8
       },
       "_mapPosition": {
-        "x": -8,
-        "y": 2
+        "x": -7,
+        "y": 1
       }
     },
     {
-      "_id": "TERMINAL",
+      "_id": "REST-1",
       "_isStation": false,
       "_position": {
-        "x": 960,
-        "y": 360
+        "x": 640,
+        "y": 100
       },
-      "_labelKey": "waypoint_terminal",
-      "_hasBend": false,
+      "_labelKey": "rest_1",
+      "_hasBend": true,
       "_bend": {
-        "x": 0,
-        "y": 0
+        "x": 7,
+        "y": 8
       },
       "_mapPosition": {
-        "x": 8,
-        "y": 2
+        "x": 0,
+        "y": 8
+      }
+    },
+    {
+      "_id": "REST-2",
+      "_isStation": false,
+      "_position": {
+        "x": 900,
+        "y": 360
+      },
+      "_labelKey": "rest_2",
+      "_hasBend": true,
+      "_bend": {
+        "x": 7,
+        "y": -6
+      },
+      "_mapPosition": {
+        "x": 7,
+        "y": 1
+      }
+    },
+    {
+      "_id": "REST-3",
+      "_isStation": false,
+      "_position": {
+        "x": 640,
+        "y": 620
+      },
+      "_labelKey": "rest_3",
+      "_hasBend": true,
+      "_bend": {
+        "x": -7,
+        "y": -6
+      },
+      "_mapPosition": {
+        "x": 0,
+        "y": -6
       }
     }
   ],
   "_map": {
     "_tileSize": 1.0,
     "_cornerRadius": 0.5,
-    "_cameraSize": 8.5,
+    "_cameraSize": 9.5,
     "_cameraPosition": {
       "x": 0,
       "y": 1,

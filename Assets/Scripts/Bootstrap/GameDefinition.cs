@@ -61,7 +61,8 @@ namespace IronRing.Bootstrap
             foreach (var npc in result.Npcs.Definitions)
                 if (npc.EligibleHubIds.Any(id => !allHubs.Contains(id))) throw new ArgumentException("NPC references an unknown hub.");
             var resources = new HashSet<string>(result.Habitats.CreateStock().Keys);
-            if (!resources.Contains(result.Encounters.RewardResource) || result.Encounters.PenaltyResources.Any(id => !resources.Contains(id)))
+            // Story 039: only "resource" events name a resource.
+            if (result.Encounters.Events.Any(e => e.Effect == EncounterData.EFFECT_RESOURCE && !resources.Contains(e.Resource)))
                 throw new ArgumentException("Encounter references an unknown resource.");
             foreach (var facility in result.Facilities.CreateDefinitions())
                 if (facility.Costs.Keys.Any(id => !resources.Contains(id))) throw new ArgumentException("Facility references an unknown resource.");

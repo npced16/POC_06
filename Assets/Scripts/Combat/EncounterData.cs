@@ -1,75 +1,106 @@
 using System;
+using System.Collections.Generic;
 
 using UnityEngine;
 
 namespace IronRing.Combat
 {
+    /// <summary>
+    /// Story 005 / 039. Rest-stop event table (Resources/Story005Encounters.json). Story 039 removed the dice combat entirely:
+    /// every arrival at a rest stop resolves exactly one event, picked from that stop's fixed weight table (_restStops) with
+    /// the seeded random; a stop without its own table uses every event at weight 1.
+    /// </summary>
     [Serializable]
     public sealed class EncounterData
     {
-        [SerializeField] private float _eventRatio;
-        [SerializeField] private int _rounds;
-        [SerializeField] private float _trainStrength;
-        [SerializeField] private int _enemyMin;
-        [SerializeField] private int _enemyMax;
-        [SerializeField] private string _rewardResource;
-        [SerializeField] private int _rewardAmount;
-        [SerializeField] private string[] _penaltyResources;
-        [SerializeField] private int _penaltyAmount;
-        [SerializeField] private float _prosperityPenalty;
-        [Tooltip("Story 016: prosperity added to the next hub after a combat victory (0 = none).")]
-        [SerializeField] private float _victoryProsperity;
-        [Tooltip("Story 016: prosperity added to the next hub after a resolved trackside event (0 = none).")]
-        [SerializeField] private float _eventProsperity;
-        [SerializeField] private EncounterEvent[] _events;
-        [Tooltip("Story 033: true = an occupied waypoint runs a real-time raid (RaidSystem) instead of the dice combat and event roll.")]
-        [SerializeField] private bool _raidMode;
-        public float EventRatio => _eventRatio;
-        public int Rounds => _rounds;
-        public float TrainStrength => _trainStrength;
-        public int EnemyMin => _enemyMin;
-        public int EnemyMax => _enemyMax;
-        public string RewardResource => _rewardResource;
-        public int RewardAmount => _rewardAmount;
-        public string[] PenaltyResources => _penaltyResources;
-        public int PenaltyAmount => _penaltyAmount;
-        public float ProsperityPenalty => _prosperityPenalty;
-        /// <summary>Story 016: next-hub prosperity gain after a victory.</summary>
-        public float VictoryProsperity => _victoryProsperity;
-        /// <summary>Story 016: next-hub prosperity gain after a resolved event.</summary>
-        public float EventProsperity => _eventProsperity;
-        public EncounterEvent[] Events => _events;
-        /// <summary>Story 033: waypoint encounters become real-time raids while the waypoint is occupied (dice combat code kept).</summary>
-        public bool RaidMode => _raidMode;
+        /// <summary>Effect ids an event may carry (_effect).</summary>
+        public const string EFFECT_PROSPERITY = "prosperity";
+        public const string EFFECT_CODEX = "codex";
+        public const string EFFECT_BOARDING = "boarding";
+        public const string EFFECT_DELAY = "delay";
+        public const string EFFECT_RESOURCE = "resource";
 
-        /// <summary>Validates loaded encounter inputs and throws if their ranges cannot produce valid encounters.</summary>
+        [SerializeField] private EncounterEvent[] _events;
+        [Tooltip("Story 039: per rest-stop weight tables (node id -> event ids and weights).")]
+        [SerializeField] private RestStopTable[] _restStops;
+        public EncounterEvent[] Events => _events;
+        public RestStopTable[] RestStops => _restStops ?? Array.Empty<RestStopTable>();
+
+        /// <summary>Event by id, or null.</summary>
+        public EncounterEvent Find(string id)
+        {
+            foreach (EncounterEvent entry in _events) if (entry.Id == id) return entry;
+            return null;
+        }
+
+        /// <summary>Weight table for a rest stop, or null when the stop has none (then every event weighs 1).</summary>
+        public RestStopTable TableFor(string stopId)
+        {
+            foreach (RestStopTable table in RestStops) if (table.Id == stopId) return table;
+            return null;
+        }
+
+        /// <summary>Validates the loaded event table and throws if it cannot always produce an event.</summary>
         public void Validate()
         {
-            if (float.IsNaN(_eventRatio) || _eventRatio < 0 || _eventRatio > 1 || _rounds < 1 || _rounds % 2 == 0 ||
-                float.IsNaN(_trainStrength) || float.IsInfinity(_trainStrength) || _trainStrength <= 0 ||
-                float.IsNaN(_prosperityPenalty) || float.IsInfinity(_prosperityPenalty) || _prosperityPenalty > 0 ||
-                float.IsNaN(_victoryProsperity) || float.IsInfinity(_victoryProsperity) || _victoryProsperity < 0 ||
-                float.IsNaN(_eventProsperity) || float.IsInfinity(_eventProsperity) || _eventProsperity < 0 ||
-                _enemyMin <= 0 || _enemyMax < _enemyMin || _enemyMax == int.MaxValue ||
-                string.IsNullOrWhiteSpace(_rewardResource) || _rewardAmount < 0 || _penaltyAmount < 0 ||
-                _penaltyResources == null || _penaltyResources.Length == 0 || _events == null || _events.Length == 0)
-                throw new ArgumentException("Invalid encounter data.");
-            foreach (string resource in _penaltyResources)
-                if (string.IsNullOrWhiteSpace(resource)) throw new ArgumentException("Empty penalty resource.");
+            if (_events == null || _events.Length == 0) throw new ArgumentException("Invalid encounter data: no events.");
+            var ids = new HashSet<string>();
             foreach (EncounterEvent entry in _events)
-                if (entry == null || string.IsNullOrWhiteSpace(entry.Resource) || string.IsNullOrWhiteSpace(entry.Title))
+                if (entry == null || string.IsNullOrWhiteSpace(entry.Id) || string.IsNullOrWhiteSpace(entry.Title) || !ids.Add(entry.Id)
+                    || float.IsNaN(entry.Amount) || float.IsInfinity(entry.Amount)
+                    || (entry.Effect == EFFECT_RESOURCE && string.IsNullOrWhiteSpace(entry.Resource)))
                     throw new ArgumentException("Invalid event data.");
+            foreach (RestStopTable table in RestStops)
+            {
+                if (table == null || string.IsNullOrWhiteSpace(table.Id) || table.Events == null || table.Events.Length == 0)
+                    throw new ArgumentException("Invalid rest-stop table.");
+                int total = 0;
+                foreach (WeightedEvent pick in table.Events)
+                {
+                    if (pick == null || !ids.Contains(pick.EventId) || pick.Weight < 0) throw new ArgumentException("Invalid rest-stop event: " + table.Id);
+                    total += pick.Weight;
+                }
+                if (total <= 0) throw new ArgumentException("Rest-stop table has no weight: " + table.Id);
+            }
         }
     }
 
+    /// <summary>Story 039. One rest-stop event: title (string key via MainSettings _eventKeys), effect and amount.</summary>
     [Serializable]
     public sealed class EncounterEvent
     {
+        [SerializeField] private string _id;
         [SerializeField] private string _title;
+        [Tooltip("prosperity (next hub +/-amount) | codex (unlock amount recipes) | boarding (boarding chance +amount at this stop) | delay (hold amount more seconds) | resource")]
+        [SerializeField] private string _effect;
+        [SerializeField] private float _amount;
         [SerializeField] private string _resource;
         [SerializeField] private int _delta;
+        public string Id => _id;
         public string Title => _title;
+        public string Effect => _effect;
+        public float Amount => _amount;
         public string Resource => _resource;
         public int Delta => _delta;
+    }
+
+    /// <summary>Story 039. Fixed weight table of one rest stop.</summary>
+    [Serializable]
+    public sealed class RestStopTable
+    {
+        [SerializeField] private string _id;
+        [SerializeField] private WeightedEvent[] _events;
+        public string Id => _id;
+        public WeightedEvent[] Events => _events;
+    }
+
+    /// <summary>Story 039. Event id and its weight inside a rest-stop table.</summary>
+    [Serializable]
+    public sealed class WeightedEvent
+    {
+        [SerializeField] private string _eventId;
+        [SerializeField] private int _weight;
+        public string EventId => _eventId;
+        public int Weight => _weight;
     }
 }
