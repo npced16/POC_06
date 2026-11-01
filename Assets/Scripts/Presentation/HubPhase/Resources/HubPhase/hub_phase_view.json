@@ -1,0 +1,17 @@
+{
+  "_npcSpeed": 0.6,
+  "_npcPauseMin": 0.6,
+  "_npcPauseMax": 2.0,
+  "_npcCellFraction": 0.55,
+  "_facilityCellFraction": 0.85,
+  "_npcSortingOrder": 60,
+  "_facilitySortingOrder": 55,
+  "_npcSeed": 14,
+  "_mapLabelOffsetY": -1.45,
+  "_mapLabelGapPixels": 4,
+  "_hudSortingOrder": 110,
+  "_buildFacilityIds": ["wall", "turret", "workshop"],
+  "_effectsSettings": "Story010Effects",
+  "_buildMenuOnCellClick": false,
+  "_npcHighlightColor": { "r": 1.0, "g": 0.86, "b": 0.55, "a": 1.0 }
+}

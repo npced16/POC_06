@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a49297e86a2de649867c323ac4ab607, type: 3}
+  m_Name: InteriorCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::IronRing.Presentation.Interior.InteriorCatalog
+  _rubbleSprite: {fileID: 21300000, guid: c2ac980c7091ef44f90db23da6b6a7b6, type: 3}
+  _emptySprite: {fileID: 21300000, guid: 9a41aec70c8152347b194b4bf12dcf12, type: 3}
+  _plotSprite: {fileID: 21300000, guid: 9a7ef4237cefd6248a52aa9ffb3056a1, type: 3}
+  _builtSprite: {fileID: 21300000, guid: 9a7ef4237cefd6248a52aa9ffb3056a1, type: 3}
+  _trainSprite: {fileID: 21300000, guid: 16aaa38a5f952d140af378221addd4c3, type: 3}
+  _trackSprite: {fileID: 21300000, guid: a5f8b85f9ec239543a3603b2b073edf8, type: 3}
+  _floorSprite: {fileID: 21300000, guid: c98a992535a18a1468ca6348a6fc9cfb, type: 3}
+  _spriteMaterial: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
+  _itemPiecePrefab: {fileID: 3535718556951295668, guid: d06922c6f043f5b42b1298309e04b2c5, type: 3}
+  _facilityPiecePrefab: {fileID: 0}
+  _npcPiecePrefab: {fileID: 0}
+  _ghostPiecePrefab: {fileID: 46693870385112502, guid: 6a519280261d53f408dd59021f495cbd, type: 3}
+  _clusterFramePrefab: {fileID: 6544281141331432931, guid: 2d232c03d755f1548aa5bda747b8af19, type: 3}
+  _ghostValidColor: {r: 0.45, g: 1, b: 0.5, a: 0.6}
+  _ghostInvalidColor: {r: 1, g: 0.15, b: 0.15, a: 0.85}
+  _snapRadius: 0.75
+  _clusterColors:
+  - {r: 0.55, g: 0.9, b: 0.45, a: 0.9}
+  - {r: 0.4, g: 0.7, b: 1, a: 0.9}
+  - {r: 1, g: 0.8, b: 0.35, a: 0.9}
+  - {r: 0.95, g: 0.5, b: 0.8, a: 0.9}
+  - {r: 0.6, g: 0.95, b: 0.9, a: 0.9}
+  - {r: 1, g: 0.55, b: 0.35, a: 0.9}
+  _facilitySprites:
+  - _id: wall
+    _sprite: {fileID: 21300000, guid: 28f06408f732e2c45938bbff19877b57, type: 3}
+  - _id: turret
+    _sprite: {fileID: 21300000, guid: 396c315ad6376d949ab559c3d898350c, type: 3}
+  - _id: workshop
+    _sprite: {fileID: 21300000, guid: c548c7e423d2a5949b8ce9073f8c7887, type: 3}
+  _defaultOrigin: {x: 1000, y: 0, z: 0}
+  _defaultSpacing: {x: 200, y: 0, z: 0}
+  _defaultCameraSize: 5.5
+  _tileSize: 1
+  _floorMarginColumns: 3
+  _floorMarginRows: 1
+  _trainCars: 3
+  _trainCarSpacing: 1.3
+  _trainScale: 1.25
+  _trainForwardAngle: 90
+  _floorOrder: 0
+  _trackOrder: 1
+  _cellOrder: 2
+  _pieceOrder: 10
+  _trainOrder: 20

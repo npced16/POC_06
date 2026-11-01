@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5370bd4aca5a6d43bac842847150992, type: 3}
+  m_Name: HubPhasePrefabCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::IronRing.Presentation.HubPhase.HubPhasePrefabCatalog
+  _npc: {fileID: 636319900621573481, guid: acaa38783f00a7747b4f8d49cbdccccd, type: 3}
+  _facilities:
+  - _facilityId: wall
+    _prefab: {fileID: 3708526521822972046, guid: ec11f1700a8f08346b12c90147a225b8, type: 3}
+  - _facilityId: turret
+    _prefab: {fileID: 6233231066946684490, guid: ea7bdbc3c6bd30b46b0f2a1d2db92cae, type: 3}
+  - _facilityId: workshop
+    _prefab: {fileID: 7843675124372666744, guid: e474953cb02f4ce4fbbcc970fa2cd0cd, type: 3}

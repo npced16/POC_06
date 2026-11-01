@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4cde32f041be1e4781af3dab587b22a, type: 3}
+  m_Name: MapCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::IronRing.Presentation.Map.MapCatalog
+  _sprites:
+  - {fileID: 21300000, guid: bd1c4bc96a1355c4aaa68d6374d0d2f9, type: 3}
+  - {fileID: 21300000, guid: fc46e57ed05e71b46bd6d9038817138a, type: 3}
+  - {fileID: 21300000, guid: c7eb924bd2cc2da488d12f0aac3f17f0, type: 3}
+  - {fileID: 21300000, guid: 439ff652934225946a408e9dbb3361e9, type: 3}
+  - {fileID: 21300000, guid: 20f853e489ad77e41b1b82c2c01dbc31, type: 3}
+  - {fileID: 21300000, guid: 664772778d273de4b95fc2fdf6dde548, type: 3}
+  - {fileID: 21300000, guid: bac421f77317c74428d4316c5f27577b, type: 3}
+  - {fileID: 21300000, guid: dae0ecefc01de6b4fab6f2933bf2dcac, type: 3}
+  - {fileID: 21300000, guid: 1d568c7fbc4f31e4c804eaacec84f5a4, type: 3}
+  - {fileID: 21300000, guid: 9a41aec70c8152347b194b4bf12dcf12, type: 3}
+  - {fileID: 21300000, guid: c98a992535a18a1468ca6348a6fc9cfb, type: 3}
+  - {fileID: 21300000, guid: 9a7ef4237cefd6248a52aa9ffb3056a1, type: 3}
+  - {fileID: 21300000, guid: c2ac980c7091ef44f90db23da6b6a7b6, type: 3}
+  - {fileID: 21300000, guid: a1e21f19373ab1244a3a579237e40e2f, type: 3}
+  - {fileID: 21300000, guid: 8ef4086c64d66fb4bbd0e779a663325a, type: 3}
+  - {fileID: 21300000, guid: 97db57f050d73d748b172065423e6492, type: 3}
+  - {fileID: 21300000, guid: 34bc8f4afbd57f54f9aa3840ad51b673, type: 3}
+  - {fileID: 21300000, guid: ddd6a26a7378a9046be143c21ab305d0, type: 3}
+  - {fileID: 21300000, guid: 0305c0187dbe5864eba1e247246349ce, type: 3}
+  - {fileID: 21300000, guid: 3fa748b943fc6b943b7e690761a90907, type: 3}
+  - {fileID: 21300000, guid: 5781cb55784cb6945934d92fb84f54ec, type: 3}
+  - {fileID: 21300000, guid: a5f8b85f9ec239543a3603b2b073edf8, type: 3}
+  - {fileID: 21300000, guid: 435ea94e85382f54192258c44a478ea9, type: 3}
+  - {fileID: 21300000, guid: 16aaa38a5f952d140af378221addd4c3, type: 3}
+  - {fileID: 21300000, guid: 396c315ad6376d949ab559c3d898350c, type: 3}
+  - {fileID: 21300000, guid: 28f06408f732e2c45938bbff19877b57, type: 3}
+  - {fileID: 21300000, guid: f776207ec108eca429d41bc8760a64ac, type: 3}
+  - {fileID: 21300000, guid: c548c7e423d2a5949b8ce9073f8c7887, type: 3}
+  _spriteMaterial: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
+  _labelFont: {fileID: 12800000, guid: 7a396adb23fef304594359ab2f50f756, type: 3}
+  _trackTilePrefab: {fileID: 2078703273445274263, guid: 36104c6a8afa1f24b82a2cec72518041, type: 3}
+  _hubBuildingPrefab: {fileID: 2260696352670752975, guid: cc235b5fc190a154c94cfa8174783783, type: 3}
+  _waypointMarkerPrefab: {fileID: 5389466461495643035, guid: 95f0af6a43fce4e449fa6f09770da25f, type: 3}
+  _trainPrefab: {fileID: 7374262960388431573, guid: 5d5c6dd8a986267439ec1b93d5b4e640, type: 3}

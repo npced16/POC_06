@@ -1,0 +1,64 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9f4ac3daa77f104dae2efae42333efd, type: 3}
+  m_Name: Story010Effects
+  m_EditorClassIdentifier: Assembly-CSharp::IronRing.Presentation.Effects.EffectsSettings
+  _sprites:
+  - {fileID: 21300000, guid: bd1c4bc96a1355c4aaa68d6374d0d2f9, type: 3}
+  - {fileID: 21300000, guid: fc46e57ed05e71b46bd6d9038817138a, type: 3}
+  - {fileID: 21300000, guid: c7eb924bd2cc2da488d12f0aac3f17f0, type: 3}
+  - {fileID: 21300000, guid: 439ff652934225946a408e9dbb3361e9, type: 3}
+  - {fileID: 21300000, guid: 20f853e489ad77e41b1b82c2c01dbc31, type: 3}
+  - {fileID: 21300000, guid: 664772778d273de4b95fc2fdf6dde548, type: 3}
+  - {fileID: 21300000, guid: bac421f77317c74428d4316c5f27577b, type: 3}
+  - {fileID: 21300000, guid: dae0ecefc01de6b4fab6f2933bf2dcac, type: 3}
+  - {fileID: 21300000, guid: 1d568c7fbc4f31e4c804eaacec84f5a4, type: 3}
+  - {fileID: 21300000, guid: a1e21f19373ab1244a3a579237e40e2f, type: 3}
+  - {fileID: 21300000, guid: 8ef4086c64d66fb4bbd0e779a663325a, type: 3}
+  - {fileID: 21300000, guid: 97db57f050d73d748b172065423e6492, type: 3}
+  - {fileID: 21300000, guid: 34bc8f4afbd57f54f9aa3840ad51b673, type: 3}
+  - {fileID: 21300000, guid: ddd6a26a7378a9046be143c21ab305d0, type: 3}
+  - {fileID: 21300000, guid: 0305c0187dbe5864eba1e247246349ce, type: 3}
+  - {fileID: 21300000, guid: 3fa748b943fc6b943b7e690761a90907, type: 3}
+  - {fileID: 21300000, guid: 5781cb55784cb6945934d92fb84f54ec, type: 3}
+  - {fileID: 21300000, guid: a5f8b85f9ec239543a3603b2b073edf8, type: 3}
+  - {fileID: 21300000, guid: 435ea94e85382f54192258c44a478ea9, type: 3}
+  - {fileID: 21300000, guid: 16aaa38a5f952d140af378221addd4c3, type: 3}
+  - {fileID: 21300000, guid: 396c315ad6376d949ab559c3d898350c, type: 3}
+  - {fileID: 21300000, guid: 28f06408f732e2c45938bbff19877b57, type: 3}
+  - {fileID: 21300000, guid: f776207ec108eca429d41bc8760a64ac, type: 3}
+  - {fileID: 21300000, guid: c548c7e423d2a5949b8ce9073f8c7887, type: 3}
+  _spriteMaterial: {fileID: 2100000, guid: 8f9c2dec340584041ae81735f89f1e1d, type: 2}
+  _prosperityMaximum: 100
+  _gaugeOffset: {x: 0, y: 0.85, z: 0}
+  _gaugeScale: {x: 1.6, y: 1, z: 1}
+  _facilityOffsets:
+  - {x: -1, y: -0.7, z: 0}
+  - {x: 0, y: -1, z: 0}
+  - {x: 1, y: -0.7, z: 0}
+  _facilityIds:
+  - wall
+  - turret
+  - workshop
+  _npcOffset: {x: 1, y: 0.2, z: 0}
+  _npcSpacing: 0.45
+  _messageSeconds: 3
+  _riseSpeed: 0.25
+  _debrisSeconds: 2
+  _debrisCount: 8
+  _debrisSpeed: 0.6
+  _raiderOffset: {x: 1.1, y: 0, z: 0}
+  _fontSize: 20
+  _messageWidth: 300
+  _ink: {r: 0.96, g: 0.9, b: 0.73, a: 1}
+  _bubble: {r: 0.08, g: 0.1, b: 0.13, a: 0.94}
+  _defeatShade: {r: 0.02, g: 0.025, b: 0.04, a: 0.88}
