@@ -70,6 +70,14 @@ namespace IronRing.Presentation.Interior
         [Tooltip("굴뚝 위치: 맨 윗줄 오른쪽 칸 중심에서의 오프셋(타일 배수).")]
         [SerializeField] private Vector2 _chimneyOffset = new Vector2(0.28f, 0.2f);
         [SerializeField] private Vector2 _smokeOffset = new Vector2(0f, 0.45f);
+        [Tooltip("QA 후속(건물 장식). 정면 창 무늬 덧조각(무늬 1 = [0], 무늬 2 = [1]). 무늬 0은 지붕 조각의 기본 창.")]
+        [SerializeField] private Sprite[] _buildingWindows = Array.Empty<Sprite>();
+        [Tooltip("QA 후속(건물 장식). 지붕 위 덧소품(id = HabitatTypes.json _decor._props).")]
+        [SerializeField] private FacilitySprite[] _buildingDecor = Array.Empty<FacilitySprite>();
+        [Tooltip("QA 후속(건물 장식). 덧소품 크기 배율.")]
+        [SerializeField] private float _buildingDecorScale = 0.6f;
+        [Tooltip("QA 후속(건물 장식). 덧소품을 칸 중심에서 위로 올리는 양(타일 배수).")]
+        [SerializeField] private float _decorLift = 0.08f;
         [Tooltip("건물 조각 z 오프셋(+면 칸 콜라이더 뒤: 칸 클릭 레이캐스트가 칸을 먼저 맞춘다).")]
         [SerializeField] private float _buildingDepth = 0.05f;
         [Header("최초 배치 기본값 (프리팹·씬 생성 시에만 사용)")]
@@ -192,6 +200,40 @@ namespace IronRing.Presentation.Interior
         {
             foreach (FacilitySprite entry in _buildingSigns ?? Array.Empty<FacilitySprite>()) if (entry != null && entry.Id == id) return entry.Sprite;
             return null;
+        }
+
+        /// <summary>QA 후속(건물 장식). 색조 tint가 입혀진 style 계열의 지붕 조각. 색조 계열이 없으면 기본 계열로 돌아간다.</summary>
+        public Sprite RoofSprite(string style, string tint, int mask) => TintedStyle(style, tint)?.Piece(mask) ?? RoofSprite(style, mask);
+        /// <summary>QA 후속(건물 장식). 색조 tint가 입혀진 오목 모서리 조각(없으면 기본 계열).</summary>
+        public Sprite InnerCornerSprite(string style, string tint, int corner) => TintedStyle(style, tint)?.Corner(corner) ?? InnerCornerSprite(style, corner);
+        /// <summary>QA 후속(건물 장식). 창 무늬(1부터) 덧조각, 0이거나 없으면 null.</summary>
+        public Sprite BuildingWindow(int pattern) => pattern < 1 || _buildingWindows == null || pattern > _buildingWindows.Length ? null : _buildingWindows[pattern - 1];
+        /// <summary>QA 후속(건물 장식). 덧소품 id의 스프라이트, 없으면 null.</summary>
+        public Sprite BuildingDecor(string id)
+        {
+            foreach (FacilitySprite entry in _buildingDecor ?? Array.Empty<FacilitySprite>()) if (entry != null && entry.Id == id) return entry.Sprite;
+            return null;
+        }
+        /// <summary>QA 후속(건물 장식). 덧소품 크기 배율.</summary>
+        public float BuildingDecorScale => _buildingDecorScale;
+        /// <summary>QA 후속(건물 장식). 덧소품 높이(타일 배수).</summary>
+        public float DecorLift => _decorLift;
+        /// <summary>QA 후속(건물 장식). 색조 계열 id("style@tint"; tint가 비었거나 base면 style 그대로). 생성기·카탈로그가 같은 규칙을 쓴다.</summary>
+        public static string TintedStyleId(string style, string tint) => string.IsNullOrEmpty(tint) || tint == "base" ? style : style + "@" + tint;
+
+        private BuildingStyleSet TintedStyle(string style, string tint)
+        {
+            if (string.IsNullOrEmpty(tint) || tint == "base" || _buildingStyles == null) return null;
+            string id = TintedStyleId(style, tint);
+            foreach (BuildingStyleSet set in _buildingStyles) if (set != null && set.Id == id) return set;
+            return null;
+        }
+
+        /// <summary>QA 후속(건물 장식). 편집기 제작 도구(Story012Build)가 창 무늬·덧소품 표를 채운다.</summary>
+        public void SetBuildingDecor(Sprite[] windows, FacilitySprite[] decor)
+        {
+            _buildingWindows = windows ?? Array.Empty<Sprite>();
+            _buildingDecor = decor ?? Array.Empty<FacilitySprite>();
         }
 
         private BuildingStyleSet Style(string style)

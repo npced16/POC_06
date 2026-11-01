@@ -69,6 +69,75 @@ MonoBehaviour:
     - {fileID: 21300000, guid: d8c1348093bddb340b066c0a37f0075b, type: 3}
     - {fileID: 21300000, guid: 037ff9948594f354795e863e763ac6ad, type: 3}
     - {fileID: 21300000, guid: 45ac574dfd0090c4e8e67a96fd6ce0a7, type: 3}
+  - _id: machine@copper
+    _pieces:
+    - {fileID: 21300000, guid: 3d40700ddca622a4e861fcc5f6a400b7, type: 3}
+    - {fileID: 21300000, guid: 443b020c00ba9604c907e1e596e2782d, type: 3}
+    - {fileID: 21300000, guid: 87f300c64b2113f42997e7e77f16a739, type: 3}
+    - {fileID: 21300000, guid: 5cfb79d1aafbaa045b9c0a5fc1c32ef4, type: 3}
+    - {fileID: 21300000, guid: 102046cd8757e69408b3e3d30f13a0c6, type: 3}
+    - {fileID: 21300000, guid: 7a3ddb1af41a4114497f8deedd66bd7d, type: 3}
+    - {fileID: 21300000, guid: 84a0d58280eb8c9499c63c4cd6a22a5c, type: 3}
+    - {fileID: 21300000, guid: 5974da219d0f8214dbe2f18a00bd6178, type: 3}
+    - {fileID: 21300000, guid: 06d4ffb18fcef354bb1d2076e535ff6b, type: 3}
+    - {fileID: 21300000, guid: 3d246d67f8716c644b87c2fb79aeca5b, type: 3}
+    - {fileID: 21300000, guid: 2c768b1d27f4a784e8a306c1e5e72975, type: 3}
+    - {fileID: 21300000, guid: 6eefd870500a1dc48987e259735090c4, type: 3}
+    - {fileID: 21300000, guid: 66eab64d3d949474b993328ae262df0a, type: 3}
+    - {fileID: 21300000, guid: a4cb495086655d945bda59a58db159b5, type: 3}
+    - {fileID: 21300000, guid: f443d527a70bbb744a491869cd3e1045, type: 3}
+    - {fileID: 21300000, guid: 5c5c4c1718198ee43bf384677f2bb2ca, type: 3}
+    _innerCorners:
+    - {fileID: 21300000, guid: 1632dd0672add7c44936750333b8ca54, type: 3}
+    - {fileID: 21300000, guid: 072ec535ad7dd484f9f2fce3bd897fb9, type: 3}
+    - {fileID: 21300000, guid: 40fee15a557a90941b78f2778c54ec53, type: 3}
+    - {fileID: 21300000, guid: 424a4fd023b73514489f6147f7bf1a09, type: 3}
+  - _id: machine@wine
+    _pieces:
+    - {fileID: 21300000, guid: 9026eff7325474e44a4b7a3725c52c1c, type: 3}
+    - {fileID: 21300000, guid: 0a4a6f439c7927046b3885fec3cb69b1, type: 3}
+    - {fileID: 21300000, guid: f895b8560a7bcf54db427c6a21cba252, type: 3}
+    - {fileID: 21300000, guid: 48eaf19fa934be24dbb4a114aafee59b, type: 3}
+    - {fileID: 21300000, guid: a239cc42fdede92468b26d8920692292, type: 3}
+    - {fileID: 21300000, guid: 9e46a160b13f6cc4a9d6340196d0bb74, type: 3}
+    - {fileID: 21300000, guid: da2c8e972a0d46c45b217197d45dbf4b, type: 3}
+    - {fileID: 21300000, guid: 0a8e5f0a4f997d5478eec84a274f769e, type: 3}
+    - {fileID: 21300000, guid: 3fe182de955004d479d7aef1fe0b1e2d, type: 3}
+    - {fileID: 21300000, guid: 55bebc650bc07ee4cbfe6c58a6ba5f46, type: 3}
+    - {fileID: 21300000, guid: e63a5dc7982d89749a96574e3caf5aab, type: 3}
+    - {fileID: 21300000, guid: 6c0941abad0e2b5429a4ac442f48ef55, type: 3}
+    - {fileID: 21300000, guid: 62f4969f3f9a8bc42a157168e346b175, type: 3}
+    - {fileID: 21300000, guid: 4638c73c79b05a640a630acfd7e4df8f, type: 3}
+    - {fileID: 21300000, guid: 623c8a91f1cf62c48b56f19707124842, type: 3}
+    - {fileID: 21300000, guid: 20f37688db28a8842a2b022e5afd9f74, type: 3}
+    _innerCorners:
+    - {fileID: 21300000, guid: b746099a983750d42b1e050afb126975, type: 3}
+    - {fileID: 21300000, guid: e4b5bc3d6bda07f4a93895a7516a80aa, type: 3}
+    - {fileID: 21300000, guid: 1a47ee075de50ab47bab73e1f860b55a, type: 3}
+    - {fileID: 21300000, guid: e670cf932ab12ad419618bf76e1fa3e6, type: 3}
+  - _id: machine@moss
+    _pieces:
+    - {fileID: 21300000, guid: 7ca2ec88113b9894d82cfe0753224e2a, type: 3}
+    - {fileID: 21300000, guid: d8158f0a83833274a908ff26e8be6056, type: 3}
+    - {fileID: 21300000, guid: 5aa2a40d859f8ee4f9f07811b910a274, type: 3}
+    - {fileID: 21300000, guid: c69d251e61946aa478205ebfc11fa163, type: 3}
+    - {fileID: 21300000, guid: db70db499cce5e445a334efc704e6c2f, type: 3}
+    - {fileID: 21300000, guid: 0ce60b7fb932e04488d5dfc1c56950c6, type: 3}
+    - {fileID: 21300000, guid: bf43017db26443941b2a71b98367b419, type: 3}
+    - {fileID: 21300000, guid: 83b49158dbbdbbc4e86b77a0fe4c1239, type: 3}
+    - {fileID: 21300000, guid: 7ebe58ba78fccfa4c8e7b02c6940ac41, type: 3}
+    - {fileID: 21300000, guid: 2cbb5f118a6b0984296d4e6e929c9d38, type: 3}
+    - {fileID: 21300000, guid: 03551d1f4af34024a97e81baee175002, type: 3}
+    - {fileID: 21300000, guid: 2dbb5e59edf557d4484fcaafb90a8d3d, type: 3}
+    - {fileID: 21300000, guid: 393dd6426b46d7442ab2fa1af3107089, type: 3}
+    - {fileID: 21300000, guid: be695aed117854044aa7384a393f4c2f, type: 3}
+    - {fileID: 21300000, guid: 248378cf27cef344ca6358713ebb5e27, type: 3}
+    - {fileID: 21300000, guid: 6e7d4aff3bdd53247850b36ea75d95cb, type: 3}
+    _innerCorners:
+    - {fileID: 21300000, guid: a93ef8cb8bc032340b234f40b285d152, type: 3}
+    - {fileID: 21300000, guid: e1d9200be7a061f4485e1f0c936bd0e6, type: 3}
+    - {fileID: 21300000, guid: 9bf7a5c3e5f838d47a93f4192a62c3d5, type: 3}
+    - {fileID: 21300000, guid: 4c5c81d3241867e45a5df52d62150c82, type: 3}
   - _id: housing
     _pieces:
     - {fileID: 21300000, guid: 40ba0d978807b0c44a9df8773091d2af, type: 3}
@@ -92,6 +161,75 @@ MonoBehaviour:
     - {fileID: 21300000, guid: 84799d10fd008124a941b14eeee30cc1, type: 3}
     - {fileID: 21300000, guid: 991e92ffe7547ad45a6923cc5f5acb39, type: 3}
     - {fileID: 21300000, guid: 368355e711e9e9f4c8a0875213deb3d9, type: 3}
+  - _id: housing@copper
+    _pieces:
+    - {fileID: 21300000, guid: c8045036961de80478b673cdf577eb74, type: 3}
+    - {fileID: 21300000, guid: 5e4dd2662b1d91e4b8d2581c7345adb9, type: 3}
+    - {fileID: 21300000, guid: 62cc7f0073de7654694019c14655a4a2, type: 3}
+    - {fileID: 21300000, guid: 6ebe1a0ec5779a34da2a73fa27fe0f27, type: 3}
+    - {fileID: 21300000, guid: b20766048794c5d4f824bfc56e023fdf, type: 3}
+    - {fileID: 21300000, guid: ee4687c4f284f1a4894668c1ec458cd8, type: 3}
+    - {fileID: 21300000, guid: ae9a6991b5f651546ba6c4bd6ffc1b0e, type: 3}
+    - {fileID: 21300000, guid: 1d54da6086b51b641ab7c68944b6bcae, type: 3}
+    - {fileID: 21300000, guid: f0e083692f1199c4bb2c0bb5109c670a, type: 3}
+    - {fileID: 21300000, guid: a129fafc75362a34bb8c1426cad11d7a, type: 3}
+    - {fileID: 21300000, guid: f2c511981b05e1e48873c084725c9705, type: 3}
+    - {fileID: 21300000, guid: f10e11b4553b93841987d264cd72049a, type: 3}
+    - {fileID: 21300000, guid: 0ccdd3f4009fa2547b920eb187e701dc, type: 3}
+    - {fileID: 21300000, guid: 7ee547b351988ee45809cb112aedc69b, type: 3}
+    - {fileID: 21300000, guid: eb5c4aba458383f42bec86c79d58cd7c, type: 3}
+    - {fileID: 21300000, guid: 056d2b8fa188ab54e9aa432d1e8fde06, type: 3}
+    _innerCorners:
+    - {fileID: 21300000, guid: ab8fc5feb78f0a8408f52b50eb6d4a31, type: 3}
+    - {fileID: 21300000, guid: 4f8b425c4f5894948abc69529d56e871, type: 3}
+    - {fileID: 21300000, guid: 047287abd16b7bb43877b60f05e4d4cb, type: 3}
+    - {fileID: 21300000, guid: 167f63f933b72264d93c5dca3899d41b, type: 3}
+  - _id: housing@wine
+    _pieces:
+    - {fileID: 21300000, guid: 5aee1d2c8a495114ea476509c57b6669, type: 3}
+    - {fileID: 21300000, guid: 2a719af81dc004e42b788b1d66521e35, type: 3}
+    - {fileID: 21300000, guid: 06e91c4924fbdcd42bdda63816186c34, type: 3}
+    - {fileID: 21300000, guid: 8ab7c7aa5762e6b4a942eb8c0ad044f0, type: 3}
+    - {fileID: 21300000, guid: 9d50a8e361864b14f92ece85acf79876, type: 3}
+    - {fileID: 21300000, guid: 9e5d4d3b46c5bb8498d2f6df9e3e5173, type: 3}
+    - {fileID: 21300000, guid: d8e453bfc5ea9344ca618ddbee1dc851, type: 3}
+    - {fileID: 21300000, guid: 14d62272b1aeb0047923952d98223bd3, type: 3}
+    - {fileID: 21300000, guid: 0af8d3ca83ea8164aa5afb410c0ccd52, type: 3}
+    - {fileID: 21300000, guid: 8660087776ec7664395f4b1e094d111b, type: 3}
+    - {fileID: 21300000, guid: c1f11db4d88491e4fa532e041aa0bc9d, type: 3}
+    - {fileID: 21300000, guid: 0f9353aa9875ca1459994491ee28cd4b, type: 3}
+    - {fileID: 21300000, guid: 3fecc68645842524089ef77be8a54f14, type: 3}
+    - {fileID: 21300000, guid: d899adc887f746641b8694832feabd5f, type: 3}
+    - {fileID: 21300000, guid: 8492160780a0bf04f843977b9c03c34a, type: 3}
+    - {fileID: 21300000, guid: a720d91174a84194796e488a10b6338f, type: 3}
+    _innerCorners:
+    - {fileID: 21300000, guid: 21b8ed1b35e416441b6742a30f5f39e7, type: 3}
+    - {fileID: 21300000, guid: 48cea641b34ba3f4d86b58a7f452733a, type: 3}
+    - {fileID: 21300000, guid: eec19574f394c824c97450d010d3196f, type: 3}
+    - {fileID: 21300000, guid: 2141ce16d817e5445a418006e7c1e45a, type: 3}
+  - _id: housing@moss
+    _pieces:
+    - {fileID: 21300000, guid: 507baf89b6618ad4b8347117ead34ed7, type: 3}
+    - {fileID: 21300000, guid: ba728b4ac8f939c4ca6ac8554735ae12, type: 3}
+    - {fileID: 21300000, guid: 8b382c114c4aa2b499f4e68a67f4a0db, type: 3}
+    - {fileID: 21300000, guid: 695518ac26604ec47997851f8d9d3f52, type: 3}
+    - {fileID: 21300000, guid: ea25769cc5d87d94db69b5797e34b8e6, type: 3}
+    - {fileID: 21300000, guid: 20f78b50f7d1c0440942efe1465b7df1, type: 3}
+    - {fileID: 21300000, guid: 57a6130ce2d8e20419091211491d8a00, type: 3}
+    - {fileID: 21300000, guid: b58e470c8d64ac446b03334045046051, type: 3}
+    - {fileID: 21300000, guid: f04103b24abf96c428baf10d5a65de8a, type: 3}
+    - {fileID: 21300000, guid: 2aebd1ac08aea5546b6ff4ed19726820, type: 3}
+    - {fileID: 21300000, guid: 47294732a638bad42a412ebbfc667828, type: 3}
+    - {fileID: 21300000, guid: 6a36437ee036a184fb992b273fc12eb3, type: 3}
+    - {fileID: 21300000, guid: 8417d2230bb51514e8dc081d9d61d96e, type: 3}
+    - {fileID: 21300000, guid: e5e4ccd52578e7d4abb91a9317618529, type: 3}
+    - {fileID: 21300000, guid: b2b34c28d3d7bf643b6f4f69d72a3220, type: 3}
+    - {fileID: 21300000, guid: 3df87e756b5e31a469817fba66dbe204, type: 3}
+    _innerCorners:
+    - {fileID: 21300000, guid: b06f5f84336109047b68fa6146323244, type: 3}
+    - {fileID: 21300000, guid: 0983daa7133e0894f945a98e8e5ee582, type: 3}
+    - {fileID: 21300000, guid: 85d02728e5c63034bb823ef44849e693, type: 3}
+    - {fileID: 21300000, guid: ae02ea6041958db459d571c5d3348654, type: 3}
   - _id: storage
     _pieces:
     - {fileID: 21300000, guid: c6f62fe847c7d1345a18025a8dab5f04, type: 3}
@@ -115,6 +253,75 @@ MonoBehaviour:
     - {fileID: 21300000, guid: 71160b46b641e0a40a365e472f65a0a9, type: 3}
     - {fileID: 21300000, guid: 49880741844b5954a9da5257c93e1d03, type: 3}
     - {fileID: 21300000, guid: c1df24872d1f1174083f91604a0351dd, type: 3}
+  - _id: storage@copper
+    _pieces:
+    - {fileID: 21300000, guid: 856e14c88e77e2e49acfbf8144c68a28, type: 3}
+    - {fileID: 21300000, guid: c9e110e0369b6af48998fdd86ad55c3d, type: 3}
+    - {fileID: 21300000, guid: 743ad1a9f6ef910438db2126ae0dd0ca, type: 3}
+    - {fileID: 21300000, guid: 4bac1115dd5b9b64a9d0300a993eb27b, type: 3}
+    - {fileID: 21300000, guid: 5339aeb5ba1edfc4294f75c22e430b08, type: 3}
+    - {fileID: 21300000, guid: cd14facb441e94e498a69e7a01e203ab, type: 3}
+    - {fileID: 21300000, guid: 2300dbd9b9f41be44bff70ab9e498691, type: 3}
+    - {fileID: 21300000, guid: d6bb3320902e6204283b8584c22bf148, type: 3}
+    - {fileID: 21300000, guid: 6abbeea14e6f4de4b91bc6c2afdc1f5f, type: 3}
+    - {fileID: 21300000, guid: 33f1fc01defa479438ea55da79d90d43, type: 3}
+    - {fileID: 21300000, guid: 9287af51e09aebe43bc182659463d607, type: 3}
+    - {fileID: 21300000, guid: 19a721b01ee203545bfb38b0f0812b58, type: 3}
+    - {fileID: 21300000, guid: e66f848ed704ddc4a9811e0e08e2dc8f, type: 3}
+    - {fileID: 21300000, guid: 0d10dcd84748dc047b110160b8fcd778, type: 3}
+    - {fileID: 21300000, guid: fe97b0d55905d2840b9e976bf34729bb, type: 3}
+    - {fileID: 21300000, guid: 11b519ae82f8fa64292dd167f99f5b09, type: 3}
+    _innerCorners:
+    - {fileID: 21300000, guid: 8509925fe2daa6644816d11a3476ce2f, type: 3}
+    - {fileID: 21300000, guid: 0e711d3ed53c22846a60ef53650c7838, type: 3}
+    - {fileID: 21300000, guid: 9c3e97804888daf4496e471a65ca321d, type: 3}
+    - {fileID: 21300000, guid: 3ccac0bfaf1efcc499732db421f3764d, type: 3}
+  - _id: storage@wine
+    _pieces:
+    - {fileID: 21300000, guid: bddbd70978fe26b48a0c99ec902aa208, type: 3}
+    - {fileID: 21300000, guid: 1e638d038aef48a4cbf0b5a272b19ad6, type: 3}
+    - {fileID: 21300000, guid: adab89143b3fd7b4eb11cbe557ec85fb, type: 3}
+    - {fileID: 21300000, guid: 6f0dcb6ed37563743a982002a29451c0, type: 3}
+    - {fileID: 21300000, guid: 6181e6dc21343ad47b9563f4559663cf, type: 3}
+    - {fileID: 21300000, guid: 08ac551bda6478047a82a235d3948ba0, type: 3}
+    - {fileID: 21300000, guid: 03a0d8e0bca31054a9613c47bcc758e9, type: 3}
+    - {fileID: 21300000, guid: 4471e27cd17f56d42822c94cbf624e0e, type: 3}
+    - {fileID: 21300000, guid: 5e0891fabb9e71048b5a53423ab8075a, type: 3}
+    - {fileID: 21300000, guid: 08804cb28af0b7f409dc5d48cba697e1, type: 3}
+    - {fileID: 21300000, guid: 22ed69d936ad13041808cf5e4f88ff29, type: 3}
+    - {fileID: 21300000, guid: 456285fe6b66380418c04cc577dbb411, type: 3}
+    - {fileID: 21300000, guid: d882f54e51672794cbd0fb3e4a49b659, type: 3}
+    - {fileID: 21300000, guid: 56446d8580ce6464c8e3e4a8d4ae8077, type: 3}
+    - {fileID: 21300000, guid: a8981bab08c8f3d4887c43aaaea70d73, type: 3}
+    - {fileID: 21300000, guid: dcd2375a977ad2047962305b0f55a224, type: 3}
+    _innerCorners:
+    - {fileID: 21300000, guid: 5b9c2a6d91dc2c14a981690d6e9ecaaf, type: 3}
+    - {fileID: 21300000, guid: c75267e0e238a9949a15021fa4b5ccac, type: 3}
+    - {fileID: 21300000, guid: 99a66c5511e6c3e49b35a68e2e3150e9, type: 3}
+    - {fileID: 21300000, guid: 30fb106236602864b8ccc88ecdda683a, type: 3}
+  - _id: storage@moss
+    _pieces:
+    - {fileID: 21300000, guid: 550328d26cc256a4e96950e60711ac85, type: 3}
+    - {fileID: 21300000, guid: 9e7538379c2c11447adaaf10445538cf, type: 3}
+    - {fileID: 21300000, guid: ae9baea200e70aa4baa6d563a2ddcdab, type: 3}
+    - {fileID: 21300000, guid: 2261c542d2f28be4090d0f3042638eb6, type: 3}
+    - {fileID: 21300000, guid: 51317cee1e27f04458131d212d09a836, type: 3}
+    - {fileID: 21300000, guid: fca8c288b72566a4fae832be4533552a, type: 3}
+    - {fileID: 21300000, guid: 9f0fd3e09db68ec4e9b3393e234b2925, type: 3}
+    - {fileID: 21300000, guid: 4ab935427c099714db2eed1615b52733, type: 3}
+    - {fileID: 21300000, guid: b0000266c24771b4db76a9553fc4d6db, type: 3}
+    - {fileID: 21300000, guid: 4da4285b33ffc2a4ab5254033f60c35b, type: 3}
+    - {fileID: 21300000, guid: 2f9eeb2c874ae0048b57ecaba209f48a, type: 3}
+    - {fileID: 21300000, guid: a433ad807849fde4dacaa4ffb52c5c21, type: 3}
+    - {fileID: 21300000, guid: 8a941befff423254c82b1f6454b56285, type: 3}
+    - {fileID: 21300000, guid: fe1fb08d4250c8848bb21847083361f3, type: 3}
+    - {fileID: 21300000, guid: 9be2075c086e430478645e2300593cfa, type: 3}
+    - {fileID: 21300000, guid: 9d2485a289b435f40ba45babbe53c773, type: 3}
+    _innerCorners:
+    - {fileID: 21300000, guid: c6b1787d66977dd4eb2622a12c9de70e, type: 3}
+    - {fileID: 21300000, guid: 1bb6b88b65657754d87de673cb13bc29, type: 3}
+    - {fileID: 21300000, guid: 310a5c382e8139843a4526850a844d87, type: 3}
+    - {fileID: 21300000, guid: b8a0f1e4cc1426f4981496be5baa10ad, type: 3}
   - _id: glass
     _pieces:
     - {fileID: 21300000, guid: fb2589adbd0388349893e260094592cc, type: 3}
@@ -138,6 +345,75 @@ MonoBehaviour:
     - {fileID: 21300000, guid: e4ccb82a3e4c81c43a21af7d6887df11, type: 3}
     - {fileID: 21300000, guid: 3de372e865f9682498b15a695cecca6c, type: 3}
     - {fileID: 21300000, guid: ff6de2460fcb5cd40b197f6a4104a506, type: 3}
+  - _id: glass@copper
+    _pieces:
+    - {fileID: 21300000, guid: 5da76107cebac2f4690d8bb5c896f58d, type: 3}
+    - {fileID: 21300000, guid: bdcd0f6577a266142938305d87d5f271, type: 3}
+    - {fileID: 21300000, guid: 060c7e4cba184024faa8366d17a14b2b, type: 3}
+    - {fileID: 21300000, guid: fdbfafa930f5cfe43bfee68cc5603b6f, type: 3}
+    - {fileID: 21300000, guid: af183901af8e07b4ab9359756b0a5f61, type: 3}
+    - {fileID: 21300000, guid: f2c97e9537025914eb7c32d233d7aad0, type: 3}
+    - {fileID: 21300000, guid: 5314e6f299aec8146a5a68489ba37c80, type: 3}
+    - {fileID: 21300000, guid: b355831b5ef94b74c9cf4737a1b7a3be, type: 3}
+    - {fileID: 21300000, guid: 4bcade4b4a79b6448b87a7907e752c6f, type: 3}
+    - {fileID: 21300000, guid: a387a490b8053dd41be40e27a8a9a380, type: 3}
+    - {fileID: 21300000, guid: 724532c85e3d27546b93f2edb971b25e, type: 3}
+    - {fileID: 21300000, guid: fbb1a74329704e34c9f6881586e1ca1e, type: 3}
+    - {fileID: 21300000, guid: 66fc06cd79312304d95350d7178e6296, type: 3}
+    - {fileID: 21300000, guid: ee6881cb967a6b0499c91431959572fe, type: 3}
+    - {fileID: 21300000, guid: 3970a591c09768044a2b40790461ef38, type: 3}
+    - {fileID: 21300000, guid: c137f3592b0d2434eaba16c6c93fcf20, type: 3}
+    _innerCorners:
+    - {fileID: 21300000, guid: f6b4da6ee11de8b4698f1295900fd6e0, type: 3}
+    - {fileID: 21300000, guid: 2ea56c1eecee7c24c80a3c818bbc6fd9, type: 3}
+    - {fileID: 21300000, guid: a6a9b91d761af9e438b14799b899dbcc, type: 3}
+    - {fileID: 21300000, guid: 1217d17e8c770c245bd75d0e57665724, type: 3}
+  - _id: glass@wine
+    _pieces:
+    - {fileID: 21300000, guid: c9cbb0292d309504fbdf6babd46fe739, type: 3}
+    - {fileID: 21300000, guid: 8ea6e52f56f6e274bbf05229b40fa907, type: 3}
+    - {fileID: 21300000, guid: 84a5373353adb4347beb5af94ac0d6f7, type: 3}
+    - {fileID: 21300000, guid: 11474e12c91b71f4f85a89a755964619, type: 3}
+    - {fileID: 21300000, guid: 6bb551ba9b7a63b4ab1a44dd6257db2a, type: 3}
+    - {fileID: 21300000, guid: 89057fc95328ca540b4d479414319391, type: 3}
+    - {fileID: 21300000, guid: 01e86887244e28843a277aa517c1045c, type: 3}
+    - {fileID: 21300000, guid: bd931df8c9ba1f5468a3a49d07186be5, type: 3}
+    - {fileID: 21300000, guid: 45ae088f5be6b89478b679a93fdad0ca, type: 3}
+    - {fileID: 21300000, guid: fa927fb4fe7fab640aa3041f997b848d, type: 3}
+    - {fileID: 21300000, guid: 6c2261f4eae7259439badca0f734d0f8, type: 3}
+    - {fileID: 21300000, guid: 650c75646ec999e45afeddf5b249232c, type: 3}
+    - {fileID: 21300000, guid: 6709acbe325b6d24aa0df982e167120b, type: 3}
+    - {fileID: 21300000, guid: 14784cbba56246d46b44db48c42db0e4, type: 3}
+    - {fileID: 21300000, guid: 0c37d477de5e6564596795f6b8782231, type: 3}
+    - {fileID: 21300000, guid: 10c2eae25a68e124b9b7cde1e030b402, type: 3}
+    _innerCorners:
+    - {fileID: 21300000, guid: 6c7758ce756d43345bfd7c15bbe90b14, type: 3}
+    - {fileID: 21300000, guid: 36167d81d019f1a47bf229f4608f70ba, type: 3}
+    - {fileID: 21300000, guid: aa8e3a6483dead649a5eca7cfaae8257, type: 3}
+    - {fileID: 21300000, guid: a3335168acc5c124f83a5944c76ca9bf, type: 3}
+  - _id: glass@moss
+    _pieces:
+    - {fileID: 21300000, guid: 0e491211e03e72a458fd96c6482199be, type: 3}
+    - {fileID: 21300000, guid: dfbcc4c7c01df384ba28177a1a835015, type: 3}
+    - {fileID: 21300000, guid: 97d2fbd9f3232b1429ae2bbe32a5ee54, type: 3}
+    - {fileID: 21300000, guid: cbec7449a28cef2438b708b931cd82c5, type: 3}
+    - {fileID: 21300000, guid: f0ec88e8ec7d8664ba840db4828063e0, type: 3}
+    - {fileID: 21300000, guid: 6993389e85631c54595256765e77f532, type: 3}
+    - {fileID: 21300000, guid: 377d723ad0d8be24e89a1f21485c7c53, type: 3}
+    - {fileID: 21300000, guid: 2a0efe52dc791494792607daa93605e5, type: 3}
+    - {fileID: 21300000, guid: 7fb9499c862301941bd36635c8a2a852, type: 3}
+    - {fileID: 21300000, guid: c841e48bbe09ab04082c6efdb18fbe34, type: 3}
+    - {fileID: 21300000, guid: d02c45307485bcb4e92f32ff6ace5cc7, type: 3}
+    - {fileID: 21300000, guid: 50df2eb7b2e34a543a7d4b6e48643f0d, type: 3}
+    - {fileID: 21300000, guid: a1f02acb6dcd4f046b0ad44fbd715e7c, type: 3}
+    - {fileID: 21300000, guid: 0e97358f9c5926042bcf41ef54ebdb02, type: 3}
+    - {fileID: 21300000, guid: e036b827c32cead47ab62199b28db9f3, type: 3}
+    - {fileID: 21300000, guid: b14f4a0ccac2074409e3cf0c10e3b951, type: 3}
+    _innerCorners:
+    - {fileID: 21300000, guid: 89077e6745268f64db566967ffef660e, type: 3}
+    - {fileID: 21300000, guid: 1df37017a4ca7414ea541d2357c7b35d, type: 3}
+    - {fileID: 21300000, guid: 1bf67233d0000ca47b29f70d08c371b9, type: 3}
+    - {fileID: 21300000, guid: a777df3a498f94643b72cc05e1fce4c8, type: 3}
   _buildingDoors:
   - {fileID: 21300000, guid: 60c4ca15d8ad7d646bbf06a30f387651, type: 3}
   - {fileID: 21300000, guid: 6e1619b5002e7964f8f059122ffbdaa0, type: 3}
@@ -194,6 +470,32 @@ MonoBehaviour:
   _signLift: 0.1
   _chimneyOffset: {x: 0.28, y: 0.2}
   _smokeOffset: {x: 0, y: 0.45}
+  _buildingWindows:
+  - {fileID: 21300000, guid: 6406791f06af5df4093b2580ff10119a, type: 3}
+  - {fileID: 21300000, guid: 5aab281e646eefc439ff020988b4ec87, type: 3}
+  _buildingDecor:
+  - _id: cog_sign
+    _sprite: {fileID: 21300000, guid: defa4d582aead1b4c87b7a0d04ed37b1, type: 3}
+  - _id: steam_pipes
+    _sprite: {fileID: 21300000, guid: 145d2145967116b419b8f07125a6771d, type: 3}
+  - _id: twin_chimney
+    _sprite: {fileID: 21300000, guid: ec5e4eac46fe29f4e912bed4b5d37718, type: 3}
+  - _id: water_tank
+    _sprite: {fileID: 21300000, guid: f37e8e57df4932e4bbe096934643b629, type: 3}
+  - _id: glass_cap
+    _sprite: {fileID: 21300000, guid: 7e32cbf0b6c6590419cdb3cc801aaa3e, type: 3}
+  - _id: gas_lamp
+    _sprite: {fileID: 21300000, guid: 4e3a8278e1e76424cbb851dc07eb1180, type: 3}
+  - _id: tele_pole
+    _sprite: {fileID: 21300000, guid: c550d3060a65cd940a9dbebb445edd7b, type: 3}
+  - _id: coal_pile
+    _sprite: {fileID: 21300000, guid: 3a472729495a2c2459cceace421aedb7, type: 3}
+  - _id: iron_frame
+    _sprite: {fileID: 21300000, guid: bd0538b7d5752d04cb5328219bc1c5d5, type: 3}
+  - _id: laundry
+    _sprite: {fileID: 21300000, guid: 84a5f11fdb617fb419a621923087ba74, type: 3}
+  _buildingDecorScale: 0.6
+  _decorLift: 0.08
   _buildingDepth: 0.05
   _defaultOrigin: {x: 1000, y: 0, z: 0}
   _defaultSpacing: {x: 200, y: 0, z: 0}

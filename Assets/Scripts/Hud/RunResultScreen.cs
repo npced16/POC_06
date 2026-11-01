@@ -73,7 +73,12 @@ namespace IronRing.Hud
         {
             if (_screens == null || _result == null) return;
             if (!_result.IsOver) { _screens.Hide(_screen.Id); return; }
-            switch (_result.Outcome)
+            // 스토리 045: 마을 등급이 있으면 "정착 n/n" 대신 최종 등급으로 제목·본문을 쓴다.
+            ITownTier town = GameServices.Get<ITownTier>();
+            string townHub = TownUiText.HubId(GameServices.Get<IPopulation>());
+            string townName = Strings.Get(townHub.Replace('-', '_'));
+            if (town != null) FillTown(town, townName);
+            else switch (_result.Outcome)
             {
                 case RunOutcome.Victory:
                     // Story 032: 거점 수가 데이터(선로의 역 수)에 따라 바뀌므로 "정착 n/n"을 함께 보인다.
@@ -94,7 +99,8 @@ namespace IronRing.Hud
             foreach (RunHubSummary hub in _result.Hubs)
             {
                 if (lines.Length > 0) lines.Append('\n');
-                lines.Append(string.Format(Strings.Get("result_hub_line"), Strings.Get(hub.HubId.Replace('-', '_')), PhaseText(hub.Phase),
+                string phase = town != null && hub.HubId == townHub && hub.Phase != DevPhase.Collapsed ? town.TierName : PhaseText(hub.Phase);
+                lines.Append(string.Format(Strings.Get("result_hub_line"), Strings.Get(hub.HubId.Replace('-', '_')), phase,
                     Mathf.RoundToInt(hub.Prosperity), hub.NpcCount));
             }
             _hubs.text = lines.ToString();
@@ -103,14 +109,36 @@ namespace IronRing.Hud
                 _laps.text = string.Format(Strings.Get("result_laps"), _result.Laps);
             }
             ILedger ledger = GameServices.Get<ILedger>();
-            _finance.gameObject.SetActive(ledger != null);
-            if (ledger != null)
+            if (_finance != null) _finance.gameObject.SetActive(ledger != null);
+            if (ledger != null && _finance != null)
             {
                 _finance.text = string.Format(Strings.Get("ui_result_finance"), ledger.TotalIncome, ledger.TotalExpense);
-                ITownTier town = GameServices.Get<ITownTier>();
                 if (town != null) _finance.text += " · " + string.Format(Strings.Get("ui_tier_result"), town.TierName);
             }
             _screens.Show(_screen.Id);
+        }
+
+        /// <summary>스토리 045: 결과별 제목·본문을 최종 등급으로 채운다(승리 = 승리 등급 도달, 부분 성공 = 기한 종료 때 정착촌 이상).</summary>
+        private void FillTown(ITownTier town, string townName)
+        {
+            switch (_result.Outcome)
+            {
+                case RunOutcome.Victory:
+                    _title.text = string.Format(Strings.Get("ui_result_victory_tier"), town.TierName);
+                    _body.text = string.Format(Strings.Get("ui_result_body_victory_town"), townName, town.TierName);
+                    break;
+                case RunOutcome.Partial:
+                    _title.text = string.Format(Strings.Get("ui_result_partial_tier"), town.TierName);
+                    _body.text = string.Format(Strings.Get("ui_result_body_partial_town"), townName, town.TierName);
+                    break;
+                default:
+                    RunLossReason reason = GameServices.Get<IRunLossInfo>()?.LastLossReason ?? RunLossReason.None;
+                    _title.text = Strings.Get("result_defeat");
+                    _body.text = reason == RunLossReason.Bankrupt ? Strings.Get("econ_bankrupt")
+                        : reason == RunLossReason.AllSettledCollapsed ? string.Format(Strings.Get("ui_result_body_collapse_town"), townName)
+                        : string.Format(Strings.Get("ui_result_body_ruin_town"), townName, town.TierName);
+                    break;
+            }
         }
 
         private static string PhaseText(DevPhase phase)

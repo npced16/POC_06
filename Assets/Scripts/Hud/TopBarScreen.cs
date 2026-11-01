@@ -72,14 +72,19 @@ namespace IronRing.Hud
         private void Initialize(UiScreens screens)
         {
             _theme = screens.Theme;
-            _people.gameObject.SetActive(false); _peopleIcon.gameObject.SetActive(false);
-            _peopleIcon.sprite = _icons.Get("ui_people");
-            ScreenTicker.Add(ResolvePopulation);
-            ResolvePopulation();
-            _money = GameServices.Get<IMoney>();
-            _balance.gameObject.SetActive(_money != null);
-            _coin.gameObject.SetActive(_money != null);
-            if (_money != null) { _money.Changed += RefreshBalance; _coin.sprite = _icons.Get("ui_coin"); RefreshBalance(); }
+            // 스토리 045: 옛 프리팹(주민·잔고 칸이 없는 것)에서도 Play가 막히지 않게 모든 참조를 null 가드한다.
+            if (_people != null) _people.gameObject.SetActive(false);
+            if (_peopleIcon != null) { _peopleIcon.gameObject.SetActive(false); if (_icons != null) _peopleIcon.sprite = _icons.Get("ui_people"); }
+            if (_people != null)
+            {
+                ScreenTicker.Add(ResolvePopulation);
+                ResolvePopulation();
+            }
+            _money = _balance != null ? GameServices.Get<IMoney>() : null;
+            if (_balance != null) _balance.gameObject.SetActive(_money != null);
+            if (_coin != null) _coin.gameObject.SetActive(_money != null);
+            if (_money != null) { _money.Changed += RefreshBalance; if (_coin != null && _icons != null) _coin.sprite = _icons.Get("ui_coin"); RefreshBalance(); }
+            if (_coin != null && _coin.sprite == null) _coin.gameObject.SetActive(false);
             _track = GameServices.Get<ITrackRuntime>();
             _hubs = GameServices.Get<IHubStateSystem>();
             _waypoints = GameServices.Get<IWaypointResolver>();
@@ -143,7 +148,7 @@ namespace IronRing.Hud
             _population = GameServices.Get<IPopulation>();
             if (_population == null) return;
             _population.Changed += RefreshPeople;
-            _people.gameObject.SetActive(true); _peopleIcon.gameObject.SetActive(true);
+            _people.gameObject.SetActive(true); if (_peopleIcon != null) _peopleIcon.gameObject.SetActive(_peopleIcon.sprite != null); // 카탈로그에 ui_people이 없으면 흰 사각형 대신 숨김
             RefreshPeople(); ScreenTicker.Remove(ResolvePopulation);
         }
 
@@ -154,7 +159,7 @@ namespace IronRing.Hud
         private void RefreshBalance()
         {
             _balance.text = string.Format(Strings.Get("ui_topbar_balance"), _money.Balance);
-            _balance.color = _money.Balance < 0 ? _theme.Accent : _theme.Text;
+            if (_theme != null) _balance.color = _money.Balance < 0 ? _theme.Accent : _theme.Text;
         }
 
         /// <summary>현재 거점 정차 상태를 확인하고 열차에 출발을 요청한 뒤 상태 표시를 갱신한다.</summary>

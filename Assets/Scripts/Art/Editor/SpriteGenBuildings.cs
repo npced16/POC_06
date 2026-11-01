@@ -13,6 +13,9 @@ namespace IronRing.Art.Editor
     /// 스토리 027. 완성 서식지 위에 세우는 건물 조각을 팔레트 기반 64픽셀 도트로 그린다(Assets/Art/Generated/buildings/).
     /// 지붕 4계열(machine·housing·storage·glass) × 이웃 비트마스크 16조각(1=N, 2=E, 4=S, 8=W가 이웃 있음; 닫힌 쪽에 처마·벽, 열린 쪽은 지붕이 이어짐)
     /// + 오목 모서리 덧조각 4종(ne·se·sw·nw), 문 2종, 굴뚝, 서식지 종류별 상징물 19종과 콘택트 시트. 끝나면 InteriorCatalog의 건물 참조를 채운다.
+    /// QA 후속(건물 장식): 지붕 색조 3종(TINTS, 팔레트 copper·wall·moss 쪽으로 명도 보존 이동; 외곽선·황동·불빛은 그대로) × 계열마다 20조각,
+    /// 정면 창 무늬 덧조각 2종, 지붕 덧소품 10종(DECOR), 그리고 HabitatTypes.json 19종의 3칸 견본 시트
+    /// (production/qa/evidence/qa-followups/buildings_contact_sheet.png, 데이터 순서로 4열).
     /// </summary>
     public static class SpriteGenBuildings
     {
@@ -29,6 +32,29 @@ namespace IronRing.Art.Editor
             "bunk", "bench_tools", "wire_pole", "water_tower", "twin_lamps", "engine", "dynamo", "crane", "chimney_stack"
         };
 
+        /// <summary>QA 후속. 지붕 색조 id(HabitatTypes.json _decor._roofTint; "base"는 기존 지붕).</summary>
+        public static readonly string[] TINTS = { "copper", "wine", "moss" };
+        /// <summary>QA 후속. 창 무늬 덧조각 수(무늬 1..N; 0은 지붕 조각의 기본 창).</summary>
+        public const int WINDOW_PATTERNS = 2;
+        /// <summary>QA 후속. 지붕 덧소품 id(HabitatTypes.json _decor._props).</summary>
+        public static readonly string[] DECOR =
+        {
+            "cog_sign", "steam_pipes", "twin_chimney", "water_tank", "glass_cap", "gas_lamp", "tele_pole", "coal_pile", "iron_frame", "laundry"
+        };
+        /// <summary>QA 후속. 19종 견본 시트 경로.</summary>
+        public const string EVIDENCE_SHEET = "production/qa/evidence/qa-followups/buildings_contact_sheet.png";
+        private const string HABITAT_JSON = "Assets/Scripts/Habitats/Resources/Habitats/HabitatTypes.json";
+
+        /// <summary>QA 후속. 색조 지붕 조각 파일 이름(base면 기존 이름).</summary>
+        public static string RoofName(string style, string tint, int mask) => IsBase(tint) ? RoofName(style, mask) : "bld_" + style + "_" + tint + "_" + mask.ToString("00");
+        /// <summary>QA 후속. 색조 오목 모서리 파일 이름(base면 기존 이름).</summary>
+        public static string CornerName(string style, string tint, string corner) => IsBase(tint) ? CornerName(style, corner) : "bld_" + style + "_" + tint + "_inner_" + corner;
+        /// <summary>QA 후속. 창 무늬 덧조각 파일 이름(무늬 1부터).</summary>
+        public static string WindowName(int pattern) => "bld_window_" + pattern;
+        /// <summary>QA 후속. 지붕 덧소품 파일 이름.</summary>
+        public static string DecorName(string id) => "bld_decor_" + id;
+        private static bool IsBase(string tint) => string.IsNullOrEmpty(tint) || tint == "base";
+
         /// <summary>지붕 조각 파일 이름.</summary>
         public static string RoofName(string style, int mask) => "bld_" + style + "_" + mask.ToString("00");
         /// <summary>오목 모서리 파일 이름.</summary>
@@ -44,16 +70,27 @@ namespace IronRing.Art.Editor
             Directory.CreateDirectory(OUTPUT);
             var names = new List<string>();
             var sheet = new List<Color32[]>();
-            void Save(string name) { C.Save(OUTPUT + name + ".png"); names.Add(name); sheet.Add(C.Px); }
+            var pixels = new Dictionary<string, Color32[]>();
+            void Save(string name) { C.Save(OUTPUT + name + ".png"); names.Add(name); pixels[name] = C.Px; sheet.Add(C.Px); }
+            void SaveQuiet(string name) { C.Save(OUTPUT + name + ".png"); names.Add(name); pixels[name] = C.Px; }
             foreach (string style in STYLES)
             {
                 for (int mask = 0; mask < 16; mask++) { Begin(); DrawRoof(style, mask); Save(RoofName(style, mask)); }
                 for (int i = 0; i < CORNERS.Length; i++) { Begin(); DrawCorner(style, i); Save(CornerName(style, CORNERS[i])); }
+                // QA 후속: 색조 지붕은 기존 시트에 넣지 않는다(19종 견본 시트에서 본다)
+                foreach (string tint in TINTS)
+                {
+                    for (int mask = 0; mask < 16; mask++) { Begin(); DrawRoof(style, mask); Tint(tint); SaveQuiet(RoofName(style, tint, mask)); }
+                    for (int i = 0; i < CORNERS.Length; i++) { Begin(); DrawCorner(style, i); Tint(tint); SaveQuiet(CornerName(style, tint, CORNERS[i])); }
+                }
             }
+            for (int p = 1; p <= WINDOW_PATTERNS; p++) { Begin(); Layer(); DrawWindowPattern(p); EndLayer(); Save(WindowName(p)); }
+            foreach (string id in DECOR) { Begin(); C.Ellipse(32, 5, 20, 4, A(O.S, 100)); Layer(); DrawDecor(id); EndLayer(); Save(DecorName(id)); }
             for (int i = 0; i < 2; i++) { Begin(); Layer(); DrawDoor(i); EndLayer(); Save("bld_door_" + i); }
             Begin(); Layer(); ArtKit.Chimney(26, 4, 12, 34, Br); EndLayer(); Save("bld_chimney");
             foreach (string id in SIGNS) { Begin(); SignShadow(); Layer(); SignBase(); DrawSign(id); EndLayer(); Save(SignName(id)); }
             File.WriteAllBytes(OUTPUT + "buildings_contact_sheet.png", Sheet(sheet, 10));
+            WriteTypeSheet(pixels);
             AssetDatabase.Refresh();
             foreach (string name in names) ConfigureImporter(OUTPUT + name + ".png");
             ConfigureImporter(OUTPUT + "buildings_contact_sheet.png");
@@ -272,5 +309,166 @@ namespace IronRing.Art.Editor
                 default: Box(16, 16, 32, 32, Fe); RivetRing(32, 32, 12, 10, Bs.S); break;
             }
         }
-    }
+    
+        /// <summary>QA 후속. 색조 tint 쪽으로 명도를 보존해 옮긴다(외곽선·황동·불빛·반투명 그림자는 그대로).</summary>
+        private static void Tint(string tint)
+        {
+            Swatch t = tint == "copper" ? Cu : tint == "wine" ? W : Ms;
+            var keep = new HashSet<int> { Key(O.B), Key(O.S), Key(Gl.L), Key(Gl.B), Key(Gl.S), Key(Bs.L), Key(Bs.B), Key(Bs.S) };
+            for (int i = 0; i < C.Px.Length; i++)
+            {
+                Color32 c = C.Px[i];
+                if (c.a < 200 || keep.Contains(Key(c))) continue;
+                float lum = (0.3f * c.r + 0.59f * c.g + 0.11f * c.b) / 255f;
+                Color32 shade = lum < 0.22f ? t.S : lum < 0.36f ? t.B : t.L;
+                Color32 m = Mix(c, shade, 0.6f);
+                m.a = c.a;
+                C.Px[i] = m;
+            }
+        }
+
+        private static int Key(Color32 c) => (c.r << 24) | (c.g << 16) | (c.b << 8) | c.a;
+
+        /// <summary>QA 후속. 정면 벽 띠(아래 16픽셀)의 창 무늬 덧조각. 1 = 나무 덧창 + 꽃상자, 2 = 황동 테 둥근 현창. 기본 창(x 8·48)을 덮는다.</summary>
+        private static void DrawWindowPattern(int pattern)
+        {
+            foreach (int cx in new[] { 12, 52 })
+            {
+                if (pattern == 1)
+                {
+                    C.Rect(cx - 9, 3, 3, 11, Wd.B); C.Rect(cx - 9, 3, 1, 11, Wd.L); C.Rect(cx + 6, 3, 3, 11, Wd.B); C.Rect(cx + 8, 3, 1, 11, Wd.S);
+                    for (int y = 5; y < 14; y += 3) { C.Rect(cx - 8, y, 2, 1, Wd.S); C.Rect(cx + 6, y, 2, 1, Wd.S); }
+                    C.Rect(cx - 5, 4, 10, 10, Gl.B); C.Rect(cx - 5, 11, 10, 3, Gl.L); C.Rect(cx - 5, 4, 10, 1, Gl.S);
+                    C.Rect(cx, 4, 1, 10, Wd.S); C.Rect(cx - 5, 8, 10, 1, Wd.S);
+                    Box(cx - 7, 1, 14, 3, Wd);
+                    for (int x = cx - 6; x <= cx + 5; x += 2) C.Set(x, 4, (x / 2) % 2 == 0 ? Sh.L : Em.L);
+                }
+                else
+                {
+                    C.Disc(cx, 8, 6, Bs.S); C.Disc(cx, 8, 5, Bs.B);
+                    C.Disc(cx, 8, 3.6f, Gl.B); C.Disc(cx - 1, 9, 1.6f, Gl.L);
+                    C.Set(cx, 14, O.B); C.Set(cx, 2, O.B); C.Set(cx - 6, 8, O.B); C.Set(cx + 6, 8, O.B);
+                }
+            }
+        }
+
+        /// <summary>QA 후속. 지붕 덧소품(64픽셀, 표시 때 InteriorCatalog._buildingDecorScale로 줄인다).</summary>
+        private static void DrawDecor(string id)
+        {
+            switch (id)
+            {
+                case "cog_sign": // 톱니 간판: 쇠 기둥 + 팔 + 매달린 나무판에 황동 톱니
+                    C.Rect(12, 4, 4, 50, Fe.B); C.Rect(12, 4, 1, 50, Fe.L); C.Rect(12, 50, 36, 4, Fe.B); C.Rect(12, 53, 36, 1, Fe.L);
+                    C.Line(26, 50, 26, 42, O.B); C.Line(46, 50, 46, 42, O.B);
+                    Box(20, 20, 32, 22, Wd); Gear(36, 31, 8, 8, Bs); C.Disc(36, 31, 2, O.B);
+                    break;
+                case "steam_pipes": // 증기 배관: 구리 가로관 + 세로관 + 밸브 바퀴 + 김
+                    PipeH(4, 12, 56, 7, Cu); CylV(10, 12, 8, 30, Cu); C.Rect(9, 40, 10, 3, Bs.B);
+                    C.Ring(44, 15, 4, 6, Bs.B); C.Disc(44, 15, 1.5f, O.B); C.Rect(28, 10, 3, 11, Bs.S); C.Rect(50, 10, 3, 11, Bs.S);
+                    Puff(14, 50, 6, 200); Puff(19, 57, 4, 160);
+                    break;
+                case "twin_chimney": // 굴뚝 2개: 벽돌·쇠, 높이 다름, 연기
+                    ArtKit.Chimney(12, 4, 14, 40, Br); ArtKit.Chimney(36, 4, 12, 52, Fe);
+                    Puff(19, 50, 5, 190); Puff(42, 59, 4, 170);
+                    break;
+                case "water_tank": // 물탱크: 쇠 다리 위 나무통 + 황동 띠 + 구리 고깔
+                    C.Rect(18, 4, 3, 16, Fe.B); C.Rect(43, 4, 3, 16, Fe.B); C.Line(20, 6, 43, 18, Fe.S); C.Line(43, 6, 20, 18, Fe.S);
+                    CylV(15, 18, 34, 26, Wd); C.Rect(15, 24, 34, 2, Bs.S); C.Rect(15, 36, 34, 2, Bs.S);
+                    C.Ellipse(32, 46, 17, 4, Cu.B); C.Ellipse(32, 49, 11, 3, Cu.L); C.Disc(32, 53, 2, Cu.S);
+                    break;
+                case "glass_cap": // 온실 유리 지붕: 쇠 틀 유리 돔 + 안쪽 초록
+                    Box(10, 6, 44, 8, Fe); Dome(32, 14, 20, Wa);
+                    Shrub(26, 20, 5, 7); Shrub(38, 19, 4, 9);
+                    C.Line(32, 14, 32, 34, Fe.B); C.Line(32, 14, 16, 26, Fe.B); C.Line(32, 14, 48, 26, Fe.B);
+                    C.Line(20, 28, 26, 32, Wa.L); C.Disc(32, 35, 2, Bs.B);
+                    break;
+                case "gas_lamp": // 가스등 기둥: 낮은 받침 + 호박색 등 + 광륜
+                    Box(24, 4, 16, 5, Sa); LampPost(32, 8, 42, true);
+                    break;
+                case "tele_pole": // 전신주: 나무 기둥 + 가로대 2개 + 애자 + 처진 전선
+                    C.Rect(30, 2, 5, 56, Wd.B); C.Rect(30, 2, 1, 56, Wd.L); C.Rect(34, 2, 1, 56, Wd.S);
+                    C.Rect(16, 50, 33, 3, Wd.S); C.Rect(20, 42, 25, 3, Wd.S);
+                    foreach (int x in new[] { 18, 26, 39, 47 }) C.Disc(x, 54, 1.6f, Gl.S);
+                    C.Line(0, 50, 18, 54, O.B); C.Line(47, 54, 63, 50, O.B); C.Line(0, 40, 21, 45, O.B); C.Line(44, 45, 63, 40, O.B);
+                    break;
+                case "coal_pile": // 석탄 수레: 쇠 수레 + 바퀴 + 위로 쌓인 석탄 + 삽
+                    Box(10, 8, 44, 14, Fe); RivetsH(13, 51, 18, 6, Bs.S);
+                    C.Disc(18, 7, 4, O.B); C.Disc(46, 7, 4, O.B); C.Disc(18, 7, 1.5f, Fe.L); C.Disc(46, 7, 1.5f, Fe.L);
+                    C.Ellipse(32, 24, 19, 8, O.S);
+                    for (int i = 0; i < 12; i++) C.Disc(17 + H(i, 3, 11) % 30, 22 + H(i, 4, 11) % 8, 2.5f, i % 3 == 0 ? Fe.B : Fe.S);
+                    C.Line(48, 22, 56, 44, Wd.B, 2); Box(53, 42, 7, 6, Fe);
+                    break;
+                case "iron_frame": // 철골 골조: 기둥 2 + 들보 3 + X 가새 + 리벳
+                    C.Rect(10, 4, 4, 52, Fe.B); C.Rect(50, 4, 4, 52, Fe.B); C.Rect(10, 4, 1, 52, Fe.L); C.Rect(50, 4, 1, 52, Fe.L);
+                    foreach (int y in new[] { 4, 26, 50 }) { C.Rect(10, y, 44, 4, Fe.B); C.Rect(10, y + 3, 44, 1, Fe.L); RivetsH(12, 52, y + 1, 5, Bs.S); }
+                    C.Line(14, 8, 50, 26, Fe.S, 2); C.Line(50, 8, 14, 26, Fe.S, 2); C.Line(14, 30, 50, 50, Fe.S, 2);
+                    break;
+                case "laundry": // 빨래줄과 깃발: 나무 기둥 둘, 처진 줄, 천 조각, 구리 깃발
+                    C.Rect(6, 4, 3, 46, Wd.B); C.Rect(55, 4, 3, 54, Wd.B);
+                    C.Line(8, 46, 32, 42, O.B); C.Line(32, 42, 56, 46, O.B);
+                    C.Rect(12, 34, 8, 11, Fa.B); C.Rect(12, 34, 8, 2, Fa.S); C.Rect(24, 32, 7, 10, Sm.B); C.Rect(35, 33, 9, 9, Cu.L); C.Rect(47, 36, 6, 9, Fa.L);
+                    for (int y = 0; y < 8; y++) C.Rect(58, 50 + y, 6 - y * 3 / 4, 1, y < 4 ? Cu.B : Cu.L);
+                    break;
+                default: Box(20, 10, 24, 24, Fe); break;
+            }
+        }
+
+        /// <summary>
+        /// QA 후속. HabitatTypes.json 19종을 3칸 가로 건물 견본(왼쪽 덧소품 1, 가운데 문·상징물, 오른쪽 굴뚝; 문 칸을 뺀 양 끝 칸에 창 무늬)으로
+        /// 데이터 순서대로 4열 시트에 늘어놓는다. BuildingView 배치 규칙(상징물 0.8배·SignLift 0.1, 덧소품 0.6배·DecorLift 0.08, 굴뚝 (0.28, 0.2))을 따른다.
+        /// 견본 아래 띠 색은 지붕 계열(machine 쇠·housing 벽돌·storage 나무·glass 물)이다.
+        /// </summary>
+        private static void WriteTypeSheet(Dictionary<string, Color32[]> px)
+        {
+            var catalog = global::IronRing.Habitats.HabitatCatalog.Parse(File.ReadAllText(HABITAT_JSON));
+            var types = new List<global::IronRing.Habitats.HabitatType>(catalog.Types);
+            const int perRow = 4, cw = SIZE * 3 + 16, ch = SIZE + 24;
+            int rows = (types.Count + perRow - 1) / perRow, w = cw * perRow, h = ch * rows;
+            var buf = new Color32[w * h];
+            for (int i = 0; i < buf.Length; i++) buf[i] = Bg.B;
+            for (int t = 0; t < types.Count; t++)
+            {
+                global::IronRing.Habitats.HabitatType type = types[t];
+                string style = type.BuildingStyle ?? STYLES[0];
+                global::IronRing.Habitats.HabitatDecor decor = type.Decor ?? global::IronRing.Habitats.HabitatDecor.DefaultFor(style);
+                int ox = (t % perRow) * cw + 8, oy = (rows - 1 - t / perRow) * ch + 14;
+                Color32 band = style == "machine" ? Fe.B : style == "storage" ? Wd.B : style == "glass" ? Wa.B : Br.B;
+                for (int y = 0; y < 4; y++) for (int x = 0; x < SIZE * 3; x++) buf[(oy - 9 + y) * w + ox + x] = band;
+                int[] masks = { 2, 10, 8 };
+                for (int c = 0; c < 3; c++)
+                    Blit(buf, w, h, Get(px, RoofName(style, decor.RoofTint, masks[c])) ?? Get(px, RoofName(style, masks[c])), ox + c * SIZE + 32, oy + 32, 1f);
+                Color32[] window = decor.WindowPattern > 0 ? Get(px, WindowName(decor.WindowPattern)) : null;
+                if (window != null) { Blit(buf, w, h, window, ox + 32, oy + 32, 1f); Blit(buf, w, h, window, ox + 2 * SIZE + 32, oy + 32, 1f); }
+                int door = 0;
+                foreach (char chr in type.Id) door += chr;
+                Blit(buf, w, h, Get(px, "bld_door_" + (door % 2)), ox + SIZE + 32, oy + 32, 1f);
+                Blit(buf, w, h, Get(px, "bld_chimney"), ox + 2 * SIZE + 32 + 18, oy + 32 + 13, 1f);
+                Blit(buf, w, h, Get(px, SignName(type.SignProp)), ox + SIZE + 32, oy + 32 + 6, 0.8f);
+                if (decor.Props.Count > 0) Blit(buf, w, h, Get(px, DecorName(decor.Props[0])), ox + 32, oy + 32 + 5, 0.6f);
+            }
+            var tex = new Texture2D(w, h, TextureFormat.RGBA32, false);
+            tex.SetPixels32(buf);
+            tex.Apply();
+            Directory.CreateDirectory(Path.GetDirectoryName(EVIDENCE_SHEET));
+            File.WriteAllBytes(EVIDENCE_SHEET, tex.EncodeToPNG());
+            UnityEngine.Object.DestroyImmediate(tex);
+        }
+
+        private static Color32[] Get(Dictionary<string, Color32[]> px, string name) => name != null && px.TryGetValue(name, out Color32[] v) ? v : null;
+
+        /// <summary>QA 후속. 64×64 src를 (cx, cy) 중심으로 scale배 최근접 표본화해 알파 합성한다.</summary>
+        private static void Blit(Color32[] dst, int w, int h, Color32[] src, int cx, int cy, float scale)
+        {
+            if (src == null) return;
+            int half = Mathf.CeilToInt(SIZE * scale / 2f);
+            for (int y = -half; y < half; y++)
+                for (int x = -half; x < half; x++)
+                {
+                    int sx = Mathf.FloorToInt((x + 0.5f) / scale + SIZE / 2f), sy = Mathf.FloorToInt((y + 0.5f) / scale + SIZE / 2f);
+                    int dx = cx + x, dy = cy + y;
+                    if (sx < 0 || sy < 0 || sx >= SIZE || sy >= SIZE || dx < 0 || dy < 0 || dx >= w || dy >= h) continue;
+                    dst[dy * w + dx] = PixelCanvas.Over(src[sy * SIZE + sx], dst[dy * w + dx]);
+                }
+        }
+}
 }

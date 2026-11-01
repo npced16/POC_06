@@ -42,6 +42,11 @@ namespace IronRing.Hud.Editor.Screens
 
             TextMeshProUGUI nextTier = UiKit.Label(root.transform, "NextTier", string.Format(Strings.Get("ui_tier_next"), Strings.Get("ui_tier_name_1"), 3, 5, 12, 20), UiTextSize.Normal, theme);
             UiKit.Place(nextTier.rectTransform, new Vector2(.5f, 1), new Vector2(.5f, 1), new Vector2(0, -116), new Vector2(820, 30));
+            // 스토리 045: 목표 줄(다음 등급 줄 아래). 승리 등급까지의 조건과 기한 바퀴.
+            TextMeshProUGUI goal = UiKit.Label(root.transform, "Goal", string.Format(Strings.Get("ui_goal_line"), Strings.Get("ui_tier_name_3"), 3, 25, 12, 100) + string.Format(Strings.Get("ui_goal_laps"), 3, 20), UiTextSize.Small, theme);
+            UiKit.Place(goal.rectTransform, new Vector2(.5f, 1), new Vector2(.5f, 1), new Vector2(0, -142), new Vector2(820, 24));
+            goal.color = theme.Muted;
+            UiKit.Bind(screen, "_goal", goal);
             var tierBanner = UiKit.Bar(root.transform, "TierBanner", theme, false);
             UiKit.Place(tierBanner.rectTransform, new Vector2(.5f, .5f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(760, 80));
             var tierBannerText = UiKit.Label(tierBanner.transform, "Text", string.Format(Strings.Get("ui_tier_promoted"), Strings.Get("hub_1"), Strings.Get("ui_tier_name_1")), UiTextSize.Title, theme);

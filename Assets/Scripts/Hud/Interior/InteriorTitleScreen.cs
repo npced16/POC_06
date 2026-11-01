@@ -65,7 +65,7 @@ namespace IronRing.Hud.Interior
             if (open)
             {
                 string name = Strings.Get(_catalog.NodeKey(_viewMode.InteriorHubId));
-                _title.text = _town != null ? string.Format(Strings.Get("ui_tier_title"), name, _town.TierName) : name;
+                _title.text = _town != null && _viewMode.InteriorHubId == TownUiText.HubId(GameServices.Get<IPopulation>()) ? string.Format(Strings.Get("ui_tier_title"), name, _town.TierName) : name;
             }
             if (open) _screens.Show(_screen.Id); else _screens.Hide(_screen.Id);
         }

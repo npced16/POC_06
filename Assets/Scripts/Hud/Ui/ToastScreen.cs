@@ -21,7 +21,32 @@ namespace IronRing.Hud.Ui
         private readonly System.Collections.Generic.Queue<(string text, float seconds)> _queue = new();
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void ResetStatics() { _instance = null; }
+        private static void ResetStatics() { _instance = null; _swallow = null; _swallowUntil = 0f; }
+
+        private static System.Predicate<string> _swallow;
+        private static float _swallowUntil;
+
+        /// <summary>
+        /// 스토리 045: 다른 화면(등급 배너)이 같은 소식을 크게 보일 때, match에 맞는 토스트를 seconds초(실시간) 동안 삼킨다.
+        /// 이미 떠 있거나 쌓여 있는 같은 토스트도 지운다. 로직 쪽 토스트 호출은 그대로 두고 HUD에서만 겹침을 막는다.
+        /// </summary>
+        public static void Swallow(System.Predicate<string> match, float seconds)
+        {
+            if (match == null) return;
+            _swallow = match;
+            _swallowUntil = Time.realtimeSinceStartup + Mathf.Max(0f, seconds);
+            ToastScreen toast = Current;
+            if (toast == null) return;
+            if (toast._queue.Count > 0)
+            {
+                var kept = new System.Collections.Generic.List<(string text, float seconds)>(toast._queue);
+                toast._queue.Clear();
+                foreach (var item in kept) if (!match(item.text)) toast._queue.Enqueue(item);
+            }
+            if (toast._box != null && toast._box.activeSelf && toast._text != null && match(toast._text.text)) toast._box.SetActive(false);
+        }
+
+        private static bool Swallowed(string text) => _swallow != null && Time.realtimeSinceStartup < _swallowUntil && _swallow(text);
 
         /// <summary>문구를 띄울 수 있는 토스트 화면(켜진 Toast 화면이 없으면 null).</summary>
         private static ToastScreen Current
@@ -41,6 +66,7 @@ namespace IronRing.Hud.Ui
         {
             ToastScreen toast = Current;
             if (toast == null || toast._box == null || toast._text == null) return false;
+            if (Swallowed(text)) return true;
             if (SituationOpen())
             {
                 // 스토리 024: 상황 화면(도감·승객 등)의 제목판과 겹치지 않게, 닫힌 뒤 차례로 띄운다.

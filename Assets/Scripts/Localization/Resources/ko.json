@@ -590,6 +590,14 @@
     {"_key": "ui_tier_name_2", "_value": "마을"},
     {"_key": "ui_tier_name_3", "_value": "도시"},
     {"_key": "town_tier_up", "_value": "{0}이(가) {1} 등급이 되었습니다"},
-    {"_key": "town_collapsed", "_value": "{0}이(가) 무너졌습니다"}
+    {"_key": "town_collapsed", "_value": "{0}이(가) 무너졌습니다"},
+    {"_key": "ui_goal_line", "_value": "목표: {0} (주민 {1}/{2} · 번영 {3}/{4})"},
+    {"_key": "ui_goal_laps", "_value": " · 바퀴 {0}/{1}"},
+    {"_key": "ui_result_victory_tier", "_value": "승리 · {0}"},
+    {"_key": "ui_result_partial_tier", "_value": "부분 성공 · {0}"},
+    {"_key": "ui_result_body_victory_town", "_value": "{0}이 {1}로 자랐다. 철환은 다시 숨을 쉰다."},
+    {"_key": "ui_result_body_partial_town", "_value": "기한이 다했다. {0}은 {1} 등급으로 다음 겨울을 맞는다."},
+    {"_key": "ui_result_body_ruin_town", "_value": "기한이 다했다. {0}은 아직 {1}다."},
+    {"_key": "ui_result_body_collapse_town", "_value": "{0}이 무너졌다."}
 ]
 }

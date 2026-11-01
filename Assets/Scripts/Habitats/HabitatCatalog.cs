@@ -73,6 +73,12 @@ namespace IronRing.Habitats
         /// <summary>스토리 042. 빛(가스등 계열, _light).</summary>
         public int Light { get; private set; }
 
+        /// <summary>QA 후속(건물 장식). 완성 건물 꾸밈(_decor, 없으면 _buildingStyle 기본값). 파서를 거치지 않은 종류는 null.</summary>
+        public HabitatDecor Decor { get; private set; }
+
+        /// <summary>QA 후속(건물 장식). 카탈로그 파서가 꾸밈을 붙인다.</summary>
+        internal void SetDecor(HabitatDecor decor) => Decor = decor;
+
         /// <summary>스토리 045. 카탈로그 파서가 수입·주거·빛을 붙인다.</summary>
         internal void SetEconomy(int income, int housing, int light)
         {
@@ -248,6 +254,8 @@ namespace IronRing.Habitats
                 else throw new ArgumentException("Unknown habitat kind " + t._kind + " on " + t._id, nameof(json));
                 types[types.Count - 1].SetBuilding(t._buildingStyle, t._signProp);
                 types[types.Count - 1].SetEconomy(t._income, t._housing, t._light);
+                bool hasDecor = t._decor != null && (!string.IsNullOrWhiteSpace(t._decor._roofTint) || t._decor._windows > 0 || (t._decor._props != null && t._decor._props.Length > 0));
+                types[types.Count - 1].SetDecor(hasDecor ? new HabitatDecor(t._decor._roofTint, t._decor._windows, t._decor._props) : HabitatDecor.DefaultFor(types[types.Count - 1].BuildingStyle));
             }
             return new HabitatCatalog(types) { LockCompleted = data._lockCompleted };
         }
@@ -261,7 +269,9 @@ namespace IronRing.Habitats
             public string[] _pattern; public TileData[] _tiles; public float _prosperityBonus; public string _npcTypeId;
             public string _buildingStyle; public string _signProp;
             public int _income; public int _housing; public int _light;
+            public DecorData _decor;
         }
+        [Serializable] private sealed class DecorData { public string _roofTint; public int _windows; public string[] _props; }
         [Serializable] private sealed class TileData { public string _tileItemId; public int _minCount; }
 #pragma warning restore 0649
     }
