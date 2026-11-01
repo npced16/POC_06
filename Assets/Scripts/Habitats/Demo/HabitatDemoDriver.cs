@@ -10,7 +10,7 @@ using IronRing.Contracts.Presentation;
 namespace IronRing.Habitats.Demo
 {
     /// <summary>
-    /// 스토리 016/020 캡처용 스크립트 데모(--habitat-demo, 단계 --habitat-stage complete|incomplete, 기본 complete). 실행 인자 또는 진행 중인
+    /// 스토리 016/020 캡처용 스크립트 데모(--habitat-demo, 단계 --habitat-stage complete|incomplete|furnace|locked, 기본 complete). 실행 인자 또는 진행 중인
     /// 브리지 캡처의 extraArgs에서 읽는다(MainRoot와 같은 SessionState 방식). 데모 거점(데이터, 기본 hub-1)의 내부 화면이 열리면(안 열려 있으면
     /// IInteriorNavigation.Open) 데이터의 배치 목록을 IItemPlacement로 놓는다. complete = _placements(같은 타일 묶음·혼합 묶음·패턴 하나씩 완성),
     /// incomplete = _incompletePlacements(혼합 묶음 하나가 타일별 최소 수를 못 채움, 나머지 둘은 완성). 그 뒤 서식지가 완성되면 INpcRecruiter.OnHubVisited로 방문을 일으켜 NPC를 합류시킨다.
@@ -78,7 +78,9 @@ namespace IronRing.Habitats.Demo
             }
             IReadOnlyList<IInteriorCell> cells = interior.Cells(hubId);
             Placement[] placements = _stage == STAGE_INCOMPLETE ? _settings._incompletePlacements
-                : _stage == "furnace" ? _settings._furnacePlacements : _settings._placements; // 스토리 027: 3×3 용광로 단계
+                : _stage == "furnace" ? _settings._furnacePlacements // 스토리 027: 3×3 용광로 단계
+                : _stage == "locked" ? _settings._lockedPlacements // 스토리 035: 완성 뒤 옆 칸에 같은 타일을 더 놓아도 고정 서식지는 그대로
+                : _settings._placements;
             UnityEngine.Debug.Log($"HABITAT DEMO: 단계 {_stage}, 배치 {placements?.Length ?? 0}개");
             foreach (Placement p in placements ?? Array.Empty<Placement>())
             {
@@ -134,6 +136,8 @@ namespace IronRing.Habitats.Demo
             public Placement[] _incompletePlacements;
             /// <summary>스토리 027: --habitat-stage furnace (3×3 용광로 패턴).</summary>
             public Placement[] _furnacePlacements;
+            /// <summary>스토리 035: --habitat-stage locked (완성 배치 + 옆 칸 추가 타일).</summary>
+            public Placement[] _lockedPlacements;
         }
 
         [Serializable]
