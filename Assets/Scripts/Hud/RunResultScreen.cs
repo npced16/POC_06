@@ -74,8 +74,9 @@ namespace IronRing.Hud
             switch (_result.Outcome)
             {
                 case RunOutcome.Victory:
-                    _title.text = Strings.Get("result_victory");
-                    _body.text = Strings.Get("result_body_victory");
+                    // Story 032: 거점 수가 데이터(선로의 역 수)에 따라 바뀌므로 "정착 n/n"을 함께 보인다.
+                    _title.text = string.Format(Strings.Get("result_victory_count"), _result.SettledCount, _result.HubCount);
+                    _body.text = Strings.Get("result_body_victory_all");
                     break;
                 case RunOutcome.Partial:
                     _title.text = string.Format(Strings.Get("result_partial"), _result.SettledCount, _result.HubCount);

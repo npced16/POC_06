@@ -60,11 +60,27 @@ namespace IronRing.Presentation.Interior.Editor
                 != InteriorData.Parse(File.ReadAllText(DATA)).CellCount;
             InteriorCatalog catalog = EnsurePrefabs();
             Scene scene = EditorSceneManager.OpenScene(SCENE);
+            int removed = RemoveOffTrackInteriors(scene);
             int replaced = ReplaceMismatchedInteriors(scene, catalog, gridChanged);
             int added = PlaceInteriors(scene, catalog);
-            if (replaced > 0 || added > 0 || scene.isDirty) EditorSceneManager.SaveScene(scene, SCENE);
+            if (removed > 0 || replaced > 0 || added > 0 || scene.isDirty) EditorSceneManager.SaveScene(scene, SCENE);
             AssetDatabase.SaveAssets();
-            UnityEngine.Debug.Log($"Story012Build: 교체 {replaced}, 추가 {added}");
+            UnityEngine.Debug.Log($"Story012Build: 제거 {removed}, 교체 {replaced}, 추가 {added}");
+        }
+
+        /// <summary>
+        /// Story 032. scene의 HubInterior 인스턴스 중 거점 id가 선로 데이터의 역이 아닌 것(예: 4거점 고리에서 남은 hub-2~4)을 지우고
+        /// 지운 수를 돌려준다. 거점 프로필은 데이터로 남아 있어도 선로에 없으면 내부를 두지 않는다.
+        /// </summary>
+        public static int RemoveOffTrackInteriors(Scene scene)
+        {
+            TrackData track = TrackData.Parse(File.ReadAllText(TRACK));
+            var stations = new System.Collections.Generic.HashSet<string>(track.Nodes.Where(node => node.IsStation).Select(node => node.Id));
+            HubInteriorRoot[] existing = UnityEngine.Object.FindObjectsByType<HubInteriorRoot>(FindObjectsInactive.Include, FindObjectsSortMode.None)
+                .Where(root => root.gameObject.scene == scene && !stations.Contains(root.HubId)).ToArray();
+            foreach (HubInteriorRoot root in existing) UnityEngine.Object.DestroyImmediate(root.gameObject);
+            if (existing.Length > 0) EditorSceneManager.MarkSceneDirty(scene);
+            return existing.Length;
         }
 
         /// <summary>

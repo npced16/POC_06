@@ -190,6 +190,12 @@ namespace IronRing.Hub.Demo
             yield return null; // 한 프레임: 화면들이 Ready에서 RunEnded를 구독한 뒤에 끝낸다
             var hubs = (RunState)GameServices.Get<IHubStateSystem>();
             int settle = _resultStage == "win" ? hubs.HubIds.Count : _resultStage == "lose" ? 0 : Math.Min(_settings.ResultPartialHubs, hubs.HubIds.Count);
+            if (_resultStage == "partial" && settle >= hubs.HubIds.Count)
+            {
+                // Story 032: 역이 1곳이면 부분 성공이 있을 수 없다(전부 정착 = 승리). 하나 덜 정착시키고 기한 종료로 보인다.
+                settle = hubs.HubIds.Count - 1;
+                UnityEngine.Debug.LogWarning($"RESULT DEMO: 거점 {hubs.HubIds.Count}곳이라 부분 성공을 만들 수 없어 {settle}곳만 정착시킵니다.");
+            }
             for (int i = 0; i < settle; i++) hubs.ApplyDelta(hubs.HubIds[i], _settings.ResultSettleProsperity, "result-demo settle");
             UnityEngine.Debug.Log($"RESULT DEMO: settled now={hubs.SettledCount}, lapsLeft={hubs.LapsUntilDeadline}");
             for (int lap = 0; lap < _settings.MaxLaps && !hubs.IsOver; lap++) hubs.OnLapCompleted(hubs.LastLap + 1);

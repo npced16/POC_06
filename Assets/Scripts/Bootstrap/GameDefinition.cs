@@ -50,11 +50,16 @@ namespace IronRing.Bootstrap
             result.Recipes = result.Habitats.CreateDefinitions();
             result.Encounters.Validate();
             result.Settings.Validate();
-            var ids = new HashSet<string>(result.HubDefinitions.Select(hub => hub.Id));
-            if (!ids.SetEquals(result.Track.CreateTrack().Nodes.Where(node => node.IsStation).Select(node => node.Id)) ||
-                !ids.SetEquals(result.Recipes.Select(recipe => recipe.HubId))) throw new ArgumentException("Hub identities differ across production data.");
+            // Story 032: the run uses only the hubs that are stations on the track. Hub profiles and habitat recipes for other hubs
+            // (kept so the 4-hub ring can come back through data) are ignored; every station still needs a profile and a recipe.
+            var allHubs = new HashSet<string>(result.HubDefinitions.Select(hub => hub.Id));
+            var ids = new HashSet<string>(result.Track.CreateTrack().Nodes.Where(node => node.IsStation).Select(node => node.Id));
+            if (ids.Count == 0 || !ids.IsSubsetOf(allHubs) || !ids.IsSubsetOf(result.Recipes.Select(recipe => recipe.HubId)))
+                throw new ArgumentException("Hub identities differ across production data.");
+            result.HubDefinitions = result.HubDefinitions.Where(hub => ids.Contains(hub.Id)).ToList().AsReadOnly();
+            result.Recipes = result.Recipes.Where(recipe => ids.Contains(recipe.HubId)).ToList().AsReadOnly();
             foreach (var npc in result.Npcs.Definitions)
-                if (npc.EligibleHubIds.Any(id => !ids.Contains(id))) throw new ArgumentException("NPC references an unknown hub.");
+                if (npc.EligibleHubIds.Any(id => !allHubs.Contains(id))) throw new ArgumentException("NPC references an unknown hub.");
             var resources = new HashSet<string>(result.Habitats.CreateStock().Keys);
             if (!resources.Contains(result.Encounters.RewardResource) || result.Encounters.PenaltyResources.Any(id => !resources.Contains(id)))
                 throw new ArgumentException("Encounter references an unknown resource.");

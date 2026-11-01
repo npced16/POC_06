@@ -8,6 +8,8 @@
   "_boardToastFormat": "{0} {1}에서 탔다: \"{2}\" {3}",
   "_disembarkToastFormat": "열차에서 {0} 내렸다 · {1} 출신",
   "_leaveToastFormat": "{0} 열차에서 내려 떠났다",
+  "_ignoreHubRoster": true,
+  "_ignoreOrigin": true,
   "_npcs": [
     {
       "_id": "lamplighter",

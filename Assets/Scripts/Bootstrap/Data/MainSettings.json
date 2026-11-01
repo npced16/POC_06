@@ -6,7 +6,7 @@
   "_demoTimeScale": 8.0,
   "_capturePauseSeconds": 0.35,
   "_maxDemoLaps": 24,
-  "_demoHubId": "hub-2",
+  "_demoHubId": "hub-1",
   "_demoFacilityId": "wall",
   "_eventKeys": [
     { "_id": "Abandoned freight", "_name": "event_abandoned_freight" },
@@ -22,6 +22,7 @@
     { "_id": "NORTH PASS", "_name": "North Pass" },
     { "_id": "EAST PASS", "_name": "East Pass" },
     { "_id": "SOUTH PASS", "_name": "South Pass" },
-    { "_id": "WEST PASS", "_name": "West Pass" }
+    { "_id": "WEST PASS", "_name": "West Pass" },
+    { "_id": "TERMINAL", "_name": "Terminal" }
   ]
 }

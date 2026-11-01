@@ -90,8 +90,23 @@ namespace IronRing.Npc.Demo
             _instance = new GameObject(nameof(NpcHomesDemoDriver)).AddComponent<NpcHomesDemoDriver>();
             _instance._settings = JsonUtility.FromJson<Settings>(asset.text);
             Application.runInBackground = true;
+            // Story 032: 선로에 hub2 단계의 거점이 역으로 없으면(POC 역 1곳) 건너뛰고 homes로 대신한다.
+            if (Stage == "hub2" && !IsTrackStation(_instance._settings._hub2Id))
+            {
+                UnityEngine.Debug.LogWarning($"NPC DEMO: hub2 단계 건너뜀 — {_instance._settings._hub2Id}이(가) 선로의 역이 아닙니다(POC 역 1곳). homes 단계로 대신합니다.");
+                Stage = "homes";
+            }
             if (Stage == "arrival" || Stage == "hub2") InteriorNpcWalker.DemoArrivalSpeed = _instance._settings._arrivalSpeed;
             UnityEngine.Debug.Log("NPC DEMO: 단계 " + Stage);
+        }
+
+        /// <summary>Story 032: hubId가 현재 선로(ITrackRuntime)의 역이면 true. 선로 서비스가 없으면 판단하지 않고 true.</summary>
+        private static bool IsTrackStation(string hubId)
+        {
+            ITrackRuntime track = GameServices.Get<ITrackRuntime>();
+            if (track == null) return true;
+            foreach (ITrackNode node in track.Nodes) if (node.Kind == TrackNodeKind.Hub && node.Id == hubId) return true;
+            return false;
         }
 
         void Update()

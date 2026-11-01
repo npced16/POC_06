@@ -18,7 +18,7 @@ namespace IronRing.Presentation.Map.Editor
     /// (1) Assets/Prefabs/Fx/Smoke.prefab(연기 6프레임 SpriteFrameLoop)이 없으면 만든다.
     /// (2) HubBuilding.prefab의 Sprite 자식과 Train.prefab에 Smoke 자식이 없으면 붙인다(굴뚝 머리 위치).
     /// (3) Assets/Prefabs/Map/Props/의 Crate·Barrel·Shrub·LampPost 프리팹이 없으면 만든다.
-    /// (4) Main.unity의 Props 루트 아래, 거점 4곳마다 소품 4개 중 없는 것만 놓는다(이름 Prop_{거점순번}_{k}).
+    /// (4) Main.unity의 Props 루트 아래, 씬의 거점(선로의 역, 스토리 032 POC는 1곳)마다 소품 4개 중 없는 것만 놓는다(이름 Prop_{거점순번}_{k}).
     /// (5) 씬의 카메라 배경색을 팔레트 background로 맞추고, 바뀐 것이 있을 때만 씬을 저장한다. 다른 것은 다시 만들지 않는다.
     /// </summary>
     public static class PropsBuild
