@@ -1,7 +1,7 @@
 {
   "_comment": "Story 040/045 (가벼운 경제). 바퀴 정산 = +건물 수입(HabitatTypes.json _income 합) +승객 운임(_fare) -열차 유지비(_trainUpkeep). _bankruptLaps 0 = 파산 끔.",
   "_startBalance": 200,
-  "_trainUpkeep": 10,
+  "_trainUpkeep": 6,
   "_fare": 8,
   "_bankruptLaps": 0,
   "_settleToastSeconds": 4.0,
