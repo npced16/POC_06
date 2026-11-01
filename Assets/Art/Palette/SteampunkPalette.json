@@ -21,6 +21,10 @@
     { "name": "ember",      "light": "#ffa04a", "base": "#e8742c", "shade": "#b04a20" },
     { "name": "fabric",     "light": "#a85a54", "base": "#84403e", "shade": "#5e2c2c" },
     { "name": "background", "light": "#352c3e", "base": "#2a2331", "shade": "#1f1a25" },
+    { "name": "skin_fair",  "light": "#f2cfae", "base": "#dcaa86", "shade": "#a8735a" },
+    { "name": "skin_tan",   "light": "#dcaa7c", "base": "#bd875e", "shade": "#8a5a3e" },
+    { "name": "skin_olive", "light": "#c9a87e", "base": "#a6855d", "shade": "#755a3d" },
+    { "name": "skin_deep",  "light": "#a37252", "base": "#7f533a", "shade": "#563626" },
     { "name": "ui_panel",   "light": "#3a2738", "base": "#2b1d2a", "shade": "#1f1520" }
   ]
 }
