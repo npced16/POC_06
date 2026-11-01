@@ -29,7 +29,7 @@ namespace IronRing.Economy.Demo
         /// <summary>실행 인자에서 단계를 읽는다. --town-demo가 없으면 null.</summary>
         public static string ReadStage()
         {
-            string[] args = Environment.GetCommandLineArgs();
+            string[] args = DemoArguments();
             if (!args.Contains("--town-demo")) return null;
             for (int i = 0; i < args.Length - 1; i++) if (args[i] == "--town-stage") return args[i + 1];
             return GROW;
@@ -75,6 +75,18 @@ namespace IronRing.Economy.Demo
             if (_run != null) _run.ApplyDelta(hub, _settings.DemoTierProsperity - _run.GetProsperity(hub), "town-demo");
             _settlement.Settle(_settlement.SettledLap + 1);
             UnityEngine.Debug.Log($"TOWN: demo tier tier={_tiers.Tier} {_tiers.TierName} recipes=[{string.Join(",", _tiers.UnlockedRecipeIds)}] upgrades=[{string.Join(",", _tiers.UnlockedUpgradeIds)}] phase={(_run != null ? _run.GetPhase(hub).ToString() : "?")}");
+        }
+    
+        /// <summary>실행 인자와 진행 중인 브리지 캡처의 extraArgs를 합친다(캡처가 끝난 뒤의 값은 무시).</summary>
+        private static string[] DemoArguments()
+        {
+            string extra = "";
+#if UNITY_EDITOR
+            string phase = UnityEditor.SessionState.GetString("IronRing.Bridge.Phase", "");
+            if (phase == "enter-play" || phase == "capture")
+                extra = UnityEditor.SessionState.GetString("IronRing.Bridge.Capture.ExtraArgs", "");
+#endif
+            return Environment.GetCommandLineArgs().Concat(extra.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)).ToArray();
         }
     }
 }

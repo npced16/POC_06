@@ -46,3 +46,6 @@
 - 상단 잔고(`IMoney`)와 핫바 가격(`IPlacementCost`)은 그대로다.
 
 ## 요청(codex → 코디네이터)
+
+- (2026-11-02, UI 담당 Claude) **등급 상승 토스트 `town_tier_up`을 꺼도 된다.** 배너(`PhaseBannerScreen`, 2초 "황동골이 <등급>이 되었습니다")가 주 연출이다. 지금은 HUD 쪽 `ToastScreen.Swallow`가 1초 창 안의 같은 토스트를 삼켜서 겹치지 않으니 급하지 않다. 끄면 `Swallow` 호출은 그대로 둬도 무해하다.
+- (같은 날) **총 기한 바퀴 API가 있으면 좋겠다.** 목표 줄 "바퀴 N/20"의 총량을 지금은 `ITrackRuntime.Lap + IHubDevelopment.LapsUntilDeadline`으로 계산한다. `IRunResult`나 `IHubDevelopment`에 `DeadlineLaps`(20)가 있으면 그걸 쓰겠다.

@@ -118,14 +118,14 @@ namespace IronRing.Hud
             _state.text = Strings.Get(_hubs.IsRuined(_selectedHub) ? "hub_ruined" : "hud_prosperity") + "  " + _hubs.GetProsperity(_selectedHub).ToString("0")
                 + "    " + Strings.Get("hud_npcs") + "  " + _npcs.NpcsAt(_selectedHub).Count;
             _habitatLine.text = Strings.Get("hud_habitat") + "  " + Strings.Get(_habitat.IsHabitatComplete(_selectedHub) ? "hud_complete" : "hud_incomplete")
-                + (_town == null ? SettleText(_selectedHub) : "");
-            _nextTier.gameObject.SetActive(_town != null);
-            if (_town != null)
+                + (!IsTownHub() ? SettleText(_selectedHub) : "");
+            if (_nextTier != null) _nextTier.gameObject.SetActive(IsTownHub());
+            if (IsTownHub())
             {
                 int residents = _population?.Residents ?? 0;
                 int prosperity = Mathf.RoundToInt(_hubs.GetProsperity(_selectedHub));
                 _state.text = string.Format(Strings.Get("ui_tier_state"), _town.TierName, residents, prosperity);
-                _nextTier.text = TownUiText.Next(_town, residents, prosperity);
+                if (_nextTier != null) _nextTier.text = TownUiText.Next(_town, residents, prosperity);
             }
             _message.text = canManage ? Strings.Get("train_stopped") : Strings.Get("hud_unavailable");
             for (int i = 0; i < _rows.Length && i < _catalog.Facilities.Length; i++)
@@ -143,6 +143,9 @@ namespace IronRing.Hud
                 if (label != null && _theme != null) label.color = on ? _theme.Text : _theme.Muted;
             }
         }
+
+        /// <summary>스토리 045: 선택 거점이 마을 등급이 붙는 거점(hub-1)인지. 다른 거점은 기존 표시를 쓴다.</summary>
+        private bool IsTownHub() => _town != null && _selectedHub == TownUiText.HubId(_population);
 
         /// <summary>늦게 준비되는 주민·등급 서비스를 찾아 변경 이벤트에 연결하고 준비 후 탐색을 끝낸다.</summary>
         private void ResolveTown()
