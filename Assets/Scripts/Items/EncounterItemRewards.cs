@@ -32,11 +32,6 @@ namespace IronRing.Items
         /// <summary>조우 결과와 이벤트 제목(이벤트일 때)으로 보상을 인벤토리에 더하고 준 아이템 id를 돌려준다(없으면 null).</summary>
         public string Grant(EncounterOutcome outcome, string eventTitle)
         {
-            if (outcome == EncounterOutcome.Victory && !string.IsNullOrEmpty(_victoryItem) && _victoryAmount > 0)
-            {
-                _items.Add(_victoryItem, _victoryAmount);
-                return _victoryItem;
-            }
             if (outcome == EncounterOutcome.EventResolved && eventTitle != null
                 && _eventItems.TryGetValue(eventTitle, out var reward) && !string.IsNullOrEmpty(reward.Key) && reward.Value > 0)
             {

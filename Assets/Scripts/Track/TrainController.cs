@@ -22,19 +22,12 @@ namespace IronRing.Track
         private float _waiting;
         private bool _captureStarted;
         private float _headStart;
-        /// <summary>
-        /// Story 033: while the track is held at a waypoint (raid), this supplies the visual progress along the outgoing edge so the
-        /// train crawls through the occupied segment; null = stand on the node as before.
-        /// </summary>
-        public Func<float> HeldProgressSource { get; set; }
-        /// <summary>Story 037: when above zero, one edge takes this many seconds instead of the track data (the side-scrolling travel view sets it from travel-side.json).</summary>
-        public float EdgeSecondsOverride { get; set; }
-        private float EdgeSeconds => EdgeSecondsOverride > 0f ? EdgeSecondsOverride : _data.EdgeSeconds;
+        private float EdgeSeconds => _data.EdgeSeconds;
         /// <summary>Initialized movement model for location queries and arrival subscriptions.</summary>
         public RingTrack Track => _track;
         /// <summary>Normalized progress along the active edge, or zero while standing at a node.</summary>
         public float TravelProgress => _track.IsMoving ? Mathf.Clamp01(_elapsed / EdgeSeconds)
-            : _headStart > 0 ? _headStart : HeldProgressSource != null && !_track.IsStopped ? Mathf.Clamp01(HeldProgressSource()) : 0;
+            : _headStart > 0 ? _headStart : 0;
 
         /// <summary>Story 033: the next departure starts this far (0..0.95) into the edge so the train continues from where the raid crawl left it.</summary>
         public void SetDepartureHeadStart(float fraction) => _headStart = Mathf.Clamp(fraction, 0f, 0.95f);

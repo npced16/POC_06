@@ -1,0 +1,121 @@
+{
+  "_edgeSeconds": 2.0,
+  "_autoDepart": false,
+  "_stationWaitSeconds": 1.0,
+  "_referenceSize": {
+    "x": 1280,
+    "y": 720
+  },
+  "_stationSize": 30,
+  "_waypointSize": 16,
+  "_trainSize": {
+    "x": 56,
+    "y": 26
+  },
+  "_railWidth": 6,
+  "_fontSize": 21,
+  "_background": {
+    "r": 0.1647,
+    "g": 0.1373,
+    "b": 0.1922,
+    "a": 1
+  },
+  "_rail": {
+    "r": 0.32,
+    "g": 0.36,
+    "b": 0.38,
+    "a": 1
+  },
+  "_station": {
+    "r": 0.87,
+    "g": 0.68,
+    "b": 0.34,
+    "a": 1
+  },
+  "_waypoint": {
+    "r": 0.45,
+    "g": 0.68,
+    "b": 0.66,
+    "a": 1
+  },
+  "_train": {
+    "r": 0.96,
+    "g": 0.38,
+    "b": 0.2,
+    "a": 1
+  },
+  "_nodes": [
+    {
+      "_id": "hub-1",
+      "_isStation": true,
+      "_position": {
+        "x": 320,
+        "y": 360
+      },
+      "_labelKey": "hub_1",
+      "_hasBend": false,
+      "_bend": {
+        "x": 0,
+        "y": 0
+      },
+      "_mapPosition": {
+        "x": -8,
+        "y": 2
+      }
+    },
+    {
+      "_id": "TERMINAL",
+      "_isStation": false,
+      "_position": {
+        "x": 960,
+        "y": 360
+      },
+      "_labelKey": "waypoint_terminal",
+      "_hasBend": false,
+      "_bend": {
+        "x": 0,
+        "y": 0
+      },
+      "_mapPosition": {
+        "x": 8,
+        "y": 2
+      }
+    }
+  ],
+  "_map": {
+    "_tileSize": 1.0,
+    "_cornerRadius": 0.5,
+    "_cameraSize": 8.5,
+    "_cameraPosition": {
+      "x": 0,
+      "y": 1,
+      "z": -10
+    },
+    "_hubScale": 2.0,
+    "_waypointScale": 1.0,
+    "_trainScale": 1.25,
+    "_hubInset": 1.8,
+    "_labelOffset": 1.35,
+    "_labelSize": 4.8,
+    "_background": {
+      "r": 0.1647,
+      "g": 0.1373,
+      "b": 0.1922,
+      "a": 1
+    },
+    "_fontSize": 48,
+    "_pixelsPerUnit": 32,
+    "_labelColor": {
+      "r": 0.9568627450980393,
+      "g": 0.8980392156862745,
+      "b": 0.7333333333333333,
+      "a": 1
+    },
+    "_railOrder": 0,
+    "_waypointOrder": 5,
+    "_hubOrder": 10,
+    "_trainOrder": 20,
+    "_labelOrder": 30,
+    "_spriteForwardAngle": 90
+  }
+}

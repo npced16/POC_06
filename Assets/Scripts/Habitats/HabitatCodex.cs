@@ -203,8 +203,9 @@ namespace IronRing.Habitats
 
         private void OnEncounterEnded(ITrackNode node, EncounterOutcome outcome)
         {
-            if (outcome == EncounterOutcome.EventResolved && _settings.PerEvent > 0) UnlockNext(_settings.PerEvent, SOURCE_EVENT);
-            else if (outcome == EncounterOutcome.Victory && _settings.PerVictory > 0) UnlockNext(_settings.PerVictory, SOURCE_VICTORY);
+            // 스토리 039: 휴식지 이벤트마다 PerEvent개, "떠돌이 상인"은 IWaypointResolver.CodexUnlocks만큼 더 연다.
+            int count = _settings.PerEvent + (_waypoints?.CodexUnlocks ?? 0);
+            if (outcome == EncounterOutcome.EventResolved && count > 0) UnlockNext(count, SOURCE_EVENT);
         }
 
         private void OnHabitatCompleted(string hubId, string typeId)

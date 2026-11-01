@@ -1,7 +1,7 @@
 # Story 039: 전투 전부 제거, 원형 선로와 중간 휴식지(이벤트), 첫 거점에 지명
 
 > **Epic**: 철환 장갑열차 MVP (iron-ring-train)
-> **Status**: Ready
+> **Status**: Done (2026-11-02 05:00 KST 코디네이터 — 파이프라인 검증: refresh 통과, Rebuild+생성기 체인 2회 ok, 씬 저장; 방어시설 코드 보관은 후속)
 > **Layer**: Core + Presentation
 > **Type**: Integration
 > **Estimate**: L

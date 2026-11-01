@@ -1,23 +1,164 @@
 {
-  "_eventRatio": 0.5,
-  "_rounds": 3,
-  "_trainStrength": 10,
-  "_enemyMin": 8,
-  "_enemyMax": 14,
-  "_rewardResource": "scrap",
-  "_rewardAmount": 0,
+  "_comment": "Story 039. Combat removed: every rest-stop arrival resolves exactly one event, weighted per stop (_restStops). Effects: prosperity = next hub prosperity +/-_amount, codex = extra recipes unlocked, boarding = boarding chance +_amount at this stop, delay = extra hold seconds, resource = _resource +_delta.",
   "_rewardItem": "",
   "_rewardItemAmount": 0,
-  "_penaltyResources": ["scrap", "grain", "coal", "water"],
-  "_penaltyAmount": 0,
-  "_prosperityPenalty": -10,
-  "_victoryProsperity": 5,
-  "_eventProsperity": 5,
-  "_raidMode": true,
   "_events": [
-    {"_title": "Abandoned freight", "_resource": "scrap", "_delta": 0},
-    {"_title": "Trackside provisions", "_resource": "grain", "_delta": 0},
-    {"_title": "Coal cache", "_resource": "coal", "_delta": 0},
-    {"_title": "Leaking water tank", "_resource": "water", "_delta": 0}
+    {
+      "_id": "abandoned_freight",
+      "_title": "Abandoned freight",
+      "_effect": "prosperity",
+      "_amount": 5,
+      "_resource": "",
+      "_delta": 0
+    },
+    {
+      "_id": "trackside_provisions",
+      "_title": "Trackside provisions",
+      "_effect": "prosperity",
+      "_amount": 5,
+      "_resource": "",
+      "_delta": 0
+    },
+    {
+      "_id": "coal_cache",
+      "_title": "Coal cache",
+      "_effect": "prosperity",
+      "_amount": 5,
+      "_resource": "",
+      "_delta": 0
+    },
+    {
+      "_id": "leaking_water_tank",
+      "_title": "Leaking water tank",
+      "_effect": "prosperity",
+      "_amount": 5,
+      "_resource": "",
+      "_delta": 0
+    },
+    {
+      "_id": "wandering_merchant",
+      "_title": "Wandering merchant",
+      "_effect": "codex",
+      "_amount": 1,
+      "_resource": "",
+      "_delta": 0
+    },
+    {
+      "_id": "hitchhikers",
+      "_title": "Hitchhikers",
+      "_effect": "boarding",
+      "_amount": 0.3,
+      "_resource": "",
+      "_delta": 0
+    },
+    {
+      "_id": "dust_storm",
+      "_title": "Dust storm",
+      "_effect": "prosperity",
+      "_amount": -5,
+      "_resource": "",
+      "_delta": 0
+    },
+    {
+      "_id": "abandoned_warehouse",
+      "_title": "Abandoned warehouse",
+      "_effect": "prosperity",
+      "_amount": 4,
+      "_resource": "",
+      "_delta": 0
+    },
+    {
+      "_id": "quiet_rest",
+      "_title": "Quiet rest",
+      "_effect": "prosperity",
+      "_amount": 1,
+      "_resource": "",
+      "_delta": 0
+    },
+    {
+      "_id": "track_repair",
+      "_title": "Track repair",
+      "_effect": "delay",
+      "_amount": 3,
+      "_resource": "",
+      "_delta": 0
+    }
+  ],
+  "_restStops": [
+    {
+      "_id": "REST-1",
+      "_events": [
+        {
+          "_eventId": "wandering_merchant",
+          "_weight": 3
+        },
+        {
+          "_eventId": "abandoned_warehouse",
+          "_weight": 3
+        },
+        {
+          "_eventId": "quiet_rest",
+          "_weight": 2
+        },
+        {
+          "_eventId": "dust_storm",
+          "_weight": 1
+        },
+        {
+          "_eventId": "abandoned_freight",
+          "_weight": 1
+        }
+      ]
+    },
+    {
+      "_id": "REST-2",
+      "_events": [
+        {
+          "_eventId": "track_repair",
+          "_weight": 3
+        },
+        {
+          "_eventId": "hitchhikers",
+          "_weight": 2
+        },
+        {
+          "_eventId": "dust_storm",
+          "_weight": 2
+        },
+        {
+          "_eventId": "coal_cache",
+          "_weight": 1
+        },
+        {
+          "_eventId": "quiet_rest",
+          "_weight": 1
+        }
+      ]
+    },
+    {
+      "_id": "REST-3",
+      "_events": [
+        {
+          "_eventId": "hitchhikers",
+          "_weight": 3
+        },
+        {
+          "_eventId": "quiet_rest",
+          "_weight": 3
+        },
+        {
+          "_eventId": "leaking_water_tank",
+          "_weight": 2
+        },
+        {
+          "_eventId": "wandering_merchant",
+          "_weight": 1
+        },
+        {
+          "_eventId": "trackside_provisions",
+          "_weight": 1
+        }
+      ]
+    }
   ]
 }

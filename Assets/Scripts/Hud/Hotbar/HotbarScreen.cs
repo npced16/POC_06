@@ -52,7 +52,6 @@ namespace IronRing.Hud.Hotbar
         [SerializeField] private TMP_Text _notice;
         [SerializeField] private Button _paletteToggle;
         [Tooltip("스토리 034. 열차 장비 모드 전환 버튼(T 키와 같음).")]
-        [SerializeField] private Button _trainToggle;
         [SerializeField] private GameObject _palette;
         [SerializeField] private TMP_Text _paletteTitle;
         [SerializeField] private TMP_Text _paletteHint;
@@ -73,8 +72,6 @@ namespace IronRing.Hud.Hotbar
         private UiTheme _theme;
 
         private readonly PlacementEntry[] _slots = new PlacementEntry[SLOT_COUNT];
-        private readonly PlacementEntry[] _tileSlots = new PlacementEntry[SLOT_COUNT];
-        private bool _equipmentMode;
         private readonly List<(PlacementEntry entry, HotbarCellView view)> _paletteViews = new List<(PlacementEntry, HotbarCellView)>();
         private int _selectedSlot = -1;
         private PlacementEntry _pendingAssign;
@@ -118,13 +115,6 @@ namespace IronRing.Hud.Hotbar
             SetButtonText(_paletteClose, Strings.Get("inv_close"));
             _paletteToggle.onClick.AddListener(() => SetPaletteOpen(!_paletteOpen));
             _paletteClose.onClick.AddListener(() => SetPaletteOpen(false));
-            if (_trainToggle != null)
-            {
-                SetButtonText(_trainToggle, Strings.Get("hotbar_train"));
-                _trainToggle.onClick.AddListener(TrainEquipmentMode.Toggle);
-            }
-            TrainEquipmentMode.Changed += OnEquipmentModeChanged;
-            WireScrap();
             _noticeBox.SetActive(false);
             _dragChip.gameObject.SetActive(false);
 
@@ -181,7 +171,6 @@ namespace IronRing.Hud.Hotbar
         {
             if (!entry.IsValid) return false;
             if (entry.Kind == PlacementKind.Item) return _items.Contains(entry.Id);
-            if (entry.Kind == PlacementKind.Equipment) return TrainEquipmentMode.Entries().Contains(entry);
             return Array.IndexOf(_data.Facilities, entry.Id) >= 0;
         }
 
@@ -254,47 +243,16 @@ namespace IronRing.Hud.Hotbar
             {
                 HotbarCellView view = _slotViews[i];
                 if (view == null) continue;
-                view.Show(_slots[i].IsValid ? _ghost.IconFor(_slots[i]) : null, DisplayName(_slots[i]) + CostSuffix(_slots[i]));
-                view.SetAffordable(Affordable(_slots[i]));
+                view.Show(_slots[i].IsValid ? _ghost.IconFor(_slots[i]) : null, DisplayName(_slots[i]));
                 view.SetState(i == _selectedSlot, _pendingAssign.IsValid, _theme);
             }
             _palette.SetActive(open && _paletteOpen);
             foreach (var (entry, view) in _paletteViews) view.SetState(entry.Equals(_pendingAssign), false, _theme);
         }
 
-        /// <summary>스토리 038: 장비 칸 이름 뒤 " · 고철 N"(비용 0이면 없음).</summary>
-        private static string CostSuffix(PlacementEntry entry)
-        {
-            var loadout = IronRing.Train.Equipment.TrainEquipmentInstaller.Loadout;
-            if (!entry.IsValid || entry.Kind != PlacementKind.Equipment || loadout == null) return "";
-            int cost = loadout.CostOf(entry.Id);
-            return cost > 0 ? "\n" + string.Format(Strings.Get("equip_cost"), cost) : "";
-        }
-
-        /// <summary>스토리 038: 장비 칸이면 지금 고철로 살 수 있는지(타일·시설은 늘 true).</summary>
-        private static bool Affordable(PlacementEntry entry)
-        {
-            var loadout = IronRing.Train.Equipment.TrainEquipmentInstaller.Loadout;
-            return !entry.IsValid || entry.Kind != PlacementKind.Equipment || loadout == null || loadout.CanAfford(entry.Id);
-        }
-
-        private IScrap _scrap;
-
-        /// <summary>스토리 038: 고철이 바뀌면 칸을 다시 칠하고, 비용 부족 거절은 알림으로 보인다.</summary>
-        private void WireScrap()
-        {
-            _scrap = GameServices.Get<IScrap>();
-            if (_scrap != null) _scrap.Changed += Refresh;
-            var loadout = IronRing.Train.Equipment.TrainEquipmentInstaller.Loadout;
-            if (loadout != null) loadout.PlacementRefused += OnPlacementRefused;
-        }
-
-        private void OnPlacementRefused(string id, int cost, int have) => ShowNotice(string.Format(Strings.Get("equip_no_scrap"), cost, have));
-
         private string DisplayName(PlacementEntry entry)
         {
             if (!entry.IsValid) return "";
-            if (entry.Kind == PlacementKind.Equipment) return Strings.Get("equip_" + entry.Id);
             if (entry.Kind == PlacementKind.Facility) return Strings.Get("facility_" + entry.Id);
             ItemDefinition item = _items.Get(entry.Id);
             return item != null ? item.Name : entry.Id;
@@ -500,35 +458,8 @@ namespace IronRing.Hud.Hotbar
             Refresh();
         }
 
-        /// <summary>
-        /// 스토리 034. 장비 모드가 켜지면 타일 슬롯을 보관하고 9칸을 장비 목록(TrainEquipment.json 순서)으로 바꾸며 팔레트를 닫는다.
-        /// 꺼지면 보관한 타일 슬롯과 안내 문구를 되돌린다.
-        /// </summary>
-        private void OnEquipmentModeChanged(bool active)
-        {
-            if (active == _equipmentMode) return;
-            _equipmentMode = active;
-            if (active)
-            {
-                Array.Copy(_slots, _tileSlots, SLOT_COUNT);
-                List<PlacementEntry> entries = TrainEquipmentMode.Entries();
-                for (int i = 0; i < SLOT_COUNT; i++) _slots[i] = i < entries.Count ? entries[i] : default;
-                _paletteOpen = false;
-                _pendingAssign = default;
-            }
-            else Array.Copy(_tileSlots, _slots, SLOT_COUNT);
-            _selectedSlot = -1;
-            _hint.text = Strings.Get(active ? "hotbar_hint_equipment" : "hotbar_hint");
-            if (_paletteToggle != null) _paletteToggle.interactable = !active;
-            if (_trainToggle != null) SetButtonText(_trainToggle, Strings.Get(active ? "hotbar_tiles" : "hotbar_train"));
-            Refresh();
-        }
-
         void OnDestroy()
         {
-            TrainEquipmentMode.Changed -= OnEquipmentModeChanged;
-            if (_scrap != null) _scrap.Changed -= Refresh;
-            if (IronRing.Train.Equipment.TrainEquipmentInstaller.Loadout != null) IronRing.Train.Equipment.TrainEquipmentInstaller.Loadout.PlacementRefused -= OnPlacementRefused;
             GameServices.Ready -= Create;
             if (_ghost != null)
             {

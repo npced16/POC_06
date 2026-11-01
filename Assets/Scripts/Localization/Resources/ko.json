@@ -11,7 +11,7 @@
     { "_key": "event_leaking_water_tank", "_value": "새는 물탱크" },
     {
       "_key": "hub_1",
-      "_value": "주조소"
+      "_value": "황동골"
     },
     {
       "_key": "hub_2",
@@ -538,6 +538,15 @@
     { "_key": "stop_worker_flee", "_value": "인부가 적을 피해 열차로 달아난다" },
     { "_key": "stop_pile_label", "_value": "고철 {0}" },
     { "_key": "stop_depart_button", "_value": "출발 (고철 {0})" },
-    { "_key": "stop_status_line", "_value": "버틴 시간 {0}초 · 파도 {1} · 고철 {2}(+인부 운반 중 {3}) · 인부 {4}/{5}" }
+    { "_key": "stop_status_line", "_value": "버틴 시간 {0}초 · 파도 {1} · 고철 {2}(+인부 운반 중 {3}) · 인부 {4}/{5}" },
+    { "_key": "rest_1", "_value": "잿더미 쉼터" },
+    { "_key": "rest_2", "_value": "녹슨 다리" },
+    { "_key": "rest_3", "_value": "급수탑 쉼터" },
+    { "_key": "event_wandering_merchant", "_value": "떠돌이 상인이 설계도 하나를 건넸다" },
+    { "_key": "event_hitchhikers", "_value": "승객 합승 — 이번 정차의 탑승 확률이 오른다" },
+    { "_key": "event_dust_storm", "_value": "폭풍 — 다음 거점 번영이 줄었다" },
+    { "_key": "event_abandoned_warehouse", "_value": "버려진 창고에서 타일을 찾았다 — 번영 상승" },
+    { "_key": "event_quiet_rest", "_value": "휴식 — 조용히 쉬어 간다 (번영 +1)" },
+    { "_key": "event_track_repair", "_value": "선로 보수 — 출발이 늦어진다" }
 ]
 }

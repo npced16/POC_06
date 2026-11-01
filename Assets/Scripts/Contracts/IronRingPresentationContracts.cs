@@ -37,33 +37,13 @@ namespace IronRing.Contracts.Presentation
     }
 
     /// <summary>
-    /// 전투·이벤트 연출용 정보. 스토리 009의 Bootstrap이 실제 WaypointResolver를 감싸는 어댑터로 구현해
-    /// GameServices에 등록한다. 스토리 010이 소비한다. IWaypointResolver의 EncounterStarted/EncounterEnded와 함께 쓴다.
+    /// 이벤트 연출용 정보. Bootstrap이 실제 WaypointResolver를 감싸는 어댑터로 구현해 GameServices에 등록한다.
+    /// 스토리 039: 전투가 사라져 휴식지 이벤트 결과만 알린다. IWaypointResolver의 EncounterStarted/EncounterEnded와 함께 쓴다.
     /// </summary>
     public interface IEncounterPresentationSource
     {
-        /// <summary>현재 진행 중인 조우가 전투인지(false면 이벤트).</summary>
-        bool IsCombat { get; }
-        /// <summary>전투의 총 라운드 수(데이터 값, 전투가 아니면 0).</summary>
-        int TotalRounds { get; }
-        /// <summary>현재 전투의 열차 전투력과 적 전투력(전투가 아니면 0, 0).</summary>
-        (int train, int enemy) Strengths { get; }
-        /// <summary>라운드가 끝날 때: 1부터 시작하는 라운드 번호, 열차가 이겼는지.</summary>
-        event Action<int, bool> RoundResolved;
-        /// <summary>이벤트(비전투)가 끝날 때: 이벤트 id (문자열 테이블 키로 쓴다).</summary>
+        /// <summary>이벤트가 끝날 때: 문자열 테이블 키.</summary>
         event Action<string> EventResolved;
-    }
-
-    /// <summary>
-    /// HUD가 플레이어 입력으로 전투를 한 라운드 진행시킬 때 쓰는 명령. 스토리 009의 Bootstrap이 실제
-    /// WaypointResolver.Advance()를 감싸 GameServices에 등록하고, 스토리 011이 호출한다.
-    /// </summary>
-    public interface ICombatRoundCommand
-    {
-        /// <summary>진행 중인 조우(전투 라운드 또는 이벤트 단계)를 한 단계 진행한다. 조우가 없으면 무시한다.</summary>
-        void AdvanceCombatRound();
-        /// <summary>지금 진행시킬 수 있는 조우가 있는지.</summary>
-        bool CanAdvance { get; }
     }
 
     /// <summary>

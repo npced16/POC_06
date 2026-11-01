@@ -10,6 +10,7 @@
     {"_id":"hub-3","_key":"hub_3"}, {"_id":"hub-4","_key":"hub_4"},
     {"_id":"NORTH PASS","_key":"waypoint_north"}, {"_id":"EAST PASS","_key":"waypoint_east"},
     {"_id":"SOUTH PASS","_key":"waypoint_south"}, {"_id":"WEST PASS","_key":"waypoint_west"},
-    {"_id":"TERMINAL","_key":"waypoint_terminal"}
+    {"_id":"TERMINAL","_key":"waypoint_terminal"},
+    {"_id":"REST-1","_key":"rest_1"}, {"_id":"REST-2","_key":"rest_2"}, {"_id":"REST-3","_key":"rest_3"}
   ]
 }

@@ -63,7 +63,7 @@ Brief Build order: 이동 → 서식지·NPC → 거점 상태·패배 → 전�
 | 036 | 폐허 연출 — 웅덩이·잡초·모닥불·잔해, 복구될수록 걷힘 | Visual/Feel | Done | N/A |
 | 037 | 1차 횡스크롤 여정 + 달리면서 치르는 전투(프리미티브) | Visual/Feel | Removed(039) | N/A |
 | 038 | 2차 중간역 정차 — 탑뷰 디펜스·고철 파밍·장비 비용(프리미티브) | Integration | Removed(039) | N/A |
-| 039 | 전투 전부 제거, 원형 선로 + 휴식지 3(이벤트), 거점 지명 "황동골" | Integration | Ready | N/A |
+| 039 | 전투 전부 제거, 원형 선로 + 휴식지 3(이벤트), 거점 지명 "황동골" | Integration | Done | N/A |
 | 040 | 경제 기반 — 마르크·품목 6종·휴식지 시장·화물칸·거래 패널·정산·파산 | Integration | Ready | N/A |
 | 041 | 생산 건물 — 레시피를 생산 데이터로, 창고, 타일 비용, 적재 | Integration | Ready | N/A |
 | 042 | 주민·노동·만족도·마을 등급·해금 | Logic | Ready | N/A |

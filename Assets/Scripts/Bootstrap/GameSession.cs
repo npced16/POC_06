@@ -60,7 +60,7 @@ namespace IronRing.Bootstrap
             Facilities = new FacilityBuilder(data.Facilities.CreateDefinitions(), data.Facilities.PerHubLimit,
                 data.Facilities.AllowBuildInRuins, Inventory, Hubs, IsDocked);
             link.Bind(Facilities);
-            Waypoints = new WaypointResolver(data.Encounters, Track, Inventory, Hubs, Facilities, new SeededRandom(data.Settings.CombatSeed ^ entropy));
+            Waypoints = new WaypointResolver(data.Encounters, Track, Inventory, Hubs, new SeededRandom(data.Settings.CombatSeed ^ entropy));
             Track.Arrived += OnArrived;
             Track.LapCompleted += Hubs.OnLapCompleted;
             Hubs.RunLost += OnRunLost;

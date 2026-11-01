@@ -4,15 +4,11 @@ using IronRing.Contracts;
 
 namespace IronRing.Combat
 {
-    /// <summary>Story 033. Real-time raid that decides a raid-mode encounter; WaypointResolver hands it the encounter and gets the outcome back.</summary>
-    public interface IRaidRunner
-    {
-        /// <summary>True when the waypoint is still occupied (a raid happens there).</summary>
-        bool IsOccupied(ITrackNode node);
-        /// <summary>Starts the raid at node; the runner later calls WaypointResolver.CompleteRaid exactly once.</summary>
-        void Begin(ITrackNode node);
-    }
-
+    /// <summary>
+    /// Story 005 / 039. Rest-stop events. Story 039 removed every combat path (dice combat, raid, en-route raid): an arrival at a
+    /// rest stop holds the track and picks exactly one event from that stop's weight table (EncounterData, seeded random);
+    /// Advance applies its effect and releases the hold with EncounterOutcome.EventResolved.
+    /// </summary>
     public sealed class WaypointResolver : IWaypointResolver, IDisposable
     {
         private const string HOLD_REASON = "waypoint-encounter";
@@ -20,122 +16,85 @@ namespace IronRing.Combat
         private readonly ITrackRuntime _track;
         private readonly IResourceInventory _inventory;
         private readonly IHubStateSystem _hubs;
-        private readonly IFacilityBuilder _facilities;
         private readonly IRandomSource _random;
         private ITrackNode _node;
         private string _nextHub;
         private EncounterEvent _selectedEvent;
         private bool _disposed;
-        private IRaidRunner _raid;
-        /// <summary>Story 033: true while the active encounter is a real-time raid (no dice rounds, Advance is ignored).</summary>
-        public bool IsRaid { get; private set; }
         public bool IsEncounterActive { get; private set; }
-        public CombatEncounter Combat { get; private set; }
+        /// <summary>Title of the active (or last) event; maps to a string key through MainSettings _eventKeys.</summary>
         public string EventTitle { get; private set; }
+        /// <summary>Id of the active (or last) event.</summary>
+        public string EventId => _selectedEvent?.Id;
         public EncounterOutcome? LastOutcome { get; private set; }
+        /// <summary>Story 039: boarding bonus of the event that just resolved (cleared on the next arrival).</summary>
+        public float BoardChanceBonus { get; private set; }
+        /// <summary>Story 039: codex unlocks granted by the event that just resolved (cleared on the next arrival).</summary>
+        public int CodexUnlocks { get; private set; }
+        /// <summary>Story 039: extra seconds the active event holds the train (track repair, "delay" effect).</summary>
+        public float ExtraHoldSeconds => IsEncounterActive && _selectedEvent.Effect == EncounterData.EFFECT_DELAY ? Math.Max(0f, _selectedEvent.Amount) : 0f;
         public event Action<ITrackNode> EncounterStarted;
         public event Action<ITrackNode, EncounterOutcome> EncounterEnded;
 
-        /// <summary>Injects encounter data and system interfaces; arrival wiring stays with the composition root.</summary>
-        public WaypointResolver(EncounterData data, ITrackRuntime track, IResourceInventory inventory,
-            IHubStateSystem hubs, IFacilityBuilder facilities, IRandomSource random)
+        /// <summary>Injects the event table and system interfaces; arrival wiring stays with the composition root.</summary>
+        public WaypointResolver(EncounterData data, ITrackRuntime track, IResourceInventory inventory, IHubStateSystem hubs, IRandomSource random)
         {
             data.Validate();
-            _data = data; _track = track; _inventory = inventory; _hubs = hubs; _facilities = facilities; _random = random;
+            _data = data; _track = track; _inventory = inventory; _hubs = hubs; _random = random;
         }
 
-        /// <summary>Uses an arrived waypoint to hold movement and select a data event or staged combat; ignores hubs and active encounters.</summary>
+        /// <summary>Holds movement at an arrived rest stop and selects one event from its weight table; ignores hubs and active events.</summary>
         public void OnWaypointArrived(ITrackNode node)
         {
             if (_disposed || IsEncounterActive || node.Kind != TrackNodeKind.Waypoint) return;
             _nextHub = FindNextHub(node);
             _node = node;
-            Combat = null; EventTitle = null; LastOutcome = null; IsRaid = false;
+            LastOutcome = null; BoardChanceBonus = 0f; CodexUnlocks = 0;
+            _selectedEvent = Pick(node.Id);
+            EventTitle = _selectedEvent.Title;
             IsEncounterActive = true;
             _track.RequestHold(HOLD_REASON);
-            if (_data.RaidMode && _raid != null && _raid.IsOccupied(node))
-            {
-                // Story 033: occupied waypoint -> the raid decides Victory/Defeat through CompleteRaid; dice combat and the event roll are skipped.
-                IsRaid = true;
-                EncounterStarted?.Invoke(node);
-                _raid.Begin(node);
-                return;
-            }
-            if (_data.RaidMode && _raid != null)
-            {
-                // Story 033: a liberated waypoint has no more raids; it always gives a trackside event.
-                _selectedEvent = _data.Events[_random.NextInt(0, _data.Events.Length)];
-                EventTitle = _selectedEvent.Title;
-            }
-            else if (_random.NextFloat() < _data.EventRatio)
-            {
-                _selectedEvent = _data.Events[_random.NextInt(0, _data.Events.Length)];
-                EventTitle = _selectedEvent.Title;
-            }
-            else
-                Combat = new CombatEncounter(_data, _facilities.CombatBonus(_nextHub), _random);
+            UnityEngine.Debug.Log($"EVENT: {node.Id} {_selectedEvent.Id}");
             EncounterStarted?.Invoke(node);
         }
 
-        /// <summary>Resolves the selected event or advances one combat round, applies final rewards or penalties, and releases the encounter hold.</summary>
+        /// <summary>Applies the selected event's effect and releases the hold.</summary>
         public void Advance()
         {
-            if (!IsEncounterActive || IsRaid) return;
-            if (Combat == null)
+            if (!IsEncounterActive) return;
+            EncounterEvent e = _selectedEvent;
+            switch (e.Effect)
             {
-                ChangeResource(_selectedEvent.Resource, _selectedEvent.Delta);
-                if (_data.EventProsperity != 0f) _hubs.ApplyDelta(_nextHub, _data.EventProsperity, HOLD_REASON);
-                Finish(EncounterOutcome.EventResolved);
-                return;
+                case EncounterData.EFFECT_PROSPERITY:
+                    if (e.Amount != 0f) _hubs.ApplyDelta(_nextHub, e.Amount, HOLD_REASON + ":" + e.Id);
+                    break;
+                case EncounterData.EFFECT_CODEX:
+                    CodexUnlocks = Math.Max(0, (int)Math.Round(e.Amount));
+                    break;
+                case EncounterData.EFFECT_BOARDING:
+                    BoardChanceBonus = Math.Max(0f, e.Amount);
+                    break;
+                case EncounterData.EFFECT_RESOURCE:
+                    ChangeResource(e.Resource, e.Delta);
+                    break;
             }
-            Combat.AdvanceRound();
-            if (!Combat.IsComplete) return;
-            ApplyCombatResult(Combat.Outcome);
-            Finish(Combat.Outcome);
+            Finish();
         }
 
-        /// <summary>Story 033: attaches the raid runner used when the encounter data has _raidMode (null detaches it).</summary>
-        public void AttachRaid(IRaidRunner raid) => _raid = raid;
-
-        /// <summary>Story 033: the raid runner reports the raid outcome; applies the same rewards/penalties as dice combat and releases the hold.</summary>
-        public void CompleteRaid(bool victory)
+        /// <summary>Weighted pick from the stop's table (or every event at weight 1) with the seeded random.</summary>
+        private EncounterEvent Pick(string stopId)
         {
-            if (!IsEncounterActive || !IsRaid) return;
-            EncounterOutcome outcome = victory ? EncounterOutcome.Victory : EncounterOutcome.Defeat;
-            ApplyCombatResult(outcome);
-            IsRaid = false;
-            Finish(outcome);
-        }
-
-        /// <summary>
-        /// Story 037: an en-route raid (fought while the train keeps running toward node) reports its outcome outside a waypoint
-        /// encounter: applies the same reward/penalty as CompleteRaid and raises EncounterEnded for node without holding the track.
-        /// </summary>
-        public void CompleteEnrouteRaid(bool victory, ITrackNode node)
-        {
-            if (_disposed || node == null) return;
-            _nextHub = FindNextHub(node);
-            EncounterOutcome outcome = victory ? EncounterOutcome.Victory : EncounterOutcome.Defeat;
-            ApplyCombatResult(outcome);
-            LastOutcome = outcome;
-            EncounterEnded?.Invoke(node, outcome);
-        }
-
-        /// <summary>Applies the combat reward (victory) or penalty (defeat) to the inventory and the next hub's prosperity.</summary>
-        private void ApplyCombatResult(EncounterOutcome result)
-        {
-            if (result == EncounterOutcome.Victory)
+            RestStopTable table = _data.TableFor(stopId);
+            if (table == null) return _data.Events[_random.NextInt(0, _data.Events.Length)];
+            int total = 0;
+            foreach (WeightedEvent pick in table.Events) total += pick.Weight;
+            int roll = _random.NextInt(0, total);
+            foreach (WeightedEvent pick in table.Events)
             {
-                _inventory.Add(_data.RewardResource, _data.RewardAmount);
-                // Story 016: encounters reward prosperity only (resource amounts are 0 in data).
-                if (_data.VictoryProsperity != 0f) _hubs.ApplyDelta(_nextHub, _data.VictoryProsperity, HOLD_REASON);
+                if (roll < pick.Weight) return _data.Find(pick.EventId);
+                roll -= pick.Weight;
             }
-            else
-            {
-                string resource = _data.PenaltyResources[_random.NextInt(0, _data.PenaltyResources.Length)];
-                ChangeResource(resource, -_data.PenaltyAmount);
-                _hubs.ApplyDelta(_nextHub, _data.ProsperityPenalty, HOLD_REASON);
-            }
+            return _data.Find(table.Events[table.Events.Length - 1].EventId);
         }
 
         /// <summary>Uses ring list order and the waypoint id to return the next hub, wrapping across the ring boundary.</summary>
@@ -155,20 +114,21 @@ namespace IronRing.Combat
         /// <summary>Applies the signed resource delta, limiting losses to the available stock.</summary>
         private void ChangeResource(string resource, int delta)
         {
+            if (string.IsNullOrEmpty(resource)) return;
             if (delta >= 0) _inventory.Add(resource, delta);
             else _inventory.TrySpend(resource, (int)Math.Min(_inventory.Get(resource), -(long)delta));
         }
 
-        /// <summary>Records the outcome, clears encounter state, releases only this hold and publishes the ended node.</summary>
-        private void Finish(EncounterOutcome outcome)
+        /// <summary>Records the outcome, releases only this hold and publishes the ended node.</summary>
+        private void Finish()
         {
-            LastOutcome = outcome;
+            LastOutcome = EncounterOutcome.EventResolved;
             IsEncounterActive = false;
             _track.ReleaseHold(HOLD_REASON);
-            EncounterEnded?.Invoke(_node, outcome);
+            EncounterEnded?.Invoke(_node, EncounterOutcome.EventResolved);
         }
 
-        /// <summary>Releases an unfinished encounter hold without granting results and prevents future encounters.</summary>
+        /// <summary>Releases an unfinished event hold without granting results and prevents future events.</summary>
         public void Dispose()
         {
             if (IsEncounterActive) _track.ReleaseHold(HOLD_REASON);
