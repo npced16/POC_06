@@ -13,7 +13,7 @@ namespace IronRing.Presentation.HubPhase
     /// _npcCellFraction/_facilityCellFraction: sprite width as a fraction of interior cell spacing;
     /// _npcSortingOrder/_facilitySortingOrder: SpriteRenderer order above the interior grid; _npcSeed: wander seed;
     /// _mapLabelOffsetY: fallback ring-map label offset below the hub anchor (world units) when the hub has no name label;
-    /// _mapLabelGapPixels: panel-pixel gap between a hub's name label and its phase label; _hudSortingOrder: PhaseHud order;
+    /// _mapLabelGapPixels: panel-pixel gap between a hub's name label and its phase label; 
     /// _buildFacilityIds: facility ids offered by the build menu; _effectsSettings: Resources name of the sprite set;
     /// _npcHighlightColor: Story 017 sprite tint of the NPC whose dialog panel is open.
     /// </summary>
@@ -30,7 +30,6 @@ namespace IronRing.Presentation.HubPhase
         [SerializeField] private int _npcSeed = 14;
         [SerializeField] private float _mapLabelOffsetY = -1.45f;
         [SerializeField] private float _mapLabelGapPixels = 4f;
-        [SerializeField] private int _hudSortingOrder = 110;
         [SerializeField] private string[] _buildFacilityIds = { "wall", "turret", "workshop" };
         [SerializeField] private string _effectsSettings = "Story010Effects";
         [SerializeField] private bool _buildMenuOnCellClick = false;
@@ -52,7 +51,6 @@ namespace IronRing.Presentation.HubPhase
         public int NpcSeed => _npcSeed;
         public float MapLabelOffsetY => _mapLabelOffsetY;
         public float MapLabelGapPixels => _mapLabelGapPixels;
-        public int HudSortingOrder => _hudSortingOrder;
         public string[] BuildFacilityIds => _buildFacilityIds ?? Array.Empty<string>();
         public string EffectsSettingsName => _effectsSettings;
         /// <summary>Story 015 이후 시설은 핫바로 놓으므로 칸 클릭 건설 메뉴는 기본 꺼짐(데이터).</summary>

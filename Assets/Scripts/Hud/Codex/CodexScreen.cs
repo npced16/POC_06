@@ -13,6 +13,7 @@ using IronRing.Habitats.Demo;
 using IronRing.Hud.Hotbar;
 using IronRing.Hud.Ui;
 using IronRing.Localization;
+using IronRing.Npc.Demo;
 using IronRing.Presentation.Items;
 
 namespace IronRing.Hud.Codex
@@ -20,12 +21,13 @@ namespace IronRing.Hud.Codex
     /// <summary>
     /// 스토리 022(CodexHud의 UGUI 포팅). 상황 화면 "Codex": 서식지 레시피 도감. 상단 바 도감 버튼(Toggle)·C 키로 열고 닫고,
     /// Esc·닫기 버튼으로 닫는다. 카탈로그의 모든 종류를 카드 격자(CodexCard 부품)로 보인다: 잠김은 "???"+실루엣, 해금은 이름·종류·칸 수·
-    /// 타일 배열(TileIcon 부품)·번영 보너스·찾아오는 NPC, 현재 거점에서 완성된 종류에는 "완성". 해금마다 토스트(ToastScreen)를 한 프레임 늦게,
+    /// 타일 배열(TileIcon 부품)·번영 보너스·찾아오는 이(합류한 사람은 직업명, 나머지 후보는 "???", 스토리 025), 현재 거점에서 완성된 종류에는 "완성". 해금마다 토스트(ToastScreen)를 한 프레임 늦게,
     /// 겹치면 차례로 띄운다. 키·토스트 큐는 화면이 꺼져 있어도 ScreenTicker로 돈다. 게임 상태는 읽기만 한다.
     /// </summary>
     [RequireComponent(typeof(UiScreen))]
     public sealed class CodexScreen : MonoBehaviour
     {
+        private const string NPC_DEMO_STAGE = "codex";
         private static CodexScreen _instance;
         /// <summary>현재 도감 화면. 초기화 전이면 null.</summary>
         public static CodexScreen Instance => _instance;
@@ -46,6 +48,8 @@ namespace IronRing.Hud.Codex
         private IViewMode _view;
         private ITrackRuntime _track;
         private IHubStateSystem _hubs;
+        private INpcRecruiter _recruiter;
+        private INpcInteraction _interaction;
         private HabitatCatalog _catalog;
         private ItemSpriteSet _sprites;
         private float _toastSeconds;
@@ -101,9 +105,12 @@ namespace IronRing.Hud.Codex
             _codex.RecipeUnlocked += OnRecipeUnlocked;
             if (_clusters != null) { _clusters.HabitatCompleted += OnClustersChanged; _clusters.HabitatBroken += OnClustersChanged; }
             if (_view != null) _view.InteriorChanged += OnInteriorChanged;
+            ResolveNpcServices();
             SetOpen(false);
             ScreenTicker.Add(Tick);
             if (CodexDemoDriver.Stage != null) CodexDemoDriver.StageReady += Open;
+            // 스토리 025: --npc-demo --npc-stage codex(hub-1에 점등부를 합류시킨 뒤 도감을 연다).
+            if (NpcHomesDemoDriver.Stage == NPC_DEMO_STAGE) NpcHomesDemoDriver.StageReady += OnNpcDemoReady;
         }
 
         private void SetOpen(bool open)
@@ -121,6 +128,19 @@ namespace IronRing.Hud.Codex
 
         private void OnClustersChanged(string hubId, string typeId) { if (IsOpen) Rebuild(); }
         private void OnInteriorChanged(bool open) { if (IsOpen) Rebuild(); }
+        private void OnNpcJoined(string hubId, string npcId) { if (IsOpen) Rebuild(); }
+        private void OnNpcDemoReady(string firstNpcId) => Open();
+
+        /// <summary>스토리 025. 모집·대화 서비스를 늦게라도 얻는다(합류하면 "찾아오는 이"를 다시 그린다).</summary>
+        private void ResolveNpcServices()
+        {
+            if (_recruiter == null)
+            {
+                _recruiter = GameServices.Get<INpcRecruiter>();
+                if (_recruiter != null) _recruiter.NpcJoined += OnNpcJoined;
+            }
+            if (_interaction == null) _interaction = GameServices.Get<INpcInteraction>();
+        }
 
         /// <summary>화면이 꺼져 있어도 도는 일: C·Esc 키, 해금 토스트 큐, 기준 거점이 바뀌면 다시 그리기.</summary>
         private void Tick()
@@ -155,6 +175,7 @@ namespace IronRing.Hud.Codex
 
         private void Rebuild()
         {
+            ResolveNpcServices();
             string hub = CurrentHub();
             _lastHub = hub;
             var completed = new HashSet<string>();
@@ -175,10 +196,30 @@ namespace IronRing.Hud.Codex
                 card.ShowUnlocked(HabitatName(type.Id),
                     KindName(type.Kind) + "  ·  " + string.Format(Text("codex_cells"), CellCount(type)),
                     string.Format(Text("codex_bonus"), type.ProsperityBonus.ToString("0")),
-                    string.Format(Text("codex_npc"), Lookup("npc_" + type.NpcTypeId) ?? type.NpcTypeId),
+                    string.Format(Text("codex_npc"), Visitors(type)),
                     completed.Contains(type.Id));
                 FillDiagram(card, type);
             }
+        }
+
+        /// <summary>
+        /// 스토리 025. "찾아오는 이": 그 종류의 후보(INpcRecruiter.CandidatesOf) 가운데 합류한 사람(JoinedOf)은 직업명, 나머지는 "???"
+        /// (예: "점등부, ???"). 숨은 조건은 보이지 않는다. 후보 목록이 없으면(옛 구현) 예전처럼 NPC 종류 이름.
+        /// </summary>
+        private string Visitors(HabitatType type)
+        {
+            IReadOnlyList<string> candidates = _recruiter?.CandidatesOf(type.Id);
+            if (candidates == null || candidates.Count == 0) return Lookup("npc_" + type.NpcTypeId) ?? type.NpcTypeId;
+            var joined = new HashSet<string>(_recruiter.JoinedOf(type.Id) ?? (IReadOnlyList<string>)new string[0]);
+            var names = new List<string>();
+            int unknown = 0;
+            foreach (string id in candidates)
+            {
+                if (joined.Contains(id)) names.Add(_interaction != null ? _interaction.DisplayName(id) : id);
+                else unknown++;
+            }
+            for (int i = 0; i < unknown; i++) names.Add(Text("codex_visitor_unknown"));
+            return string.Join(", ", names);
         }
 
         /// <summary>같은 타일: 아이콘×개수. 혼합: 타일별 아이콘×최소 수 + "+k 아무거나". 패턴: 템플릿 격자(빈 칸은 흐린 칸).</summary>
@@ -248,6 +289,8 @@ namespace IronRing.Hud.Codex
             if (_instance != this) return;
             ScreenTicker.Remove(Tick);
             CodexDemoDriver.StageReady -= Open;
+            NpcHomesDemoDriver.StageReady -= OnNpcDemoReady;
+            if (_recruiter != null) _recruiter.NpcJoined -= OnNpcJoined;
             if (_codex != null) _codex.RecipeUnlocked -= OnRecipeUnlocked;
             if (_clusters != null) { _clusters.HabitatCompleted -= OnClustersChanged; _clusters.HabitatBroken -= OnClustersChanged; }
             if (_view != null) _view.InteriorChanged -= OnInteriorChanged;

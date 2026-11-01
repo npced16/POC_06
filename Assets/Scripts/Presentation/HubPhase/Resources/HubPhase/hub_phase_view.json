@@ -9,7 +9,6 @@
   "_npcSeed": 14,
   "_mapLabelOffsetY": -1.45,
   "_mapLabelGapPixels": 4,
-  "_hudSortingOrder": 110,
   "_buildFacilityIds": ["wall", "turret", "workshop"],
   "_effectsSettings": "Story010Effects",
   "_buildMenuOnCellClick": false,

@@ -5,6 +5,7 @@ using TMPro;
 
 using IronRing.Contracts;
 using IronRing.Contracts.Presentation;
+using IronRing.Hud.Npc;
 using IronRing.Hud.Ui;
 using IronRing.Localization;
 
@@ -12,6 +13,7 @@ namespace IronRing.Hud
 {
     /// <summary>
     /// 스토리 022(KoreanHud 상단 바의 UGUI 포팅). 항상 켜진 화면 "TopBar": 현재 위치·바퀴 수 라벨, 도감 (C) 버튼, 왼쪽 아래 출발·다음 라운드 버튼.
+    /// 스토리 025: 승객 "승객 N/정원" 버튼(IPassengers, 정원은 NpcPool.json) → PassengersScreen.Toggle(P 키는 PassengersScreen이 읽는다).
     /// 다음 라운드는 전투 조우 중에만 보인다. 명령은 ITrackRuntime.Depart·ICombatRoundCommand로만 보내고 게임 상태를 직접 바꾸지 않는다.
     /// 참조는 인스펙터로 꽂고, 캔버스·서비스가 없으면 조용히 아무것도 하지 않는다.
     /// </summary>
@@ -25,6 +27,8 @@ namespace IronRing.Hud
         [SerializeField] private Button _depart;
         [SerializeField] private Button _nextRound;
         [SerializeField] private Button _codex;
+        [Tooltip("스토리 025: 승객 수 버튼(누르면 승객 화면).")]
+        [SerializeField] private Button _passengers;
         [Tooltip("노드 id → 문자열 키 표(HudCatalog.json).")]
         [SerializeField] private TextAsset _catalogJson;
 
@@ -33,6 +37,7 @@ namespace IronRing.Hud
         private IWaypointResolver _waypoints;
         private ICombatRoundCommand _rounds;
         private IEncounterPresentationSource _encounter;
+        private IPassengers _riders;
         private HudCatalog _catalog;
         private UiTheme _theme;
 
@@ -67,6 +72,8 @@ namespace IronRing.Hud
             _nextRound.onClick.AddListener(AdvanceRound);
             // 스토리 021: 도감 버튼(C 키는 CodexScreen이 읽는다).
             if (_codex != null) _codex.onClick.AddListener(IronRing.Hud.Codex.CodexScreen.Toggle);
+            // 스토리 025: 승객 버튼(P 키는 PassengersScreen이 읽는다).
+            if (_passengers != null) _passengers.onClick.AddListener(PassengersScreen.Toggle);
             _track.Arrived += OnArrived; _track.LapCompleted += OnLap;
             _hubs.RunLost += Refresh;
             _waypoints.EncounterStarted += OnArrived; _waypoints.EncounterEnded += OnEncounterEnded;
@@ -84,6 +91,28 @@ namespace IronRing.Hud
             bool combat = _waypoints.IsEncounterActive && _encounter != null && _encounter.IsCombat;
             if (_nextRound.gameObject.activeSelf != combat) _nextRound.gameObject.SetActive(combat);
             SetInteractable(_nextRound, !_hubs.IsRunLost && _rounds != null && _rounds.CanAdvance);
+            RefreshPassengers();
+        }
+
+        /// <summary>승객 서비스를 늦게라도 얻고 탑승·하차·이탈을 구독한다.</summary>
+        private void ResolvePassengers()
+        {
+            if (_riders != null) return;
+            _riders = GameServices.Get<IPassengers>();
+            if (_riders == null) return;
+            _riders.Boarded += OnBoarded; _riders.Disembarked += OnDisembarked; _riders.Left += OnLeft;
+        }
+
+        /// <summary>"승객 N/정원" 라벨. 승객 서비스가 없는 데모 씬에서는 버튼을 숨긴다.</summary>
+        private void RefreshPassengers()
+        {
+            if (_passengers == null) return;
+            ResolvePassengers();
+            bool on = _riders != null;
+            if (_passengers.gameObject.activeSelf != on) _passengers.gameObject.SetActive(on);
+            if (!on) return;
+            TMP_Text label = _passengers.GetComponentInChildren<TMP_Text>(true);
+            if (label != null) label.text = string.Format(Strings.Get("hud_passengers"), _riders.PassengerIds.Count, PassengersScreen.Capacity);
         }
 
         /// <summary>버튼을 켜고 끄며, 꺼진 버튼의 글자는 테마의 흐린 색으로 바꾼다.</summary>
@@ -110,11 +139,15 @@ namespace IronRing.Hud
         private void OnLap(int lap) { Refresh(); }
         private void OnRound(int round, bool won) { Refresh(); }
         private void OnEncounterEnded(ITrackNode node, EncounterOutcome outcome) { Refresh(); }
+        private void OnBoarded(string npcId, string waypointId) { RefreshPassengers(); }
+        private void OnDisembarked(string npcId, string hubId) { RefreshPassengers(); }
+        private void OnLeft(string npcId) { RefreshPassengers(); }
 
         void OnDestroy()
         {
             GameServices.Ready -= Create;
             if (_instance == this) _instance = null;
+            if (_riders != null) { _riders.Boarded -= OnBoarded; _riders.Disembarked -= OnDisembarked; _riders.Left -= OnLeft; }
             if (_track == null) return;
             _track.Arrived -= OnArrived; _track.LapCompleted -= OnLap;
             _hubs.RunLost -= Refresh;

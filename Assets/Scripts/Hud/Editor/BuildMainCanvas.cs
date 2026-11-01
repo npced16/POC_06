@@ -54,7 +54,7 @@ namespace IronRing.Hud.Editor
         /// </summary>
         public static readonly string[] SCREEN_IDS =
         {
-            "TopBar", "HubPanel", "Defeat", "PhaseBanner", "InteriorTitle", "Hotbar", "Toast", "NpcDialog", "Codex", "CombatFx",
+            "TopBar", "Passengers", "HubPanel", "Defeat", "PhaseBanner", "InteriorTitle", "Hotbar", "Toast", "NpcDialog", "Codex", "CombatFx",
         };
 
         /// <summary>SCREEN_IDS 순서대로, 빌더 형식이 존재하는 화면만 (id, 생성 함수) 쌍으로 돌려준다.</summary>

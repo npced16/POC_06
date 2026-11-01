@@ -25,7 +25,7 @@ namespace IronRing.Hud.Editor.Screens
             GameObject root = UiKit.ScreenRoot("NpcDialog", false);
             NpcDialogScreen screen = root.AddComponent<NpcDialogScreen>();
             Image panel = UiKit.Panel(root.transform, "Dialog", theme);
-            UiKit.Place(panel.rectTransform, Vector2.zero, Vector2.zero, new Vector2(18, 150), new Vector2(320, 0));
+            UiKit.Place(panel.rectTransform, Vector2.zero, Vector2.zero, new Vector2(18, 150), new Vector2(390, 0)); // 스토리 025: 출신지 줄만큼 넓힘
             VerticalLayoutGroup column = panel.gameObject.AddComponent<VerticalLayoutGroup>();
             column.padding = new RectOffset(14, 14, 12, 12);
             column.spacing = 6;
@@ -43,6 +43,9 @@ namespace IronRing.Hud.Editor.Screens
             TextMeshProUGUI home = UiKit.Label(header.transform, "Home", Strings.Get("ui_sample_npc_home"), UiTextSize.Small, theme, TextAlignmentOptions.BottomRight);
             home.color = theme.Muted;
             home.textWrappingMode = TextWrappingModes.NoWrap;
+            TextMeshProUGUI origin = UiKit.Label(header.transform, "Origin", string.Format(Strings.Get("npc_dialog_origin"), Strings.Get("ui_sample_passenger_1_origin")), UiTextSize.Small, theme, TextAlignmentOptions.BottomRight);
+            origin.color = theme.Muted;
+            origin.textWrappingMode = TextWrappingModes.NoWrap;
 
             TextMeshProUGUI line = UiKit.Label(panel.transform, "Line", Strings.Get("ui_sample_npc_line"), UiTextSize.Normal, theme, TextAlignmentOptions.TopLeft);
             line.gameObject.AddComponent<LayoutElement>().minHeight = 44;
@@ -67,6 +70,7 @@ namespace IronRing.Hud.Editor.Screens
 
             UiKit.Bind(screen, "_title", title);
             UiKit.Bind(screen, "_home", home);
+            UiKit.Bind(screen, "_origin", origin);
             UiKit.Bind(screen, "_line", line);
             UiKit.Bind(screen, "_result", result);
             UiKit.Bind(screen, "_reasons", reasons);

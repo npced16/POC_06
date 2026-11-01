@@ -458,6 +458,24 @@
     { "_key": "ui_sample_npc_option", "_value": "격려하기" },
     { "_key": "ui_sample_notice", "_value": "여기에는 놓을 수 없다." },
     { "_key": "ui_sample_codex_name", "_value": "증기 공방" },
-    { "_key": "ui_sample_codex_title", "_value": "레시피 도감  3 / 19" }
+    { "_key": "ui_sample_codex_title", "_value": "레시피 도감  3 / 19" },
+    { "_key": "hud_passengers", "_value": "승객 {0}/{1} (P)" },
+    { "_key": "passengers_title", "_value": "열차 승객  {0}/{1}" },
+    { "_key": "passengers_hint", "_value": "원하는 서식지가 완성된 거점에 정차하면 내려 눌러앉는다." },
+    { "_key": "passengers_empty", "_value": "승객이 없다" },
+    { "_key": "passengers_close", "_value": "닫기" },
+    { "_key": "passengers_origin", "_value": "{0} 출신" },
+    { "_key": "passengers_laps", "_value": "탄 지 {0}바퀴" },
+    { "_key": "npc_dialog_origin", "_value": "{0} 출신" },
+    { "_key": "codex_visitor_unknown", "_value": "???" },
+    { "_key": "ui_sample_codex_visitors", "_value": "점등부, ???" },
+    { "_key": "ui_sample_passenger_1_name", "_value": "점등부" },
+    { "_key": "ui_sample_passenger_1_origin", "_value": "떠돌이 선로" },
+    { "_key": "ui_sample_passenger_1_proposal", "_value": "가스등 거리를 만들어 주면 거기서 살겠소." },
+    { "_key": "ui_sample_passenger_1_hint", "_value": "불빛만 넉넉하면 어느 마을이든 좋아요." },
+    { "_key": "ui_sample_passenger_2_name", "_value": "가스관 기술자" },
+    { "_key": "ui_sample_passenger_2_origin", "_value": "북쪽 고개" },
+    { "_key": "ui_sample_passenger_2_proposal", "_value": "가스등 거리를 깔아 주면 가스관을 이어 드리지." },
+    { "_key": "ui_sample_passenger_2_hint", "_value": "가스관만 이어지면 어느 마을이든 좋소." }
   ]
 }

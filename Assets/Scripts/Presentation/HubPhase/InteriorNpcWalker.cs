@@ -325,7 +325,7 @@ namespace IronRing.Presentation.HubPhase
 
         /// <summary>
         /// Empty-handed left click on an NPC body: only with the interior open, no hotbar selection or drag (those clicks
-        /// are placement), and not over UI (PlacementGhost.UiHitTests + EventSystem raycast).
+        /// are placement), and not over UI (EventSystem raycast).
         /// </summary>
         private void HandleClick()
         {
@@ -346,10 +346,9 @@ namespace IronRing.Presentation.HubPhase
             }
         }
 
-        /// <summary>pointer is over a HUD panel: HUD-registered tests first, then the EventSystem raycast (same rule as PlacementGhost).</summary>
+        /// <summary>pointer is over a HUD panel: EventSystem raycast only (Story 025 removed the old registered tests).</summary>
         private bool IsPointerOverUi(Vector2 pointer)
         {
-            foreach (Func<Vector2, bool> test in PlacementGhost.UiHitTests) if (test != null && test(pointer)) return true;
             if (EventSystem.current == null) return false;
             _uiHits.Clear();
             EventSystem.current.RaycastAll(new PointerEventData(EventSystem.current) { position = pointer }, _uiHits);

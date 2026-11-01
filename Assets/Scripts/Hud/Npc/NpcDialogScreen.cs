@@ -17,7 +17,7 @@ using IronRing.Presentation.HubPhase;
 namespace IronRing.Hud.Npc
 {
     /// <summary>
-    /// 스토리 022(NpcDialogHud의 UGUI 포팅). 상황 화면 "NpcDialog": INpcClickSource.NpcClicked로 열고 직업명·집 서식지·대사·결과 한 줄·
+    /// 스토리 022(NpcDialogHud의 UGUI 포팅). 상황 화면 "NpcDialog": INpcClickSource.NpcClicked로 열고 직업명·집 서식지·출신지(스토리 025)·대사·결과 한 줄·
     /// 선택지 버튼(INpcInteraction.Options, 부품 DialogOption)·[닫기]를 보인다. 닫기 버튼·Esc·내부 화면 닫힘·다른 거점이면 닫고,
     /// 다른 NPC 클릭이면 그 NPC로 바꾼다. 게임 상태는 바꾸지 않고 TryInteract 명령만 보낸다. 데모 단계(NpcHomesDemoDriver.StageReady)는 HandleDemoStage가 처리한다.
     /// </summary>
@@ -34,6 +34,8 @@ namespace IronRing.Hud.Npc
 
         [SerializeField] private TMP_Text _title;
         [SerializeField] private TMP_Text _home;
+        [Tooltip("스토리 025: 집 줄 옆 \"<출신지> 출신\".")]
+        [SerializeField] private TMP_Text _origin;
         [SerializeField] private TMP_Text _line;
         [SerializeField] private TMP_Text _result;
         [SerializeField] private TMP_Text _reasons;
@@ -159,6 +161,13 @@ namespace IronRing.Hud.Npc
             string habitat = HomeHabitatName(_npc);
             _home.text = habitat != null ? Strings.Get("npc_dialog_home") + "  " + habitat : Strings.Get("npc_dialog_home_none");
             _home.color = habitat != null ? _theme.Muted : _theme.Accent;
+            if (_origin != null)
+            {
+                string origin = _interaction.Origin(_npc);
+                bool known = !string.IsNullOrEmpty(origin);
+                _origin.text = known ? string.Format(Strings.Get("npc_dialog_origin"), origin) : string.Empty;
+                if (_origin.gameObject.activeSelf != known) _origin.gameObject.SetActive(known);
+            }
             _line.text = _interaction.CurrentLine(_npc);
             BuildOptions();
         }

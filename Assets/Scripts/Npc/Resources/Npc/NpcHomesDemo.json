@@ -69,5 +69,9 @@
   "_hub2NpcId": "gas_fitter",
   "_hub2TypeId": "lamp_street",
   "_hub2PlacementCount": 4,
-  "_boardMaxFrames": 1800
+  "_boardMaxFrames": 1800,
+  "_passengerIds": [
+    "lamplighter",
+    "gas_fitter"
+  ]
 }

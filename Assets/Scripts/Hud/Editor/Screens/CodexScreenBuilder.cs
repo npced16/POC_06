@@ -58,7 +58,7 @@ namespace IronRing.Hud.Editor.Screens
             var sample = ((GameObject)PrefabUtility.InstantiatePrefab(cardPart, grid)).GetComponent<CodexCardView>();
             sample.ShowUnlocked(Strings.Get("ui_sample_codex_name"),
                 Strings.Get("codex_kind_cluster") + "  ·  " + string.Format(Strings.Get("codex_cells"), 4),
-                string.Format(Strings.Get("codex_bonus"), "10"), string.Format(Strings.Get("codex_npc"), Strings.Get("ui_sample_npc_title")), true);
+                string.Format(Strings.Get("codex_bonus"), "10"), string.Format(Strings.Get("codex_npc"), Strings.Get("ui_sample_codex_visitors")), true);
             sample.SetColumns(0);
             for (int i = 0; i < 4; i++)
                 ((GameObject)PrefabUtility.InstantiatePrefab(tilePart, sample.Diagram)).GetComponent<CodexTileView>()
@@ -121,6 +121,12 @@ namespace IronRing.Hud.Editor.Screens
             TextMeshProUGUI npc = UiKit.Label(frame.transform, "Npc", "", UiTextSize.Small, theme, TextAlignmentOptions.MidlineLeft);
             UiKit.StretchTop(npc.rectTransform, 20, 170, 12, 12);
             npc.color = theme.Muted;
+            // 스토리 025: 후보가 여럿이면 길어지므로 한 줄에 맞게 줄이고, 그래도 넘치면 말줄임
+            npc.textWrappingMode = TextWrappingModes.NoWrap;
+            npc.overflowMode = TextOverflowModes.Ellipsis;
+            npc.enableAutoSizing = true;
+            npc.fontSizeMax = theme.Size(UiTextSize.Small);
+            npc.fontSizeMin = theme.Size(UiTextSize.Small) * 0.7f;
 
             Image silhouette = UiKit.Sliced(frame.transform, "Silhouette", theme.SlotSprite, theme, false);
             UiKit.Place(silhouette.rectTransform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -44), new Vector2(150, 110));
