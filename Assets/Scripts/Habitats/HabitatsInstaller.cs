@@ -73,6 +73,22 @@ namespace IronRing.Habitats
             CodexUnlockSettings settings = CodexUnlockSettings.Parse(asset.text);
             Codex = new HabitatCodex(Catalog, settings, GameServices.Get<ITrackRuntime>(), GameServices.Get<IWaypointResolver>(), System);
             GameServices.Register<IHabitatCodex>(Codex);
+            // 스토리 030: 승객·모집은 NpcInstaller가 같은 Composing에서 설치하므로 순서와 무관하게 Ready에서(이미 있으면 지금도) 연결한다.
+            GameServices.Ready -= BindCodexNpcs;
+            GameServices.Ready += BindCodexNpcs;
+            BindCodexNpcs();
+        }
+
+        /// <summary>스토리 030. 도감을 IPassengers.Boarded·INpcRecruiter.NpcJoined에 연결한다(원하는/가르치는 종류는 NPC 풀 데이터).</summary>
+        private static void BindCodexNpcs()
+        {
+            if (Codex == null) return;
+            IPassengers passengers = GameServices.Get<IPassengers>();
+            INpcRecruiter recruiter = GameServices.Get<INpcRecruiter>();
+            if (passengers == null && recruiter == null) return;
+            Codex.BindNpcs(passengers, recruiter,
+                id => IronRing.Npc.NpcInstaller.Pool?.Find(id)?.HabitatTypeId,
+                id => IronRing.Npc.NpcInstaller.Pool?.Find(id)?.TeachesTypeId);
         }
 
         /// <summary>종류 id의 카탈로그 번영 보너스(모르는 id나 설치 전이면 0 = 거점 기본값 사용). 014 번영 규칙이 쓴다.</summary>

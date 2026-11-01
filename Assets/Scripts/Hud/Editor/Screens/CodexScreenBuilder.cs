@@ -23,7 +23,7 @@ namespace IronRing.Hud.Editor.Screens
         /// <summary>타일 칸 부품 경로.</summary>
         public const string TILE_PART = BuildMainCanvas.PARTS_FOLDER + "/TileIcon.prefab";
 
-        private static readonly Vector2 CardSize = new Vector2(304, 200);
+        private static readonly Vector2 CardSize = new Vector2(304, 222); // 스토리 030: 가르쳐 주는 이 한 줄(+22)
         private const float TILE = 26;
 
         /// <summary>화면 루트(UiScreen "Codex", 상황 화면) + CodexScreen + 패널·머리줄·카드 격자.</summary>
@@ -125,6 +125,13 @@ namespace IronRing.Hud.Editor.Screens
             npc.enableAutoSizing = true;
             npc.fontSizeMax = theme.Size(UiTextSize.Small);
             npc.fontSizeMin = theme.Size(UiTextSize.Small) * 0.7f;
+            // 스토리 030: "가르쳐 주는 이: 직업"(board·teach로 열린 종류만)
+            TextMeshProUGUI teacher = UiKit.Label(frame.transform, "Teacher", "", UiTextSize.Small, theme, TextAlignmentOptions.MidlineLeft);
+            UiKit.StretchTop(teacher.rectTransform, 20, 192, 12, 12);
+            teacher.color = theme.Accent;
+            teacher.textWrappingMode = TextWrappingModes.NoWrap;
+            teacher.overflowMode = TextOverflowModes.Ellipsis;
+            teacher.gameObject.SetActive(false);
 
             Image silhouette = UiKit.Sliced(frame.transform, "Silhouette", theme.SlotSprite, theme, false);
             UiKit.Place(silhouette.rectTransform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -44), new Vector2(150, 110));
@@ -136,6 +143,7 @@ namespace IronRing.Hud.Editor.Screens
             UiKit.Bind(view, "_meta", meta);
             UiKit.Bind(view, "_bonus", bonus);
             UiKit.Bind(view, "_npc", npc);
+            UiKit.Bind(view, "_teacher", teacher);
             UiKit.Bind(view, "_badge", badge.gameObject);
             UiKit.Bind(view, "_silhouette", silhouette.gameObject);
             UiKit.Bind(view, "_diagram", diagram);

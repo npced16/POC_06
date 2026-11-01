@@ -15,6 +15,8 @@ namespace IronRing.Hud.Codex
         [SerializeField] private TMP_Text _meta;
         [SerializeField] private TMP_Text _bonus;
         [SerializeField] private TMP_Text _npc;
+        [Tooltip("스토리 030: '가르쳐 주는 이: 직업' 한 줄(Small). board·teach로 열린 종류만 보인다.")]
+        [SerializeField] private TMP_Text _teacher;
         [SerializeField] private GameObject _badge;
         [SerializeField] private GameObject _silhouette;
         [SerializeField] private RectTransform _diagram;
@@ -35,8 +37,16 @@ namespace IronRing.Hud.Codex
         }
 
         /// <summary>해금 카드: 이름·종류 줄·보너스·NPC를 쓰고 완성 표시를 켜거나 끈다. 배열은 Diagram에 따로 채운다.</summary>
-        public void ShowUnlocked(string name, string meta, string bonus, string npc, bool complete)
+        public void ShowUnlocked(string name, string meta, string bonus, string npc, bool complete) => ShowUnlocked(name, meta, bonus, npc, null, complete);
+
+        /// <summary>스토리 030. teacher("가르쳐 주는 이: …")가 비면 그 줄을 끈다.</summary>
+        public void ShowUnlocked(string name, string meta, string bonus, string npc, string teacher, bool complete)
         {
+            if (_teacher != null)
+            {
+                _teacher.text = teacher ?? string.Empty;
+                _teacher.gameObject.SetActive(!string.IsNullOrEmpty(teacher));
+            }
             _name.text = name;
             _meta.text = meta;
             _bonus.text = bonus;
@@ -59,6 +69,7 @@ namespace IronRing.Hud.Codex
             _meta.gameObject.SetActive(unlocked);
             _bonus.gameObject.SetActive(unlocked);
             _npc.gameObject.SetActive(unlocked);
+            if (_teacher != null && !unlocked) _teacher.gameObject.SetActive(false);
             _diagram.gameObject.SetActive(unlocked);
             if (_silhouette != null) _silhouette.SetActive(!unlocked);
         }

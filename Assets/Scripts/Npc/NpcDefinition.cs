@@ -28,10 +28,12 @@ namespace IronRing.Npc
         public IReadOnlyList<string> Lines { get; }
         /// <summary>Story 023: train-passenger data (origin, chance, conditions, proposal, hint). Null for legacy entries built in code.</summary>
         public NpcPassengerProfile Passenger { get; }
+        /// <summary>Story 030: habitat type id this NPC teaches when it joins a hub (NpcPool.json `_teachesTypeId`); null = none.</summary>
+        public string TeachesTypeId { get; }
 
         /// <summary>Validates and copies identity, display text and allowed hubs into an immutable definition.</summary>
         public NpcDefinition(string id, string name, string quote, IEnumerable<string> eligibleHubIds, bool requiresCompleteHabitat, string habitatTypeId = null,
-            IEnumerable<string> lines = null, NpcPassengerProfile passenger = null)
+            IEnumerable<string> lines = null, NpcPassengerProfile passenger = null, string teachesTypeId = null)
         {
             if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(quote))
                 throw new ArgumentException("NPC id, name and quote must be non-empty.");
@@ -50,6 +52,7 @@ namespace IronRing.Npc
                     if (!string.IsNullOrWhiteSpace(line) && !allLines.Contains(line)) allLines.Add(line);
             Lines = allLines.AsReadOnly();
             Passenger = passenger;
+            TeachesTypeId = string.IsNullOrWhiteSpace(teachesTypeId) ? null : teachesTypeId;
         }
 
         /// <summary>True when hubId is one of this NPC's hubs (an empty hub list means any hub).</summary>

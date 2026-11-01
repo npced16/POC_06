@@ -7,12 +7,15 @@ namespace IronRing.Hub
     {
         /// <summary>Laps allowed before the first settlement; reaching 0 with no settled hub loses the run.</summary>
         public int DeadlineLaps { get; }
+        /// <summary>Story 030: when true the run ends as Victory the moment every hub is Settled (HubProfiles.json `_earlyWin`).</summary>
+        public bool EarlyWin { get; }
 
-        /// <summary>Validates and stores the data-driven deadline in laps (at least 1).</summary>
-        public HubRunRules(int deadlineLaps)
+        /// <summary>Validates and stores the data-driven deadline in laps (at least 1) and the Story 030 early-win switch.</summary>
+        public HubRunRules(int deadlineLaps, bool earlyWin = false)
         {
             if (deadlineLaps < 1) throw new ArgumentOutOfRangeException(nameof(deadlineLaps), "Deadline must be at least one lap.");
             DeadlineLaps = deadlineLaps;
+            EarlyWin = earlyWin;
         }
     }
 

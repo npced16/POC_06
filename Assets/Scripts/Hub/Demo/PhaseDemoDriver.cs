@@ -193,7 +193,7 @@ namespace IronRing.Hub.Demo
             for (int i = 0; i < settle; i++) hubs.ApplyDelta(hubs.HubIds[i], _settings.ResultSettleProsperity, "result-demo settle");
             UnityEngine.Debug.Log($"RESULT DEMO: settled now={hubs.SettledCount}, lapsLeft={hubs.LapsUntilDeadline}");
             for (int lap = 0; lap < _settings.MaxLaps && !hubs.IsOver; lap++) hubs.OnLapCompleted(hubs.LastLap + 1);
-            UnityEngine.Debug.Log($"RESULT DEMO: over={hubs.IsOver}, outcome={hubs.Outcome}, settled={hubs.SettledCount}/{hubs.HubCount}, laps={hubs.Laps}");
+            UnityEngine.Debug.Log($"RESULT DEMO: over={hubs.IsOver}, outcome={hubs.Outcome}, settled={hubs.SettledCount}/{hubs.HubCount}, laps={hubs.Laps}, early={hubs.EndedEarly}, lapsLeft={hubs.LapsUntilDeadline}");
             if (_resultStage != "restart") yield break;
             for (int i = 0; i < _settings.ResultRestartFrames; i++) yield return null;
             UnityEngine.Debug.Log("RESULT DEMO: pressing restart");

@@ -56,6 +56,8 @@ namespace IronRing.Habitats
     /// IWaypointResolver.EncounterEnded가 EventResolved면 PerEvent개, Victory면 PerVictory개를 순서 목록에서 차례로 연다(패배는 없음).
     /// 순서 목록이 다 열렸는데 아직 모르는 카탈로그 종류가 있으면 카탈로그 순서로 연다. 모든 종류를 알면 더 열지 않는다.
     /// IHabitatClusters.HabitatCompleted가 모르는 종류면 "discover"로 해금한다(완성 판정은 시스템이 이미 인정했다).
+    /// 스토리 030: 레시피는 NPC를 따라 열린다. IPassengers.Boarded → 그 승객이 원하는 종류("board"), INpcRecruiter.NpcJoined → 그 NPC가
+    /// 가르치는 종류("teach"). 바퀴·이벤트·승리 해금은 데이터 개수가 0이면 아무것도 하지 않는다(코드 경로는 유지).
     /// </summary>
     public sealed class HabitatCodex : IHabitatCodex, IDisposable
     {
@@ -64,6 +66,8 @@ namespace IronRing.Habitats
         public const string SOURCE_EVENT = "event";
         public const string SOURCE_VICTORY = "victory";
         public const string SOURCE_DISCOVER = "discover";
+        public const string SOURCE_BOARD = "board";
+        public const string SOURCE_TEACH = "teach";
 
         private readonly HabitatCatalog _catalog;
         private readonly CodexUnlockSettings _settings;
@@ -72,6 +76,12 @@ namespace IronRing.Habitats
         private readonly IHabitatClusters _clusters;
         private readonly List<string> _unlocked = new List<string>();
         private readonly HashSet<string> _known = new HashSet<string>();
+        private readonly Dictionary<string, string> _sourceOf = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> _npcOf = new Dictionary<string, string>();
+        private IPassengers _passengers;
+        private INpcRecruiter _recruiter;
+        private Func<string, string> _wantedOf;
+        private Func<string, string> _teachesOf;
 
         /// <inheritdoc />
         public event Action<string, string> RecipeUnlocked;
@@ -94,7 +104,7 @@ namespace IronRing.Habitats
             foreach (string id in _settings.Starters) if (_catalog.Get(id) == null) unknown.Add(id);
             foreach (string id in _settings.UnlockOrder) if (_catalog.Get(id) == null) unknown.Add(id);
             if (unknown.Count > 0) Debug.LogWarning("HabitatCodex: 카탈로그에 없는 레시피 id: " + string.Join(", ", unknown));
-            foreach (string id in _settings.Starters) Add(id);
+            foreach (string id in _settings.Starters) if (Add(id)) _sourceOf[id] = SOURCE_START;
             if (_track != null) _track.LapCompleted += OnLapCompleted;
             if (_waypoints != null) _waypoints.EncounterEnded += OnEncounterEnded;
             if (_clusters != null) _clusters.HabitatCompleted += OnHabitatCompleted;
@@ -104,15 +114,63 @@ namespace IronRing.Habitats
         public bool IsUnlocked(string typeId) => typeId != null && _known.Contains(typeId);
 
         /// <inheritdoc />
-        public bool TryUnlock(string typeId, string source)
+        public bool TryUnlock(string typeId, string source) => TryUnlock(typeId, source, null);
+
+        /// <summary>스토리 030. npcId(건네거나 가르쳐 준 사람)를 함께 기록하며 해금한다. RecipeUnlocked 전에 기록하므로 구독자가 UnlockNpcOf로 읽을 수 있다.</summary>
+        public bool TryUnlock(string typeId, string source, string npcId)
         {
             if (!Add(typeId)) return false;
+            _sourceOf[typeId] = source;
+            if (npcId != null) _npcOf[typeId] = npcId;
             RecipeUnlocked?.Invoke(typeId, source);
             return true;
         }
 
-        /// <summary>바퀴 하나를 채웠을 때(ITrackRuntime.LapCompleted). 데모는 같은 경로로 바퀴를 흉내 낸다.</summary>
-        public void OnLapCompleted(int lap) => UnlockNext(_settings.PerLap, SOURCE_LAP);
+        /// <inheritdoc />
+        public string UnlockSourceOf(string typeId) => typeId != null && _sourceOf.TryGetValue(typeId, out string s) ? s : null;
+
+        /// <inheritdoc />
+        public string UnlockNpcOf(string typeId) => typeId != null && _npcOf.TryGetValue(typeId, out string n) ? n : null;
+
+        /// <summary>
+        /// 스토리 030. NPC 해금 출처를 연결한다(다시 부르면 이전 연결을 푼다). wantedOf(npcId) = 원하는 서식지 종류, teachesOf(npcId) = 가르치는 종류.
+        /// passengers·recruiter는 없으면 그 출처만 빠진다.
+        /// </summary>
+        public void BindNpcs(IPassengers passengers, INpcRecruiter recruiter, Func<string, string> wantedOf, Func<string, string> teachesOf)
+        {
+            UnbindNpcs();
+            _passengers = passengers;
+            _recruiter = recruiter;
+            _wantedOf = wantedOf;
+            _teachesOf = teachesOf;
+            if (_passengers != null) _passengers.Boarded += OnBoarded;
+            if (_recruiter != null) _recruiter.NpcJoined += OnNpcJoined;
+        }
+
+        private void UnbindNpcs()
+        {
+            if (_passengers != null) _passengers.Boarded -= OnBoarded;
+            if (_recruiter != null) _recruiter.NpcJoined -= OnNpcJoined;
+            _passengers = null;
+            _recruiter = null;
+        }
+
+        /// <summary>승객이 탔다: 원하는 종류가 잠겨 있으면 "board"로 연다.</summary>
+        private void OnBoarded(string npcId, string waypointId)
+        {
+            string typeId = _wantedOf?.Invoke(npcId);
+            if (typeId != null && !IsUnlocked(typeId)) TryUnlock(typeId, SOURCE_BOARD, npcId);
+        }
+
+        /// <summary>NPC가 거점에 합류했다: 가르치는 종류가 잠겨 있으면 "teach"로 연다.</summary>
+        private void OnNpcJoined(string hubId, string npcId)
+        {
+            string typeId = _teachesOf?.Invoke(npcId);
+            if (typeId != null && !IsUnlocked(typeId)) TryUnlock(typeId, SOURCE_TEACH, npcId);
+        }
+
+        /// <summary>바퀴 하나를 채웠을 때(ITrackRuntime.LapCompleted). 스토리 030: 데이터 개수가 0이면 아무것도 하지 않는다.</summary>
+        public void OnLapCompleted(int lap) { if (_settings.PerLap > 0) UnlockNext(_settings.PerLap, SOURCE_LAP); }
 
         /// <summary>순서 목록에서 아직 모르는 다음 레시피 count개를 source로 연다. 연 개수를 돌려준다.</summary>
         public int UnlockNext(int count, string source)
@@ -145,8 +203,8 @@ namespace IronRing.Habitats
 
         private void OnEncounterEnded(ITrackNode node, EncounterOutcome outcome)
         {
-            if (outcome == EncounterOutcome.EventResolved) UnlockNext(_settings.PerEvent, SOURCE_EVENT);
-            else if (outcome == EncounterOutcome.Victory) UnlockNext(_settings.PerVictory, SOURCE_VICTORY);
+            if (outcome == EncounterOutcome.EventResolved && _settings.PerEvent > 0) UnlockNext(_settings.PerEvent, SOURCE_EVENT);
+            else if (outcome == EncounterOutcome.Victory && _settings.PerVictory > 0) UnlockNext(_settings.PerVictory, SOURCE_VICTORY);
         }
 
         private void OnHabitatCompleted(string hubId, string typeId)
@@ -160,6 +218,7 @@ namespace IronRing.Habitats
             if (_track != null) _track.LapCompleted -= OnLapCompleted;
             if (_waypoints != null) _waypoints.EncounterEnded -= OnEncounterEnded;
             if (_clusters != null) _clusters.HabitatCompleted -= OnHabitatCompleted;
+            UnbindNpcs();
             RecipeUnlocked = null;
         }
     }

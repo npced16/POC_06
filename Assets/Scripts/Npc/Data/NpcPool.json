@@ -12,7 +12,7 @@
     {
       "_id": "lamplighter",
       "_name": "점등부",
-      "_habitatTypeId": "lamp_street",
+      "_habitatTypeId": "lamp_street", "_teachesTypeId": "lamp_road",
       "_hubIds": [
         "hub-1"
       ],
@@ -27,12 +27,16 @@
       "_lines": [
         "가스 밸브를 반 바퀴만 돌려야 불꽃이 곱게 서요.",
         "등불 하나가 꺼지면 골목 하나가 통째로 겁을 먹죠."
-      ]
+      ],
+      "_portrait": {
+        "_hat": "cap",
+        "_acc": "glow"
+      }
     },
     {
       "_id": "gardener",
       "_name": "원예사",
-      "_habitatTypeId": "greenhouse",
+      "_habitatTypeId": "greenhouse", "_teachesTypeId": "water_tower",
       "_hubIds": [
         "hub-1"
       ],
@@ -47,12 +51,16 @@
       "_lines": [
         "증기 배관 열기로 온실을 데우면 겨울에도 상추가 자라요.",
         "검댕 낀 유리는 매일 닦아 줘야 햇빛이 들어와요."
-      ]
+      ],
+      "_portrait": {
+        "_hat": "cap",
+        "_collar": "apron"
+      }
     },
     {
       "_id": "stoker",
       "_name": "화부",
-      "_habitatTypeId": "boiler_room",
+      "_habitatTypeId": "boiler_room", "_teachesTypeId": "coal_yard",
       "_hubIds": [
         "hub-1"
       ],
@@ -72,12 +80,17 @@
       "_lines": [
         "석탄 한 삽에도 박자가 있소. 서두르면 불이 숨이 막히지.",
         "보일러 압력계 바늘이 초록에 있으면 오늘은 무사한 거요."
-      ]
+      ],
+      "_portrait": {
+        "_hat": "bandana",
+        "_acc": "soot",
+        "_collar": "apron"
+      }
     },
     {
       "_id": "water_keeper",
       "_name": "급수원",
-      "_habitatTypeId": "cistern",
+      "_habitatTypeId": "cistern", "_teachesTypeId": "pipe_gallery",
       "_hubIds": [
         "hub-1"
       ],
@@ -102,7 +115,7 @@
     {
       "_id": "tinker",
       "_name": "수리공",
-      "_habitatTypeId": "toolshop",
+      "_habitatTypeId": "toolshop", "_teachesTypeId": "cogworks",
       "_hubIds": [
         "hub-1"
       ],
@@ -122,7 +135,7 @@
     {
       "_id": "peddler",
       "_name": "행상",
-      "_habitatTypeId": "cobble_plaza",
+      "_habitatTypeId": "cobble_plaza", "_teachesTypeId": "barracks",
       "_hubIds": [
         "hub-1",
         "hub-3"
@@ -148,7 +161,7 @@
     {
       "_id": "glass_blower",
       "_name": "유리공",
-      "_habitatTypeId": "greenhouse",
+      "_habitatTypeId": "greenhouse", "_teachesTypeId": "lamp_street",
       "_hubIds": [
         "hub-1"
       ],
@@ -173,12 +186,16 @@
       "_lines": [
         "풀무 바람이 고르면 유리도 맑게 나오지.",
         "온실 유리는 내 손을 거친 게 제일 오래 가오."
-      ]
+      ],
+      "_portrait": {
+        "_hat": "goggles",
+        "_collar": "apron"
+      }
     },
     {
       "_id": "lamp_oiler",
       "_name": "등유 배달부",
-      "_habitatTypeId": "lamp_road",
+      "_habitatTypeId": "lamp_road", "_teachesTypeId": "engine_room",
       "_hubIds": [
         "hub-1"
       ],
@@ -198,12 +215,16 @@
       "_lines": [
         "등잔마다 기름이 찰랑하면 마음이 놓여요.",
         "심지 그을음은 아침마다 내가 닦소."
-      ]
+      ],
+      "_portrait": {
+        "_hat": "cap",
+        "_collar": "apron"
+      }
     },
     {
       "_id": "chimney_sweep",
       "_name": "굴뚝 청소부",
-      "_habitatTypeId": "boiler_room",
+      "_habitatTypeId": "boiler_room", "_teachesTypeId": "iron_depot",
       "_hubIds": [
         "hub-1",
         "hub-4"
@@ -224,12 +245,16 @@
       "_lines": [
         "굴뚝이 막히면 마을이 기침을 하지.",
         "솔 한 자루면 지붕 위가 내 길이오."
-      ]
+      ],
+      "_portrait": {
+        "_hat": "hat",
+        "_acc": "soot"
+      }
     },
     {
       "_id": "clockmaker",
       "_name": "시계공",
-      "_habitatTypeId": "cogworks",
+      "_habitatTypeId": "cogworks", "_teachesTypeId": "grand_cogworks",
       "_hubIds": [
         "hub-1"
       ],
@@ -254,12 +279,16 @@
       "_lines": [
         "태엽은 너무 감아도, 덜 감아도 탈이오.",
         "이 마을 종소리를 맞춰 놓고 싶군."
-      ]
+      ],
+      "_portrait": {
+        "_acc": "monocle",
+        "_collar": "coat"
+      }
     },
     {
       "_id": "mechanic",
       "_name": "기계공",
-      "_habitatTypeId": "cogworks",
+      "_habitatTypeId": "cogworks", "_teachesTypeId": "repair_bay",
       "_hubIds": [
         "hub-2"
       ],
@@ -274,12 +303,15 @@
       "_lines": [
         "기름칠을 거르면 톱니가 먼저 비명을 질러요.",
         "오늘은 태엽 장치 세 개를 손봤어요. 손이 근질근질하네요."
-      ]
+      ],
+      "_portrait": {
+        "_hat": "goggles"
+      }
     },
     {
       "_id": "pipefitter",
       "_name": "배관공",
-      "_habitatTypeId": "pipe_gallery",
+      "_habitatTypeId": "pipe_gallery", "_teachesTypeId": "cistern",
       "_hubIds": [
         "hub-2"
       ],
@@ -299,12 +331,15 @@
       "_lines": [
         "증기 새는 쉭 소리, 그게 이 동네의 경보음이지.",
         "렌치 하나, 삼베 한 줌이면 웬만한 이음매는 막아."
-      ]
+      ],
+      "_portrait": {
+        "_hat": "cap"
+      }
     },
     {
       "_id": "coal_merchant",
       "_name": "석탄 상인",
-      "_habitatTypeId": "coal_yard",
+      "_habitatTypeId": "coal_yard", "_teachesTypeId": "blast_furnace",
       "_hubIds": [
         "hub-2",
         "hub-3"
@@ -325,12 +360,17 @@
       "_lines": [
         "무연탄은 연기가 적고 갈탄은 싸지. 골라 보시게.",
         "철로가 이어지는 한 석탄 장사는 망하지 않네."
-      ]
+      ],
+      "_portrait": {
+        "_hat": "cap",
+        "_acc": "soot",
+        "_collar": "scarf"
+      }
     },
     {
       "_id": "telegrapher",
       "_name": "전신 기사",
-      "_habitatTypeId": "telegraph_line",
+      "_habitatTypeId": "telegraph_line", "_teachesTypeId": "power_house",
       "_hubIds": [
         "hub-2"
       ],
@@ -355,12 +395,16 @@
       "_lines": [
         "딱, 따닥. 저쪽 거점에서 안부를 보내왔어요.",
         "구리선이 젖지 않게 애자를 매일 살핀답니다."
-      ]
+      ],
+      "_portrait": {
+        "_acc": "monocle",
+        "_collar": "uniform"
+      }
     },
     {
       "_id": "gas_fitter",
       "_name": "가스관 기술자",
-      "_habitatTypeId": "lamp_street",
+      "_habitatTypeId": "lamp_street", "_teachesTypeId": "boiler_room",
       "_hubIds": [
         "hub-2"
       ],
@@ -375,12 +419,15 @@
       "_lines": [
         "밸브는 오른쪽으로 잠그는 거요, 잊지 마시오.",
         "등불 하나 켜질 때마다 내 관이 숨 쉬는 거지."
-      ]
+      ],
+      "_portrait": {
+        "_hat": "cap"
+      }
     },
     {
       "_id": "engine_driver",
       "_name": "기관사",
-      "_habitatTypeId": "engine_room",
+      "_habitatTypeId": "engine_room", "_teachesTypeId": "water_tower",
       "_hubIds": [
         "hub-2"
       ],
@@ -400,12 +447,16 @@
       "_lines": [
         "실린더가 고르게 뛰면 바퀴가 노래를 하지.",
         "기적은 함부로 울리는 게 아니야. 그건 약속이거든."
-      ]
+      ],
+      "_portrait": {
+        "_hat": "goggles",
+        "_collar": "scarf"
+      }
     },
     {
       "_id": "brass_polisher",
       "_name": "황동 연마공",
-      "_habitatTypeId": "toolshop",
+      "_habitatTypeId": "toolshop", "_teachesTypeId": "cogworks",
       "_hubIds": [
         "hub-2"
       ],
@@ -430,7 +481,7 @@
     {
       "_id": "signal_keeper",
       "_name": "신호수",
-      "_habitatTypeId": "lamp_road",
+      "_habitatTypeId": "lamp_road", "_teachesTypeId": "telegraph_line",
       "_hubIds": [
         "hub-2"
       ],
@@ -450,12 +501,16 @@
       "_lines": [
         "안개 낀 밤엔 내 깃발이 열차의 눈이오.",
         "신호 하나 놓치면 철로가 울지."
-      ]
+      ],
+      "_portrait": {
+        "_hat": "cap",
+        "_collar": "uniform"
+      }
     },
     {
       "_id": "dirigible_rigger",
       "_name": "비행선 삭구공",
-      "_habitatTypeId": "repair_bay",
+      "_habitatTypeId": "repair_bay", "_teachesTypeId": "iron_depot",
       "_hubIds": [
         "hub-2",
         "hub-4"
@@ -481,12 +536,16 @@
       "_lines": [
         "기낭 이음새는 바늘땀 하나도 허투루 못 하오.",
         "언젠가 이 마을 위로 비행선을 띄우고 싶소."
-      ]
+      ],
+      "_portrait": {
+        "_hat": "goggles",
+        "_collar": "scarf"
+      }
     },
     {
       "_id": "steam_cook",
       "_name": "증기 요리사",
-      "_habitatTypeId": "barracks",
+      "_habitatTypeId": "barracks", "_teachesTypeId": "greenhouse",
       "_hubIds": [
         "hub-2"
       ],
@@ -506,12 +565,16 @@
       "_lines": [
         "감자는 증기에 쪄야 제맛이죠.",
         "배부른 일꾼이 톱니도 잘 돌려요."
-      ]
+      ],
+      "_portrait": {
+        "_hat": "bandana",
+        "_collar": "apron"
+      }
     },
     {
       "_id": "ironworker",
       "_name": "철공",
-      "_habitatTypeId": "iron_depot",
+      "_habitatTypeId": "iron_depot", "_teachesTypeId": "toolshop",
       "_hubIds": [
         "hub-3"
       ],
@@ -531,7 +594,7 @@
     {
       "_id": "smelter",
       "_name": "제련공",
-      "_habitatTypeId": "blast_furnace",
+      "_habitatTypeId": "blast_furnace", "_teachesTypeId": "iron_depot",
       "_hubIds": [
         "hub-3"
       ],
@@ -556,12 +619,16 @@
       "_lines": [
         "쇳물 색이 주황에서 흰빛으로 바뀌면 그때가 붓는 때요.",
         "슬래그를 걷어내야 철이 맑아지지."
-      ]
+      ],
+      "_portrait": {
+        "_hat": "mask",
+        "_collar": "apron"
+      }
     },
     {
       "_id": "night_watch",
       "_name": "야간 경비",
-      "_habitatTypeId": "barracks",
+      "_habitatTypeId": "barracks", "_teachesTypeId": "lamp_street",
       "_hubIds": [
         "hub-3"
       ],
@@ -581,12 +648,17 @@
       "_lines": [
         "랜턴 기름은 넉넉히 채워 뒀습니다.",
         "철로 쪽에서 쇳소리가 나면 제일 먼저 알려 드리죠."
-      ]
+      ],
+      "_portrait": {
+        "_hat": "cap",
+        "_collar": "uniform",
+        "_acc": "glow"
+      }
     },
     {
       "_id": "riveter",
       "_name": "리벳공",
-      "_habitatTypeId": "iron_depot",
+      "_habitatTypeId": "iron_depot", "_teachesTypeId": "repair_bay",
       "_hubIds": [
         "hub-3"
       ],
@@ -611,7 +683,7 @@
     {
       "_id": "foundry_hand",
       "_name": "주조공",
-      "_habitatTypeId": "blast_furnace",
+      "_habitatTypeId": "blast_furnace", "_teachesTypeId": "grand_cogworks",
       "_hubIds": [
         "hub-3"
       ],
@@ -631,12 +703,16 @@
       "_lines": [
         "거푸집 모래가 고와야 톱니가 매끈하지.",
         "불똥 튀는 자리가 내 자리요."
-      ]
+      ],
+      "_portrait": {
+        "_hat": "mask",
+        "_acc": "soot"
+      }
     },
     {
       "_id": "chief_engineer",
       "_name": "수석 기술자",
-      "_habitatTypeId": "grand_cogworks",
+      "_habitatTypeId": "grand_cogworks", "_teachesTypeId": "power_house",
       "_hubIds": [
         "hub-3"
       ],
@@ -665,12 +741,19 @@
       "_lines": [
         "설계도는 머릿속에 있소. 필요한 건 쇠와 시간뿐.",
         "이 공방이면 장갑판 두께를 한 치는 더 올릴 수 있겠군."
-      ]
+      ],
+      "_portrait": {
+        "_hat": "hat",
+        "_acc": "monocle",
+        "_collar": "coat",
+        "_beard": "beard",
+        "_hair": "grey"
+      }
     },
     {
       "_id": "boilermaker",
       "_name": "보일러 제작공",
-      "_habitatTypeId": "boiler_room",
+      "_habitatTypeId": "boiler_room", "_teachesTypeId": "engine_room",
       "_hubIds": [
         "hub-3"
       ],
@@ -685,12 +768,17 @@
       "_lines": [
         "압력 시험은 두 번 하는 게 내 원칙이오.",
         "새 보일러 첫 김은 늘 가슴이 뛰지."
-      ]
+      ],
+      "_portrait": {
+        "_hat": "goggles",
+        "_collar": "apron",
+        "_beard": "mustache"
+      }
     },
     {
       "_id": "scrap_dealer",
       "_name": "고철상",
-      "_habitatTypeId": "coal_yard",
+      "_habitatTypeId": "coal_yard", "_teachesTypeId": "cobble_plaza",
       "_hubIds": [
         "hub-3"
       ],
@@ -710,12 +798,15 @@
       "_lines": [
         "나사 하나라도 주워 두면 언젠간 쓰지.",
         "고철 무게만큼 마을이 무거워지는 거요."
-      ]
+      ],
+      "_portrait": {
+        "_hat": "bandana"
+      }
     },
     {
       "_id": "tower_keeper",
       "_name": "급수탑지기",
-      "_habitatTypeId": "water_tower",
+      "_habitatTypeId": "water_tower", "_teachesTypeId": "cistern",
       "_hubIds": [
         "hub-4"
       ],
@@ -740,7 +831,7 @@
     {
       "_id": "patrol",
       "_name": "순찰대원",
-      "_habitatTypeId": "lamp_road",
+      "_habitatTypeId": "lamp_road", "_teachesTypeId": "barracks",
       "_hubIds": [
         "hub-4"
       ],
@@ -755,12 +846,16 @@
       "_lines": [
         "가로등 아래로는 도적이 얼씬도 못 합니다.",
         "순찰 일지에 오늘도 이상 없음이라고 적겠습니다."
-      ]
+      ],
+      "_portrait": {
+        "_hat": "cap",
+        "_collar": "uniform"
+      }
     },
     {
       "_id": "repairer",
       "_name": "정비사",
-      "_habitatTypeId": "repair_bay",
+      "_habitatTypeId": "repair_bay", "_teachesTypeId": "toolshop",
       "_hubIds": [
         "hub-4"
       ],
@@ -780,7 +875,7 @@
     {
       "_id": "electrician",
       "_name": "전기 기사",
-      "_habitatTypeId": "power_house",
+      "_habitatTypeId": "power_house", "_teachesTypeId": "telegraph_line",
       "_hubIds": [
         "hub-4"
       ],
@@ -805,12 +900,15 @@
       "_lines": [
         "전구 필라멘트가 노랗게 타오르면 성공이지.",
         "구리 코일을 감을 땐 숨도 고르게 쉬어야 해."
-      ]
+      ],
+      "_portrait": {
+        "_hat": "goggles"
+      }
     },
     {
       "_id": "lineman",
       "_name": "전신 가설공",
-      "_habitatTypeId": "telegraph_line",
+      "_habitatTypeId": "telegraph_line", "_teachesTypeId": "power_house",
       "_hubIds": [
         "hub-4"
       ],
@@ -830,12 +928,15 @@
       "_lines": [
         "애자 하나 깨지면 소식이 끊기오.",
         "바람 부는 날엔 전선이 노래를 하오."
-      ]
+      ],
+      "_portrait": {
+        "_hat": "cap"
+      }
     },
     {
       "_id": "pump_operator",
       "_name": "양수기 기사",
-      "_habitatTypeId": "cistern",
+      "_habitatTypeId": "cistern", "_teachesTypeId": "water_tower",
       "_hubIds": [
         "hub-4"
       ],
@@ -855,7 +956,7 @@
     {
       "_id": "valve_keeper",
       "_name": "밸브 관리인",
-      "_habitatTypeId": "pipe_gallery",
+      "_habitatTypeId": "pipe_gallery", "_teachesTypeId": "grand_cogworks",
       "_hubIds": [
         "hub-4"
       ],

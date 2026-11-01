@@ -21,7 +21,7 @@ namespace IronRing.Hud.Editor.Screens
         public const string ROW_PART = BuildMainCanvas.PARTS_FOLDER + "/PassengerRow.prefab";
 
         private static readonly Vector2 PanelSize = new Vector2(720, 470);
-        private static readonly Vector2 RowSize = new Vector2(664, 112);
+        private static readonly Vector2 RowSize = new Vector2(664, 136); // 스토리 030: 원하는 것 한 줄(+24)
         private const float PAD = 18; // 틀 안쪽 여백(테마 틀이 두꺼워져도 글자가 닿지 않게)
 
         /// <summary>화면 루트(UiScreen "Passengers", 상황 화면) + PassengersScreen + 가운데 패널·머리줄·줄 목록·빈 상태 문구.</summary>
@@ -112,12 +112,18 @@ namespace IronRing.Hud.Editor.Screens
             hint.color = theme.Muted;
             hint.fontStyle = FontStyles.Italic;
             Shrink(hint, theme, UiTextSize.Small);
+            // 스토리 030: "원하는 것: 서식지"
+            TextMeshProUGUI wants = UiKit.Label(frame.transform, "Wants", "", UiTextSize.Small, theme, TextAlignmentOptions.MidlineLeft);
+            UiKit.StretchTop(wants.rectTransform, 24, 106, side, side);
+            wants.color = theme.Accent;
+            NoWrap(wants);
 
             UiKit.Bind(view, "_name", name);
             UiKit.Bind(view, "_origin", origin);
             UiKit.Bind(view, "_laps", laps);
             UiKit.Bind(view, "_proposal", proposal);
             UiKit.Bind(view, "_hint", hint);
+            UiKit.Bind(view, "_wants", wants);
             return frame.gameObject;
         }
 

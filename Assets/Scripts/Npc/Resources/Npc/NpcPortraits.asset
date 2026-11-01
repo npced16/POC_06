@@ -1,0 +1,86 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 351345bd29971b640a147ca3b68baea2, type: 3}
+  m_Name: NpcPortraits
+  m_EditorClassIdentifier: Assembly-CSharp::IronRing.Npc.NpcPortraitCatalog
+  _entries:
+  - _id: lamplighter
+    _sprite: {fileID: 21300000, guid: 9096f83b003afdf449dd02a53a82b588, type: 3}
+  - _id: gardener
+    _sprite: {fileID: 21300000, guid: 0a5c7219cc8dd364595dcf22dc3ec787, type: 3}
+  - _id: stoker
+    _sprite: {fileID: 21300000, guid: d80af09b7f3c30f4685e2d2439a9b29e, type: 3}
+  - _id: water_keeper
+    _sprite: {fileID: 21300000, guid: 44b41b7490c3b404989e78a81c69317b, type: 3}
+  - _id: tinker
+    _sprite: {fileID: 21300000, guid: 8f9ef8012c42a6a44abfefc10d0be489, type: 3}
+  - _id: peddler
+    _sprite: {fileID: 21300000, guid: 3a5be48b91d39ee4db6fea4711a9c391, type: 3}
+  - _id: glass_blower
+    _sprite: {fileID: 21300000, guid: 9142092ef707ac846a0f6a47a2ec0f19, type: 3}
+  - _id: lamp_oiler
+    _sprite: {fileID: 21300000, guid: 4b13ad67a7dc81246b958526f850a85f, type: 3}
+  - _id: chimney_sweep
+    _sprite: {fileID: 21300000, guid: 99fe4cdf05bf6604eb014ebd8a52089b, type: 3}
+  - _id: clockmaker
+    _sprite: {fileID: 21300000, guid: 97861d736bb83e444b441607e43849fe, type: 3}
+  - _id: mechanic
+    _sprite: {fileID: 21300000, guid: 65cffc699e7aca440926dc867dabf41a, type: 3}
+  - _id: pipefitter
+    _sprite: {fileID: 21300000, guid: 98d60f9b042b1c544bb5393134738dc1, type: 3}
+  - _id: coal_merchant
+    _sprite: {fileID: 21300000, guid: 5c1b073a48ab6754894d103df9e87ac8, type: 3}
+  - _id: telegrapher
+    _sprite: {fileID: 21300000, guid: 63f2c27e0bc6c144d927a84b6eb776f7, type: 3}
+  - _id: gas_fitter
+    _sprite: {fileID: 21300000, guid: 21f1a38806319cc49bfcc12c8f589f20, type: 3}
+  - _id: engine_driver
+    _sprite: {fileID: 21300000, guid: c58c4b196148cac4b8db4f4c05e51eeb, type: 3}
+  - _id: brass_polisher
+    _sprite: {fileID: 21300000, guid: 023c4a104fe05c5449d9fdaa84abea04, type: 3}
+  - _id: signal_keeper
+    _sprite: {fileID: 21300000, guid: eee0bc125b1af874da9d2bc8661b5a36, type: 3}
+  - _id: dirigible_rigger
+    _sprite: {fileID: 21300000, guid: e8270a261e9759d4a84315c0fd721209, type: 3}
+  - _id: steam_cook
+    _sprite: {fileID: 21300000, guid: 131f35446744482458f6424f88861a4a, type: 3}
+  - _id: ironworker
+    _sprite: {fileID: 21300000, guid: b10e9ef81cb1ef145bd81b908b75be8b, type: 3}
+  - _id: smelter
+    _sprite: {fileID: 21300000, guid: 8c8184d7911339544b49e1183d2be67e, type: 3}
+  - _id: night_watch
+    _sprite: {fileID: 21300000, guid: 60bf49b685bdfab47aa9d3b06fb3b369, type: 3}
+  - _id: riveter
+    _sprite: {fileID: 21300000, guid: 527c99514ca7e2440881faaf29b4bd8a, type: 3}
+  - _id: foundry_hand
+    _sprite: {fileID: 21300000, guid: 8b160dfdfa8519e42a4b3d07a306fdba, type: 3}
+  - _id: chief_engineer
+    _sprite: {fileID: 21300000, guid: a518cce27ff1fa449b644ee057625512, type: 3}
+  - _id: boilermaker
+    _sprite: {fileID: 21300000, guid: 3695e58489e082e43acb4ea820e418a2, type: 3}
+  - _id: scrap_dealer
+    _sprite: {fileID: 21300000, guid: dc632aa8e12b6d949bd15899ce985d62, type: 3}
+  - _id: tower_keeper
+    _sprite: {fileID: 21300000, guid: 9c13583caa2baad4eb14e25caf3633eb, type: 3}
+  - _id: patrol
+    _sprite: {fileID: 21300000, guid: 9debc4092c703864891b9789bdf30536, type: 3}
+  - _id: repairer
+    _sprite: {fileID: 21300000, guid: 6fd1077491bbfcf45b62bb0b55d91e82, type: 3}
+  - _id: electrician
+    _sprite: {fileID: 21300000, guid: 543383c291787224fa90014fefc4bd5c, type: 3}
+  - _id: lineman
+    _sprite: {fileID: 21300000, guid: c1173420761fc4046b408803f94ceffb, type: 3}
+  - _id: pump_operator
+    _sprite: {fileID: 21300000, guid: e2e01f03e111ea247904b3ec87da74b1, type: 3}
+  - _id: valve_keeper
+    _sprite: {fileID: 21300000, guid: f6401d9edce00064c9bf3c26c23de65a, type: 3}
+  _fallback: {fileID: 21300000, guid: a5646c4bdefaebc489e2661d81e89f9b, type: 3}

@@ -15,10 +15,16 @@ namespace IronRing.Hud.Npc
         [SerializeField] private TMP_Text _laps;
         [SerializeField] private TMP_Text _proposal;
         [SerializeField] private TMP_Text _hint;
+        [Tooltip("스토리 030: '원하는 것: 서식지' 한 줄(Small).")]
+        [SerializeField] private TMP_Text _wants;
 
         /// <summary>한 줄을 채운다. 비어 있는 값은 그 라벨을 끈다(편집 모드 미리보기에서도 쓴다).</summary>
-        public void Show(string name, string origin, string laps, string proposal, string hint)
+        public void Show(string name, string origin, string laps, string proposal, string hint) => Show(name, origin, laps, proposal, hint, null);
+
+        /// <summary>스토리 030. wants("원하는 것: …")가 비면 그 줄을 끈다.</summary>
+        public void Show(string name, string origin, string laps, string proposal, string hint, string wants)
         {
+            Set(_wants, wants);
             Set(_name, name);
             Set(_origin, origin);
             Set(_laps, laps);

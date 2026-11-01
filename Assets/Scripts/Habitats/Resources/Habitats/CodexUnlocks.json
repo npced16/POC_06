@@ -18,7 +18,7 @@
     "blast_furnace",
     "grand_cogworks"
   ],
-  "_perLap": 1,
-  "_perEvent": 1,
-  "_perVictory": 1
+  "_perLap": 0,
+  "_perEvent": 0,
+  "_perVictory": 0
 }

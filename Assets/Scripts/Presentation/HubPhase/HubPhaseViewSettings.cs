@@ -47,6 +47,12 @@ namespace IronRing.Presentation.HubPhase
         [SerializeField] private float _breatheAmplitude = 0.03f;
         [SerializeField] private float _breatheSpeed = 2.4f;
         [SerializeField] private float _emptyBuildingToastSeconds = 2.5f;
+        [Tooltip("스토리 029: 한 자리(문 앞·집 칸 가운데·열차 옆)에 여럿이면 옆으로 벌리는 간격(칸 간격의 비율).")]
+        [SerializeField] private float _npcPostSpacing = 0.45f;
+        [Tooltip("스토리 029: 한 줄에 서는 최대 인원. 넘치면 뒤 줄.")]
+        [SerializeField] private int _npcPostsPerRow = 3;
+        [Tooltip("스토리 029: 뒤 줄이 앞 줄보다 위(뒤)로 물러나는 거리(칸 간격의 비율).")]
+        [SerializeField] private float _npcRowOffset = 0.3f;
 
         public float NpcSpeed => _npcSpeed;
         public float NpcPauseMin => _npcPauseMin;
@@ -72,6 +78,12 @@ namespace IronRing.Presentation.HubPhase
         public float ArrivalStagger => Mathf.Max(0f, _arrivalStagger);
         /// <summary>스토리 027: NPC 배회 여부(false = 문 앞 대기).</summary>
         public bool NpcWanders => _npcWanders;
+        /// <summary>Story 029: sideways spacing between NPCs sharing one post (fraction of the cell spacing).</summary>
+        public float NpcPostSpacing => _npcPostSpacing;
+        /// <summary>Story 029: NPCs per row at one post (at least 1).</summary>
+        public int NpcPostsPerRow => Mathf.Max(1, _npcPostsPerRow);
+        /// <summary>Story 029: how far each further row stands behind (fraction of the cell spacing, world up).</summary>
+        public float NpcRowOffset => _npcRowOffset;
         /// <summary>스토리 027: 문 앞 세로 오프셋.</summary>
         public float DoorOffsetY => _doorOffsetY;
         /// <summary>스토리 027: 문 앞 숨쉬기 흔들림 진폭(월드).</summary>

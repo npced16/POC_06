@@ -132,9 +132,20 @@ namespace IronRing.Hud.Npc
                     string.IsNullOrEmpty(origin) ? null : string.Format(Strings.Get("passengers_origin"), origin),
                     string.Format(Strings.Get("passengers_laps"), _passengers.LapsAboard(id)),
                     Quote(_passengers.Proposal(id)),
-                    _passengers.Hint(id));
+                    _passengers.Hint(id),
+                    Wants(id));
             }
             _empty.gameObject.SetActive(ids.Count == 0);
+        }
+
+        /// <summary>스토리 030. "원하는 것: 서식지 이름"(NPC 풀의 _habitatTypeId). 없으면 null.</summary>
+        private static string Wants(string npcId)
+        {
+            string typeId = NpcInstaller.Pool?.Find(npcId)?.HabitatTypeId;
+            if (typeId == null) return null;
+            string name;
+            try { name = Strings.Get("habitat_type_" + typeId); } catch (KeyNotFoundException) { name = typeId; }
+            return string.Format(Strings.Get("passengers_wants"), name);
         }
 
         private static string Quote(string text) => string.IsNullOrEmpty(text) ? null : "“" + text + "”";

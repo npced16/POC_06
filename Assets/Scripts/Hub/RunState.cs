@@ -15,6 +15,8 @@ namespace IronRing.Hub
     /// Story 028 run ending: when the deadline reaches 0 the run always ends: every hub Settled = Victory, some = Partial,
     /// none = Defeat (DeadlineExpired). "Every once-settled hub collapsed" still ends it early as Defeat. IsRunLost means
     /// "the run is over" for every outcome so the train and controls freeze; IRunResult tells the outcome.
+    /// Story 030: with data `_earlyWin` the run ends as Victory the moment every hub is Settled (Laps = laps applied so far);
+    /// the deadline still ends it otherwise.
     /// </summary>
     public sealed class RunState : IHubStateSystem, IHubDevelopment, IRunLossInfo, IRunResult, IProsperityForecast
     {
@@ -49,6 +51,8 @@ namespace IronRing.Hub
         public IReadOnlyList<RunHubSummary> Hubs => _summary ?? NoSummary;
         /// <summary>IRunResult: raised once when the run ends, after RunLost.</summary>
         public event Action RunEnded;
+        /// <summary>Story 030: true when the run ended through the early-win rule (every hub Settled before the deadline).</summary>
+        public bool EndedEarly { get; private set; }
         /// <summary>Laps left before the run ends (deadline); int.MaxValue when the data defines no deadline. Never below 0.</summary>
         public int LapsUntilDeadline { get; private set; }
         /// <summary>Highest lap number already applied; scripted demos tick LastLap + 1.</summary>
@@ -164,6 +168,9 @@ namespace IronRing.Hub
                 collapsed |= phase == HubPhase.Collapsed;
             }
             if (collapsed && !IsRunLost && AllSettledCollapsed()) End(RunOutcome.Defeat, RunLossReason.AllSettledCollapsed);
+            // Story 030: early win the moment the last hub enters Settled.
+            if (!IsRunLost && _rules != null && _rules.EarlyWin && transitions.Contains(HubPhase.Settled) && CountSettled() >= HubIds.Count)
+                End(RunOutcome.Victory, RunLossReason.None, true);
         }
 
         /// <summary>True when at least one hub ever settled and every such hub is Collapsed.</summary>
@@ -188,10 +195,11 @@ namespace IronRing.Hub
         }
 
         /// <summary>Latches the outcome, snapshots every hub, then raises RunLost and RunEnded once.</summary>
-        private void End(RunOutcome outcome, RunLossReason reason)
+        private void End(RunOutcome outcome, RunLossReason reason, bool early = false)
         {
             if (IsRunLost) return;
             IsRunLost = true;
+            EndedEarly = early;
             Outcome = outcome;
             LastLossReason = reason;
             _endSettled = CountSettled();
@@ -202,7 +210,7 @@ namespace IronRing.Hub
                 summary.Add(new RunHubSummary { HubId = id, Phase = state.Phase, Prosperity = state.Prosperity, NpcCount = _npcs.NpcsAt(id).Count });
             }
             _summary = summary.AsReadOnly();
-            UnityEngine.Debug.Log($"RUN END: outcome={outcome}, settled={_endSettled}/{HubIds.Count}, laps={_lastLap}, reason={reason}");
+            UnityEngine.Debug.Log($"RUN END: outcome={outcome}, settled={_endSettled}/{HubIds.Count}, laps={_lastLap}, reason={reason}, early={early}");
             RunLost?.Invoke();
             RunEnded?.Invoke();
         }

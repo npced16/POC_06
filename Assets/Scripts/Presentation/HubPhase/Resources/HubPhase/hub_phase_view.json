@@ -20,5 +20,8 @@
   "_doorOffsetY": -0.42,
   "_breatheAmplitude": 0.03,
   "_breatheSpeed": 2.4,
-  "_emptyBuildingToastSeconds": 2.5
+  "_emptyBuildingToastSeconds": 2.5,
+  "_npcPostSpacing": 0.45,
+  "_npcPostsPerRow": 3,
+  "_npcRowOffset": 0.3
 }

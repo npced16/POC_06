@@ -9,48 +9,67 @@ using TMPro;
 
 using IronRing.Contracts;
 using IronRing.Contracts.Presentation;
+using IronRing.Hud.Hotbar;
 using IronRing.Hud.Ui;
 using IronRing.Localization;
+using IronRing.Npc;
 using IronRing.Npc.Demo;
 using IronRing.Presentation.HubPhase;
 
 namespace IronRing.Hud.Npc
 {
     /// <summary>
-    /// 스토리 022(NpcDialogHud의 UGUI 포팅). 상황 화면 "NpcDialog": INpcClickSource.NpcClicked로 열고 직업명·집 서식지·출신지(스토리 025)·대사·결과 한 줄·
-    /// 선택지 버튼(INpcInteraction.Options, 부품 DialogOption)·[닫기]를 보인다. 닫기 버튼·Esc·내부 화면 닫힘·다른 거점이면 닫고,
-    /// 다른 NPC 클릭이면 그 NPC로 바꾼다. 게임 상태는 바꾸지 않고 TryInteract 명령만 보낸다. 데모 단계(NpcHomesDemoDriver.StageReady)는 HandleDemoStage가 처리한다.
+    /// 스토리 029: 옛 온라인 게임식 대화 장면(상황 화면 "NpcDialog"). 화면 전체를 반투명 그늘(_dim, 클릭 = 닫기)로 덮고, 왼쪽 아래에 큰 상반신 초상
+    /// (NpcPortraitCatalog, 없으면 몸체 스프라이트 ×_fallbackPortraitScale), 아래 가운데에 이중 테두리 대화 상자(이름·집/출신·대사·버튼 줄)를 둔다.
+    /// 상태: 닫힘 → 읽기(대사 순서 = NPC의 _quote + _lines, [계속하기]: 타자기 중이면 즉시 완성, 아니면 다음 줄) → 선택(마지막 줄 뒤
+    /// [계속하기] 대신 INpcInteraction.Options 버튼 + [닫기]; 결과 문장은 대사 칸에 타자기로). Esc·그늘 클릭·닫기·내부 화면 닫힘·다른 거점이면 닫는다.
+    /// 게임 상태는 바꾸지 않고 TryInteract 명령만 보낸다. 데모 단계(NpcHomesDemoDriver.StageReady)는 HandleDemoStage가 처리한다.
     /// </summary>
     [RequireComponent(typeof(UiScreen))]
     public sealed class NpcDialogScreen : MonoBehaviour
     {
         private const string DEMO_HUB = "hub-1";
         private const string ENCOURAGE_OPTION = "encourage";
+        private const string PORTRAIT_CATALOG = "Npc/NpcPortraits";
         private static NpcDialogScreen _instance;
         private static bool _loggedMissing;
 
         /// <summary>현재 대화 화면(데모용). 초기화 전이면 null.</summary>
         public static NpcDialogScreen Instance => _instance;
 
+        [Tooltip("이름(Heading, 황동색).")]
         [SerializeField] private TMP_Text _title;
-        [SerializeField] private TMP_Text _home;
-        [Tooltip("스토리 025: 집 줄 옆 \"<출신지> 출신\".")]
-        [SerializeField] private TMP_Text _origin;
+        [Tooltip("이름 줄 오른쪽의 집·출신지(Small, 흐린 색).")]
+        [SerializeField] private TMP_Text _meta;
+        [Tooltip("대사 영역(Normal, 최대 4줄, 타자기).")]
         [SerializeField] private TMP_Text _line;
-        [SerializeField] private TMP_Text _result;
+        [Tooltip("비활성 선택지 이유(Small, 버튼 줄 왼쪽).")]
         [SerializeField] private TMP_Text _reasons;
         [SerializeField] private RectTransform _options;
         [Tooltip("선택지 버튼 부품(Parts/DialogOption.prefab).")]
         [SerializeField] private DialogOptionView _optionPrefab;
+        [Tooltip("선택 단계의 [닫기].")]
         [SerializeField] private Button _close;
-        [Tooltip("스토리 027: 대화 상자(대사 위 클릭 = 타자기 즉시 완성 영역).")]
+        [Tooltip("읽기 단계의 [계속하기].")]
+        [SerializeField] private Button _continue;
+        [Tooltip("전체 화면 그늘(클릭 = 닫기, 배치 입력 차단).")]
+        [SerializeField] private Image _dim;
+        [Tooltip("대화 상자(대사 위 클릭 = 타자기 즉시 완성 영역).")]
         [SerializeField] private RectTransform _panel;
-        [Tooltip("스토리 027: NPC 초상(몸체 스프라이트를 키운 상자).")]
+        [Tooltip("왼쪽 아래 큰 초상(아래 기준, 높이 고정·폭은 비율).")]
         [SerializeField] private Image _portrait;
-        [Tooltip("스토리 027: 타자기 속도(초당 글자). 0이면 한 번에 보인다.")]
+        [Tooltip("그늘 알파(0~1). 데이터 값.")]
+        [SerializeField] private float _dialogDimAlpha = 0.35f;
+        [Tooltip("초상 카탈로그에 없을 때 몸체 스프라이트 확대 배수.")]
+        [SerializeField] private float _fallbackPortraitScale = 4f;
+        [Tooltip("타자기 속도(초당 글자). 0이면 한 번에 보인다.")]
         [SerializeField] private float _typeSpeed = 28f;
-        [Tooltip("스토리 027: 닫기 버튼의 대화 상자 오른쪽 위 모서리 기준 위치(pad 안쪽).")]
-        [SerializeField] private Vector2 _closeInset = new Vector2(-12f, -12f);
+        [Tooltip("초상이 상자 왼쪽을 덮는 폭에 더하는 글자 여백(px). 이름·집/출신·대사·이유 줄의 왼쪽 시작 = max(_textMinLeft, 겹침 폭 + 이 값).")]
+        [SerializeField] private float _portraitTextGap = 16f;
+        [Tooltip("초상이 없거나 겹치지 않을 때 글자 줄 왼쪽 최소 여백(px, 패널 안쪽).")]
+        [SerializeField] private float _textMinLeft = 24f;
+        [Tooltip("글자 줄 오른쪽 여백(px, 상자 오른쪽 가장자리에서). 이름·집/출신·대사는 오른쪽이 상자에 늘어나 붙는다.")]
+        [SerializeField] private float _textRightPad = 24f;
 
         private UiScreens _screens;
         private UiScreen _screen;
@@ -59,8 +78,15 @@ namespace IronRing.Hud.Npc
         private INpcInteraction _interaction;
         private INpcHomes _homes;
         private INpcClickSource _clicks;
+        private NpcPortraitCatalog _portraits;
+        private float _portraitHeight;
+        private float _textLeft = -1f;
+        private readonly Vector3[] _corners = new Vector3[4];
         private string _hub;
         private string _npc;
+        private readonly List<string> _sequence = new List<string>();
+        private int _index;
+        private bool _choosing;
         private string _typedLine;
         private float _typed;
         private bool _typing;
@@ -77,7 +103,7 @@ namespace IronRing.Hud.Npc
             if (_instance != null || GameServices.Get<IViewMode>() == null) return;
             UiScreens screens = UiScreens.Instance;
             NpcDialogScreen placed = screens != null ? screens.Find<NpcDialogScreen>() : null;
-            if (placed == null || !placed.enabled || placed._optionPrefab == null || placed._options == null) return;
+            if (placed == null || !placed.enabled || placed._optionPrefab == null || placed._options == null || placed._continue == null) return;
             _instance = placed;
             placed.Initialize(screens);
         }
@@ -88,25 +114,29 @@ namespace IronRing.Hud.Npc
             _screen = GetComponent<UiScreen>();
             _theme = screens.Theme;
             _view = GameServices.Get<IViewMode>();
-            TMP_Text closeLabel = _close.GetComponentInChildren<TMP_Text>(true);
-            if (closeLabel != null) closeLabel.text = Strings.Get("npc_dialog_close");
+            _portraits = Resources.Load<NpcPortraitCatalog>(PORTRAIT_CATALOG);
+            if (_portrait != null) _portraitHeight = _portrait.rectTransform.sizeDelta.y;
+            SetLabel(_close, "npc_dialog_close");
+            SetLabel(_continue, "npc_dialog_continue");
             _close.onClick.AddListener(Close);
-            // 스토리 027: 닫기 버튼은 제목 줄과 분리해 대화 상자 오른쪽 위 모서리(pad 안쪽)에 런타임에서도 고정한다(씬·레이아웃 재정의 방지).
-            if (_panel != null)
+            _continue.onClick.AddListener(Continue);
+            if (_dim != null)
             {
-                var closeRect = (RectTransform)_close.transform;
-                if (closeRect.parent != _panel) closeRect.SetParent(_panel, false);
-                LayoutElement ignore = _close.GetComponent<LayoutElement>() ?? _close.gameObject.AddComponent<LayoutElement>();
-                ignore.ignoreLayout = true;
-                closeRect.anchorMin = closeRect.anchorMax = closeRect.pivot = Vector2.one;
-                closeRect.anchoredPosition = _closeInset;
-                closeRect.SetAsLastSibling();
+                Color shade = _dim.color; shade.a = Mathf.Clamp01(_dialogDimAlpha); _dim.color = shade;
+                Button dimButton = _dim.GetComponent<Button>();
+                if (dimButton != null) dimButton.onClick.AddListener(Close);
             }
             _view.InteriorChanged += OnInteriorChanged;
             ResolveServices();
             Hide();
             ScreenTicker.Add(Tick);
             if (NpcHomesDemoDriver.Stage != null) NpcHomesDemoDriver.StageReady += OnDemoStageReady;
+        }
+
+        private static void SetLabel(Button button, string key)
+        {
+            TMP_Text label = button != null ? button.GetComponentInChildren<TMP_Text>(true) : null;
+            if (label != null) label.text = Strings.Get(key);
         }
 
         private void OnDemoStageReady(string firstNpcId) => HandleDemoStage(NpcHomesDemoDriver.Stage, firstNpcId);
@@ -135,7 +165,7 @@ namespace IronRing.Hud.Npc
 
         private void OnNpcClicked(string hubId, string npcId) => Open(hubId, npcId);
 
-        /// <summary>(hubId, npcId) 대화를 연다. 이미 열려 있으면 그 NPC로 바꾼다. 상호작용 서비스가 없으면 한 번 기록하고 무시한다.</summary>
+        /// <summary>(hubId, npcId) 대화를 처음 줄부터 연다. 이미 열려 있으면 그 NPC로 바꾼다. 상호작용 서비스가 없으면 한 번 기록하고 무시한다.</summary>
         public void Open(string hubId, string npcId)
         {
             ResolveServices();
@@ -146,26 +176,44 @@ namespace IronRing.Hud.Npc
                 return;
             }
             if (string.IsNullOrEmpty(hubId) || string.IsNullOrEmpty(npcId)) return;
+            if (_npc != null && _npc != npcId) InteriorNpcWalker.SetTalking(_npc, false);
             _hub = hubId;
             _npc = npcId;
+            BuildSequence(npcId);
+            _index = 0;
+            _choosing = false;
             _typedLine = null;
             SetPortrait(npcId);
             _screens.Show(_screen.Id);
-            SetResult(null, true);
-            Refresh();
+            RefreshHeader();
+            ShowStep();
+            LayoutText();
             InteriorNpcWalker.SetHighlighted(_npc);
+            InteriorNpcWalker.SetTalking(_npc, true);
+            HotbarScreen.Instance?.SetSuppressed(true);
         }
 
-        /// <summary>대화를 닫는다(닫기 버튼·Esc).</summary>
+        /// <summary>대화를 닫는다(닫기 버튼·Esc·그늘 클릭).</summary>
         public void Close() => Hide();
+
+        /// <summary>[계속하기]: 타자기 중이면 즉시 완성, 아니면 다음 줄, 마지막 줄 뒤에는 선택 단계로.</summary>
+        public void Continue()
+        {
+            if (_npc == null || _choosing) return;
+            if (_typing) { FinishTyping(); return; }
+            if (_index < _sequence.Count - 1) { _index++; ShowStep(); return; }
+            _choosing = true;
+            ShowStep();
+        }
 
         private void Hide()
         {
-            bool wasOpen = _npc != null;
+            string was = _npc;
             _hub = null;
             _npc = null;
+            _choosing = false;
             if (_screens != null) _screens.Hide(_screen.Id);
-            if (wasOpen) InteriorNpcWalker.SetHighlighted(null);
+            if (was != null) { InteriorNpcWalker.SetHighlighted(null); InteriorNpcWalker.SetTalking(was, false); HotbarScreen.Instance?.SetSuppressed(false); }
         }
 
         private void OnInteriorChanged(bool open)
@@ -173,27 +221,51 @@ namespace IronRing.Hud.Npc
             if (!open || _view.InteriorHubId != _hub) Hide();
         }
 
-        private void OnInteracted(string npcId, string optionId) { if (npcId == _npc) Refresh(); }
-        private void OnHomeChanged(string npcId) { if (npcId == _npc) Refresh(); }
+        private void OnInteracted(string npcId, string optionId) { if (npcId == _npc && _choosing) BuildOptions(); }
+        private void OnHomeChanged(string npcId) { if (npcId == _npc) RefreshHeader(); }
+
+        /// <summary>대사 순서 = 풀 정의의 _quote(있으면) + _lines. 정의가 없으면 INpcInteraction.CurrentLine 한 줄.</summary>
+        private void BuildSequence(string npcId)
+        {
+            _sequence.Clear();
+            NpcDefinition definition = NpcInstaller.Pool?.Find(npcId);
+            if (definition != null)
+            {
+                if (!string.IsNullOrEmpty(definition.Quote)) _sequence.Add(definition.Quote);
+                if (definition.Lines != null)
+                    foreach (string line in definition.Lines)
+                        if (!string.IsNullOrEmpty(line)) _sequence.Add(line);
+            }
+            if (_sequence.Count == 0) _sequence.Add(_interaction.CurrentLine(npcId) ?? string.Empty);
+        }
 
         // ----- 그리기 -----
 
-        private void Refresh()
+        private void RefreshHeader()
         {
             if (_npc == null || _interaction == null) return;
             _title.text = _interaction.DisplayName(_npc);
+            if (_meta == null) return;
             string habitat = HomeHabitatName(_npc);
-            _home.text = habitat != null ? Strings.Get("npc_dialog_home") + "  " + habitat : Strings.Get("npc_dialog_home_none");
-            _home.color = habitat != null ? _theme.Muted : _theme.Accent;
-            if (_origin != null)
+            var meta = new StringBuilder(habitat != null ? Strings.Get("npc_dialog_home") + "  " + habitat : Strings.Get("npc_dialog_home_none"));
+            string origin = _interaction.Origin(_npc);
+            if (!string.IsNullOrEmpty(origin)) meta.Append("  ·  ").Append(string.Format(Strings.Get("npc_dialog_origin"), origin));
+            _meta.text = meta.ToString();
+            _meta.color = habitat != null ? _theme.Muted : _theme.Accent;
+        }
+
+        /// <summary>읽기 단계면 _index 줄과 [계속하기], 선택 단계면 선택지 + [닫기](대사 칸은 마지막 줄 그대로).</summary>
+        private void ShowStep()
+        {
+            _continue.gameObject.SetActive(!_choosing);
+            _options.gameObject.SetActive(_choosing);
+            _close.gameObject.SetActive(_choosing);
+            if (_choosing) BuildOptions();
+            else
             {
-                string origin = _interaction.Origin(_npc);
-                bool known = !string.IsNullOrEmpty(origin);
-                _origin.text = known ? string.Format(Strings.Get("npc_dialog_origin"), origin) : string.Empty;
-                if (_origin.gameObject.activeSelf != known) _origin.gameObject.SetActive(known);
+                SetLine(_sequence[Mathf.Clamp(_index, 0, _sequence.Count - 1)], true);
+                _reasons.gameObject.SetActive(false);
             }
-            SetLine(_interaction.CurrentLine(_npc));
-            BuildOptions();
         }
 
         private string HomeHabitatName(string npcId)
@@ -204,7 +276,7 @@ namespace IronRing.Hud.Npc
             catch (KeyNotFoundException) { return home.HabitatTypeId; }
         }
 
-        /// <summary>Options(npc) 데이터로 버튼을 다시 만든다(프리팹 예시 버튼은 지운다). 비활성 선택지는 아래 줄에 이유를 보인다.</summary>
+        /// <summary>Options(npc) 데이터로 버튼을 다시 만든다(프리팹 예시 버튼은 지운다). 비활성 선택지는 버튼 줄 왼쪽에 이유를 보인다.</summary>
         private void BuildOptions()
         {
             for (int i = _options.childCount - 1; i >= 0; i--)
@@ -226,7 +298,7 @@ namespace IronRing.Hud.Npc
                     view.Button.onClick.AddListener(() => Press(id));
                     if (!option.Enabled && !string.IsNullOrEmpty(option.Reason))
                     {
-                        if (reasons.Length > 0) reasons.Append('\n');
+                        if (reasons.Length > 0) reasons.Append("  ");
                         reasons.Append(option.Label ?? id).Append(": ").Append(option.Reason);
                     }
                 }
@@ -234,30 +306,24 @@ namespace IronRing.Hud.Npc
             _reasons.gameObject.SetActive(reasons.Length > 0);
         }
 
+        /// <summary>선택지를 실행하고 결과 문장(대화면 다음 대사)을 대사 칸에 한 줄로 보인다.</summary>
         private bool Press(string optionId)
         {
             if (_npc == null || _interaction == null) return false;
             bool ok = _interaction.TryInteract(_npc, optionId, out string resultText);
-            SetResult(resultText, ok);
-            Refresh();
+            if (!string.IsNullOrEmpty(resultText)) SetLine(resultText, ok);
+            if (_npc != null && _choosing) BuildOptions();
             return ok;
         }
 
-        private void SetResult(string text, bool ok)
-        {
-            _result.text = text ?? string.Empty;
-            _result.color = ok ? _theme.Text : _theme.Accent;
-            _result.gameObject.SetActive(!string.IsNullOrEmpty(text));
-        }
-
         /// <summary>
-        /// 데모 단계(스토리 017 캡처). "panel": hub-1의 npcId(없으면 첫 합류 NPC) 대화를 연다. "encouraged": 같은 대화를 열고 격려가 가능하면
-        /// 버튼과 같은 경로로 누른다(이미 했으면 비활성 이유를 결과 줄에). 그 밖의 단계는 닫는다.
+        /// 데모 단계(스토리 017·029 캡처). "panel": hub-1의 npcId(없으면 첫 합류 NPC) 대화를 연다. "panel-end": 열고 [계속하기]를 끝까지 눌러
+        /// 선택지 줄을 보인다. "encouraged": panel-end 뒤 격려가 가능하면 버튼과 같은 경로로 누른다(이미 했으면 이유를 대사 칸에). 그 밖의 단계는 닫는다.
         /// </summary>
         public static void HandleDemoStage(string stage, string npcId = null)
         {
             if (_instance == null) return;
-            if (stage != "panel" && stage != "encouraged") { _instance.Hide(); return; }
+            if (stage != "panel" && stage != "panel-end" && stage != "encouraged") { _instance.Hide(); return; }
             if (string.IsNullOrEmpty(npcId))
             {
                 IReadOnlyList<string> npcs = GameServices.Get<INpcRecruiter>()?.NpcsAt(DEMO_HUB);
@@ -269,30 +335,69 @@ namespace IronRing.Hud.Npc
                 return;
             }
             _instance.Open(DEMO_HUB, npcId);
-            if (stage != "encouraged" || _instance._npc == null) return;
+            if (stage == "panel" || _instance._npc == null) return;
+            for (int guard = 0; guard < 64 && !_instance._choosing; guard++) _instance.Continue();
+            _instance.FinishTyping();
+            Debug.Log($"NpcDialogScreen: 데모 {stage} - 대사 {_instance._sequence.Count}줄 끝, 선택지 줄 표시");
+            if (stage != "encouraged") return;
             NpcInteractionOption encourage = null;
             foreach (NpcInteractionOption option in _instance._interaction.Options(_instance._npc))
                 if (option != null && option.Id == ENCOURAGE_OPTION) encourage = option;
             if (encourage == null) return;
             if (encourage.Enabled) _instance.Press(ENCOURAGE_OPTION);
-            else _instance.SetResult(encourage.Reason, false);
+            else _instance.SetLine(encourage.Reason, false);
         }
 
-        /// <summary>화면이 꺼져 있어도 도는 일(ScreenTicker): 늦은 서비스 연결, 열린 동안 Esc·거점 이탈로 닫기.</summary>
+        /// <summary>화면이 꺼져 있어도 도는 일(ScreenTicker): 늦은 서비스 연결, 열린 동안 Esc·거점 이탈로 닫기, 타자기.</summary>
         private void Tick()
         {
             if (_clicks == null || _interaction == null || _homes == null) ResolveServices();
             if (_npc == null) return;
             if (!_view.InteriorOpen || _view.InteriorHubId != _hub) { Hide(); return; }
             Keyboard keyboard = Keyboard.current;
-            if (keyboard != null && keyboard.escapeKey.wasPressedThisFrame) Hide();
-            if (_npc != null) TickTyping();
+            if (keyboard != null && keyboard.escapeKey.wasPressedThisFrame) { Hide(); return; }
+            LayoutText();
+            TickTyping();
         }
 
-        /// <summary>스토리 027: 대사가 바뀌었을 때만 타자기를 처음부터 시작한다(같은 대사로 다시 그리면 그대로 둔다).</summary>
-        private void SetLine(string line)
+        /// <summary>
+        /// 초상이 상자 왼쪽을 덮는 폭(초상 오른쪽 가장자리 − 상자 왼쪽 가장자리, 상자 로컬 좌표)을 재서 글자 줄들의 왼쪽 시작을
+        /// max(_textMinLeft, 겹침 + _portraitTextGap)으로 둔다. 화면 비율·초상 폭이 바뀌면 따라간다(값이 같으면 건드리지 않음).
+        /// </summary>
+        private void LayoutText()
+        {
+            if (_panel == null || _line == null) return;
+            float left = _textMinLeft;
+            if (_portrait != null && _portrait.enabled && _portrait.gameObject.activeInHierarchy)
+            {
+                _portrait.rectTransform.GetWorldCorners(_corners);
+                float portraitRight = _panel.InverseTransformPoint(_corners[2]).x;
+                float panelLeft = _panel.rect.xMin;
+                left = Mathf.Max(left, portraitRight - panelLeft + _portraitTextGap);
+            }
+            left = Mathf.Round(left);
+            if (Mathf.Approximately(left, _textLeft)) return;
+            _textLeft = left;
+            SetLeft(_title); SetLeft(_meta); SetLeft(_line);
+            if (_reasons != null) { Vector2 at = _reasons.rectTransform.anchoredPosition; at.x = left; _reasons.rectTransform.anchoredPosition = at; }
+        }
+
+        private void SetLeft(TMP_Text text)
+        {
+            if (text == null) return;
+            RectTransform rect = text.rectTransform;
+            // 가로는 상자 전체로 늘이고(왼쪽 0 ~ 오른쪽 1) 왼쪽 시작만 겹침에 맞춘다. 세로 앵커·여백은 빌더 값을 그대로 둔다.
+            rect.anchorMin = new Vector2(0f, rect.anchorMin.y);
+            rect.anchorMax = new Vector2(1f, rect.anchorMax.y);
+            rect.offsetMin = new Vector2(_textLeft, rect.offsetMin.y);
+            rect.offsetMax = new Vector2(-_textRightPad, rect.offsetMax.y);
+        }
+
+        /// <summary>대사 칸에 line을 타자기로 시작한다(같은 대사면 그대로). ok가 false면 강조색(실패 이유).</summary>
+        private void SetLine(string line, bool ok)
         {
             line = line ?? string.Empty;
+            _line.color = ok ? _theme.Text : _theme.Accent;
             if (line == _typedLine) return;
             _typedLine = line;
             _line.text = line;
@@ -301,7 +406,13 @@ namespace IronRing.Hud.Npc
             _line.maxVisibleCharacters = _typing ? 0 : int.MaxValue;
         }
 
-        /// <summary>스토리 027: 초당 _typeSpeed 글자씩 드러내고, 대화 상자 위 왼쪽 클릭이면 즉시 완성한다.</summary>
+        private void FinishTyping()
+        {
+            _typing = false;
+            if (_line != null) _line.maxVisibleCharacters = int.MaxValue;
+        }
+
+        /// <summary>초당 _typeSpeed 글자씩 드러내고, 대화 상자 위 왼쪽 클릭이면 즉시 완성한다.</summary>
         private void TickTyping()
         {
             if (!_typing || _line == null) return;
@@ -314,18 +425,27 @@ namespace IronRing.Hud.Npc
                 Camera eye = canvas != null && canvas.rootCanvas.renderMode != RenderMode.ScreenSpaceOverlay ? canvas.rootCanvas.worldCamera : null;
                 if (RectTransformUtility.RectangleContainsScreenPoint(_panel, mouse.position.ReadValue(), eye)) _typed = total;
             }
-            if (_typed >= total) { _typing = false; _line.maxVisibleCharacters = int.MaxValue; return; }
+            if (_typed >= total) { FinishTyping(); return; }
             _line.maxVisibleCharacters = (int)_typed;
         }
 
-        /// <summary>스토리 027: 초상 상자에 NPC 몸체 스프라이트를 넣는다(없으면 숨김).</summary>
+        /// <summary>초상: 카탈로그 스프라이트면 높이 고정·폭은 비율. 카탈로그가 null을 주면 몸체 스프라이트를 픽셀 크기 × _fallbackPortraitScale로.</summary>
         private void SetPortrait(string npcId)
         {
             if (_portrait == null) return;
-            Sprite sprite = InteriorNpcWalker.BodySprite(npcId);
+            Sprite sprite = _portraits != null ? _portraits.Get(npcId) : null;
+            Vector2 size;
+            if (sprite != null)
+                size = new Vector2(_portraitHeight * sprite.rect.width / Mathf.Max(1f, sprite.rect.height), _portraitHeight);
+            else
+            {
+                sprite = InteriorNpcWalker.BodySprite(npcId);
+                size = sprite != null ? sprite.rect.size * _fallbackPortraitScale : Vector2.zero;
+            }
             _portrait.sprite = sprite;
             _portrait.preserveAspect = true;
             _portrait.enabled = sprite != null;
+            if (sprite != null) _portrait.rectTransform.sizeDelta = size;
         }
 
         void OnDestroy()
