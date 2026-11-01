@@ -27,7 +27,6 @@ namespace IronRing.Hub.Demo
         private sealed class Settings
         {
             [SerializeField] private string _hubId = "hub-1";
-            [SerializeField] private string _facilityId = "wall";
             [SerializeField] private float _startDelaySeconds = 1f;
             [SerializeField] private float _seedProsperity = 20f;
             [SerializeField] private int _npcVisitAttempts = 20;
@@ -45,7 +44,6 @@ namespace IronRing.Hub.Demo
             public int ResultPartialHubs => _resultPartialHubs;
             public float ResultSettleProsperity => _resultSettleProsperity;
             public string HubId => _hubId;
-            public string FacilityId => _facilityId;
             public float StartDelaySeconds => _startDelaySeconds;
             public float SeedProsperity => _seedProsperity;
             public int NpcVisitAttempts => _npcVisitAttempts;
@@ -114,10 +112,9 @@ namespace IronRing.Hub.Demo
             INpcRecruiter npcs = GameServices.Get<INpcRecruiter>();
             IronRing.Npc.NpcInstaller.Passengers?.BoardForHub(hub); // 스토리 023: 합류는 승객 하차로만
             for (int i = 0; i < _settings.NpcVisitAttempts && npcs.NpcsAt(hub).Count == 0; i++) npcs.OnHubVisited(hub);
-            BuildFacility(hub);
             OpenInterior(hub);
             IHabitatSystem habitat = GameServices.Get<IHabitatSystem>();
-            UnityEngine.Debug.Log($"PHASE-DEMO recovering: phase={hubs.GetPhase(hub)}, prosperity={hubs.GetProsperity(hub)}, habitat={habitat?.IsHabitatComplete(hub)}, npcs={npcs.NpcsAt(hub).Count}, facilities={GameServices.Get<IFacilityBuilder>().FacilitiesAt(hub).Count}");
+            UnityEngine.Debug.Log($"PHASE-DEMO recovering: phase={hubs.GetPhase(hub)}, prosperity={hubs.GetProsperity(hub)}, habitat={habitat?.IsHabitatComplete(hub)}, npcs={npcs.NpcsAt(hub).Count}");
             yield return new WaitForSecondsRealtime(_settings.RecoveringHoldSeconds);
             for (int lap = 0; lap < _settings.MaxLaps && hubs.GetPhase(hub) != HubPhase.Settled && !hubs.IsRunLost; lap++)
             {
@@ -135,14 +132,13 @@ namespace IronRing.Hub.Demo
             int wantEmpty = _settings.HabitatItems.Length + _settings.ExtraEmptyCells;
             for (int step = 0; step < _settings.MaxInvestigations; step++)
             {
-                int plots = 0, empty = 0, rubble = -1;
+                int empty = 0, rubble = -1;
                 foreach (IInteriorCell cell in interior.Cells(hub))
                 {
-                    if (cell.State == InteriorCellState.FacilityPlot) plots++;
-                    else if (cell.State == InteriorCellState.Empty || cell.State == InteriorCellState.ItemPlaced) empty++;
+                    if (cell.State == InteriorCellState.Empty || cell.State == InteriorCellState.ItemPlaced) empty++;
                     else if (cell.State == InteriorCellState.Rubble && rubble < 0) rubble = cell.Index;
                 }
-                if ((plots > 0 && empty >= wantEmpty) || rubble < 0) return;
+                if (empty >= wantEmpty || rubble < 0) return;
                 if (interior.InvestigationsLeft(hub) <= 0) interior.OnDocked(hub);
                 if (!interior.CanInvestigate(hub, rubble)) return;
                 interior.Investigate(hub, rubble, out _);
@@ -218,17 +214,6 @@ namespace IronRing.Hub.Demo
                 + $"forecast={GameServices.Get<IProsperityForecast>() != null}, TopBar={Open("TopBar")}, PhaseBanner={Open("PhaseBanner")}, Hotbar={Open("Hotbar")}, RunResult={Open("RunResult")}");
         }
 
-        /// <summary>Builds the data's facility on the first free plot; falls back to a hub-level build with a warning.</summary>
-        private void BuildFacility(string hub)
-        {
-            IInteriorFacilityPlots plots = GameServices.Get<IInteriorFacilityPlots>();
-            IHubInterior interior = GameServices.Get<IHubInterior>();
-            if (plots != null && interior != null)
-                foreach (IInteriorCell cell in interior.Cells(hub))
-                    if (plots.IsPlot(hub, cell.Index) && plots.TryBuildOnCell(hub, cell.Index, _settings.FacilityId)) return;
-            UnityEngine.Debug.LogWarning("PHASE-DEMO: 시설 부지를 찾지 못해 거점 단위로 건설합니다(내부 화면에는 보이지 않음).");
-            GameServices.Get<IFacilityBuilder>().TryBuild(hub, _settings.FacilityId);
-        }
 
         /// <summary>Opens Story 012's interior view through IInteriorNavigation; logs once and skips when it is not registered.</summary>
         private static void OpenInterior(string hub)

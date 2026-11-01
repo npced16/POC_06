@@ -1,6 +1,5 @@
 {
   "_resources": ["coal", "scrap", "water", "grain"],
-  "_facilities": ["wall", "turret", "workshop"],
   "_hubs": [
     {"_id":"hub-1","_slots":4}, {"_id":"hub-2","_slots":4},
     {"_id":"hub-3","_slots":4}, {"_id":"hub-4","_slots":4}

@@ -17,8 +17,6 @@ namespace IronRing.Interior
         public InteriorCellState State { get; internal set; }
         /// <summary>ItemPlaced일 때 아이템 id.</summary>
         public string ItemId { get; internal set; }
-        /// <summary>FacilityBuilt일 때 시설 id.</summary>
-        public string FacilityId { get; internal set; }
         /// <summary>생성 시 고정 배치된 시설 부지인지(조사 결과가 항상 FacilityPlot).</summary>
         internal bool GuaranteedPlot { get; set; }
 

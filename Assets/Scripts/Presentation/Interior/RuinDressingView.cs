@@ -90,7 +90,7 @@ namespace IronRing.Presentation.Interior
             int seed = Seed(hubId) ^ data._seedSalt;
             int count = Mathf.Min(cells.Count, _cells.Length);
             for (int i = 0; i < count; i++)
-                if (cells[i].State == InteriorCellState.ItemPlaced || cells[i].State == InteriorCellState.FacilityBuilt) _cleared.Add(i);
+                if (cells[i].State == InteriorCellState.ItemPlaced) _cleared.Add(i);
             if (_campfireCell == -2) _campfireCell = PickCampfireCell(cells, count);
 
             for (int i = 0; i < count; i++)

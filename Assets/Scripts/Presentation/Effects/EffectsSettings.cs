@@ -12,8 +12,6 @@ namespace IronRing.Presentation.Effects
         [SerializeField] private float _prosperityMaximum = 100f;
         [SerializeField] private Vector3 _gaugeOffset = new Vector3(0, 0.85f, 0);
         [SerializeField] private Vector3 _gaugeScale = new Vector3(1.6f, 1f, 1);
-        [SerializeField] private Vector3[] _facilityOffsets = { new Vector3(-1, -0.7f), new Vector3(0, -1), new Vector3(1, -0.7f) };
-        [SerializeField] private string[] _facilityIds = { "wall", "turret", "workshop" };
         [SerializeField] private Vector3 _npcOffset = new Vector3(1, 0.2f);
         [SerializeField] private float _npcSpacing = 0.45f;
         [Header("Animation")]
@@ -55,12 +53,6 @@ namespace IronRing.Presentation.Effects
             return null;
         }
 
-        /// <summary>id에 지정된 시설 배치 오프셋을 반환하고 알 수 없는 시설은 첫 위치를 사용한다.</summary>
-        public Vector3 FacilityOffset(string id)
-        {
-            int index = System.Array.IndexOf(_facilityIds, id);
-            return _facilityOffsets[Mathf.Max(0, index) % _facilityOffsets.Length];
-        }
 
         void OnValidate()
         {

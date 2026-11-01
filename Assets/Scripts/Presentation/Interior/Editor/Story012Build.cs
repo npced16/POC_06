@@ -41,7 +41,6 @@ namespace IronRing.Presentation.Interior.Editor
         private const string ICON_CATALOG = "Assets/Prefabs/UI/IconCatalog.asset";
         private const string SMOKE_PREFAB = "Assets/Prefabs/Fx/Smoke.prefab";
         private const int FRAME_ORDER = 5;
-        private static readonly string[] FACILITY_SPRITES = { "wall", "turret", "workshop" };
         private const string ART = "Assets/Art/Generated/";
         private const string MATERIAL = "Packages/com.unity.render-pipelines.universal/Runtime/Materials/Sprite-Unlit-Default.mat";
         private const string SCENE = "Assets/Scenes/Main.unity";
@@ -182,15 +181,6 @@ namespace IronRing.Presentation.Interior.Editor
             SerializedProperty frameProperty = serialized.FindProperty("_clusterFramePrefab");
             if (frameProperty.objectReferenceValue == null) frameProperty.objectReferenceValue = frame;
             serialized.ApplyModifiedPropertiesWithoutUndo();
-            var icons = new System.Collections.Generic.List<InteriorCatalog.FacilitySprite>();
-            foreach (string id in FACILITY_SPRITES)
-            {
-                Sprite sprite = catalog.FacilityIcon(id);
-                if (sprite == null) sprite = AssetDatabase.LoadAssetAtPath<Sprite>(ART + id + ".png");
-                if (sprite == null) UnityEngine.Debug.LogWarning("Story012Build: 시설 아이콘 스프라이트가 없습니다: " + ART + id + ".png");
-                icons.Add(new InteriorCatalog.FacilitySprite(id, sprite));
-            }
-            catalog.SetFacilitySprites(icons.ToArray());
             EditorUtility.SetDirty(catalog);
         }
 

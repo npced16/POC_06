@@ -5,7 +5,6 @@ using System.Linq;
 using UnityEngine;
 
 using IronRing.Combat;
-using IronRing.Defense;
 using IronRing.Habitat;
 using IronRing.Hub;
 using IronRing.Interior;
@@ -29,21 +28,19 @@ namespace IronRing.Bootstrap
         public IReadOnlyList<HubDefinition> HubDefinitions { get; private set; }
         /// <summary>Authored combat and trackside event configuration.</summary>
         public EncounterData Encounters { get; private set; }
-        /// <summary>Production facility catalog or builder owned by this composition.</summary>
-        public FacilityCatalog Facilities { get; private set; }
         /// <summary>Authored presentation timing, demo seeds and display names.</summary>
         public MainSettings Settings { get; private set; }
         /// <summary>Story 012 hub interior grid and investigation rules; null when the composition was built without interior data.</summary>
         public InteriorData Interior { get; private set; }
 
         /// <summary>Parses the authored JSON inputs (interior optional) and rejects cross-system identity mismatches before constructing a run.</summary>
-        public static GameDefinition Parse(string track, string habitats, string npcs, string hubs, string combat, string facilities, string settings, string interior = null)
+        public static GameDefinition Parse(string track, string habitats, string npcs, string hubs, string combat, string settings, string interior = null)
         {
             var result = new GameDefinition
             {
                 Track = TrackData.Parse(track), Habitats = HabitatConfiguration.Parse(habitats),
                 Npcs = NpcPoolData.FromJson(npcs), HubDefinitions = HubData.Parse(hubs),
-                Encounters = JsonUtility.FromJson<EncounterData>(combat), Facilities = FacilityCatalog.Parse(facilities),
+                Encounters = JsonUtility.FromJson<EncounterData>(combat),
                 Settings = JsonUtility.FromJson<MainSettings>(settings),
                 Interior = interior == null ? null : InteriorData.Parse(interior)
             };
@@ -64,8 +61,6 @@ namespace IronRing.Bootstrap
             // Story 039: only "resource" events name a resource.
             if (result.Encounters.Events.Any(e => e.Effect == EncounterData.EFFECT_RESOURCE && !resources.Contains(e.Resource)))
                 throw new ArgumentException("Encounter references an unknown resource.");
-            foreach (var facility in result.Facilities.CreateDefinitions())
-                if (facility.Costs.Keys.Any(id => !resources.Contains(id))) throw new ArgumentException("Facility references an unknown resource.");
             if (result.Interior != null && result.Interior.BuriedResources.Any(buried => !resources.Contains(buried.Id)))
                 throw new ArgumentException("Interior buried resource references an unknown resource.");
             return result;
@@ -84,7 +79,6 @@ namespace IronRing.Bootstrap
         [SerializeField] private float _capturePauseSeconds;
         [SerializeField] private int _maxDemoLaps;
         [SerializeField] private string _demoHubId;
-        [SerializeField] private string _demoFacilityId;
         [SerializeField] private NodeName[] _names;
         [Header("Encounter localization")]
         [SerializeField] private NodeName[] _eventKeys;
@@ -106,8 +100,6 @@ namespace IronRing.Bootstrap
         public int MaxDemoLaps => _maxDemoLaps;
         /// <summary>Canonical hub selected for the recruitment demonstration.</summary>
         public string DemoHubId => _demoHubId;
-        /// <summary>Authored facility built during the demonstration.</summary>
-        public string DemoFacilityId => _demoFacilityId;
 
         /// <summary>Returns an authored display name for id while preserving the canonical identifier in simulation.</summary>
         public string DisplayName(string id)
@@ -120,7 +112,7 @@ namespace IronRing.Bootstrap
         public void Validate()
         {
             if (_combatStepSeconds <= 0 || _stationDwellSeconds < 0 || _demoTimeScale <= 0 || _capturePauseSeconds <= 0 ||
-                _maxDemoLaps < 1 || _names == null || string.IsNullOrEmpty(_demoHubId) || string.IsNullOrEmpty(_demoFacilityId))
+                _maxDemoLaps < 1 || _names == null || string.IsNullOrEmpty(_demoHubId))
                 throw new ArgumentException("Invalid Main settings.");
         }
     }

@@ -33,22 +33,31 @@ namespace IronRing.Hub
             GameServices.Ready += Install;
         }
 
-        /// <summary>Attaches development sources to MainRoot's RunState and registers IHubDevelopment, IRunLossInfo and IInteriorFacilityPlots once.</summary>
+        /// <summary>Attaches development sources to MainRoot's RunState and registers IHubDevelopment and IRunLossInfo once.</summary>
         private static void Install()
         {
             if (_installed) return;
             if (!(GameServices.Get<IHubStateSystem>() is RunState hubs)) return;
-            IFacilityBuilder facilities = GameServices.Get<IFacilityBuilder>();
-            if (facilities == null) return;
             // Story 016: habitat prosperity is summed per completed cluster (IHabitatClusters, catalog bonus per type).
             hubs.AttachSources(new ServiceProsperitySources(GameServices.Get<IHubInterior>, GameServices.Get<IHabitatSystem>,
-                GameServices.Get<IHabitatClusters>, IronRing.Habitats.HabitatsInstaller.BonusOf));
+                GameServices.Get<IHabitatClusters>, IronRing.Habitats.HabitatsInstaller.BonusOf, typeId => CellCapOf(typeId, hubs.CellCapRatio)));
             GameServices.Register<IHubDevelopment>(hubs);
             GameServices.Register<IRunLossInfo>(hubs);
             GameServices.Register<IRunResult>(hubs); // Story 028
             GameServices.Register<IProsperityForecast>(hubs); // Story 028
-            GameServices.Register<IInteriorFacilityPlots>(new InteriorFacilityPlots(facilities, GameServices.Get<IHubInterior>, GameServices.Get<IInteriorFacilityCells>));
             _installed = true;
+        }
+
+        /// <summary>
+        /// QA 2026-11-01 (mixed-cluster prosperity cap): the most cells a completed building of typeId counts for prosperity.
+        /// Pattern = its template cell count; Cluster/Set = ceil(RequiredCount x ratio); unknown type = -1 (no cap).
+        /// </summary>
+        private static int CellCapOf(string typeId, float ratio)
+        {
+            IronRing.Habitats.HabitatType type = IronRing.Habitats.HabitatsInstaller.Catalog?.Get(typeId);
+            if (type == null || type.RequiredCount <= 0) return -1;
+            if (type.Kind == IronRing.Habitats.HabitatKind.Pattern) return type.RequiredCount;
+            return Mathf.CeilToInt(type.RequiredCount * ratio);
         }
     }
 }

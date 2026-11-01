@@ -21,7 +21,7 @@ namespace IronRing.Interior
     /// 격자·횟수·확률은 InteriorData에서, 무작위는 주입된 IRandomSource에서 와서 같은 시드면 같은 결과가 난다.
     /// 묻힌 자원은 IResourceInventory에, 묻힌 아이템은 IItemInventory(스토리 013, null이면 보고만)에 들어간다.
     /// </summary>
-    public sealed class HubInterior : IHubInterior, IInvestigationReport, IInteriorFacilityCells
+    public sealed class HubInterior : IHubInterior, IInvestigationReport
     {
         private readonly InteriorData _data;
         private readonly IResourceInventory _resources;
@@ -181,36 +181,24 @@ namespace IronRing.Interior
         // ----- 스토리 013/014가 쓰는 칸 상태 전이. 전이표:
         //   Empty        --TryPlaceItem(itemId)-->      ItemPlaced
         //   ItemPlaced   --TryRemoveItem-->             Empty
-        //   FacilityPlot --TryBuildFacility(facilityId)--> FacilityBuilt
-        //   Empty        --TryBuildFacility(facilityId)--> FacilityBuilt   (스토리 016: 부지 없이 빈 칸에도 시설을 놓는다)
         //   그 밖의 모든 (상태, 명령) 조합은 거부(false)하고 아무것도 바꾸지 않는다.
 
         /// <summary>빈 터에 itemId를 놓아 ItemPlaced로 바꾼다. 다른 상태면 false.</summary>
         public bool TryPlaceItem(string hubId, int cellIndex, string itemId)
         {
             if (string.IsNullOrWhiteSpace(itemId)) throw new ArgumentException("Item id is required.", nameof(itemId));
-            return Transition(hubId, cellIndex, InteriorCellState.Empty, InteriorCellState.ItemPlaced, itemId, null);
+            return Transition(hubId, cellIndex, InteriorCellState.Empty, InteriorCellState.ItemPlaced, itemId);
         }
 
         /// <summary>놓인 아이템을 치워 Empty로 되돌린다. ItemPlaced가 아니면 false.</summary>
         public bool TryRemoveItem(string hubId, int cellIndex)
         {
-            return Transition(hubId, cellIndex, InteriorCellState.ItemPlaced, InteriorCellState.Empty, null, null);
+            return Transition(hubId, cellIndex, InteriorCellState.ItemPlaced, InteriorCellState.Empty, null);
         }
 
-        /// <summary>
-        /// IInteriorFacilityCells(014·015가 호출): 부지(FacilityPlot) 또는 빈 칸(Empty, 스토리 016)에 facilityId를 지어 FacilityBuilt로 바꾼다.
-        /// 다른 상태이거나 id가 비면 false.
-        /// </summary>
-        public bool TryBuildFacility(string hubId, int cellIndex, string facilityId)
-        {
-            if (string.IsNullOrWhiteSpace(facilityId)) return false;
-            return Transition(hubId, cellIndex, InteriorCellState.FacilityPlot, InteriorCellState.FacilityBuilt, null, facilityId)
-                || Transition(hubId, cellIndex, InteriorCellState.Empty, InteriorCellState.FacilityBuilt, null, facilityId);
-        }
 
-        /// <summary>칸이 from 상태일 때만 to로 바꾸고 아이템·시설 id를 기록한 뒤 CellChanged를 알린다.</summary>
-        private bool Transition(string hubId, int cellIndex, InteriorCellState from, InteriorCellState to, string itemId, string facilityId)
+        /// <summary>칸이 from 상태일 때만 to로 바꾸고 아이템 id를 기록한 뒤 CellChanged를 알린다.</summary>
+        private bool Transition(string hubId, int cellIndex, InteriorCellState from, InteriorCellState to, string itemId)
         {
             if (hubId == null || !_cells.TryGetValue(hubId, out InteriorCell[] cells)) return false;
             if (cellIndex < 0 || cellIndex >= cells.Length) return false;
@@ -218,7 +206,6 @@ namespace IronRing.Interior
             if (cell.State != from) return false;
             cell.State = to;
             cell.ItemId = itemId;
-            cell.FacilityId = facilityId;
             CellChanged?.Invoke(hubId, cellIndex);
             return true;
         }

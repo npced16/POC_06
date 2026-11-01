@@ -12,7 +12,6 @@ namespace IronRing.Hud.Hotbar
     {
         [SerializeField] private SlotData[] _slots = Array.Empty<SlotData>();
         [SerializeField] private bool _fillMissingFromCatalog = true;
-        [SerializeField] private string[] _facilities = Array.Empty<string>();
         [SerializeField] private float _dragThresholdPixels = 8f;
         [SerializeField] private float _toastSeconds = 2.5f;
         [SerializeField] private float _noticeSeconds = 1.8f;
@@ -22,7 +21,6 @@ namespace IronRing.Hud.Hotbar
         public SlotData[] Slots => _slots ?? Array.Empty<SlotData>();
         /// <summary>데이터 id가 카탈로그에 없으면 카탈로그의 남은 항목으로 채울지.</summary>
         public bool FillMissingFromCatalog => _fillMissingFromCatalog;
-        public string[] Facilities => _facilities ?? Array.Empty<string>();
         public float DragThresholdPixels => Mathf.Max(1f, _dragThresholdPixels);
         public float ToastSeconds => _toastSeconds;
         public float NoticeSeconds => _noticeSeconds;
@@ -42,8 +40,8 @@ namespace IronRing.Hud.Hotbar
         {
             [SerializeField] private string _kind;
             [SerializeField] private string _id;
-            /// <summary>"facility"면 시설, 그 밖은 아이템(타일 포함).</summary>
-            public PlacementEntry ToEntry() => new PlacementEntry(_kind == "facility" ? PlacementKind.Facility : PlacementKind.Item, _id);
+            /// <summary>아이템(타일 포함) 엔트리. 방어시설은 2026-11-02 보관됨.</summary>
+            public PlacementEntry ToEntry() => new PlacementEntry(PlacementKind.Item, _id);
         }
 
         [Serializable]

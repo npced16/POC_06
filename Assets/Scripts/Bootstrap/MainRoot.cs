@@ -18,13 +18,12 @@ namespace IronRing.Bootstrap
     /// <summary>Scene-owned composition and presentation driver for the real playable MVP.</summary>
     public sealed class MainRoot : MonoBehaviour
     {
-        [Header("Production data: track, habitat, NPC, hub, combat, facilities, settings")]
+        [Header("Production data: track, habitat, NPC, hub, combat, settings")]
         [SerializeField] private TextAsset _trackData;
         [SerializeField] private TextAsset _habitatData;
         [SerializeField] private TextAsset _npcData;
         [SerializeField] private TextAsset _hubData;
         [SerializeField] private TextAsset _combatData;
-        [SerializeField] private TextAsset _facilityData;
         [SerializeField] private TextAsset _settingsData;
         [Header("Story 012 interior data (falls back to Resources/Interior/HubInterior when empty)")]
         [SerializeField] private TextAsset _interiorData;
@@ -49,14 +48,13 @@ namespace IronRing.Bootstrap
 
         /// <summary>Stores authored data and view references once during Main scene creation.</summary>
         public void Configure(TextAsset trackData, TextAsset habitatData, TextAsset npcData, TextAsset hubData,
-            TextAsset combatData, TextAsset facilityData, TextAsset settingsData, TrainController train, MapView map)
+            TextAsset combatData, TextAsset settingsData, TrainController train, MapView map)
         {
             _trackData = trackData;
             _habitatData = habitatData;
             _npcData = npcData;
             _hubData = hubData;
             _combatData = combatData;
-            _facilityData = facilityData;
             _settingsData = settingsData;
             _train = train;
             _map = map;
@@ -67,7 +65,7 @@ namespace IronRing.Bootstrap
             TextAsset interiorData = _interiorData != null ? _interiorData : UnityEngine.Resources.Load<TextAsset>("Interior/HubInterior");
             if (interiorData == null) throw new InvalidOperationException("Missing Story 012 interior data: Resources/Interior/HubInterior.json");
             _definition = GameDefinition.Parse(_trackData.text, _habitatData.text, _npcData.text,
-                _hubData.text, _combatData.text, _facilityData.text, _settingsData.text, interiorData.text);
+                _hubData.text, _combatData.text, _settingsData.text, interiorData.text);
             _demo = Arguments().Contains("--integration-demo");
             _interiorDemo = Arguments().Contains("--interior-demo");
             _game = new GameSession(_definition, _demo, _train.Track);
@@ -81,14 +79,12 @@ namespace IronRing.Bootstrap
             GameServices.Register<INpcRecruiter>(_game.Npcs);
             GameServices.Register<IHubStateSystem>(_game.Hubs);
             GameServices.Register<IWaypointResolver>(_game.Waypoints);
-            GameServices.Register<IFacilityBuilder>(_game.Facilities);
             GameServices.Register<IMapAnchors>(_map);
             GameServices.Register<IHubClickSource>(_map);
             GameServices.Register<IEncounterPresentationSource>(_encounters);
             // Story 012: 거점 내부 규칙, 조사 보고, 화면 전환 상태, 내부 칸 앵커와 클릭 소스.
             GameServices.Register<IHubInterior>(_game.Interior);
             GameServices.Register<IInvestigationReport>(_game.Interior);
-            GameServices.Register<IInteriorFacilityCells>(_game.Interior);
             GameServices.Register<IViewMode>(_viewMode);
             GameServices.Register<IInteriorAnchors>(_interiorView);
             GameServices.Register<IInteriorCellClickSource>(_interiorView);

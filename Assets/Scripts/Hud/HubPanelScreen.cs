@@ -12,8 +12,8 @@ using DevPhase = IronRing.Contracts.HubPhase;
 namespace IronRing.Hud
 {
     /// <summary>
-    /// 스토리 022(KoreanHud 거점 패널의 UGUI 포팅). 상황 화면 "HubPanel": 거점 이름, 번영·주민 줄, 서식지 줄, 시설 목록(FacilityRow), 안내 문구, 닫기.
-    /// 선로에서 거점을 클릭하면(IHubClickSource.HubClicked) 열리고, 닫기·거점 내부 열림·패배 때 닫힌다. 건설은 IFacilityBuilder 명령으로만 한다.
+    /// 스토리 022(KoreanHud 거점 패널의 UGUI 포팅). 상황 화면 "HubPanel": 거점 이름, 번영·주민 줄, 서식지 줄, 안내 문구, 닫기.
+    /// 선로에서 거점을 클릭하면(IHubClickSource.HubClicked) 열리고, 닫기·거점 내부 열림·패배 때 닫힌다.
     /// </summary>
     [RequireComponent(typeof(UiScreen))]
     public sealed class HubPanelScreen : MonoBehaviour
@@ -27,8 +27,6 @@ namespace IronRing.Hud
         [SerializeField] private TMP_Text _habitatLine;
         [SerializeField] private TMP_Text _message;
         [SerializeField] private Button _close;
-        [Tooltip("시설 줄(HudCatalog의 시설 순서). 시설보다 많은 줄은 숨긴다.")]
-        [SerializeField] private FacilityRow[] _rows = new FacilityRow[0];
         [Tooltip("노드 id → 문자열 키 표(HudCatalog.json).")]
         [SerializeField] private TextAsset _catalogJson;
 
@@ -39,7 +37,6 @@ namespace IronRing.Hud
         private INpcRecruiter _npcs;
         private IHubStateSystem _hubs;
         private IWaypointResolver _waypoints;
-        private IFacilityBuilder _facilities;
         private IHubClickSource _clicks;
         private IViewMode _viewMode;
         private HudCatalog _catalog;
@@ -77,25 +74,15 @@ namespace IronRing.Hud
             _npcs = GameServices.Get<INpcRecruiter>();
             _hubs = GameServices.Get<IHubStateSystem>();
             _waypoints = GameServices.Get<IWaypointResolver>();
-            _facilities = GameServices.Get<IFacilityBuilder>();
             _clicks = GameServices.Get<IHubClickSource>();
             _viewMode = GameServices.Get<IViewMode>();
             _catalog = JsonUtility.FromJson<HudCatalog>(_catalogJson.text);
             if (_close != null) _close.onClick.AddListener(ClosePanel);
-            for (int i = 0; i < _rows.Length; i++)
-            {
-                if (_rows[i] == null) continue;
-                bool used = i < _catalog.Facilities.Length;
-                _rows[i].gameObject.SetActive(used);
-                if (!used || _rows[i].Build == null) continue;
-                string id = _catalog.Facilities[i];
-                _rows[i].Build.onClick.AddListener(() => Build(id));
-            }
             _track.Arrived += OnArrived; _track.LapCompleted += OnLap;
             _habitat.EventFlagRaised += OnHub; _npcs.NpcJoined += OnPair;
             _hubs.ProsperityChanged += OnProsperity; _hubs.HubRuined += OnHub; _hubs.RunLost += Refresh;
             _waypoints.EncounterStarted += OnArrived; _waypoints.EncounterEnded += OnEncounterEnded;
-            _facilities.FacilityBuilt += OnPair; _clicks.HubClicked += OpenHub;
+            _clicks.HubClicked += OpenHub;
             if (_viewMode != null) _viewMode.InteriorChanged += OnInteriorChanged;
             ScreenTicker.Add(ResolveTown); ResolveTown();
             Refresh();
@@ -128,20 +115,6 @@ namespace IronRing.Hud
                 if (_nextTier != null) _nextTier.text = TownUiText.Next(_town, residents, prosperity);
             }
             _message.text = canManage ? Strings.Get("train_stopped") : Strings.Get("hud_unavailable");
-            for (int i = 0; i < _rows.Length && i < _catalog.Facilities.Length; i++)
-            {
-                FacilityRow row = _rows[i];
-                if (row == null) continue;
-                string id = _catalog.Facilities[i];
-                int count = 0;
-                foreach (string built in _facilities.FacilitiesAt(_selectedHub)) if (built == id) count++;
-                if (row.Label != null) row.Label.text = Strings.Get("facility_" + id) + "  " + count;
-                if (row.Build == null) continue;
-                bool on = canManage && _facilities.CanBuild(_selectedHub, id);
-                row.Build.interactable = on;
-                TMP_Text label = row.Build.GetComponentInChildren<TMP_Text>(true);
-                if (label != null && _theme != null) label.color = on ? _theme.Text : _theme.Muted;
-            }
         }
 
         /// <summary>스토리 045: 선택 거점이 마을 등급이 붙는 거점(hub-1)인지. 다른 거점은 기존 표시를 쓴다.</summary>
@@ -179,14 +152,6 @@ namespace IronRing.Hud
 
         private void ClosePanel() { _selectedHub = null; Refresh(); }
 
-        private void Build(string facility)
-        {
-            if (!CanManage()) return;
-            bool accepted = _facilities.TryBuild(_selectedHub, facility);
-            Refresh();
-            if (!accepted) _message.text = Strings.Get("hud_insufficient");
-        }
-
         private void OnArrived(ITrackNode node) { Refresh(); }
         private void OnLap(int lap) { Refresh(); }
         private void OnHub(string hub) { Refresh(); }
@@ -218,7 +183,7 @@ namespace IronRing.Hud
             _habitat.EventFlagRaised -= OnHub; _npcs.NpcJoined -= OnPair;
             _hubs.ProsperityChanged -= OnProsperity; _hubs.HubRuined -= OnHub; _hubs.RunLost -= Refresh;
             _waypoints.EncounterStarted -= OnArrived; _waypoints.EncounterEnded -= OnEncounterEnded;
-            _facilities.FacilityBuilt -= OnPair; _clicks.HubClicked -= OpenHub;
+            _clicks.HubClicked -= OpenHub;
             if (_viewMode != null) _viewMode.InteriorChanged -= OnInteriorChanged;
         }
     }

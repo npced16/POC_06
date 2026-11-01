@@ -1456,7 +1456,6 @@ MonoBehaviour:
   _npcData: {fileID: 4900000, guid: 5583d997579ab144eaa99d8eb73903c4, type: 3}
   _hubData: {fileID: 4900000, guid: 433b7a06f0327414fab5d959aacc25fa, type: 3}
   _combatData: {fileID: 4900000, guid: 76d3b345e701bd149a97f757f86e9ff9, type: 3}
-  _facilityData: {fileID: 4900000, guid: 387faa4c2b4fa2345a8a29e6d1146f42, type: 3}
   _settingsData: {fileID: 4900000, guid: 3b25b90a4f528c042b06c8356151e146, type: 3}
   _interiorData: {fileID: 0}
   _train: {fileID: 460719872}

@@ -10,11 +10,8 @@ namespace IronRing.Hud
     {
         [Header("목록")]
         [SerializeField] private string[] _resources;
-        [SerializeField] private string[] _facilities;
         [SerializeField] private HubEntry[] _hubs;
         [SerializeField] private NodeEntry[] _nodes;
-        public string[] Resources => _resources;
-        public string[] Facilities => _facilities;
         public HubEntry[] Hubs => _hubs;
 
         /// <summary>id에 해당하는 제작된 슬롯 수를 반환하며 게임 상태를 변경하지 않는다.</summary>

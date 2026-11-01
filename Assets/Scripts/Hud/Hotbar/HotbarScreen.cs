@@ -176,8 +176,7 @@ namespace IronRing.Hud.Hotbar
         private bool Exists(PlacementEntry entry)
         {
             if (!entry.IsValid) return false;
-            if (entry.Kind == PlacementKind.Item) return _items.Contains(entry.Id);
-            return Array.IndexOf(_data.Facilities, entry.Id) >= 0;
+            return entry.Kind == PlacementKind.Item && _items.Contains(entry.Id);
         }
 
         /// <summary>팔레트 목록: Hotbar.json _paletteCategories(기본 ["tile"]) 분류의 아이템(데이터 순서), 다음 시설.</summary>
@@ -188,7 +187,6 @@ namespace IronRing.Hud.Hotbar
             foreach (ItemDefinition item in _items.Items)
                 if (categories.Length == 0 || Array.IndexOf(categories, item.Category) >= 0)
                     list.Add(new PlacementEntry(PlacementKind.Item, item.Id));
-            foreach (string facility in _data.Facilities) list.Add(new PlacementEntry(PlacementKind.Facility, facility));
             return list;
         }
 
@@ -273,7 +271,6 @@ namespace IronRing.Hud.Hotbar
         private string DisplayName(PlacementEntry entry)
         {
             if (!entry.IsValid) return "";
-            if (entry.Kind == PlacementKind.Facility) return Strings.Get("facility_" + entry.Id);
             ItemDefinition item = _items.Get(entry.Id);
             return item != null ? item.Name : entry.Id;
         }

@@ -4,7 +4,6 @@ using System.Linq;
 
 using IronRing.Combat;
 using IronRing.Contracts;
-using IronRing.Defense;
 using IronRing.Habitat;
 using IronRing.Hub;
 using IronRing.Interior;
@@ -28,8 +27,6 @@ namespace IronRing.Bootstrap
         public NpcRecruiter Npcs { get; }
         /// <summary>Real prosperity, ruin and run-loss state.</summary>
         public RunState Hubs { get; }
-        /// <summary>Production facility catalog or builder owned by this composition.</summary>
-        public FacilityBuilder Facilities { get; }
         /// <summary>Real encounter resolver holding this session track.</summary>
         public WaypointResolver Waypoints { get; }
         /// <summary>Story 012 hub interiors (cells and investigations); null when the definition carries no interior data.</summary>
@@ -55,11 +52,7 @@ namespace IronRing.Bootstrap
             // 014 설치자가 Composing 시점에 RunState(INpcRecruiter 필요)를 요구하므로 전달 프록시를 주입하고 Bootstrap이 BindHabitat로 재바인딩한다.
             HabitatLink = new HabitatLink(Habitat);
             Npcs = new NpcRecruiter(data.Npcs.Definitions, data.Npcs.JoinChance, HabitatLink, new SeededRandom(data.Settings.NpcSeed ^ entropy));
-            var link = new FacilityLink();
-            Hubs = new RunState(data.HubDefinitions, Npcs, link);
-            Facilities = new FacilityBuilder(data.Facilities.CreateDefinitions(), data.Facilities.PerHubLimit,
-                data.Facilities.AllowBuildInRuins, Inventory, Hubs, IsDocked);
-            link.Bind(Facilities);
+            Hubs = new RunState(data.HubDefinitions, Npcs);
             Waypoints = new WaypointResolver(data.Encounters, Track, Inventory, Hubs, new SeededRandom(data.Settings.CombatSeed ^ entropy));
             Track.Arrived += OnArrived;
             Track.LapCompleted += Hubs.OnLapCompleted;
@@ -68,9 +61,6 @@ namespace IronRing.Bootstrap
 
         /// <summary>Points NpcRecruiter (through its proxy) at the habitat implementation that won GameServices.Composing; null keeps the slot evaluator.</summary>
         public void BindHabitat(IHabitatSystem habitat) => HabitatLink.Bind(habitat ?? Habitat);
-
-        /// <summary>Checks the real movement state and requested hub id to permit only stopped, living-hub construction.</summary>
-        private bool IsDocked(string hubId) => Track.IsStopped && !Track.IsMoving && Track.CurrentNode.HubId == hubId && !Hubs.IsRunLost;
 
         /// <summary>Routes committed arrivals to NPC or encounter logic; habitat reads docking directly from this same track.</summary>
         private void OnArrived(ITrackNode node)
@@ -152,23 +142,5 @@ namespace IronRing.Bootstrap
         public bool IsHabitatComplete(string hubId) => _target.IsHabitatComplete(hubId);
         /// <summary>Delegates the flag query to the current target.</summary>
         public bool IsEventFlagSet(string hubId) => _target.IsEventFlagSet(hubId);
-    }
-
-    /// <summary>Resolves constructor ordering only; every runtime request delegates to the actual FacilityBuilder.</summary>
-    internal sealed class FacilityLink : IFacilityBuilder
-    {
-        private IFacilityBuilder _target;
-        /// <summary>Forwards real construction notifications after binding.</summary>
-        public event Action<string, string> FacilityBuilt { add { _target.FacilityBuilt += value; } remove { _target.FacilityBuilt -= value; } }
-        /// <summary>Binds the real builder before any lap simulation or user action can execute.</summary>
-        public void Bind(IFacilityBuilder target) { _target = target; }
-        /// <summary>Returns the real builder's facility snapshot at hubId.</summary>
-        public IReadOnlyList<string> FacilitiesAt(string hubId) => _target.FacilitiesAt(hubId);
-        /// <summary>Returns the real builder's eligibility for the supplied hub and facility.</summary>
-        public bool CanBuild(string hubId, string facilityId) => _target.CanBuild(hubId, facilityId);
-        /// <summary>Delegates the construction command and returns its real result.</summary>
-        public bool TryBuild(string hubId, string facilityId) => _target.TryBuild(hubId, facilityId);
-        /// <summary>Returns the actual accumulated facility combat effect at hubId.</summary>
-        public float CombatBonus(string hubId) => _target.CombatBonus(hubId);
     }
 }
