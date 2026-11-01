@@ -52,3 +52,7 @@
 - **바퀴 N/20의 N.** `ITrackRuntime.Lap`을 쓰고 총량은 `Lap + IHubDevelopment.LapsUntilDeadline`으로 계산한다(별도 "총 기한" API가 없음). 기한 정의가 "남은 바퀴 = 20 − 완료 바퀴"면 정확히 20이 된다. 데모에서 첫 바퀴에 "바퀴 0/20" 또는 "1/20" 중 무엇으로 보이는지 코디네이터 확인 필요.
 - 토스트 삼킴은 HUD 쪽 우회다. 로직이 `town_tier_up` 토스트를 끄면(handoff "요청"에 적음) `Swallow` 호출은 그대로 둬도 무해하다.
 - 플레이 캡처(1280×720 상단 줄 겹침, 배너 2초)는 코디네이터 데모에서 확인.
+
+## 5. 추가 수정(데모 뒤 코디네이터 요청)
+- 핫바 오른쪽 "창고 (W)" 버튼: 코드·빌더에는 이미 없고 Hotbar 프리팹에 옛 `WarehouseToggle` 오브젝트만 남아 있었다 → `.bridge/rebuild/Hotbar` + Generate로 지움(Hotbar·MainCanvas 프리팹에 `WarehouseToggle` 0건). W 키 처리·`ui_warehouse_*` 사용은 HUD 코드에 없음.
+- 상단 주민 아이콘 흰 사각형: `IconCatalog`에 `ui_people`이 없었다. `SpriteGenIcons`의 기존 `ui_people` 그림(황동·구리 톤 주민 실루엣)을 `SpriteGenIcons.GenerateTown`으로 생성·등록(`Assets/Art/Generated/icons/ui_people.png`, 기존 9개 아이콘 유지), TopBar 재생성으로 PeopleIcon에 스프라이트가 들어감. 스프라이트가 없으면 주민·동전 아이콘을 숨기는 가드를 `TopBarScreen`에 추가. refresh `failed:false`, Generate 2회(2회차 무변경), scene-status `isDirty:false`.

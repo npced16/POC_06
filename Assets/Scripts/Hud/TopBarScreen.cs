@@ -84,6 +84,7 @@ namespace IronRing.Hud
             if (_balance != null) _balance.gameObject.SetActive(_money != null);
             if (_coin != null) _coin.gameObject.SetActive(_money != null);
             if (_money != null) { _money.Changed += RefreshBalance; if (_coin != null && _icons != null) _coin.sprite = _icons.Get("ui_coin"); RefreshBalance(); }
+            if (_coin != null && _coin.sprite == null) _coin.gameObject.SetActive(false);
             _track = GameServices.Get<ITrackRuntime>();
             _hubs = GameServices.Get<IHubStateSystem>();
             _waypoints = GameServices.Get<IWaypointResolver>();
@@ -147,7 +148,7 @@ namespace IronRing.Hud
             _population = GameServices.Get<IPopulation>();
             if (_population == null) return;
             _population.Changed += RefreshPeople;
-            _people.gameObject.SetActive(true); if (_peopleIcon != null) _peopleIcon.gameObject.SetActive(true);
+            _people.gameObject.SetActive(true); if (_peopleIcon != null) _peopleIcon.gameObject.SetActive(_peopleIcon.sprite != null); // 카탈로그에 ui_people이 없으면 흰 사각형 대신 숨김
             RefreshPeople(); ScreenTicker.Remove(ResolvePopulation);
         }
 
