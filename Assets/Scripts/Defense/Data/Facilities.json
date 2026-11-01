@@ -1,0 +1,9 @@
+{
+  "_perHubLimit": 3,
+  "_allowBuildInRuins": false,
+  "_facilities": [
+    {"_id":"wall","_costs":[{"_resourceId":"scrap","_amount":0}],"_combatBonus":3,"_prosperityDelta":0,"_isProsperityFacility":false},
+    {"_id":"turret","_costs":[{"_resourceId":"scrap","_amount":0},{"_resourceId":"coal","_amount":0}],"_combatBonus":5,"_prosperityDelta":0,"_isProsperityFacility":false},
+    {"_id":"workshop","_costs":[{"_resourceId":"scrap","_amount":0},{"_resourceId":"grain","_amount":0}],"_combatBonus":0,"_prosperityDelta":2,"_isProsperityFacility":true}
+  ]
+}

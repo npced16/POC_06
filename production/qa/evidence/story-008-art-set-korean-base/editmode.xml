@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="12" result="Passed" total="12" passed="12" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-31 23:40:49Z" end-time="2026-10-31 23:40:49Z" duration="0.0794414">
+  <test-suite type="TestSuite" id="1000" name="POC_06" fullname="POC_06" runstate="Runnable" testcasecount="81" result="Passed" start-time="2026-10-31 23:40:49Z" end-time="2026-10-31 23:40:49Z" duration="0.079441" total="12" passed="12" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="1100" name="Assembly-CSharp-Editor.dll" fullname="C:/Users/JUNGLE/Documents/GitHub/POC_06/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="81" result="Passed" start-time="2026-10-31 23:40:49Z" end-time="2026-10-31 23:40:49Z" duration="0.061222" total="12" passed="12" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="38248" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestSuite" id="1101" name="IronRing" fullname="IronRing" runstate="Runnable" testcasecount="81" result="Passed" start-time="2026-10-31 23:40:49Z" end-time="2026-10-31 23:40:49Z" duration="0.059167" total="12" passed="12" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1104" name="Localization" fullname="IronRing.Localization" runstate="Runnable" testcasecount="12" result="Passed" start-time="2026-10-31 23:40:49Z" end-time="2026-10-31 23:40:49Z" duration="0.056715" total="12" passed="12" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestSuite" id="1105" name="Tests" fullname="IronRing.Localization.Tests" runstate="Runnable" testcasecount="12" result="Passed" start-time="2026-10-31 23:40:49Z" end-time="2026-10-31 23:40:49Z" duration="0.056382" total="12" passed="12" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-suite type="TestFixture" id="1013" name="StringsTests" fullname="IronRing.Localization.Tests.StringsTests" classname="IronRing.Localization.Tests.StringsTests" runstate="Runnable" testcasecount="12" result="Passed" start-time="2026-10-31 23:40:49Z" end-time="2026-10-31 23:40:49Z" duration="0.055324" total="12" passed="12" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-suite type="ParameterizedMethod" id="1021" name="GetReturnsKorean" fullname="IronRing.Localization.Tests.StringsTests.GetReturnsKorean" classname="IronRing.Localization.Tests.StringsTests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-10-31 23:40:49Z" end-time="2026-10-31 23:40:49Z" duration="0.032342" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1014" name="GetReturnsKorean(&quot;hub_1&quot;,&quot;주조소&quot;)" fullname="IronRing.Localization.Tests.StringsTests.GetReturnsKorean(&quot;hub_1&quot;,&quot;주조소&quot;)" methodname="GetReturnsKorean" classname="IronRing.Localization.Tests.StringsTests" runstate="Runnable" seed="1412273600" result="Passed" start-time="2026-10-31 23:40:49Z" end-time="2026-10-31 23:40:49Z" duration="0.022475" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1015" name="GetReturnsKorean(&quot;hub_2&quot;,&quot;정원&quot;)" fullname="IronRing.Localization.Tests.StringsTests.GetReturnsKorean(&quot;hub_2&quot;,&quot;정원&quot;)" methodname="GetReturnsKorean" classname="IronRing.Localization.Tests.StringsTests" runstate="Runnable" seed="184296597" result="Passed" start-time="2026-10-31 23:40:49Z" end-time="2026-10-31 23:40:49Z" duration="0.000209" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1016" name="GetReturnsKorean(&quot;hub_3&quot;,&quot;항구&quot;)" fullname="IronRing.Localization.Tests.StringsTests.GetReturnsKorean(&quot;hub_3&quot;,&quot;항구&quot;)" methodname="GetReturnsKorean" classname="IronRing.Localization.Tests.StringsTests" runstate="Runnable" seed="653018953" result="Passed" start-time="2026-10-31 23:40:49Z" end-time="2026-10-31 23:40:49Z" duration="0.000104" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1017" name="GetReturnsKorean(&quot;hub_4&quot;,&quot;성채&quot;)" fullname="IronRing.Localization.Tests.StringsTests.GetReturnsKorean(&quot;hub_4&quot;,&quot;성채&quot;)" methodname="GetReturnsKorean" classname="IronRing.Localization.Tests.StringsTests" runstate="Runnable" seed="841663253" result="Passed" start-time="2026-10-31 23:40:49Z" end-time="2026-10-31 23:40:49Z" duration="0.000072" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1018" name="GetReturnsKorean(&quot;waypoint_north&quot;,&quot;북쪽 고개&quot;)" fullname="IronRing.Localization.Tests.StringsTests.GetReturnsKorean(&quot;waypoint_north&quot;,&quot;북쪽 고개&quot;)" methodname="GetReturnsKorean" classname="IronRing.Localization.Tests.StringsTests" runstate="Runnable" seed="13604169" result="Passed" start-time="2026-10-31 23:40:49Z" end-time="2026-10-31 23:40:49Z" duration="0.000067" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1019" name="GetReturnsKorean(&quot;resource_coal&quot;,&quot;석탄&quot;)" fullname="IronRing.Localization.Tests.StringsTests.GetReturnsKorean(&quot;resource_coal&quot;,&quot;석탄&quot;)" methodname="GetReturnsKorean" classname="IronRing.Localization.Tests.StringsTests" runstate="Runnable" seed="91232878" result="Passed" start-time="2026-10-31 23:40:49Z" end-time="2026-10-31 23:40:49Z" duration="0.000067" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1020" name="GetReturnsKorean(&quot;facility_turret&quot;,&quot;포탑&quot;)" fullname="IronRing.Localization.Tests.StringsTests.GetReturnsKorean(&quot;facility_turret&quot;,&quot;포탑&quot;)" methodname="GetReturnsKorean" classname="IronRing.Localization.Tests.StringsTests" runstate="Runnable" seed="2107543230" result="Passed" start-time="2026-10-31 23:40:49Z" end-time="2026-10-31 23:40:49Z" duration="0.000064" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+              </test-suite>
+              <test-suite type="ParameterizedMethod" id="1027" name="InvalidTablesAreRejected" fullname="IronRing.Localization.Tests.StringsTests.InvalidTablesAreRejected" classname="IronRing.Localization.Tests.StringsTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-10-31 23:40:49Z" end-time="2026-10-31 23:40:49Z" duration="0.007635" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1024" name="InvalidTablesAreRejected(&quot;{\&quot;_entries\&quot;:[{\&quot;_key\&quot;:\&quot;a\&quot;,\&quot;_value\&quot;:\&quot;값\&quot;},{\&quot;_key\&quot;:\&quot;a\&quot;,\&quot;_value\&quot;:\&quot;값\&quot;}]}&quot;)" fullname="IronRing.Localization.Tests.StringsTests.InvalidTablesAreRejected(&quot;{\&quot;_entries\&quot;:[{\&quot;_key\&quot;:\&quot;a\&quot;,\&quot;_value\&quot;:\&quot;값\&quot;},{\&quot;_key\&quot;:\&quot;a\&quot;,\&quot;_value\&quot;:\&quot;값\&quot;}]}&quot;)" methodname="InvalidTablesAreRejected" classname="IronRing.Localization.Tests.StringsTests" runstate="Runnable" seed="851492422" result="Passed" start-time="2026-10-31 23:40:49Z" end-time="2026-10-31 23:40:49Z" duration="0.005315" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1025" name="InvalidTablesAreRejected(&quot;{\&quot;_entries\&quot;:[{\&quot;_key\&quot;:\&quot;Bad-Key\&quot;,\&quot;_value\&quot;:\&quot;값\&quot;}]}&quot;)" fullname="IronRing.Localization.Tests.StringsTests.InvalidTablesAreRejected(&quot;{\&quot;_entries\&quot;:[{\&quot;_key\&quot;:\&quot;Bad-Key\&quot;,\&quot;_value\&quot;:\&quot;값\&quot;}]}&quot;)" methodname="InvalidTablesAreRejected" classname="IronRing.Localization.Tests.StringsTests" runstate="Runnable" seed="1390842012" result="Passed" start-time="2026-10-31 23:40:49Z" end-time="2026-10-31 23:40:49Z" duration="0.000430" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1026" name="InvalidTablesAreRejected(&quot;{\&quot;_entries\&quot;:[{\&quot;_key\&quot;:\&quot;a\&quot;,\&quot;_value\&quot;:\&quot; \&quot;}]}&quot;)" fullname="IronRing.Localization.Tests.StringsTests.InvalidTablesAreRejected(&quot;{\&quot;_entries\&quot;:[{\&quot;_key\&quot;:\&quot;a\&quot;,\&quot;_value\&quot;:\&quot; \&quot;}]}&quot;)" methodname="InvalidTablesAreRejected" classname="IronRing.Localization.Tests.StringsTests" runstate="Runnable" seed="1461403769" result="Passed" start-time="2026-10-31 23:40:49Z" end-time="2026-10-31 23:40:49Z" duration="0.000290" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+              </test-suite>
+              <test-case id="1023" name="MissingKeysFailExplicitly" fullname="IronRing.Localization.Tests.StringsTests.MissingKeysFailExplicitly" methodname="MissingKeysFailExplicitly" classname="IronRing.Localization.Tests.StringsTests" runstate="Runnable" seed="2113333098" result="Passed" start-time="2026-10-31 23:40:49Z" end-time="2026-10-31 23:40:49Z" duration="0.001450" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1022" name="RequiredCategoriesExist" fullname="IronRing.Localization.Tests.StringsTests.RequiredCategoriesExist" methodname="RequiredCategoriesExist" classname="IronRing.Localization.Tests.StringsTests" runstate="Runnable" seed="1188653343" result="Passed" start-time="2026-10-31 23:40:49Z" end-time="2026-10-31 23:40:49Z" duration="0.001780" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+                <output><![CDATA[Saving results to: C:/Users/JUNGLE/AppData/LocalLow/DefaultCompany/POC_06\TestResults.xml
+]]></output>
+              </test-case>
+            </test-suite>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

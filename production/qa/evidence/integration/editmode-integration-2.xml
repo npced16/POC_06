@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="2" result="Passed" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-31 22:01:11Z" end-time="2026-10-31 22:01:11Z" duration="0.1753721">
+  <test-suite type="TestSuite" id="1000" name="POC_06" fullname="POC_06" runstate="Runnable" testcasecount="69" result="Passed" start-time="2026-10-31 22:01:11Z" end-time="2026-10-31 22:01:11Z" duration="0.175372" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="1085" name="Assembly-CSharp-Editor.dll" fullname="C:/Users/JUNGLE/Documents/GitHub/POC_06/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="69" result="Passed" start-time="2026-10-31 22:01:11Z" end-time="2026-10-31 22:01:11Z" duration="0.159371" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="22992" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestSuite" id="1086" name="IronRing" fullname="IronRing" runstate="Runnable" testcasecount="69" result="Passed" start-time="2026-10-31 22:01:11Z" end-time="2026-10-31 22:01:11Z" duration="0.153248" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1091" name="Integration" fullname="IronRing.Integration" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-10-31 22:01:11Z" end-time="2026-10-31 22:01:11Z" duration="0.150803" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestSuite" id="1092" name="Tests" fullname="IronRing.Integration.Tests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-10-31 22:01:11Z" end-time="2026-10-31 22:01:11Z" duration="0.150458" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-suite type="TestFixture" id="1018" name="IntegrationFlowTests" fullname="IronRing.Integration.Tests.IntegrationFlowTests" classname="IronRing.Integration.Tests.IntegrationFlowTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-10-31 22:01:11Z" end-time="2026-10-31 22:01:11Z" duration="0.148512" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1020" name="ProductionData_AlignsAllSystemsAndHud" fullname="IronRing.Integration.Tests.IntegrationFlowTests.ProductionData_AlignsAllSystemsAndHud" methodname="ProductionData_AlignsAllSystemsAndHud" classname="IronRing.Integration.Tests.IntegrationFlowTests" runstate="Runnable" seed="250692201" result="Passed" start-time="2026-10-31 22:01:11Z" end-time="2026-10-31 22:01:11Z" duration="0.076660" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1019" name="RealSystems_CompleteTheScriptedRunAndPreserveRuins" fullname="IronRing.Integration.Tests.IntegrationFlowTests.RealSystems_CompleteTheScriptedRunAndPreserveRuins" methodname="RealSystems_CompleteTheScriptedRunAndPreserveRuins" classname="IronRing.Integration.Tests.IntegrationFlowTests" runstate="Runnable" seed="514674656" result="Passed" start-time="2026-10-31 22:01:11Z" end-time="2026-10-31 22:01:11Z" duration="0.033998" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+                <output><![CDATA[Saving results to: C:/Users/JUNGLE/AppData/LocalLow/DefaultCompany/POC_06\TestResults.xml
+]]></output>
+              </test-case>
+            </test-suite>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

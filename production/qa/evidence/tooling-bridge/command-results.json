@@ -1,0 +1,58 @@
+﻿[
+    {
+        "error":  "",
+        "finishedAt":  "2026-10-31T23:37:09.5509256Z",
+        "id":  "1f7034e3c06443deadee9a5592ffd5b4",
+        "ok":  true,
+        "output":  "passed=10; failed=0; total=10; skipped=0; results=C:\\Users\\JUNGLE\\Documents\\GitHub\\POC_06\\production\\qa\\evidence\\tooling-bridge\\track-editmode.xml"
+    },
+    {
+        "error":  "",
+        "finishedAt":  "2026-10-31T23:38:55.2103772Z",
+        "id":  "2261b051b49a448ea0da58533be59715",
+        "ok":  true,
+        "output":  "{\"compiling\":false,\"errors\":\"\",\"failed\":false}"
+    },
+    {
+        "error":  "",
+        "finishedAt":  "2026-10-31T23:37:19.8889409Z",
+        "id":  "53c4ba3e219946de966101ec5f6c6d62",
+        "ok":  true,
+        "output":  "{\"isDirty\":false,\"path\":\"\",\"playing\":false}"
+    },
+    {
+        "error":  "",
+        "finishedAt":  "2026-10-31T23:39:18.3723792Z",
+        "id":  "701122e21e0c4b4e92753517d50f6553",
+        "ok":  true,
+        "output":  "{\"isDirty\":false,\"path\":\"Assets\\/Scenes\\/Main.unity\",\"playing\":false}"
+    },
+    {
+        "error":  "",
+        "finishedAt":  "2026-10-31T23:36:57.8052754Z",
+        "id":  "b79ab0946e6f4f8e929085c84c381eb5",
+        "ok":  true,
+        "output":  "{\"compiling\":false,\"errors\":\"\",\"failed\":false}"
+    },
+    {
+        "error":  "",
+        "finishedAt":  "2026-10-31T23:39:11.3519762Z",
+        "id":  "ba655dae3c56480a8d7c7118651dbd98",
+        "ok":  true,
+        "output":  "C:\\Users\\JUNGLE\\Documents\\GitHub\\POC_06\\production\\qa\\evidence\\tooling-bridge\\main.png"
+    },
+    {
+        "error":  "",
+        "finishedAt":  "2026-10-31T23:36:54.9011644Z",
+        "id":  "c96a70f758d24cf7a26d953254ad62cb",
+        "ok":  true,
+        "output":  "pong; Unity 6000.3.27f1"
+    },
+    {
+        "error":  "",
+        "finishedAt":  "2026-10-31T23:38:11.1050263Z",
+        "id":  "e9fcd5fcf61c41cba54aa8c037d16277",
+        "ok":  true,
+        "output":  "{\"compiling\":false,\"errors\":\"\",\"failed\":false}"
+    }
+]

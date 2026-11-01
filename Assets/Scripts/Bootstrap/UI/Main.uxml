@@ -1,0 +1,50 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+  <ui:Style src="Main.uss" />
+  <ui:VisualElement name="hud" class="hud">
+    <ui:VisualElement class="topbar">
+      <ui:Label text="IRON RING  /  TRAIN COMMAND" class="title" />
+      <ui:Button name="restart" text="NEW RUN" class="small-button" />
+    </ui:VisualElement>
+    <ui:Label name="position" class="position" />
+    <ui:VisualElement name="resources" class="resources" />
+    <ui:VisualElement name="route" class="route" />
+    <ui:VisualElement class="travel-row">
+      <ui:ProgressBar name="travel" low-value="0" high-value="100" class="travel" />
+      <ui:Button name="depart" text="DEPART HUB" class="depart" />
+    </ui:VisualElement>
+    <ui:VisualElement class="body">
+      <ui:VisualElement class="network">
+        <ui:Label name="hubCount" class="heading" />
+        <ui:ScrollView name="hubs" class="hubs" />
+      </ui:VisualElement>
+      <ui:VisualElement class="actions">
+        <ui:Label name="selected" class="selection" />
+        <ui:Label name="recipe" class="recipe" />
+        <ui:Label name="slots" class="recipe" />
+        <ui:VisualElement class="field-row">
+          <ui:DropdownField name="resource" label="Resource" />
+          <ui:DropdownField name="slot" label="Slot" />
+        </ui:VisualElement>
+        <ui:VisualElement class="button-row">
+          <ui:Button name="place" text="PLACE" />
+          <ui:Button name="remove" text="RETURN" />
+          <ui:Button name="completeRecipe" text="ASSEMBLE RECIPE" />
+        </ui:VisualElement>
+        <ui:DropdownField name="facility" label="Facility" />
+        <ui:Button name="build" text="BUILD DEFENSE" />
+        <ui:Label text="Dock at the selected hub to manage slots and defenses. Completed habitats recruit on a later visit." class="hint" />
+      </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:VisualElement class="encounter">
+      <ui:VisualElement class="encounter-copy">
+        <ui:Label name="encounterTitle" class="heading" />
+        <ui:Label name="encounterDetail" class="detail" />
+      </ui:VisualElement>
+      <ui:Button name="advance" text="NEXT STEP" class="advance" />
+    </ui:VisualElement>
+    <ui:VisualElement name="defeat" class="defeat hidden">
+      <ui:Label text="RUN LOST / ALL HUBS RUINED — THE RING REMAINS" />
+    </ui:VisualElement>
+    <ui:Label name="message" class="message" />
+  </ui:VisualElement>
+</ui:UXML>

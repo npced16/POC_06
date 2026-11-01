@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="12" result="Passed" total="12" passed="12" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-31 21:10:54Z" end-time="2026-10-31 21:10:54Z" duration="0.1789531">
+  <test-suite type="TestSuite" id="1000" name="POC_06" fullname="POC_06" runstate="Runnable" testcasecount="67" result="Passed" start-time="2026-10-31 21:10:54Z" end-time="2026-10-31 21:10:54Z" duration="0.178953" total="12" passed="12" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="1082" name="Assembly-CSharp-Editor.dll" fullname="C:/Users/JUNGLE/Documents/GitHub/POC_06/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="67" result="Passed" start-time="2026-10-31 21:10:54Z" end-time="2026-10-31 21:10:54Z" duration="0.152143" total="12" passed="12" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="26068" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestSuite" id="1083" name="IronRing" fullname="IronRing" runstate="Runnable" testcasecount="67" result="Passed" start-time="2026-10-31 21:10:54Z" end-time="2026-10-31 21:10:54Z" duration="0.149462" total="12" passed="12" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1090" name="Hub" fullname="IronRing.Hub" runstate="Runnable" testcasecount="12" result="Passed" start-time="2026-10-31 21:10:54Z" end-time="2026-10-31 21:10:54Z" duration="0.144245" total="12" passed="12" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestSuite" id="1091" name="Tests" fullname="IronRing.Hub.Tests" runstate="Runnable" testcasecount="12" result="Passed" start-time="2026-10-31 21:10:54Z" end-time="2026-10-31 21:10:54Z" duration="0.143535" total="12" passed="12" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-suite type="TestFixture" id="1032" name="HubStateTests" fullname="IronRing.Hub.Tests.HubStateTests" classname="IronRing.Hub.Tests.HubStateTests" runstate="Runnable" testcasecount="12" result="Passed" start-time="2026-10-31 21:10:54Z" end-time="2026-10-31 21:10:54Z" duration="0.140882" total="12" passed="12" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-suite type="ParameterizedMethod" id="1041" name="DefeatUsesEveryHubRatherThanFour" fullname="IronRing.Hub.Tests.HubStateTests.DefeatUsesEveryHubRatherThanFour" classname="IronRing.Hub.Tests.HubStateTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-10-31 21:10:54Z" end-time="2026-10-31 21:10:54Z" duration="0.061539" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1037" name="DefeatUsesEveryHubRatherThanFour(1)" fullname="IronRing.Hub.Tests.HubStateTests.DefeatUsesEveryHubRatherThanFour(1)" methodname="DefeatUsesEveryHubRatherThanFour" classname="IronRing.Hub.Tests.HubStateTests" runstate="Runnable" seed="1588917699" result="Passed" start-time="2026-10-31 21:10:54Z" end-time="2026-10-31 21:10:54Z" duration="0.039451" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1038" name="DefeatUsesEveryHubRatherThanFour(4)" fullname="IronRing.Hub.Tests.HubStateTests.DefeatUsesEveryHubRatherThanFour(4)" methodname="DefeatUsesEveryHubRatherThanFour" classname="IronRing.Hub.Tests.HubStateTests" runstate="Runnable" seed="1199580591" result="Passed" start-time="2026-10-31 21:10:54Z" end-time="2026-10-31 21:10:54Z" duration="0.000416" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1039" name="DefeatUsesEveryHubRatherThanFour(5)" fullname="IronRing.Hub.Tests.HubStateTests.DefeatUsesEveryHubRatherThanFour(5)" methodname="DefeatUsesEveryHubRatherThanFour" classname="IronRing.Hub.Tests.HubStateTests" runstate="Runnable" seed="995255894" result="Passed" start-time="2026-10-31 21:10:54Z" end-time="2026-10-31 21:10:54Z" duration="0.000295" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1040" name="DefeatUsesEveryHubRatherThanFour(7)" fullname="IronRing.Hub.Tests.HubStateTests.DefeatUsesEveryHubRatherThanFour(7)" methodname="DefeatUsesEveryHubRatherThanFour" classname="IronRing.Hub.Tests.HubStateTests" runstate="Runnable" seed="1117294622" result="Passed" start-time="2026-10-31 21:10:54Z" end-time="2026-10-31 21:10:54Z" duration="0.000239" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+              </test-suite>
+              <test-case id="1043" name="EventsDescribeChangesAndDefeatExactlyOnce" fullname="IronRing.Hub.Tests.HubStateTests.EventsDescribeChangesAndDefeatExactlyOnce" methodname="EventsDescribeChangesAndDefeatExactlyOnce" classname="IronRing.Hub.Tests.HubStateTests" runstate="Runnable" seed="1879714796" result="Passed" start-time="2026-10-31 21:10:54Z" end-time="2026-10-31 21:10:54Z" duration="0.016247" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1036" name="ExactThresholdLatchesRuinPermanently" fullname="IronRing.Hub.Tests.HubStateTests.ExactThresholdLatchesRuinPermanently" methodname="ExactThresholdLatchesRuinPermanently" classname="IronRing.Hub.Tests.HubStateTests" runstate="Runnable" seed="7513879" result="Passed" start-time="2026-10-31 21:10:54Z" end-time="2026-10-31 21:10:54Z" duration="0.004697" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1033" name="InitialValueAndLimitsComeFromEachDefinition" fullname="IronRing.Hub.Tests.HubStateTests.InitialValueAndLimitsComeFromEachDefinition" methodname="InitialValueAndLimitsComeFromEachDefinition" classname="IronRing.Hub.Tests.HubStateTests" runstate="Runnable" seed="1717742541" result="Passed" start-time="2026-10-31 21:10:54Z" end-time="2026-10-31 21:10:54Z" duration="0.000872" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1035" name="LapReadsCurrentPopulationThroughInterfaces" fullname="IronRing.Hub.Tests.HubStateTests.LapReadsCurrentPopulationThroughInterfaces" methodname="LapReadsCurrentPopulationThroughInterfaces" classname="IronRing.Hub.Tests.HubStateTests" runstate="Runnable" seed="1707731293" result="Passed" start-time="2026-10-31 21:10:54Z" end-time="2026-10-31 21:10:54Z" duration="0.001348" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1044" name="PerLapDecayCanRuinTheEntireRun" fullname="IronRing.Hub.Tests.HubStateTests.PerLapDecayCanRuinTheEntireRun" methodname="PerLapDecayCanRuinTheEntireRun" classname="IronRing.Hub.Tests.HubStateTests" runstate="Runnable" seed="144128311" result="Passed" start-time="2026-10-31 21:10:54Z" end-time="2026-10-31 21:10:54Z" duration="0.000465" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1045" name="RejectsEmptyDuplicateAndNonFiniteData" fullname="IronRing.Hub.Tests.HubStateTests.RejectsEmptyDuplicateAndNonFiniteData" methodname="RejectsEmptyDuplicateAndNonFiniteData" classname="IronRing.Hub.Tests.HubStateTests" runstate="Runnable" seed="112357878" result="Passed" start-time="2026-10-31 21:10:54Z" end-time="2026-10-31 21:10:54Z" duration="0.008381" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1042" name="RuinsRetainEveryTrackIdentityAndRemainQueryableOnVisits" fullname="IronRing.Hub.Tests.HubStateTests.RuinsRetainEveryTrackIdentityAndRemainQueryableOnVisits" methodname="RuinsRetainEveryTrackIdentityAndRemainQueryableOnVisits" classname="IronRing.Hub.Tests.HubStateTests" runstate="Runnable" seed="1857686909" result="Passed" start-time="2026-10-31 21:10:54Z" end-time="2026-10-31 21:10:54Z" duration="0.004445" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1034" name="ShippedProfilesGrowDifferentlyWithoutHubBranches" fullname="IronRing.Hub.Tests.HubStateTests.ShippedProfilesGrowDifferentlyWithoutHubBranches" methodname="ShippedProfilesGrowDifferentlyWithoutHubBranches" classname="IronRing.Hub.Tests.HubStateTests" runstate="Runnable" seed="285622748" result="Passed" start-time="2026-10-31 21:10:54Z" end-time="2026-10-31 21:10:54Z" duration="0.010326" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+                <output><![CDATA[Saving results to: C:/Users/JUNGLE/AppData/LocalLow/DefaultCompany/POC_06\TestResults.xml
+]]></output>
+              </test-case>
+            </test-suite>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

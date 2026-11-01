@@ -175,3 +175,8 @@ $RECYCLE.BIN/
 # the project root. Anchored so a reports/ folder elsewhere stays tracked.
 /reports/
 /test-results/
+.bridge/
+
+# === Orca/codex tool mirrors (auto-generated, not source) ===
+.codex/
+.agents/

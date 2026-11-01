@@ -1,0 +1,22 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="../../../../Fonts/Resources/KoreanDefault.uss" />
+    <ui:Style src="NpcDialogStyle.uss" />
+    <ui:VisualElement name="npc-dialog-root">
+        <ui:VisualElement name="npc-dialog">
+            <ui:VisualElement class="npc-dialog-header">
+                <ui:Label name="npc-dialog-title" text="점등부 마르타" />
+                <ui:Label name="npc-dialog-home" text="집: 가스등 거리" />
+            </ui:VisualElement>
+            <ui:Label name="npc-dialog-line" text="증기압이 안정됐군. 오늘은 등불이 밝겠어." />
+            <ui:Label name="npc-dialog-result" text="마르타가 힘을 냈다." />
+            <ui:VisualElement name="npc-dialog-buttons">
+                <ui:VisualElement name="npc-dialog-options">
+                    <ui:Button class="npc-dialog-option preview-only" text="격려하기" />
+                    <ui:Button class="npc-dialog-option preview-only" text="일 맡기기" />
+                </ui:VisualElement>
+                <ui:Button name="npc-dialog-close" text="닫기" />
+            </ui:VisualElement>
+            <ui:VisualElement name="npc-dialog-reasons" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

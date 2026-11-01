@@ -1,0 +1,57 @@
+.hud { flex-grow: 1; padding: 16px 24px; background-color: rgb(18, 26, 30); color: rgb(239, 235, 219); font-size: 17px; }
+.topbar { flex-direction: row; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.title { font-size: 27px; color: rgb(239, 193, 111); -unity-font-style: bold; }
+.small-button { width: 120px; }
+.position { padding: 5px 10px; background-color: rgb(32, 44, 49); margin-bottom: 7px; }
+.resources { flex-direction: row; flex-shrink: 0; margin-bottom: 8px; }
+.resource-chip { background-color: rgb(54, 62, 60); padding: 6px 22px; margin-right: 12px; }
+.route { flex-direction: row; flex-shrink: 0; margin-bottom: 6px; }
+.route-node { flex-grow: 1; flex-basis: 0; min-height: 38px; white-space: normal; font-size: 13px; padding: 5px; margin-right: 4px; background-color: rgb(27, 40, 44); -unity-text-align: middle-center; border-bottom-width: 3px; border-bottom-color: rgb(79, 111, 111); }
+.route-hub { border-bottom-color: rgb(177, 139, 73); }
+.route-node.current { background-color: rgb(113, 71, 35); color: white; border-bottom-color: rgb(245, 187, 88); }
+.travel-row { flex-direction: row; align-items: center; margin-bottom: 8px; }
+.travel { flex-grow: 1; margin-right: 14px; }
+.travel .unity-progress-bar__background { height: 26px; background-color: rgb(40, 53, 57); }
+.travel .unity-progress-bar__progress { background-color: rgb(153, 105, 52); }
+.travel .unity-progress-bar__title { color: white; font-size: 14px; }
+.depart { width: 190px; }
+.body { flex-direction: row; flex-grow: 1; min-height: 0; }
+.network { flex-grow: 1; flex-basis: 0; margin-right: 16px; }
+.heading { color: rgb(239, 193, 111); -unity-font-style: bold; font-size: 17px; margin-bottom: 5px; }
+.hubs { flex-grow: 1; }
+.hub-row { min-height: 64px; flex-shrink: 0; margin: 0 6px 7px 0; padding: 7px 12px; align-items: flex-start; background-color: rgb(35, 48, 51); border-width: 2px; border-color: rgb(67, 84, 85); }
+.hub-row Label { margin: 0; padding: 0; font-size: 16px; }
+.hub-row.selected { border-color: rgb(239, 193, 111); }
+.hub-row.ruined { background-color: rgb(73, 39, 39); border-color: rgb(189, 104, 89); }
+.hub-row .muted { color: rgb(189, 200, 197); font-size: 14px; margin-top: 4px; }
+.actions { width: 430px; padding: 12px 16px; background-color: rgb(27, 37, 42); }
+.selection { -unity-font-style: bold; margin-bottom: 6px; }
+.recipe { font-size: 13px; white-space: normal; margin-bottom: 6px; color: rgb(209, 211, 188); }
+.field-row, .button-row { flex-direction: row; }
+.field-row { height: 34px; min-height: 34px; flex-shrink: 0; margin-bottom: 6px; align-items: center; }
+.button-row { height: 36px; min-height: 36px; flex-shrink: 0; margin-bottom: 4px; }
+.actions > .selection { height: 24px; min-height: 24px; flex-shrink: 0; margin: 0 0 5px 0; padding: 0; }
+.actions > .recipe { height: 20px; min-height: 20px; flex-shrink: 0; margin: 0 0 4px 0; padding: 0; }
+.actions > .unity-base-field { height: 32px; min-height: 32px; flex-shrink: 0; margin: 0 0 6px 0; }
+.actions > Button { height: 36px; min-height: 36px; flex-shrink: 0; margin: 0 0 8px 0; }
+.field-row > .unity-base-field { flex-grow: 1; flex-basis: 0; }
+.field-row > .unity-base-field { height: 30px; min-height: 30px; flex-shrink: 0; margin: 0; padding: 0; }
+.field-row .unity-base-field__label { min-width: 52px; font-size: 14px; }
+#slot .unity-base-field__label { min-width: 30px; }
+.button-row > Button { flex-grow: 1; font-size: 12px; margin-right: 3px; }
+.button-row > Button { height: 32px; min-height: 32px; flex-shrink: 0; margin-top: 0; margin-bottom: 0; }
+.unity-base-field { margin-bottom: 7px; }
+.unity-base-field__label { min-width: 75px; }
+.unity-base-field__input { background-color: rgb(57, 68, 72); color: rgb(255, 247, 225); height: 28px; min-height: 28px; padding: 0 6px; }
+Button { color: rgb(245, 237, 215); font-size: 16px; background-color: rgb(83, 69, 44); border-width: 1px; border-color: rgb(153, 126, 77); min-height: 31px; margin-bottom: 6px; }
+Button:hover { background-color: rgb(115, 92, 54); }
+Button:disabled { opacity: 0.45; }
+.hint { font-size: 13px; color: rgb(189, 200, 197); white-space: normal; margin-top: 3px; }
+.encounter { flex-shrink: 0; flex-direction: row; align-items: center; padding: 9px 12px; margin-top: 8px; background-color: rgb(38, 39, 43); }
+.encounter-copy { flex-grow: 1; }
+.detail { font-size: 15px; white-space: normal; }
+.advance { width: 135px; margin-left: 12px; }
+.message { flex-shrink: 0; font-size: 14px; margin-top: 6px; white-space: normal; }
+.defeat { padding: 8px; background-color: rgb(84, 32, 32); margin-top: 6px; }
+.hidden { display: none; }
+.lost .actions { display: none; }

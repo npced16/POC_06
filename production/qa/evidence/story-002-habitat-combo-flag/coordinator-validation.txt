@@ -1,0 +1,29 @@
+# Coordinator validation for story 002 (2026-10-31T21:06:57Z)
+## 1. EditMode tests  filter=IronRing.Habitat.Tests;IronRing.Resources.Tests
+[lock] acquired after 30s
+VBCSCompilerServerWatchdog: watching VBCSCompiler (PID 39900)
+
+Aborting batchmode due to failure:
+Scripts have compiler errors.
+
+[lock] released
+[unity] exit=1 log=C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/story-002-habitat-combo-flag/tests.log
+tests exit=1
+NO RESULTS XML (C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/story-002-habitat-combo-flag/editmode.xml)
+Assets\Scripts\Track\TrainController.cs(28,58): error CS0234: The type or namespace name 'Load' does not exist in the namespace 'IronRing.Resources' (are you missing an assembly reference?)
+## 2. Demo build  method=IronRing.Habitat.Demo.Story002Builder.Build
+[lock] acquired after 15s
+VBCSCompilerServerWatchdog: watching VBCSCompiler (PID 23340)
+
+Aborting batchmode due to failure:
+executeMethod method IronRing.Habitat.Demo.Story002Builder.Build threw exception.
+
+[lock] released
+[unity] exit=1 log=C:/Users/JUNGLE/Documents/GitHub/POC_06/production/qa/evidence/story-002-habitat-combo-flag/build.log
+build exit=1
+error CS2001: Source file 'C:\Users\JUNGLE\Documents\GitHub\POC_06\Assets/Scripts/Resources/ResourceInventory.cs' could not be found.
+PLAYER EXE MISSING: C:/Users/JUNGLE/Documents/GitHub/POC_06/Builds/Demo/Story002/Game.exe
+## 3. Player capture
+player run skipped
+## 4. Retained images
+NO PNG RETAINED

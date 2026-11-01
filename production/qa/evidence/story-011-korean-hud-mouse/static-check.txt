@@ -1,0 +1,5 @@
+UXML XML parse: PASS
+Catalog JSON parse: PASS
+Localization duplicate keys: NONE
+Localization referenced keys: PASS
+Static data validation only; not Unity compile or Play evidence.

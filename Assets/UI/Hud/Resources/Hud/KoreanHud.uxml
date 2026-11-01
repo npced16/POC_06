@@ -1,0 +1,31 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="../../../../Fonts/Resources/KoreanDefault.uss" />
+    <ui:Style src="KoreanHudStyle.uss" />
+    <ui:VisualElement name="hud">
+        <ui:VisualElement name="topbar">
+            <ui:VisualElement name="resources" />
+            <ui:Label name="location" text="현재 위치: 주조소" />
+            <ui:Label name="lap" text="3바퀴째" />
+        </ui:VisualElement>
+        <ui:VisualElement name="actions">
+            <ui:Button name="next-round" text="다음 라운드" />
+            <ui:Button name="depart" text="출발" />
+        </ui:VisualElement>
+        <ui:VisualElement name="panel">
+            <ui:VisualElement class="panel-header"><ui:Label name="hub-title" text="주조소" /><ui:Button name="close" text="닫기" /></ui:VisualElement>
+            <ui:Label name="hub-state" text="단계: 복구 중 · 번영 12" />
+            <ui:Label name="habitat-state" class="section" text="서식지: 증기 공방" />
+            <ui:VisualElement name="resource-choices" />
+            <ui:VisualElement name="slots" />
+            <ui:Label name="hud_facilities" class="localized section" text="시설" />
+            <ui:VisualElement name="buildings" />
+            <ui:Label name="message" text="증기압이 안정됐다." />
+        </ui:VisualElement>
+        <ui:VisualElement name="defeat">
+            <ui:VisualElement name="defeat-card">
+                <ui:Label name="defeat_title" class="localized defeat-title" text="철환이 멈췄다" />
+                <ui:Label name="defeat_body" class="localized" text="모든 거점의 등불이 꺼졌다." />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,0 +1,29 @@
+{
+    "_hubIds":  [
+                    "hub-1",
+                    "hub-2",
+                    "hub-3",
+                    "hub-4"
+                ],
+    "_resourceIds":  [
+                         "coal",
+                         "scrap",
+                         "water",
+                         "grain"
+                     ],
+    "_facilityIds":  [
+                         "wall",
+                         "turret",
+                         "workshop"
+                     ],
+    "_slots":  [
+                   0,
+                   1,
+                   2,
+                   3
+               ],
+    "_resourceAmount":  24,
+    "_prosperity":  70,
+    "_lap":  3,
+    "_buildCost":  4
+}

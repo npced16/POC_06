@@ -1,12 +1,12 @@
 # Story 005: 경유지 이벤트와 간단한 전투
 
 > **Epic**: 철환 장갑열차 MVP (iron-ring-train)
-> **Status**: Ready
+> **Status**: Done
 > **Layer**: Feature
 > **Type**: Integration
 > **Estimate**: L
 > **Manifest Version**: N/A (minimal — no control manifest)
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-11-01
 
 ## Context
 
@@ -28,14 +28,14 @@
 
 *From `design/game-brief.md` (Core loop step 1), scoped to this story:*
 
-- [ ] 열차가 경유지에 도착하면 이벤트와 전투 중 하나가 발생한다. 발생 비율은 설정에서 읽는다.
-- [ ] 이벤트는 자원 증감 같은 결과를 내며, 이벤트 정의는 외부 데이터이다.
-- [ ] 전투는 한 가지 형태만 구현하고, 시작과 종료가 명확하며 승패 결과를 낸다.
-- [ ] 전투에서 이기면 자원을 얻고, 지면 설정된 페널티를 받는다. 페널티 내용은 데이터이다.
-- [ ] 전투 중에는 열차 이동이 멈추고, 종료 후 선로 순환이 이어진다.
-- [ ] 이벤트와 전투의 난수 공급원은 주입할 수 있어 테스트가 결정적이다.
-- [ ] 전투 중과 전투 결과가 화면에 보인다 (스크린샷으로 보존).
-- [ ] 이 스토리의 전투는 Story 001의 경유지 훅, Story 004의 거점 수치 갱신 인터페이스와 실제로 연결되어 동작한다.
+- [x] 열차가 경유지에 도착하면 이벤트와 전투 중 하나가 발생한다. 발생 비율은 설정에서 읽는다.
+- [x] 이벤트는 자원 증감 같은 결과를 내며, 이벤트 정의는 외부 데이터이다.
+- [x] 전투는 한 가지 형태만 구현하고, 시작과 종료가 명확하며 승패 결과를 낸다.
+- [x] 전투에서 이기면 자원을 얻고, 지면 설정된 페널티를 받는다. 페널티 내용은 데이터이다.
+- [x] 전투 중에는 열차 이동이 멈추고, 종료 후 선로 순환이 이어진다.
+- [x] 이벤트와 전투의 난수 공급원은 주입할 수 있어 테스트가 결정적이다.
+- [x] 전투 중과 전투 결과가 화면에 보인다 (스크린샷으로 보존).
+- [x] 이 스토리의 전투는 Story 001의 경유지 훅, Story 004의 거점 수치 갱신 인터페이스와 실제로 연결되어 동작한다.
 
 ---
 
@@ -57,10 +57,18 @@
 
 - `Assets/Scripts/Combat/WaypointResolver.cs`
 - `Assets/Scripts/Combat/CombatEncounter.cs`
-- `Assets/Tests/EditMode/Combat/WaypointCombatTests.cs`
+- `Assets/Scripts/Combat/EncounterData.cs`
+- `Assets/Scripts/Combat/Resources/Story005Encounters.json`
+- `Assets/Scripts/Combat/Demo/CombatDemoSystems.cs`
+- `Assets/Scripts/Combat/Demo/CombatDemoView.cs`
+- `Assets/Scripts/Combat/Editor/Story005Build.cs`
+- `Assets/Scenes/Demo/Story005/Story005Combat.unity`
+- `Assets/Tests/EditMode/Combat/Editor/WaypointCombatTests.cs`
+- `production/qa/evidence/story-005-waypoint-event-combat/implementation.md`
+- `production/qa/evidence/story-005-waypoint-event-combat/verification.md`
+- `production/qa/evidence/story-005-waypoint-event-combat/stamp.txt`
 
 ---
-
 ## QA Test Cases
 
 *N/A — no qa-lead specs at this tier; implement against the Acceptance Criteria above*
@@ -76,7 +84,13 @@
 - 통합 테스트 `Assets/Tests/EditMode/Combat/` 또는 문서화된 플레이테스트 (권장, advisory)
 - 전투 화면 스크린샷: `production/qa/evidence/` (필수)
 
-**Status**: [ ] Not yet created
+**Status**: Verified: 13/13 Combat tests, full suite 69/69, and final real-system integration tests 2/2 passed; Story001 movement and Story004 prosperity are composed in Main. See production/qa/evidence/integration/verification.md.
+
+- `production/qa/evidence/story-005-waypoint-event-combat/editmode-all.xml`: 13/13 Combat cases Passed, independently inspected; coordinator combined run 67/67.
+- `production/qa/evidence/story-005-waypoint-event-combat/editmode-all.log`: retained Unity compilation/test log.
+- `01-combat-in-progress.png`, `02-combat-result.png`, `03-combat-defeat.png` in the evidence folder were opened and verified at 1280x720; progress, win, loss, resource deltas and hold/release labels are legible.
+- `build.log`: isolated demo build exit 0; Unity-generated scene `Assets/Scenes/Demo/Story005/Story005Combat.unity`.
+- Interface-fake tests prove the first six ACs; final real Story001/004 composition remains coordinator-owned.
 
 ---
 

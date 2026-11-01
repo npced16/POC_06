@@ -1,0 +1,19 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:VisualElement name="screen" class="screen">
+        <ui:Label text="IRON RING / HABITAT WORKSHOP" class="eyebrow" />
+        <ui:Label text="Build a place to belong" class="title" />
+        <ui:Label text="Select cargo, then place it in a slot. Match the ordered recipe to raise the hub event flag." class="subtitle" />
+        <ui:VisualElement name="hubs" class="row" />
+        <ui:VisualElement class="panel">
+            <ui:Label name="dock" class="section" />
+            <ui:VisualElement name="inventory" class="row" />
+            <ui:VisualElement name="slots" class="row" />
+        </ui:VisualElement>
+        <ui:VisualElement class="panel">
+            <ui:Label name="completion" class="status" />
+            <ui:Label name="flag" class="section" />
+            <ui:Label name="message" class="footnote" />
+        </ui:VisualElement>
+        <ui:Label text="Sticky flags remain raised after cargo is reclaimed. Empty recipe positions must remain empty." class="footnote" />
+    </ui:VisualElement>
+</ui:UXML>

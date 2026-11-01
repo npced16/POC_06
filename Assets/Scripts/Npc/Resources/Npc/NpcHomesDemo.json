@@ -1,0 +1,60 @@
+{
+  "_hubId": "hub-1",
+  "_waitFrames": 20,
+  "_maxVisits": 24,
+  "_targetNpcIds": [
+    "lamplighter",
+    "gardener"
+  ],
+  "_encourageOptionId": "encourage",
+  "_placements": [
+    {
+      "_itemId": "tile_gaslamp",
+      "_upper": true,
+      "_row": 1,
+      "_column": 1
+    },
+    {
+      "_itemId": "tile_gaslamp",
+      "_upper": true,
+      "_row": 2,
+      "_column": 1
+    },
+    {
+      "_itemId": "tile_gaslamp",
+      "_upper": true,
+      "_row": 2,
+      "_column": 2
+    },
+    {
+      "_itemId": "tile_gaslamp",
+      "_upper": true,
+      "_row": 2,
+      "_column": 3
+    },
+    {
+      "_itemId": "tile_glass",
+      "_upper": false,
+      "_row": 0,
+      "_column": 1
+    },
+    {
+      "_itemId": "tile_glass",
+      "_upper": false,
+      "_row": 0,
+      "_column": 2
+    },
+    {
+      "_itemId": "tile_glass",
+      "_upper": false,
+      "_row": 0,
+      "_column": 3
+    },
+    {
+      "_itemId": "tile_glass",
+      "_upper": false,
+      "_row": 0,
+      "_column": 4
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Label name="phase-map-label" class="phase-map-label" picking-mode="Ignore" />
+</ui:UXML>

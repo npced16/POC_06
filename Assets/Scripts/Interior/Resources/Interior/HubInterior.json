@@ -1,0 +1,11 @@
+{
+  "_rows": 3,
+  "_columns": 6,
+  "_investigationsPerDocking": 0,
+  "_minimumFacilityPlots": 0,
+  "_seed": 12,
+  "_startEmpty": true,
+  "_outcomes": { "_empty": 100, "_item": 0, "_resource": 0, "_facilityPlot": 0 },
+  "_buriedItems": [],
+  "_buriedResources": []
+}

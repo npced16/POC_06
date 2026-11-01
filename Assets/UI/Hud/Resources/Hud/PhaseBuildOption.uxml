@@ -1,0 +1,3 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Button name="phase-build-option" class="phase-build-option" />
+</ui:UXML>
