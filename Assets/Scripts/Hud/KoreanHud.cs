@@ -13,6 +13,7 @@ namespace IronRing.Hud
     public sealed class KoreanHud : MonoBehaviour
     {
         private static KoreanHud _instance;
+        private bool _bound;
         [Header("서비스 연결")]
         private ITrackRuntime _track;
         private IResourceInventory _inventory;
@@ -54,6 +55,9 @@ namespace IronRing.Hud
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Boot() { GameServices.Ready -= Create; GameServices.Ready += Create; }
 
+        /// <summary>스토리 018: 씬(MainUI)에 놓인 문서는 서비스 준비(Initialize) 전까지 꺼 두어 UXML 예시 문구가 Play 화면에 비치지 않게 한다.</summary>
+        void Awake() { if (!_bound && TryGetComponent(out UIDocument document)) document.enabled = false; }
+
         /// <summary>준비된 GameServices를 입력으로 한 번만 HUD 오브젝트와 문서를 만든다.</summary>
         private static void Create()
         {
@@ -63,7 +67,10 @@ namespace IronRing.Hud
                 || GameServices.Get<IHabitatSystem>() == null || GameServices.Get<INpcRecruiter>() == null
                 || GameServices.Get<IHubStateSystem>() == null || GameServices.Get<IWaypointResolver>() == null
                 || GameServices.Get<IFacilityBuilder>() == null || GameServices.Get<IHubClickSource>() == null) return;
-            _instance = new GameObject(nameof(KoreanHud)).AddComponent<KoreanHud>();
+            KoreanHud placed = FindAnyObjectByType<KoreanHud>(FindObjectsInactive.Include);
+            // 스토리 018: 씬(MainUI)에 놓인 HUD에 바인딩한다. 제작자가 꺼 둔 화면이면 대비책도 만들지 않는다.
+            if (placed != null && !(placed.enabled && placed.gameObject.activeInHierarchy)) return;
+            _instance = placed != null ? placed : new GameObject(nameof(KoreanHud)).AddComponent<KoreanHud>();
             _instance.Initialize();
         }
 
@@ -83,11 +90,9 @@ namespace IronRing.Hud
             _viewMode = GameServices.Get<IViewMode>();
             _catalog = JsonUtility.FromJson<HudCatalog>(Resources.Load<TextAsset>("Hud/HudCatalog").text);
             _selectedResource = _catalog.Resources[0];
-            _settings = Instantiate(Resources.Load<PanelSettings>("KoreanPanelSettings"));
-            var document = gameObject.AddComponent<UIDocument>();
-            document.panelSettings = _settings;
-            document.sortingOrder = 100;
-            document.visualTreeAsset = Resources.Load<VisualTreeAsset>("Hud/KoreanHud");
+            _bound = true;
+            // 스토리 018: 씬에 놓인 UIDocument가 있으면 비어 있는 값만 채운다(Sort Order·PanelSettings·UXML은 프리팹 값 우선).
+            UIDocument document = HudDocument.Bind(gameObject, () => _settings = Instantiate(Resources.Load<PanelSettings>("KoreanPanelSettings")), 100, "Hud/KoreanHud");
             _root = document.rootVisualElement;
             _root.pickingMode = PickingMode.Ignore;
             foreach (TemplateContainer container in _root.Query<TemplateContainer>().ToList()) container.pickingMode = PickingMode.Ignore;
@@ -259,8 +264,41 @@ namespace IronRing.Hud
             _waypoints.EncounterStarted -= OnArrived; _waypoints.EncounterEnded -= OnEncounterEnded;
             _facilities.FacilityBuilt -= OnPair; _clicks.HubClicked -= OpenHub;
             if (_viewMode != null) _viewMode.InteriorChanged -= OnInteriorChanged;
-            Destroy(_settings);
+            if (_settings != null) Destroy(_settings);
         }
     }
 
+    /// <summary>
+    /// 스토리 018. HUD가 자기 오브젝트의 UIDocument(씬의 MainUI 프리팹 인스턴스)에 바인딩하도록 돕는다.
+    /// 문서가 없을 때(MainUI 없는 데모 씬)만 새로 붙이는 대비책 경로이며, 있으면 비어 있는 값만 채운다.
+    /// </summary>
+    public static class HudDocument
+    {
+        /// <summary>UXML에서 편집 모드 미리보기에만 쓰는 요소의 USS 클래스. Play 초기화 때 제거된다.</summary>
+        public const string PREVIEW_CLASS = "preview-only";
+
+        /// <summary>
+        /// owner의 UIDocument를 찾거나(없으면 추가) PanelSettings·Sort Order·Source Asset 중 비어 있는 값만 채우고 켠 뒤 미리보기 내용을 비운다.
+        /// fallbackPanel은 PanelSettings가 없을 때만 호출된다. fallbackOrder는 새로 붙인 문서이거나 Sort Order가 0일 때만 쓴다.
+        /// </summary>
+        public static UIDocument Bind(GameObject owner, System.Func<PanelSettings> fallbackPanel, float fallbackOrder, string uxmlResource)
+        {
+            bool placed = owner.TryGetComponent(out UIDocument document);
+            if (!placed) document = owner.AddComponent<UIDocument>();
+            if (document.panelSettings == null) document.panelSettings = fallbackPanel();
+            if (!placed || document.sortingOrder == 0f) document.sortingOrder = fallbackOrder;
+            if (document.visualTreeAsset == null) document.visualTreeAsset = Resources.Load<VisualTreeAsset>(uxmlResource);
+            document.enabled = true;
+            ClearPreview(document.rootVisualElement);
+            return document;
+        }
+
+        /// <summary>UXML 예시 문구와 preview-only 요소를 걷어 내 코드가 데이터로 채우기 전의 빈 상태(스토리 018 이전과 같음)로 만든다.</summary>
+        public static void ClearPreview(VisualElement root)
+        {
+            if (root == null) return;
+            foreach (VisualElement element in root.Query(className: PREVIEW_CLASS).ToList()) element.RemoveFromHierarchy();
+            root.Query<TextElement>().ForEach(text => text.text = string.Empty);
+        }
+    }
 }

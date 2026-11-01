@@ -1,5 +1,5 @@
 #npc-dialog-root { position: absolute; left: 0; top: 0; right: 0; bottom: 0; color: rgb(238, 228, 207); font-size: 16px; }
-#npc-dialog { display: none; position: absolute; left: 18px; bottom: 150px; width: 300px; padding: 10px 12px; background-color: rgba(19, 29, 32, 0.97); border-width: 2px; border-color: rgb(137, 112, 70); border-left-width: 4px; border-left-color: rgb(231, 186, 99); border-radius: 5px; }
+#npc-dialog { position: absolute; left: 18px; bottom: 150px; width: 300px; padding: 10px 12px; background-color: rgba(19, 29, 32, 0.97); border-width: 2px; border-color: rgb(137, 112, 70); border-left-width: 4px; border-left-color: rgb(231, 186, 99); border-radius: 5px; }
 .npc-dialog-header { flex-direction: row; justify-content: space-between; align-items: flex-end; margin-bottom: 6px; padding-bottom: 4px; border-bottom-width: 1px; border-bottom-color: rgb(97, 82, 56); }
 #npc-dialog-title { font-size: 20px; color: rgb(231, 186, 99); -unity-font-style: bold; }
 #npc-dialog-home { font-size: 13px; color: rgb(157, 186, 173); }

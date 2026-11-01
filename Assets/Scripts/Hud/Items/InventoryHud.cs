@@ -21,6 +21,7 @@ namespace IronRing.Hud.Items
     public sealed class InventoryHud : MonoBehaviour
     {
         private static InventoryHud _instance;
+        private bool _bound;
         /// <summary>스토리 013의 인벤토리 바·제작 메뉴·칸 메뉴·배너를 보일지(015부터 false: 숨김, 코드 보존).</summary>
         private static readonly bool LegacyMenus = false;
         /// <summary>현재 HUD(데모 드라이버가 메뉴를 열 때 쓴다). 없으면 null.</summary>
@@ -67,6 +68,9 @@ namespace IronRing.Hud.Items
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Boot() { GameServices.Ready -= Create; GameServices.Ready += Create; }
 
+        /// <summary>스토리 018: 씬(MainUI)에 놓인 문서는 서비스 준비(Initialize) 전까지 꺼 두어 UXML 예시 문구가 Play 화면에 비치지 않게 한다.</summary>
+        void Awake() { if (!_bound && TryGetComponent(out UIDocument document)) document.enabled = false; }
+
         /// <summary>필요한 서비스가 모두 등록되어 있을 때만 HUD를 만든다(다른 스토리 단독 데모에서는 만들지 않는다).</summary>
         private static void Create()
         {
@@ -74,7 +78,10 @@ namespace IronRing.Hud.Items
             if (GameServices.Get<IItemInventory>() == null || GameServices.Get<IItemPlacement>() == null
                 || GameServices.Get<IHubInterior>() == null || GameServices.Get<IViewMode>() == null
                 || GameServices.Get<IResourceInventory>() == null || ItemsInstaller.Catalog == null) return;
-            _instance = new GameObject(nameof(InventoryHud)).AddComponent<InventoryHud>();
+            InventoryHud placed = FindAnyObjectByType<InventoryHud>(FindObjectsInactive.Include);
+            // 스토리 018: 씬(MainUI)에 놓인 HUD에 바인딩한다. 제작자가 꺼 둔 화면이면 대비책도 만들지 않는다.
+            if (placed != null && !(placed.enabled && placed.gameObject.activeInHierarchy)) return;
+            _instance = placed != null ? placed : new GameObject(nameof(InventoryHud)).AddComponent<InventoryHud>();
             _instance.Initialize();
         }
 
@@ -93,11 +100,9 @@ namespace IronRing.Hud.Items
             _sprites = ItemSpriteSet.Load();
             _settings = ItemsViewSettings.Load();
 
-            _panel = Instantiate(KoreanUi.DefaultPanel);
-            var document = gameObject.AddComponent<UIDocument>();
-            document.panelSettings = _panel;
-            document.sortingOrder = _settings.HudSortingOrder;
-            document.visualTreeAsset = UnityEngine.Resources.Load<VisualTreeAsset>("Hud/InventoryHud");
+            _bound = true;
+            // 스토리 018: 씬에 놓인 UIDocument가 있으면 비어 있는 값만 채운다(Sort Order·PanelSettings·UXML은 프리팹 값 우선).
+            UIDocument document = HudDocument.Bind(gameObject, () => _panel = Instantiate(KoreanUi.DefaultPanel), _settings.HudSortingOrder, "Hud/InventoryHud");
             _root = document.rootVisualElement;
             _root.pickingMode = PickingMode.Ignore;
             foreach (TemplateContainer container in _root.Query<TemplateContainer>().ToList()) container.pickingMode = PickingMode.Ignore;
@@ -136,7 +141,8 @@ namespace IronRing.Hud.Items
             cellClose.clicked += CloseCellMenu;
             _banner.text = Strings.Get("inv_banner_complete");
             _message.text = "";
-            if (!LegacyMenus) _bar.style.display = DisplayStyle.None;
+            // UXML은 옛 바를 display:none으로 둔다(편집 모드 미리보기도 Play와 같게). LegacyMenus면 다시 켠다.
+            _bar.style.display = LegacyMenus ? DisplayStyle.Flex : DisplayStyle.None;
 
             _items.Changed += OnCount;
             _resources.Changed += OnCount;

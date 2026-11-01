@@ -20,6 +20,7 @@ namespace IronRing.Hud.HubPhase
     public sealed class PhaseHud : MonoBehaviour
     {
         private static PhaseHud _instance;
+        private bool _bound;
         private HubPhaseViewSettings _settings;
         private IHubStateSystem _hubs;
         private IHubDevelopment _development;
@@ -53,13 +54,19 @@ namespace IronRing.Hud.HubPhase
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Boot() { GameServices.Ready -= Create; GameServices.Ready += Create; }
 
+        /// <summary>스토리 018: 씬(MainUI)에 놓인 문서는 서비스 준비(Initialize) 전까지 꺼 두어 UXML 예시 문구가 Play 화면에 비치지 않게 한다.</summary>
+        void Awake() { if (!_bound && TryGetComponent(out UIDocument document)) document.enabled = false; }
+
         /// <summary>Creates the HUD once when hub state, development and the track are registered.</summary>
         private static void Create()
         {
             if (_instance != null) return;
             if (GameServices.Get<IHubStateSystem>() == null || GameServices.Get<IHubDevelopment>() == null
                 || GameServices.Get<ITrackRuntime>() == null) return;
-            _instance = new GameObject(nameof(PhaseHud)).AddComponent<PhaseHud>();
+            PhaseHud placed = FindAnyObjectByType<PhaseHud>(FindObjectsInactive.Include);
+            // 스토리 018: 씬(MainUI)에 놓인 HUD에 바인딩한다. 제작자가 꺼 둔 화면이면 대비책도 만들지 않는다.
+            if (placed != null && !(placed.enabled && placed.gameObject.activeInHierarchy)) return;
+            _instance = placed != null ? placed : new GameObject(nameof(PhaseHud)).AddComponent<PhaseHud>();
             _instance.Initialize();
         }
 
@@ -74,16 +81,15 @@ namespace IronRing.Hud.HubPhase
             _map = GameServices.Get<IMapAnchors>();
             _plots = GameServices.Get<IInteriorFacilityPlots>();
             _clicks = GameServices.Get<IInteriorCellClickSource>();
-            var document = gameObject.AddComponent<UIDocument>();
-            document.panelSettings = Instantiate(UnityEngine.Resources.Load<PanelSettings>("KoreanPanelSettings"));
-            document.sortingOrder = _settings.HudSortingOrder;
-            document.visualTreeAsset = UnityEngine.Resources.Load<VisualTreeAsset>("Hud/PhaseHud");
+            _bound = true;
+            // 스토리 018: 씬에 놓인 UIDocument가 있으면 비어 있는 값만 채운다(Sort Order·PanelSettings·UXML은 프리팹 값 우선).
+            UIDocument document = HudDocument.Bind(gameObject, () => Instantiate(UnityEngine.Resources.Load<PanelSettings>("KoreanPanelSettings")), _settings.HudSortingOrder, "Hud/PhaseHud");
             _root = document.rootVisualElement;
             _root.pickingMode = PickingMode.Ignore;
             foreach (TemplateContainer container in _root.Query<TemplateContainer>().ToList()) container.pickingMode = PickingMode.Ignore;
             StyleSheet style = UnityEngine.Resources.Load<StyleSheet>("Hud/PhaseHudStyle");
             if (style == null) UnityEngine.Debug.LogError("PhaseHud: Resources/Hud/PhaseHudStyle.uss를 불러오지 못했습니다.");
-            else _root.styleSheets.Add(style);
+            else if (!_root.styleSheets.Contains(style)) _root.styleSheets.Add(style);
             KoreanUi.Apply(_root);
             _mapLabels = _root.Q("phase-map-labels");
             _hubLabel = _root.Q<Label>("phase-hub");

@@ -24,6 +24,6 @@
 .hotbar-entry:hover { border-color: rgb(166, 129, 65); }
 .hotbar-entry--pending { border-color: rgb(120, 190, 160); background-color: rgb(40, 70, 62); }
 .hotbar-entry--facility { background-color: rgb(48, 40, 34); }
-#hotbar-toast { display: none; position: absolute; left: 50%; top: 130px; translate: -50% 0; padding: 10px 26px; font-size: 26px; color: rgb(244, 229, 187); background-color: rgba(67, 107, 102, 0.95); border-width: 2px; border-color: rgb(229, 189, 115); border-radius: 6px; -unity-text-align: middle-center; }
+#hotbar-toast { position: absolute; left: 50%; top: 130px; translate: -50% 0; padding: 10px 26px; font-size: 26px; color: rgb(244, 229, 187); background-color: rgba(67, 107, 102, 0.95); border-width: 2px; border-color: rgb(229, 189, 115); border-radius: 6px; -unity-text-align: middle-center; }
 #hotbar-drag { display: none; position: absolute; width: 52px; height: 52px; translate: -50% -50%; align-items: center; justify-content: center; background-color: rgba(19, 29, 32, 0.75); border-width: 2px; border-color: rgb(231, 186, 99); border-radius: 26px; }
 #hotbar-drag-icon { width: 40px; height: 40px; -unity-background-scale-mode: scale-to-fit; }

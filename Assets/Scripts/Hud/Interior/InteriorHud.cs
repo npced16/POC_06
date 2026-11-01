@@ -14,6 +14,7 @@ namespace IronRing.Hud.Interior
     public sealed class InteriorHud : MonoBehaviour
     {
         private static InteriorHud _instance;
+        private bool _bound;
         private IViewMode _viewMode;
         private HudCatalog _catalog;
         private VisualElement _panel;
@@ -27,11 +28,17 @@ namespace IronRing.Hud.Interior
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Boot() { GameServices.Ready -= Create; GameServices.Ready += Create; }
 
+        /// <summary>스토리 018: 씬(MainUI)에 놓인 문서는 서비스 준비(Initialize) 전까지 꺼 두어 UXML 예시 문구가 Play 화면에 비치지 않게 한다.</summary>
+        void Awake() { if (!_bound && TryGetComponent(out UIDocument document)) document.enabled = false; }
+
         /// <summary>내부 화면 상태가 등록된 씬에서만 HUD 오브젝트를 한 번 만든다.</summary>
         private static void Create()
         {
             if (_instance != null || GameServices.Get<IViewMode>() == null || GameServices.Get<IInteriorAnchors>() == null) return;
-            _instance = new GameObject(nameof(InteriorHud)).AddComponent<InteriorHud>();
+            InteriorHud placed = FindAnyObjectByType<InteriorHud>(FindObjectsInactive.Include);
+            // 스토리 018: 씬(MainUI)에 놓인 HUD에 바인딩한다. 제작자가 꺼 둔 화면이면 대비책도 만들지 않는다.
+            if (placed != null && !(placed.enabled && placed.gameObject.activeInHierarchy)) return;
+            _instance = placed != null ? placed : new GameObject(nameof(InteriorHud)).AddComponent<InteriorHud>();
             _instance.Initialize();
         }
 
@@ -40,10 +47,9 @@ namespace IronRing.Hud.Interior
         {
             _viewMode = GameServices.Get<IViewMode>();
             _catalog = JsonUtility.FromJson<HudCatalog>(UnityEngine.Resources.Load<TextAsset>("Hud/HudCatalog").text);
-            var document = gameObject.AddComponent<UIDocument>();
-            document.panelSettings = KoreanUi.DefaultPanel;
-            document.sortingOrder = 110;
-            document.visualTreeAsset = UnityEngine.Resources.Load<VisualTreeAsset>("Hud/InteriorHud");
+            _bound = true;
+            // 스토리 018: 씬에 놓인 UIDocument가 있으면 비어 있는 값만 채운다(Sort Order·PanelSettings·UXML은 프리팹 값 우선).
+            UIDocument document = HudDocument.Bind(gameObject, () => KoreanUi.DefaultPanel, 110, "Hud/InteriorHud");
             VisualElement root = document.rootVisualElement;
             root.pickingMode = PickingMode.Ignore;
             foreach (TemplateContainer container in root.Query<TemplateContainer>().ToList()) container.pickingMode = PickingMode.Ignore;

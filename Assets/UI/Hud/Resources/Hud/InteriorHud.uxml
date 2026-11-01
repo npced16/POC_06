@@ -1,8 +1,9 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="../../../../Fonts/Resources/KoreanDefault.uss" />
     <ui:Style src="InteriorHudStyle.uss" />
     <ui:VisualElement name="interior">
         <ui:VisualElement name="interior-panel">
-            <ui:Label name="interior-title" />
+            <ui:Label name="interior-title" text="주조소 내부" />
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

@@ -25,6 +25,7 @@ namespace IronRing.Hud.Hotbar
     {
         public const int SLOT_COUNT = 9;
         private static HotbarHud _instance;
+        private bool _bound;
         /// <summary>현재 핫바(데모 드라이버용). 없으면 null.</summary>
         public static HotbarHud Instance => _instance;
 
@@ -68,13 +69,19 @@ namespace IronRing.Hud.Hotbar
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Boot() { GameServices.Ready -= Create; GameServices.Ready += Create; }
 
+        /// <summary>스토리 018: 씬(MainUI)에 놓인 문서는 서비스 준비(Initialize) 전까지 꺼 두어 UXML 예시 문구가 Play 화면에 비치지 않게 한다.</summary>
+        void Awake() { if (!_bound && TryGetComponent(out UIDocument document)) document.enabled = false; }
+
         /// <summary>내부 화면 서비스와 아이템 카탈로그가 있는 씬에서만 한 번 만든다.</summary>
         private static void Create()
         {
             if (_instance != null || GameServices.Get<IViewMode>() == null || ItemsInstaller.Catalog == null) return;
             PlacementGhost ghost = PlacementGhost.Ensure();
             if (ghost == null) return;
-            _instance = new GameObject(nameof(HotbarHud)).AddComponent<HotbarHud>();
+            HotbarHud placed = FindAnyObjectByType<HotbarHud>(FindObjectsInactive.Include);
+            // 스토리 018: 씬(MainUI)에 놓인 HUD에 바인딩한다. 제작자가 꺼 둔 화면이면 대비책도 만들지 않는다.
+            if (placed != null && !(placed.enabled && placed.gameObject.activeInHierarchy)) return;
+            _instance = placed != null ? placed : new GameObject(nameof(HotbarHud)).AddComponent<HotbarHud>();
             _instance.Initialize(ghost);
         }
 
@@ -86,10 +93,9 @@ namespace IronRing.Hud.Hotbar
             _items = ItemsInstaller.Catalog;
             _data = HotbarData.Load();
 
-            var document = gameObject.AddComponent<UIDocument>();
-            document.panelSettings = KoreanUi.DefaultPanel;
-            document.sortingOrder = _data.SortingOrder;
-            document.visualTreeAsset = UnityEngine.Resources.Load<VisualTreeAsset>("Hud/Hotbar");
+            _bound = true;
+            // 스토리 018: 씬에 놓인 UIDocument가 있으면 비어 있는 값만 채운다(Sort Order·PanelSettings·UXML은 프리팹 값 우선).
+            UIDocument document = HudDocument.Bind(gameObject, () => KoreanUi.DefaultPanel, _data.SortingOrder, "Hud/Hotbar");
             _root = document.rootVisualElement;
             _root.pickingMode = PickingMode.Ignore;
             foreach (TemplateContainer container in _root.Query<TemplateContainer>().ToList()) container.pickingMode = PickingMode.Ignore;
@@ -106,6 +112,8 @@ namespace IronRing.Hud.Hotbar
             _dragIcon = _root.Q("hotbar-drag-icon");
             _toast = _root.Q<Label>("hotbar-toast");
             _notice = _root.Q<Label>("hotbar-notice");
+            // 토스트는 UXML 미리보기에서 보이도록 USS 숨김을 뺐으므로 여기서 바로 숨긴다(Update가 이어서 관리).
+            _toast.style.display = DisplayStyle.None;
             foreach (string name in new[] { "hotbar-root", "hotbar-dock", "hotbar-toast", "hotbar-drag", "hotbar-drag-icon", "hotbar-notice", "hotbar-hint" })
                 _root.Q(name).pickingMode = PickingMode.Ignore;
             _root.Q<Label>("hotbar-hint").text = Strings.Get("hotbar_hint");

@@ -1,32 +1,36 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="../../../../Fonts/Resources/KoreanDefault.uss" />
     <ui:Style src="InventoryHudStyle.uss" />
     <ui:VisualElement name="inv-root">
         <ui:VisualElement name="inv-habitat">
-            <ui:Label name="inv-habitat-title" />
-            <ui:VisualElement name="inv-habitat-tags" />
-            <ui:Label name="inv-habitat-state" />
+            <ui:Label name="inv-habitat-title" text="서식지: 증기 공방" />
+            <ui:VisualElement name="inv-habitat-tags">
+                <ui:VisualElement class="inv-tag inv-tag-met preview-only"><ui:Label text="가스등" /><ui:Label text="2 / 2" /></ui:VisualElement>
+                <ui:VisualElement class="inv-tag inv-tag-missing preview-only"><ui:Label text="증기관" /><ui:Label text="1 / 3" /></ui:VisualElement>
+            </ui:VisualElement>
+            <ui:Label name="inv-habitat-state" text="완성까지 증기관 2개" />
         </ui:VisualElement>
-        <ui:Label name="inv-banner" />
+        <ui:Label name="inv-banner" text="증기 공방 완성!" />
         <ui:VisualElement name="inv-craft-menu" class="inv-menu">
             <ui:VisualElement class="inv-header">
-                <ui:Label name="inv-craft-title" class="inv-title" />
-                <ui:Button name="inv-craft-close" />
+                <ui:Label name="inv-craft-title" class="inv-title" text="제작" />
+                <ui:Button name="inv-craft-close" text="닫기" />
             </ui:VisualElement>
             <ui:ScrollView name="inv-craft-list" />
         </ui:VisualElement>
         <ui:VisualElement name="inv-cell-menu" class="inv-menu">
             <ui:VisualElement class="inv-header">
-                <ui:Label name="inv-cell-title" class="inv-title" />
-                <ui:Button name="inv-cell-close" />
+                <ui:Label name="inv-cell-title" class="inv-title" text="빈 터" />
+                <ui:Button name="inv-cell-close" text="닫기" />
             </ui:VisualElement>
-            <ui:Label name="inv-cell-subtitle" class="inv-subtitle" />
+            <ui:Label name="inv-cell-subtitle" class="inv-subtitle" text="놓을 것을 고르세요" />
             <ui:VisualElement name="inv-cell-list" />
         </ui:VisualElement>
-        <ui:VisualElement name="inv-bar">
-            <ui:Label name="inv-bar-title" />
+        <ui:VisualElement name="inv-bar" style="display: none;">
+            <ui:Label name="inv-bar-title" text="창고" />
             <ui:VisualElement name="inv-items" />
             <ui:Label name="inv-message" />
-            <ui:Button name="inv-craft-toggle" />
+            <ui:Button name="inv-craft-toggle" text="제작" />
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

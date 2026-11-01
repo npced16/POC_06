@@ -29,6 +29,7 @@ namespace IronRing.Hud.Npc
         private const string ENCOURAGE_OPTION = "encourage";
 
         private static NpcDialogHud _instance;
+        private bool _bound;
         private static bool _loggedMissing;
 
         /// <summary>현재 패널(데모용). 없으면 null.</summary>
@@ -69,21 +70,26 @@ namespace IronRing.Hud.Npc
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Boot() { GameServices.Ready -= Create; GameServices.Ready += Create; }
 
+        /// <summary>스토리 018: 씬(MainUI)에 놓인 문서는 서비스 준비(Initialize) 전까지 꺼 두어 UXML 예시 문구가 Play 화면에 비치지 않게 한다.</summary>
+        void Awake() { if (!_bound && TryGetComponent(out UIDocument document)) document.enabled = false; }
+
         /// <summary>내부 화면(IViewMode)이 있는 씬에서 한 번 만든다. 씬 편집 없이 Main.unity 플레이에 나타난다.</summary>
         private static void Create()
         {
             if (_instance != null || GameServices.Get<IViewMode>() == null) return;
-            _instance = new GameObject(nameof(NpcDialogHud)).AddComponent<NpcDialogHud>();
+            NpcDialogHud placed = FindAnyObjectByType<NpcDialogHud>(FindObjectsInactive.Include);
+            // 스토리 018: 씬(MainUI)에 놓인 HUD에 바인딩한다. 제작자가 꺼 둔 화면이면 대비책도 만들지 않는다.
+            if (placed != null && !(placed.enabled && placed.gameObject.activeInHierarchy)) return;
+            _instance = placed != null ? placed : new GameObject(nameof(NpcDialogHud)).AddComponent<NpcDialogHud>();
             _instance.Initialize();
         }
 
         private void Initialize()
         {
             _view = GameServices.Get<IViewMode>();
-            var document = gameObject.AddComponent<UIDocument>();
-            document.panelSettings = KoreanUi.DefaultPanel;
-            document.sortingOrder = SORTING_ORDER;
-            document.visualTreeAsset = UnityEngine.Resources.Load<VisualTreeAsset>("Hud/NpcDialog");
+            _bound = true;
+            // 스토리 018: 씬에 놓인 UIDocument가 있으면 비어 있는 값만 채운다(Sort Order·PanelSettings·UXML은 프리팹 값 우선).
+            UIDocument document = HudDocument.Bind(gameObject, () => KoreanUi.DefaultPanel, SORTING_ORDER, "Hud/NpcDialog");
             _root = document.rootVisualElement;
             _root.pickingMode = PickingMode.Ignore;
             foreach (TemplateContainer container in _root.Query<TemplateContainer>().ToList()) container.pickingMode = PickingMode.Ignore;

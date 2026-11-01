@@ -42,7 +42,7 @@ Brief Build order: 이동 → 서식지·NPC → 거점 상태·패배 → 전�
 | 015 | 배치 개편 — 조사 제거, 드래그 앤 드롭·핫바 고스트 배치 | UI | Done | N/A |
 | 016 | 서식지 종류 카탈로그와 연결 판정 | Logic | Done | N/A |
 | 017 | NPC 집 배정, 서식지 곁 배회, 클릭 대화·상호작용 | Integration | Done | N/A |
-| 018 | MainUI 프리팹 — 씬에 놓인 UI 문서와 편집 모드 미리보기 | UI | Ready | N/A |
+| 018 | MainUI 프리팹 — 씬에 놓인 UI 문서와 편집 모드 미리보기 | UI | Done | N/A |
 
 배치 개편(2026-11-01 16:30): 사용자 결정으로 잔해 조사를 없애고, 핫바(1~9)·고스트·드래그 앤 드롭으로 타일을 배치하며, 서식지는 묶음형(같은 타일 N칸 상하좌우 연결, 모양 무관, 크기 3·4·9칸 등)과 패턴형(타일 배열 템플릿이 회전·거울상 8변형 중 하나로 들어맞으면 완성, 예: 물-불-풀 = 풀-불-물, 불-풀-물은 불인정)으로 완성된다. 서식지 종류는 데이터 카탈로그(묶음형 13종·패턴형 3종 이상). 자원·제작 시스템은 당분간 없애고 타일·아이템·시설은 무제한으로 놓는다. 015(UI)와 016(로직)을 병렬로 진행해 2026-11-01 17:00 KST에 둘 다 Done(브리지 컴파일 통과, 캡처 `story-015-placement-hotbar-dragdrop/01~04(-v2).png`, `story-016-habitat-types-clusters/habitat-demo-v2.png`·`-v3-pattern.png` 육안 확인). 코디네이터 통합 수정: 붉은 고스트 색 진하게(카탈로그), 서식지 테두리 정렬 순서 15(타일 위), 칸 클릭 건설 메뉴는 `hub_phase_view.json` `_buildMenuOnCellClick:false`로 꺼서 핫바 7~9와 충돌 제거, 내부 패널에 완성 서식지 이름 나열. 세계관 수정(17:10, 사용자): 타일·서식지를 자연물이 아닌 스팀펑크 마을 요소(보일러·증기관·톱니장치·가스등·석탄더미·철골·벽돌길·물탱크·온실유리·침상·작업대·전신주·굴뚝, 서식지 19종)로 전면 교체 — 2026-11-01 17:25 KST 재검증 완료(캡처 `habitat-demo-v4-steampunk.png`, `story-015/*-steampunk.png`). 012의 조사, 013의 태그 합산·제작, 002의 자원 슬롯은 코드만 보존한다.
 
@@ -50,7 +50,7 @@ Brief Build order: 이동 → 서식지·NPC → 거점 상태·패배 → 전�
 
 NPC 집·대화(017, 2026-11-01 18:05 KST): 사용자 지시로 합류 NPC는 자기 종류의 완성 서식지를 집으로 받아 그 곁(집 칸 + 붙은 빈 칸)만 배회하고, 빈 손 좌클릭이면 대화 패널(직업명·집·대사 순환·격려(정차 1회 번영 +3, 데이터)·닫기)이 열린다. 계약 `INpcHomes`/`INpcInteraction`/`INpcClickSource`, 로직 `Assets/Scripts/Npc/`(NpcHomes·NpcInteraction·NpcInstaller·데이터), 표현 `InteriorNpcWalker`+`NpcBody`+프리팹 콜라이더, HUD `Assets/Scripts/Hud/Npc/NpcDialogHud`. 캡처 `story-017-npc-homes-dialogue/017-homes|panel|encouraged.png`. 메모: 격려 횟수는 출발 이벤트가 없어 다음 도착 때 초기화.
 
-UI 프리팹(018, 2026-11-01 18:45 KST 착수): 사용자 결정으로 HUD도 씬의 프리팹 인스턴스(`Assets/Prefabs/UI/MainUI.prefab`, 루트 `MainUI` 아래 HUD별 자식 6개에 UIDocument + HUD 스크립트)로 둔다. HUD 스크립트는 씬의 UIDocument에 바인딩만 하고 런타임 생성은 MainUI 없는 데모 씬의 대비책으로만 남긴다. 목적은 편집 모드 Game 뷰 미리보기(UIDocument가 씬에 있으면 Play 없이 그려짐)와 UI Builder 편집 흐름. 재생성은 `IronRing.Hud.Editor.BuildMainUi.Generate`(멱등). 비교한 대안: 별도 UI 씬(관리 비용↑), UGUI 캔버스(전면 재작성, 권장 안 함).
+UI 프리팹(018, 2026-11-01 18:45 KST 착수): 사용자 결정으로 HUD도 씬의 프리팹 인스턴스(`Assets/Prefabs/UI/MainUI.prefab`, 루트 `MainUI` 아래 HUD별 자식 6개에 UIDocument + HUD 스크립트)로 둔다. HUD 스크립트는 씬의 UIDocument에 바인딩만 하고 런타임 생성은 MainUI 없는 데모 씬의 대비책으로만 남긴다. 목적은 편집 모드 Game 뷰 미리보기(UIDocument가 씬에 있으면 Play 없이 그려짐)와 UI Builder 편집 흐름. 재생성은 `IronRing.Hud.Editor.BuildMainUi.Generate`(멱등). 2026-11-01 19:30 KST Done(컴파일 통과, 편집 모드 Game 뷰 캡처 `story-018-main-ui-prefab/018-editmode-gameview.png`, Play 캡처 2장). 후속 결정(사용자, 19:20): 디자이너가 씬에서 직접 고치도록 UI를 UGUI 캔버스 + 화면별 프리팹(켜고 끄기)으로 전환한다(019). 018의 UI Toolkit 문서는 그때 대체된다.
 
 개발 방식 결정(2026-11-01 16:10): 사용자 결정으로 자동 테스트를 두지 않는다(AX 기반 개발). `Assets/Tests`는 `archive/legacy-tests/`로 옮겼고 `project.yaml`의 `testing.strict.logic/integration/config`는 false다. 이후 완료 증거는 브리지 컴파일 확인과 스크린샷이며, 문서의 `editmode-*.xml` 언급은 이전 기록이다. 개발 순서는 스펙 우선(SDD): 브리프·스토리를 먼저 고치고 구현하며, 판단이 애매하면 `.claude/agents/*.md`의 역할 정의를 따른다. 선로 화면 단계 라벨 겹침은 수정 완료(`story-009-topdown-main-scene/03-ring-prefabs-v2.png`).
 
