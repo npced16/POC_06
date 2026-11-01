@@ -18,7 +18,7 @@ namespace IronRing.Hud.Editor.Screens
         private const float SHADE_ALPHA = 0.86f;
         private static readonly Vector2 CardSize = new Vector2(820, 470);
         private const float BODY_HEIGHT = 44;
-        private const float HUBS_HEIGHT = 190;
+        private const float HUBS_HEIGHT = 146;
         private const float LAPS_HEIGHT = 40;
         private const float GAP = 8;
         private static readonly Vector2 ButtonSize = new Vector2(220, 56);
@@ -47,6 +47,11 @@ namespace IronRing.Hud.Editor.Screens
             top += HUBS_HEIGHT + GAP;
             TextMeshProUGUI laps = UiKit.Label(card.transform, "Laps", "", UiTextSize.Normal, theme);
             UiKit.Place(laps.rectTransform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -top), new Vector2(width, LAPS_HEIGHT));
+
+            top += LAPS_HEIGHT + GAP;
+            TextMeshProUGUI finance = UiKit.Label(card.transform, "Finance", string.Format(Strings.Get("ui_result_finance"), 0, 0), UiTextSize.Normal, theme);
+            UiKit.Place(finance.rectTransform, new Vector2(.5f, 1), new Vector2(.5f, 1), new Vector2(0, -top), new Vector2(width, 36));
+            UiKit.Bind(screen, "_finance", finance);
 
             Button restart = UiKit.Button(card.transform, "Restart", Strings.Get("result_restart"), theme);
             UiKit.Place((RectTransform)restart.transform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, BUTTON_BOTTOM), ButtonSize);

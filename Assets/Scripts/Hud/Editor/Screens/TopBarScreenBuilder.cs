@@ -22,10 +22,16 @@ namespace IronRing.Hud.Editor.Screens
             Image bar = UiKit.Bar(root.transform, "Bar", theme);
             UiKit.StretchTop(bar.rectTransform, 54, 12, 16, 16);
             TextMeshProUGUI location = UiKit.Label(bar.transform, "Location", Strings.Get("hud_location") + "  " + Strings.Get("hub_1"), UiTextSize.Normal, theme, TextAlignmentOptions.MidlineLeft);
-            UiKit.Place(location.rectTransform, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(18, 0), new Vector2(380, 44));
+            UiKit.Place(location.rectTransform, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(18, 0), new Vector2(300, 44));
             TextMeshProUGUI lap = UiKit.Label(bar.transform, "Lap", Strings.Get("hud_turn") + "  3", UiTextSize.Normal, theme, TextAlignmentOptions.MidlineLeft);
-            UiKit.Place(lap.rectTransform, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(410, 0), new Vector2(180, 44));
+            UiKit.Place(lap.rectTransform, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(570, 0), new Vector2(140, 44));
             lap.color = theme.Accent;
+            IconCatalog icons = AssetDatabase.LoadAssetAtPath<IconCatalog>("Assets/Prefabs/UI/IconCatalog.asset");
+            var coin = UiKit.Image(bar.transform, "Coin", icons.Get("ui_coin"), Color.white, false);
+            UiKit.Place(coin.rectTransform, new Vector2(0, .5f), new Vector2(0, .5f), new Vector2(328, 0), new Vector2(28, 28));
+            var balance = UiKit.Label(bar.transform, "Balance", string.Format(Strings.Get("ui_topbar_balance"), 0), UiTextSize.Normal, theme, TextAlignmentOptions.MidlineLeft);
+            UiKit.Place(balance.rectTransform, new Vector2(0, .5f), new Vector2(0, .5f), new Vector2(364, 0), new Vector2(200, 44));
+            UiKit.Bind(screen, "_balance", balance); UiKit.Bind(screen, "_coin", coin); UiKit.Bind(screen, "_icons", icons);
             Button codex = UiKit.Button(bar.transform, "Codex", Strings.Get("codex_open"), theme);
             UiKit.Place((RectTransform)codex.transform, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-14, 0), new Vector2(132, theme.ButtonHeight));
             // 스토리 025: 승객 수 버튼(도감 버튼 왼쪽)
@@ -38,7 +44,6 @@ namespace IronRing.Hud.Editor.Screens
             row.childAlignment = TextAnchor.MiddleLeft;
             Button depart = UiKit.Button(row.transform, "Depart", Strings.Get("hud_depart"), theme);
             ((RectTransform)depart.transform).sizeDelta = new Vector2(150, theme.ButtonHeight);
-            foreach (Button button in new[] { depart })
 
             UiKit.Bind(screen, "_location", location);
             UiKit.Bind(screen, "_lap", lap);
