@@ -50,6 +50,8 @@ namespace IronRing.Hud.Hotbar
         private int _selectedSlot = -1;
         private PlacementEntry _pendingAssign;
         private float _toastUntil;
+        /// <summary>스토리 021: 도감 토스트는 내부 화면이 닫혀 있어도 보인다.</summary>
+        private bool _toastAnyView;
         private float _noticeUntil;
         private bool _paletteOpen;
 
@@ -114,6 +116,8 @@ namespace IronRing.Hud.Hotbar
             _notice = _root.Q<Label>("hotbar-notice");
             // 토스트는 UXML 미리보기에서 보이도록 USS 숨김을 뺐으므로 여기서 바로 숨긴다(Update가 이어서 관리).
             _toast.style.display = DisplayStyle.None;
+            // 스토리 021: 토스트를 핫바 루트(내부 화면에서만 보임) 밖 문서 루트로 옮겨 지도 화면에서도 같은 자리에 띄울 수 있게 한다.
+            _root.Add(_toast);
             foreach (string name in new[] { "hotbar-root", "hotbar-dock", "hotbar-toast", "hotbar-drag", "hotbar-drag-icon", "hotbar-notice", "hotbar-hint" })
                 _root.Q(name).pickingMode = PickingMode.Ignore;
             _root.Q<Label>("hotbar-hint").text = Strings.Get("hotbar_hint");
@@ -404,7 +408,7 @@ namespace IronRing.Hud.Hotbar
             if (_view.InteriorOpen) ReadDigitKeys();
             UpdateDragChip();
             float now = Time.realtimeSinceStartup;
-            if (_toast != null) _toast.style.display = _view.InteriorOpen && now < _toastUntil ? DisplayStyle.Flex : DisplayStyle.None;
+            if (_toast != null) _toast.style.display = (_view.InteriorOpen || _toastAnyView) && now < _toastUntil ? DisplayStyle.Flex : DisplayStyle.None;
             if (_notice != null) _notice.style.display = _view.InteriorOpen && now < _noticeUntil ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
@@ -458,7 +462,20 @@ namespace IronRing.Hud.Hotbar
             if (hubId != _view.InteriorHubId) return;
             _toast.text = string.Format(Strings.Get("placement_habitat_complete"), HabitatName(typeId));
             _toastUntil = Time.realtimeSinceStartup + _data.ToastSeconds;
+            _toastAnyView = false;
         }
+
+        /// <summary>스토리 021: 같은 토스트 자리에 문구를 띄운다(지도·내부 화면 모두). 도감 해금 알림이 쓴다.</summary>
+        public void ShowToast(string text)
+        {
+            if (_toast == null) return;
+            _toast.text = text;
+            _toastUntil = Time.realtimeSinceStartup + _data.ToastSeconds;
+            _toastAnyView = true;
+        }
+
+        /// <summary>토스트 표시 시간(초, 데이터).</summary>
+        public float ToastSeconds => _data.ToastSeconds;
 
         /// <summary>
         /// 서식지 종류의 한국어 이름: 문자열 표의 habitat_type_&lt;id&gt; 또는 habitat_&lt;id&gt; 키, 없으면 016 구현이 공개하는
@@ -488,7 +505,7 @@ namespace IronRing.Hud.Hotbar
                 _selectedSlot = -1;
                 _pendingAssign = default;
                 _paletteOpen = false;
-                _toastUntil = 0;
+                if (!_toastAnyView) _toastUntil = 0;
                 ClearPress();
             }
             Refresh();

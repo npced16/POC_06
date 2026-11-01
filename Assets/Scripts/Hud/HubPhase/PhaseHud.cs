@@ -25,6 +25,7 @@ namespace IronRing.Hud.HubPhase
         private IHubStateSystem _hubs;
         private IHubDevelopment _development;
         private ITrackRuntime _track;
+        private IHabitatClusters _clusters;
         private IViewMode _view;
         private IMapAnchors _map;
         private IInteriorFacilityPlots _plots;
@@ -77,6 +78,7 @@ namespace IronRing.Hud.HubPhase
             _hubs = GameServices.Get<IHubStateSystem>();
             _development = GameServices.Get<IHubDevelopment>();
             _track = GameServices.Get<ITrackRuntime>();
+            _clusters = GameServices.Get<IHabitatClusters>();
             _view = GameServices.Get<IViewMode>();
             _map = GameServices.Get<IMapAnchors>();
             _plots = GameServices.Get<IInteriorFacilityPlots>();
@@ -120,12 +122,14 @@ namespace IronRing.Hud.HubPhase
             if (_view != null) _view.InteriorChanged += OnInteriorChanged;
             _development.PhaseChanged += OnPhaseChanged;
             _hubs.RunLost += OnRunLost;
+            if (_clusters != null) { _clusters.HabitatCompleted += OnHabitatsChanged; _clusters.HabitatBroken += OnHabitatsChanged; }
             Refresh(true);
         }
 
         private void OnPhaseChanged(string hubId, DevPhase phase) => Refresh(true);
         private void OnInteriorChanged(bool open) { if (!open) CloseMenu(); Refresh(true); }
         private void OnRunLost() { CloseMenu(); Refresh(true); }
+        private void OnHabitatsChanged(string hubId, string typeId) => Refresh(true);
 
         /// <summary>Korean phase name for phase.</summary>
         private static string PhaseText(DevPhase phase)
@@ -164,10 +168,13 @@ namespace IronRing.Hud.HubPhase
             bool anySettled = false;
             foreach (string id in _hubs.HubIds) anySettled |= _development.HasEverSettled(id);
             int laps = _development.LapsUntilDeadline;
-            string key = hub + "|" + phase + "|" + prosperity + "|" + laps + "|" + anySettled + "|" + _hubs.IsRunLost;
+            // 스토리 021: 현재 거점의 완성 서식지 수.
+            int habitats = _clusters != null ? _clusters.CompletedAt(hub).Count : 0;
+            string key = hub + "|" + phase + "|" + prosperity + "|" + laps + "|" + anySettled + "|" + _hubs.IsRunLost + "|" + habitats;
             if (!force && key == _bannerKey) return;
             _bannerKey = key;
-            _hubLabel.text = HubName(hub) + "  ·  " + PhaseText(phase) + "  ·  " + Strings.Get("phase_prosperity") + " " + prosperity;
+            _hubLabel.text = HubName(hub) + "  ·  " + PhaseText(phase) + "  ·  " + Strings.Get("phase_prosperity") + " " + prosperity
+                + "  ·  " + Strings.Get("phase_habitats") + " " + habitats;
             foreach (DevPhase each in new[] { DevPhase.Ruined, DevPhase.Recovering, DevPhase.Settled, DevPhase.Collapsed })
                 _hubLabel.EnableInClassList(PhaseClass(each), each == phase);
             bool showDeadline = !anySettled && laps != int.MaxValue && !_hubs.IsRunLost;
@@ -271,6 +278,7 @@ namespace IronRing.Hud.HubPhase
             if (_view != null) _view.InteriorChanged -= OnInteriorChanged;
             if (_development != null) _development.PhaseChanged -= OnPhaseChanged;
             if (_hubs != null) _hubs.RunLost -= OnRunLost;
+            if (_clusters != null) { _clusters.HabitatCompleted -= OnHabitatsChanged; _clusters.HabitatBroken -= OnHabitatsChanged; }
             if (_instance == this) _instance = null;
         }
     }

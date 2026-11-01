@@ -24,9 +24,17 @@ namespace IronRing.Habitats
         /// <summary>설치된 시스템. 설치 전에는 null.</summary>
         public static ClusterHabitatSystem System { get; private set; }
 
+        /// <summary>스토리 021 레시피 도감 해금 데이터 경로(Resources/Habitats/CodexUnlocks.json).</summary>
+        public const string CodexPath = "Habitats/CodexUnlocks";
+
+        /// <summary>설치된 레시피 도감. 설치 전에는 null.</summary>
+        public static HabitatCodex Codex { get; private set; }
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStatics()
         {
+            Codex?.Dispose();
+            Codex = null;
             System?.Dispose();
             System = null;
             Catalog = null;
@@ -48,7 +56,22 @@ namespace IronRing.Habitats
             System = new ClusterHabitatSystem(Catalog, interior, placement, hubIds);
             GameServices.Register<IHabitatSystem>(System);
             GameServices.Register<IHabitatClusters>(System);
+            InstallCodex();
             return System;
+        }
+
+        /// <summary>
+        /// 스토리 021: 해금 데이터를 읽어 도감을 만들고 IHabitatCodex로 등록한다. ITrackRuntime·IWaypointResolver는 MainRoot가 Composing 전에
+        /// 등록하므로 여기서 얻는다(없으면 그 해금 출처만 빠진다).
+        /// </summary>
+        private static void InstallCodex()
+        {
+            Codex?.Dispose();
+            TextAsset asset = UnityEngine.Resources.Load<TextAsset>(CodexPath);
+            if (asset == null) throw new InvalidOperationException("Missing codex unlock resource: " + CodexPath);
+            CodexUnlockSettings settings = CodexUnlockSettings.Parse(asset.text);
+            Codex = new HabitatCodex(Catalog, settings, GameServices.Get<ITrackRuntime>(), GameServices.Get<IWaypointResolver>(), System);
+            GameServices.Register<IHabitatCodex>(Codex);
         }
 
         /// <summary>종류 id의 카탈로그 번영 보너스(모르는 id나 설치 전이면 0 = 거점 기본값 사용). 014 번영 규칙이 쓴다.</summary>

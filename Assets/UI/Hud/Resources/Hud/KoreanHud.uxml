@@ -6,6 +6,7 @@
             <ui:VisualElement name="resources" />
             <ui:Label name="location" text="현재 위치: 주조소" />
             <ui:Label name="lap" text="3바퀴째" />
+            <ui:Button name="codex-open" text="도감 (C)" style="font-size: 18px; margin-left: 12px; padding-left: 14px; padding-right: 14px;" />
         </ui:VisualElement>
         <ui:VisualElement name="actions">
             <ui:Button name="next-round" text="다음 라운드" />

@@ -34,7 +34,6 @@ namespace IronRing.Hud.Items
         private IInteriorCellClickSource _clicks;
         private IHabitatSystem _habitat;
         private IHabitatClusters _clusters;
-        private ITagHabitatProgress _progress;
         private IResourceInventory _resources;
         private ItemCatalog _catalog;
         private ItemSpriteSet _sprites;
@@ -48,11 +47,8 @@ namespace IronRing.Hud.Items
         private ScrollView _craftList;
         private VisualElement _cellMenu;
         private VisualElement _cellList;
-        private VisualElement _tagList;
         private Label _cellTitle;
         private Label _cellSubtitle;
-        private Label _habitatTitle;
-        private Label _habitatState;
         private Label _banner;
         private Label _message;
 
@@ -94,7 +90,6 @@ namespace IronRing.Hud.Items
             _clicks = GameServices.Get<IInteriorCellClickSource>();
             _habitat = GameServices.Get<IHabitatSystem>();
             _clusters = GameServices.Get<IHabitatClusters>();
-            _progress = GameServices.Get<ITagHabitatProgress>();
             _resources = GameServices.Get<IResourceInventory>();
             _catalog = ItemsInstaller.Catalog;
             _sprites = ItemSpriteSet.Load();
@@ -120,11 +115,8 @@ namespace IronRing.Hud.Items
             _craftList = _root.Q<ScrollView>("inv-craft-list");
             _cellMenu = _root.Q("inv-cell-menu");
             _cellList = _root.Q("inv-cell-list");
-            _tagList = _root.Q("inv-habitat-tags");
             _cellTitle = _root.Q<Label>("inv-cell-title");
             _cellSubtitle = _root.Q<Label>("inv-cell-subtitle");
-            _habitatTitle = _root.Q<Label>("inv-habitat-title");
-            _habitatState = _root.Q<Label>("inv-habitat-state");
             _banner = _root.Q<Label>("inv-banner");
             _message = _root.Q<Label>("inv-message");
             _banner.pickingMode = PickingMode.Ignore;
@@ -193,18 +185,16 @@ namespace IronRing.Hud.Items
             SetVisible(_banner, show);
         }
 
-        /// <summary>현재 상태로 바·메뉴·서식지 패널을 다시 그린다.</summary>
+        /// <summary>현재 상태로 바·메뉴를 다시 그린다(스토리 021: 서식지 조건 패널은 도감으로 옮겼다).</summary>
         private void Refresh()
         {
             if (_root == null) return;
             bool open = _view.InteriorOpen;
             _root.Q("inv-root").style.display = open ? DisplayStyle.Flex : DisplayStyle.None;
             if (!open) return;
-            string hubId = _view.InteriorHubId;
             RefreshBar();
             RefreshCraft();
             RefreshCell();
-            RefreshHabitat(hubId);
         }
 
         private void RefreshBar()
@@ -298,44 +288,6 @@ namespace IronRing.Hud.Items
                 _cellList.Add(row);
             }
             if (!any) _cellList.Add(TextLabel(Strings.Get("inv_place_none"), "inv-detail"));
-        }
-
-        private void RefreshHabitat(string hubId)
-        {
-            _habitatTitle.text = Strings.Get("inv_habitat_title") + "  " + HubName(hubId);
-            _tagList.Clear();
-            if (_progress != null)
-                foreach (TagProgress p in _progress.Progress(hubId))
-                {
-                    var row = new VisualElement();
-                    row.AddToClassList("inv-tag");
-                    row.AddToClassList(p.Met ? "inv-tag-met" : "inv-tag-missing");
-                    row.Add(new Label(_catalog.TagName(p.TagId)));
-                    row.Add(new Label(p.Current + " / " + p.Required));
-                    _tagList.Add(row);
-                }
-            bool complete = _habitat != null && _habitat.IsHabitatComplete(hubId);
-            // Story 016: 완성 서식지 종류 이름을 나열한다(묶음형·패턴형 모두). 없으면 미완성 문구.
-            string names = CompletedNames(hubId);
-            _habitatState.text = names != null ? Strings.Get("inv_habitat_list") + " " + names : Strings.Get(complete ? "inv_habitat_complete" : "inv_habitat_incomplete");
-            _habitatState.EnableInClassList("inv-complete", complete);
-        }
-
-        /// <summary>hubId의 완성 서식지 이름들("초원 · 연못"). 없거나 IHabitatClusters 미등록이면 null.</summary>
-        private string CompletedNames(string hubId)
-        {
-            if (_clusters == null || hubId == null) return null;
-            var counts = new Dictionary<string, int>();
-            var order = new List<string>();
-            foreach (HabitatCluster c in _clusters.CompletedAt(hubId))
-            {
-                if (!counts.ContainsKey(c.TypeId)) { counts[c.TypeId] = 0; order.Add(c.TypeId); }
-                counts[c.TypeId]++;
-            }
-            if (order.Count == 0) return null;
-            var parts = new List<string>();
-            foreach (string id in order) parts.Add(Strings.Get("habitat_type_" + id) + (counts[id] > 1 ? " ×" + counts[id] : ""));
-            return string.Join(" · ", parts);
         }
 
         private void Craft(string itemId)

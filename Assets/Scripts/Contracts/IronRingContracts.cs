@@ -314,6 +314,22 @@ namespace IronRing.Contracts
         event Action<string, string> HabitatBroken;
     }
 
+    /// <summary>
+    /// 스토리 021. 서식지 레시피(완성 조건) 도감. 런 시작 때 시작 레시피만 알고, 바퀴·경유지 이벤트·전투 승리·우연한 완성(발견)으로 하나씩 해금한다.
+    /// 해금 여부는 완성 판정을 막지 않는다(모르는 레시피도 완성되면 그대로 인정되고 "discover"로 해금된다).
+    /// </summary>
+    public interface IHabitatCodex
+    {
+        /// <summary>typeId 레시피를 알고 있으면 true.</summary>
+        bool IsUnlocked(string typeId);
+        /// <summary>해금된 종류 id들(해금 순서).</summary>
+        IReadOnlyList<string> UnlockedTypeIds { get; }
+        /// <summary>typeId를 해금한다. 카탈로그에 없거나 이미 해금이면 false. source: "start" | "lap" | "event" | "victory" | "discover".</summary>
+        bool TryUnlock(string typeId, string source);
+        /// <summary>typeId, source. 새로 해금될 때 1회(시작 레시피는 생성 때 해금되므로 발생하지 않는다).</summary>
+        event Action<string, string> RecipeUnlocked;
+    }
+
     // ----- NPC 집(배정 서식지)과 대화·상호작용(스토리 017) -----
 
     /// <summary>NPC 한 명의 집: 합류 때 배정된 거점의 완성 서식지 하나와 그 칸들.</summary>
