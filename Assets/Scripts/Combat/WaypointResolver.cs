@@ -4,6 +4,15 @@ using IronRing.Contracts;
 
 namespace IronRing.Combat
 {
+    /// <summary>Story 033. Real-time raid that decides a raid-mode encounter; WaypointResolver hands it the encounter and gets the outcome back.</summary>
+    public interface IRaidRunner
+    {
+        /// <summary>True when the waypoint is still occupied (a raid happens there).</summary>
+        bool IsOccupied(ITrackNode node);
+        /// <summary>Starts the raid at node; the runner later calls WaypointResolver.CompleteRaid exactly once.</summary>
+        void Begin(ITrackNode node);
+    }
+
     public sealed class WaypointResolver : IWaypointResolver, IDisposable
     {
         private const string HOLD_REASON = "waypoint-encounter";
@@ -17,6 +26,9 @@ namespace IronRing.Combat
         private string _nextHub;
         private EncounterEvent _selectedEvent;
         private bool _disposed;
+        private IRaidRunner _raid;
+        /// <summary>Story 033: true while the active encounter is a real-time raid (no dice rounds, Advance is ignored).</summary>
+        public bool IsRaid { get; private set; }
         public bool IsEncounterActive { get; private set; }
         public CombatEncounter Combat { get; private set; }
         public string EventTitle { get; private set; }
@@ -38,10 +50,24 @@ namespace IronRing.Combat
             if (_disposed || IsEncounterActive || node.Kind != TrackNodeKind.Waypoint) return;
             _nextHub = FindNextHub(node);
             _node = node;
-            Combat = null; EventTitle = null; LastOutcome = null;
+            Combat = null; EventTitle = null; LastOutcome = null; IsRaid = false;
             IsEncounterActive = true;
             _track.RequestHold(HOLD_REASON);
-            if (_random.NextFloat() < _data.EventRatio)
+            if (_data.RaidMode && _raid != null && _raid.IsOccupied(node))
+            {
+                // Story 033: occupied waypoint -> the raid decides Victory/Defeat through CompleteRaid; dice combat and the event roll are skipped.
+                IsRaid = true;
+                EncounterStarted?.Invoke(node);
+                _raid.Begin(node);
+                return;
+            }
+            if (_data.RaidMode && _raid != null)
+            {
+                // Story 033: a liberated waypoint has no more raids; it always gives a trackside event.
+                _selectedEvent = _data.Events[_random.NextInt(0, _data.Events.Length)];
+                EventTitle = _selectedEvent.Title;
+            }
+            else if (_random.NextFloat() < _data.EventRatio)
             {
                 _selectedEvent = _data.Events[_random.NextInt(0, _data.Events.Length)];
                 EventTitle = _selectedEvent.Title;
@@ -54,7 +80,7 @@ namespace IronRing.Combat
         /// <summary>Resolves the selected event or advances one combat round, applies final rewards or penalties, and releases the encounter hold.</summary>
         public void Advance()
         {
-            if (!IsEncounterActive) return;
+            if (!IsEncounterActive || IsRaid) return;
             if (Combat == null)
             {
                 ChangeResource(_selectedEvent.Resource, _selectedEvent.Delta);
@@ -64,7 +90,27 @@ namespace IronRing.Combat
             }
             Combat.AdvanceRound();
             if (!Combat.IsComplete) return;
-            if (Combat.Outcome == EncounterOutcome.Victory)
+            ApplyCombatResult(Combat.Outcome);
+            Finish(Combat.Outcome);
+        }
+
+        /// <summary>Story 033: attaches the raid runner used when the encounter data has _raidMode (null detaches it).</summary>
+        public void AttachRaid(IRaidRunner raid) => _raid = raid;
+
+        /// <summary>Story 033: the raid runner reports the raid outcome; applies the same rewards/penalties as dice combat and releases the hold.</summary>
+        public void CompleteRaid(bool victory)
+        {
+            if (!IsEncounterActive || !IsRaid) return;
+            EncounterOutcome outcome = victory ? EncounterOutcome.Victory : EncounterOutcome.Defeat;
+            ApplyCombatResult(outcome);
+            IsRaid = false;
+            Finish(outcome);
+        }
+
+        /// <summary>Applies the combat reward (victory) or penalty (defeat) to the inventory and the next hub's prosperity.</summary>
+        private void ApplyCombatResult(EncounterOutcome result)
+        {
+            if (result == EncounterOutcome.Victory)
             {
                 _inventory.Add(_data.RewardResource, _data.RewardAmount);
                 // Story 016: encounters reward prosperity only (resource amounts are 0 in data).
@@ -76,7 +122,6 @@ namespace IronRing.Combat
                 ChangeResource(resource, -_data.PenaltyAmount);
                 _hubs.ApplyDelta(_nextHub, _data.ProsperityPenalty, HOLD_REASON);
             }
-            Finish(Combat.Outcome);
         }
 
         /// <summary>Uses ring list order and the waypoint id to return the next hub, wrapping across the ring boundary.</summary>

@@ -22,6 +22,8 @@ namespace IronRing.Combat
         [Tooltip("Story 016: prosperity added to the next hub after a resolved trackside event (0 = none).")]
         [SerializeField] private float _eventProsperity;
         [SerializeField] private EncounterEvent[] _events;
+        [Tooltip("Story 033: true = an occupied waypoint runs a real-time raid (RaidSystem) instead of the dice combat and event roll.")]
+        [SerializeField] private bool _raidMode;
         public float EventRatio => _eventRatio;
         public int Rounds => _rounds;
         public float TrainStrength => _trainStrength;
@@ -37,6 +39,8 @@ namespace IronRing.Combat
         /// <summary>Story 016: next-hub prosperity gain after a resolved event.</summary>
         public float EventProsperity => _eventProsperity;
         public EncounterEvent[] Events => _events;
+        /// <summary>Story 033: waypoint encounters become real-time raids while the waypoint is occupied (dice combat code kept).</summary>
+        public bool RaidMode => _raidMode;
 
         /// <summary>Validates loaded encounter inputs and throws if their ranges cannot produce valid encounters.</summary>
         public void Validate()

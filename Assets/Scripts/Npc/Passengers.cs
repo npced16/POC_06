@@ -186,7 +186,9 @@ namespace IronRing.Npc
             foreach (NpcDefinition npc in order)
             {
                 if (_riders.Count >= _pool.MaxPassengers) return;
-                if (_random.NextDouble() < npc.Passenger.Chance) Board(npc, waypointId);
+                // 스토리 033: 해방된 종점은 탑승 확률을 올린다(IRaid.BoardChanceBonus, 데이터).
+                float bonus = IronRing.Contracts.Presentation.GameServices.Get<IronRing.Contracts.IRaid>()?.BoardChanceBonus ?? 0f;
+                if (_random.NextDouble() < npc.Passenger.Chance + bonus) Board(npc, waypointId);
             }
         }
 

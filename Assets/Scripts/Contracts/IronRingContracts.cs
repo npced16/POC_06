@@ -517,4 +517,89 @@ namespace IronRing.Contracts
         /// <summary>hubId, 서식지 종류 id. 그 종류의 완성 묶음 칸 구성이 바뀔 때마다 1회.</summary>
         event Action<string, string> HabitatChanged;
     }
+
+    /// <summary>스토리 033. 습격 중 움직이는 몬스터 하나 또는 둥지 하나의 읽기 전용 상태(월드 좌표).</summary>
+    public sealed class RaidUnit
+    {
+        /// <summary>몬스터 id(런 안에서 유일, 0부터) 또는 둥지 순번.</summary>
+        public int Id { get; set; }
+        /// <summary>몬스터 종류 id("spider", "automaton") 또는 "nest".</summary>
+        public string Kind { get; set; }
+        /// <summary>월드 X.</summary>
+        public float X { get; set; }
+        /// <summary>월드 Y.</summary>
+        public float Y { get; set; }
+        /// <summary>남은 체력.</summary>
+        public int Hp { get; set; }
+        /// <summary>최대 체력.</summary>
+        public int HpMax { get; set; }
+        /// <summary>살아 있으면 true(둥지는 파괴 전까지 true).</summary>
+        public bool Alive => Hp > 0;
+    }
+
+    /// <summary>
+    /// 스토리 033/034. 습격에 쓰는 열차 장비 요약. 033은 거점 시설 수를 감싼 임시 제공자(FacilityLoadoutAdapter)를 등록하고,
+    /// 034가 열차 장비 그리드 제공자로 교체한다(GameServices.Register&lt;IRaidLoadout&gt; 덮어쓰기). RaidSystem은 습격 시작마다 다시 읽는다.
+    /// </summary>
+    public interface IRaidLoadout
+    {
+        /// <summary>일반 포탑 수(자동 사격).</summary>
+        int Turrets { get; }
+        /// <summary>중포탑 수(자동 사격, 피해가 큼).</summary>
+        int HeavyTurrets { get; }
+        /// <summary>방벽판 수(최대 내구도 가산).</summary>
+        int ArmorPlates { get; }
+        /// <summary>통과 속도 가산 비율(0 = 기본, 0.25 = 25% 빨리 통과).</summary>
+        float SpeedBonus { get; }
+        /// <summary>장비가 바뀌었을 때.</summary>
+        event Action Changed;
+    }
+
+    /// <summary>
+    /// 스토리 033. 몬스터에게 점령된 종점(경유지)을 열차가 천천히 통과하는 실시간 습격. 경유지 전투 조우가 습격 모드이면
+    /// RaidSystem이 결과를 정하고 IWaypointResolver.EncounterEnded(Victory|Defeat)로 넘긴다. 둥지가 모두 부서지면 종점이 해방된다.
+    /// </summary>
+    public interface IRaid
+    {
+        /// <summary>습격이 진행 중이면 true.</summary>
+        bool IsActive { get; }
+        /// <summary>구간 통과 진척 0..1.</summary>
+        float Progress { get; }
+        /// <summary>지금 열차 내구도.</summary>
+        int Hull { get; }
+        /// <summary>이번 습격의 최대 내구도(기본 + 방벽 수 × 방벽당).</summary>
+        int HullMax { get; }
+        /// <summary>살아 있는 몬스터 수.</summary>
+        int MonstersAlive { get; }
+        /// <summary>남은 둥지 수(습격 밖에서도 유지).</summary>
+        int NestsAlive { get; }
+        /// <summary>둥지를 모두 부숴 종점이 해방되었으면 true(그 뒤로 습격 없음).</summary>
+        bool TerminalLiberated { get; }
+        /// <summary>해방 뒤 승객 탑승 확률에 더하는 값(데이터). 해방 전에는 0.</summary>
+        float BoardChanceBonus { get; }
+        /// <summary>지금 움직이는 몬스터 목록(살아 있는 것만).</summary>
+        IReadOnlyList<RaidUnit> Monsters { get; }
+        /// <summary>둥지 목록(부서진 것 포함, Hp 0).</summary>
+        IReadOnlyList<RaidUnit> Nests { get; }
+        /// <summary>열차 대포로 몬스터 id를 쏜다. 습격 중이 아니거나 재장전 중이거나 대상이 없으면 false.</summary>
+        bool ShootMonster(int monsterId);
+        /// <summary>열차 대포로 둥지 순번을 쏜다. 습격 중이 아니거나 재장전 중이거나 이미 부서졌으면 false.</summary>
+        bool ShootNest(int nestIndex);
+        /// <summary>습격 시작.</summary>
+        event Action RaidStarted;
+        /// <summary>습격 끝(true = 통과 성공).</summary>
+        event Action<bool> RaidEnded;
+        /// <summary>몬스터 id가 나타남.</summary>
+        event Action<int> MonsterSpawned;
+        /// <summary>몬스터 id가 사격으로 죽음.</summary>
+        event Action<int> MonsterKilled;
+        /// <summary>몬스터 id가 열차에 닿아 내구도를 깎고 사라짐.</summary>
+        event Action<int> MonsterReached;
+        /// <summary>둥지 순번이 부서짐.</summary>
+        event Action<int> NestDestroyed;
+        /// <summary>내구도가 바뀜(시작 포함).</summary>
+        event Action HullChanged;
+        /// <summary>발사(true = 플레이어 대포, false = 포탑), 맞은 지점 X, Y.</summary>
+        event Action<bool, float, float> ShotFired;
+    }
 }

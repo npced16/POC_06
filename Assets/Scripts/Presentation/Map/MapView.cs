@@ -75,6 +75,9 @@ namespace IronRing.Presentation.Map
         void Update()
         {
             if (Mouse.current == null || !Mouse.current.leftButton.wasPressedThisFrame) return;
+            // 스토리 033: 습격 중 좌클릭은 사격(RaidView)이 쓴다. 거점 클릭은 무시한다.
+            IRaid raid = GameServices.Get<IRaid>();
+            if (raid != null && raid.IsActive) return;
             Vector2 pointer = Mouse.current.position.ReadValue();
             if (IsPointerOverUi(pointer)) return;
             Ray ray = _camera.ScreenPointToRay(pointer);
@@ -101,7 +104,8 @@ namespace IronRing.Presentation.Map
             float progress = Mathf.Clamp01(_progress());
             Vector3 position = Evaluate(from, to, progress, out Vector3 direction);
             _train.position = position;
-            if (!_track.IsHeld)
+            // 스토리 033: 습격 중에는 멈춘 채로 진행도가 움직이므로(HeldProgressSource) 그때도 방향을 맞춘다.
+            if (!_track.IsHeld || progress > 0f)
                 _train.rotation = Quaternion.Euler(0, 0, Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - _spriteForwardAngle);
         }
 
