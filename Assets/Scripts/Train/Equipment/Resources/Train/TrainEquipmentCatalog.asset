@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 416daa4a5f951a840a9c9e7a1140f987, type: 3}
+  m_Name: TrainEquipmentCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::IronRing.Train.Equipment.TrainEquipmentCatalog
+  _icons:
+  - _id: turret
+    _sprite: {fileID: 21300000, guid: b2ad54eeefe6d9643adef09e7452f1b2, type: 3}
+  - _id: heavy_turret
+    _sprite: {fileID: 21300000, guid: 874f70514c7dc804e86505f3305b622b, type: 3}
+  - _id: armor_plate
+    _sprite: {fileID: 21300000, guid: 713deded6447dd744a52e19a0842d712, type: 3}
+  - _id: steam_booster
+    _sprite: {fileID: 21300000, guid: 0f3e8747a2cadf745ba7272ba67ce454, type: 3}
+  - _id: repair_rig
+    _sprite: {fileID: 21300000, guid: 7ef5db7d7bb5eb245aa41581cf268834, type: 3}
+  _cellFrame: {fileID: 21300000, guid: 6ee668614acb4e24294490256e323114, type: 3}
+  _piecePrefab: {fileID: 3803176215196664791, guid: a3c4916cc2fb0d841a58cf2f068e3473, type: 3}
+  _gridPrefab: {fileID: 7907460821471074746, guid: 41ae4ec21c39ee5489692c56f0780309, type: 3}
+  _cellSize: 0.42
+  _snapRadius: 1
+  _pieceFill: 0.95
+  _frameOrder: 21
+  _pieceOrder: 22
+  _ghostOrder: 23
+  _frameColor: {r: 1, g: 0.85, b: 0.45, a: 0.9}
+  _undoDepth: 8
+  _raidPieceFill: 1
+  _raidPieceOrderOffset: 1

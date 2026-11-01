@@ -30,6 +30,12 @@ namespace IronRing.Combat.Raid
         private int _turrets;
         private int _heavyTurrets;
         private float _segment;
+        private float _turretPeriod;
+        private float _heavyPeriod;
+        private int _turretDamage;
+        private int _heavyDamage;
+        private float _repairPerSecond;
+        private float _repairCarry;
 
         /// <summary>표현이 넣는 열차 월드 위치. null이면 종점을 가로지르는 가상 직선 위 위치를 쓴다.</summary>
         public Func<(float x, float y)> TrainPosition { get; set; }
@@ -70,6 +76,10 @@ namespace IronRing.Combat.Raid
         public event Action<int> NestDestroyed;
         public event Action HullChanged;
         public event Action<bool, float, float> ShotFired;
+        /// <summary>스토리 034. 포탑 발사(포 순번: 0..Turrets-1 = 포탑, 그 뒤 = 중포, 맞은 지점 X, Y). ShotFired(false, …)보다 먼저 온다.</summary>
+        public event Action<int, float, float> GunFired;
+        /// <summary>스토리 034. 이번 습격의 초당 수리량.</summary>
+        public float RepairPerSecond => _repairPerSecond;
 
         /// <summary>
         /// 데이터, 결과를 받을 resolver, 습격 시작마다 장비(포탑·중포탑·방벽판·속도)를 읽을 loadout 조회 함수(034가 제공자를 바꿀 수 있어 늦게 얻는다),
@@ -108,18 +118,28 @@ namespace IronRing.Combat.Raid
             _turrets = Math.Max(0, OverrideTurrets ?? loadout?.Turrets ?? 0);
             _heavyTurrets = OverrideTurrets.HasValue ? 0 : Math.Max(0, loadout?.HeavyTurrets ?? 0);
             _segment = _data.SegmentSeconds / (1f + Math.Max(0f, loadout?.SpeedBonus ?? 0f));
-            HullMax = Math.Max(1, OverrideHullMax ?? _data.HullBase + walls * _data.HullPerWall);
+            // 스토리 034: 제공자가 장비 수치(IRaidLoadoutStats)를 주면 그것을, 아니면 Raid.json 값을 쓴다.
+            var stats = OverrideWalls.HasValue || OverrideTurrets.HasValue ? null : loadout as IRaidLoadoutStats;
+            int hullBonus = stats != null ? stats.HullBonus : walls * _data.HullPerWall;
+            float turretRate = stats != null ? stats.TurretShotsPerSecond : _data.TurretShotsPerSecond;
+            float heavyRate = stats != null ? stats.HeavyTurretShotsPerSecond : _data.TurretShotsPerSecond;
+            _turretPeriod = turretRate > 0 ? 1f / turretRate : float.MaxValue;
+            _heavyPeriod = heavyRate > 0 ? 1f / heavyRate : float.MaxValue;
+            _turretDamage = stats != null ? stats.TurretDamage : _data.TurretDamage;
+            _heavyDamage = stats != null ? stats.HeavyTurretDamage : _data.HeavyTurretDamage;
+            _repairPerSecond = stats != null ? Math.Max(0f, stats.RepairPerSecond) : 0f;
+            _repairCarry = 0f;
+            HullMax = Math.Max(1, OverrideHullMax ?? _data.HullBase + hullBonus);
             Hull = HullMax;
             _elapsed = 0f; _playerTimer = 0f;
             _monsters.Clear(); _kinds.Clear();
             _spawnTimers = new float[_nests.Count];
             for (int i = 0; i < _spawnTimers.Length; i++) _spawnTimers[i] = _data.FirstSpawnDelay + i * _data.SpawnStagger;
-            float period = _data.TurretShotsPerSecond > 0 ? 1f / _data.TurretShotsPerSecond : float.MaxValue;
             int guns = _turrets + _heavyTurrets;
             _turretTimers = new float[guns];
-            for (int i = 0; i < guns; i++) _turretTimers[i] = period * (i + 1) / (guns + 1);
+            for (int i = 0; i < guns; i++) _turretTimers[i] = (i < _turrets ? _turretPeriod : _heavyPeriod) * (i + 1) / (guns + 1);
             IsActive = true;
-            UnityEngine.Debug.Log($"RAID: start hull={Hull}/{HullMax} walls={walls} turrets={_turrets}+{_heavyTurrets} segment={SegmentSeconds:F1}s nests={NestsAlive} lap={_track?.Lap ?? 0}");
+            UnityEngine.Debug.Log($"RAID: start hull={Hull}/{HullMax} walls={walls} turrets={_turrets}+{_heavyTurrets} repair={_repairPerSecond:F2}/s segment={SegmentSeconds:F1}s nests={NestsAlive} lap={_track?.Lap ?? 0}");
             RaidStarted?.Invoke();
             HullChanged?.Invoke();
         }
@@ -134,6 +154,7 @@ namespace IronRing.Combat.Raid
             Move(dt);
             if (!IsActive) return;
             FireTurrets(dt);
+            Repair(dt);
             if (Hull <= 0) End(false);
             else if (_elapsed >= SegmentSeconds) End(true);
         }
@@ -238,8 +259,7 @@ namespace IronRing.Combat.Raid
 
         private void FireTurrets(float dt)
         {
-            if (_turretTimers.Length == 0 || _data.TurretShotsPerSecond <= 0f) return;
-            float period = 1f / _data.TurretShotsPerSecond;
+            if (_turretTimers.Length == 0) return;
             (float tx, float ty) = Train();
             for (int i = 0; i < _turretTimers.Length; i++)
             {
@@ -252,11 +272,26 @@ namespace IronRing.Combat.Raid
                     if (d <= best) { best = d; target = monster; }
                 }
                 if (target == null) { _turretTimers[i] = 0f; continue; } // 대상이 나타나면 바로 쏜다
-                _turretTimers[i] += period;
-                ShotFired?.Invoke(false, target.X, target.Y);
                 bool heavy = i >= _turrets;
-                DamageMonster(target, heavy ? _data.HeavyTurretDamage : _data.TurretDamage, heavy ? "heavy-turret" : "turret");
+                _turretTimers[i] += heavy ? _heavyPeriod : _turretPeriod;
+                GunFired?.Invoke(i, target.X, target.Y);
+                ShotFired?.Invoke(false, target.X, target.Y);
+                DamageMonster(target, heavy ? _heavyDamage : _turretDamage, heavy ? "heavy-turret" : "turret");
             }
+        }
+
+        /// <summary>스토리 034. 수리 장치: 초당 _repairPerSecond를 모아 1이 될 때마다 내구도 1을 채운다(최대치까지).</summary>
+        private void Repair(float dt)
+        {
+            if (_repairPerSecond <= 0f || Hull <= 0) return;
+            if (Hull >= HullMax) { _repairCarry = 0f; return; }
+            _repairCarry += _repairPerSecond * dt;
+            if (_repairCarry < 1f) return;
+            int heal = Math.Min(HullMax - Hull, (int)_repairCarry);
+            _repairCarry -= heal;
+            Hull += heal;
+            UnityEngine.Debug.Log($"RAID: repair +{heal} hull={Hull}/{HullMax}");
+            HullChanged?.Invoke();
         }
 
         private void DamageMonster(RaidUnit monster, int damage, string source)

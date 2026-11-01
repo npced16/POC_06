@@ -32,7 +32,8 @@
   "_waves": [
     { "_fromLap": 0, "_spawnInterval": 2.4, "_automatonChance": 0.15, "_maxAlive": 6 },
     { "_fromLap": 2, "_spawnInterval": 1.9, "_automatonChance": 0.3, "_maxAlive": 8 },
-    { "_fromLap": 4, "_spawnInterval": 1.5, "_automatonChance": 0.45, "_maxAlive": 10 }
+    { "_fromLap": 4, "_spawnInterval": 1.5, "_automatonChance": 0.45, "_maxAlive": 10 },
+    { "_fromLap": 6, "_spawnInterval": 1.25, "_automatonChance": 0.55, "_maxAlive": 12 }
   ],
   "_liberatedBoardBonus": 0.15,
   "_raidCameraSize": 5,

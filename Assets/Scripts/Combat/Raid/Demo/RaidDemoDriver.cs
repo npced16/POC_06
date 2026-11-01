@@ -10,7 +10,7 @@ namespace IronRing.Combat.Raid.Demo
     /// <summary>
     /// 스토리 033 캡처 데모(--raid-demo --raid-stage start|mid|win|lose). 출발 → 종점 도착 → 습격(습격 모드라 항상 습격)을 자동 사격만으로 진행하고,
     /// 단계 시점에 Time.timeScale = 0으로 멈춰 화면을 고정한 뒤 "RAID: capture-ready stage=…"를 남긴다(캡처는 코디네이터).
-    /// start: 습격 직후(카메라 확대·둥지·첫 몬스터), mid: 데이터 초 뒤(포탑 2·방벽 1), win: 강한 포탑으로 통과 끝·승리 토스트, lose: 포탑 0·낮은 내구도로 패배.
+    /// start: 습격 직후(카메라 확대·둥지·첫 몬스터), mid: 데이터 초 뒤(열차 장비 데모 배치 mid), win: 강한 포탑으로 통과 끝·승리 토스트, lose: 포탑 0·낮은 내구도로 패배.
     /// </summary>
     public sealed class RaidDemoDriver : MonoBehaviour
     {
@@ -25,7 +25,13 @@ namespace IronRing.Combat.Raid.Demo
             _raid = raid;
             _stage = stage;
             RaidData data = raid.Data;
-            switch (stage)
+            // 스토리 034: 열차 장비 데이터(TrainEquipment.json _demoLoadouts)의 단계 배치를 실제로 놓는다. 없으면 033의 수 강제로 돌아간다.
+            IronRing.Train.Equipment.TrainLoadout train = IronRing.Train.Equipment.TrainEquipmentInstaller.Loadout;
+            if (train != null && train.ApplyDemo(stage))
+            {
+                if (stage == "lose") raid.OverrideHullMax = data.DemoHullLose;
+            }
+            else switch (stage)
             {
                 case "win": raid.OverrideTurrets = data.DemoTurretsWin; raid.OverrideWalls = data.DemoWallsWin; break;
                 case "lose": raid.OverrideTurrets = 0; raid.OverrideWalls = 0; raid.OverrideHullMax = data.DemoHullLose; break;

@@ -80,6 +80,9 @@ namespace IronRing.Hud.Editor.Screens
             }
             Button toggle = UiKit.Button(bar.transform, "PaletteToggle", Strings.Get("hotbar_palette"), theme);
             UiKit.Place((RectTransform)toggle.transform, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-10, 0), new Vector2(86, theme.ButtonHeight));
+            // 스토리 034: 팔레트 버튼 위에 "열차"(장비 모드 전환, T 키) 버튼.
+            Button trainToggle = UiKit.Button(bar.transform, "TrainToggle", Strings.Get("hotbar_train"), theme);
+            UiKit.Place((RectTransform)trainToggle.transform, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-10, theme.ButtonHeight + 6), new Vector2(86, theme.ButtonHeight));
 
             // 안내 줄과 알림
             Image hintBox = UiKit.Sliced(content, "HintBox", theme.ToastSprite, theme, false);
@@ -106,6 +109,7 @@ namespace IronRing.Hud.Editor.Screens
             UiKit.Bind(screen, "_noticeBox", noticeBox.gameObject);
             UiKit.Bind(screen, "_notice", notice);
             UiKit.Bind(screen, "_paletteToggle", toggle);
+            UiKit.Bind(screen, "_trainToggle", trainToggle);
             UiKit.Bind(screen, "_palette", palette.gameObject);
             UiKit.Bind(screen, "_paletteTitle", paletteTitle);
             UiKit.Bind(screen, "_paletteHint", paletteHint);

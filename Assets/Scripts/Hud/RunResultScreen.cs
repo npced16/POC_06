@@ -96,7 +96,13 @@ namespace IronRing.Hud
                     Mathf.RoundToInt(hub.Prosperity), hub.NpcCount));
             }
             _hubs.text = lines.ToString();
-            if (_laps != null) _laps.text = string.Format(Strings.Get("result_laps"), _result.Laps);
+            if (_laps != null)
+            {
+                _laps.text = string.Format(Strings.Get("result_laps"), _result.Laps);
+                // 스토리 034: 열차 장비 칸 수를 같은 줄에 덧붙인다.
+                IronRing.Contracts.ITrainLoadout train = GameServices.Get<IronRing.Contracts.ITrainLoadout>();
+                if (train != null) _laps.text += "  ·  " + string.Format(Strings.Get("result_equipment"), train.UsedCells);
+            }
             _screens.Show(_screen.Id);
         }
 

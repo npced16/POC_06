@@ -10,6 +10,7 @@ using TMPro;
 using IronRing.Contracts;
 using IronRing.Contracts.Presentation;
 using IronRing.Track;
+using IronRing.Train.Equipment;
 
 using RaidCatalog = IronRing.Combat.Raid.RaidCatalog;
 using RaidData = IronRing.Combat.Raid.RaidData;
@@ -46,6 +47,9 @@ namespace IronRing.Presentation.Raid
         private Vector3 _savedCameraPosition;
         private float _savedCameraSize;
         private float _restoreLeft;
+        // 스토리 034: 습격 동안 열차 위에 얹는 장비 조각과 포 순번별 발사 칸(RaidSystem 순번: 포탑 먼저, 그다음 중포).
+        private readonly List<(GameObject piece, EquipmentSlot slot)> _equipment = new List<(GameObject, EquipmentSlot)>();
+        private readonly List<EquipmentSlot> _guns = new List<EquipmentSlot>();
 
         private IEnumerator Start()
         {
@@ -69,6 +73,7 @@ namespace IronRing.Presentation.Raid
             _raid.MonsterReached += OnReached;
             _raid.NestDestroyed += OnNestDestroyed;
             _raid.ShotFired += OnShot;
+            _raid.GunFired += OnGunFired;
             RefreshLabel();
         }
 
@@ -82,6 +87,7 @@ namespace IronRing.Presentation.Raid
             _raid.MonsterReached -= OnReached;
             _raid.NestDestroyed -= OnNestDestroyed;
             _raid.ShotFired -= OnShot;
+            _raid.GunFired -= OnGunFired;
             if (_train != null) _train.HeldProgressSource = null;
         }
 
@@ -213,6 +219,7 @@ namespace IronRing.Presentation.Raid
                 SpriteRenderer renderer = go.GetComponent<SpriteRenderer>();
                 if (renderer != null && Mathf.Abs(unit.X - previous.x) > 0.0001f) renderer.flipX = unit.X < previous.x;
             }
+            PlaceEquipment();
             UpdateCamera();
         }
 
@@ -240,6 +247,7 @@ namespace IronRing.Presentation.Raid
             Camera camera = _anchors.MapCamera;
             if (camera != null && _restoreLeft <= 0f) { _savedCameraPosition = camera.transform.position; _savedCameraSize = camera.orthographicSize; }
             _restoreLeft = 0f;
+            BuildEquipment();
         }
 
         private void OnEnded(bool victory)
@@ -247,6 +255,7 @@ namespace IronRing.Presentation.Raid
             if (_train != null) _train.SetDepartureHeadStart(_raid.Progress * _data.CrawlEdgeFraction);
             foreach (GameObject go in _monsters.Values) if (go != null) { Smoke(go.transform.position); Destroy(go); }
             _monsters.Clear();
+            ClearEquipment();
             _restoreLeft = 1.2f;
             RefreshLabel();
         }
@@ -301,9 +310,98 @@ namespace IronRing.Presentation.Raid
 
         private void OnShot(bool player, float x, float y)
         {
-            // 포탑·열차 대포 모두 맨 앞 칸에서 쏜다(034에서 칸별 장비 위치로 나눌 수 있다).
+            // 열차 대포는 맨 앞 칸에서 쏜다. 포탑 발사는 스토리 034의 GunFired가 자기 칸에서 그린다(순번 칸이 없으면 맨 앞 칸).
+            if (!player && _guns.Count > 0) return;
             Vector3 from = CarPosition(0);
             StartCoroutine(FlyShell(from, new Vector3(x, y, from.z)));
+        }
+
+        private void OnGunFired(int gun, float x, float y)
+        {
+            if (_guns.Count == 0) return;
+            EquipmentSlot slot = _guns[Mathf.Clamp(gun, 0, _guns.Count - 1)];
+            Vector3 from = SlotPosition(slot);
+            StartCoroutine(FlyShell(from, new Vector3(x, y, from.z)));
+        }
+
+        // ----- 스토리 034: 열차 장비 -----
+
+        /// <summary>습격 시작 시 열차 장비(ITrainLoadout)의 시작 칸마다 EquipmentPiece 프리팹을 만들고 포 순번 → 칸 표를 만든다.</summary>
+        private void BuildEquipment()
+        {
+            ClearEquipment();
+            ITrainLoadout loadout = GameServices.Get<ITrainLoadout>();
+            TrainEquipmentCatalog catalog = TrainEquipmentCatalog.Load();
+            if (loadout == null || catalog == null) return;
+            foreach (EquipmentSlot slot in loadout.Slots)
+            {
+                if (!slot.IsAnchor || slot.EquipmentId == null) continue;
+                GameObject piece = catalog.PiecePrefab != null ? Instantiate(catalog.PiecePrefab, _site) : NewPiece("Equip", 1f, false);
+                piece.name = "Equip_" + slot.EquipmentId;
+                SpriteRenderer renderer = piece.GetComponentInChildren<SpriteRenderer>(true);
+                if (renderer != null) { renderer.sprite = catalog.Icon(slot.EquipmentId) ?? renderer.sprite; renderer.sortingOrder = TrainOrder() + catalog.RaidPieceOrderOffset; }
+                _equipment.Add((piece, new EquipmentSlot { Car = slot.Car, Column = slot.Column, Row = slot.Row, EquipmentId = slot.EquipmentId, Width = slot.Width, IsAnchor = true }));
+            }
+            // RaidSystem의 포 순번(포탑 Turrets문 → 중포)과 같은 순서로 Slots 순서의 시작 칸을 줄 세운다.
+            foreach (string id in new[] { IronRing.Train.Equipment.TrainLoadout.TURRET, IronRing.Train.Equipment.TrainLoadout.HEAVY_TURRET })
+                foreach ((GameObject _, EquipmentSlot slot) in _equipment) if (slot.EquipmentId == id) _guns.Add(slot);
+            PlaceEquipment();
+            UnityEngine.Debug.Log($"RAID: equipment pieces={_equipment.Count} guns={_guns.Count}");
+        }
+
+        private void ClearEquipment()
+        {
+            foreach ((GameObject piece, EquipmentSlot _) in _equipment) if (piece != null) Destroy(piece);
+            _equipment.Clear();
+            _guns.Clear();
+        }
+
+        /// <summary>장비 조각을 열차 칸 위치(CarPosition) + 칸 안 열·행 오프셋에 놓고 칸 크기에 맞춘다(열차가 움직여도 따라간다).</summary>
+        private void PlaceEquipment()
+        {
+            if (_equipment.Count == 0) return;
+            TrainEquipmentCatalog catalog = TrainEquipmentCatalog.Load();
+            float fill = catalog != null ? catalog.RaidPieceFill : 1f;
+            float cell = RaidCellSize();
+            foreach ((GameObject piece, EquipmentSlot slot) in _equipment)
+            {
+                if (piece == null) continue;
+                piece.transform.position = SlotPosition(slot);
+                SpriteRenderer renderer = piece.GetComponentInChildren<SpriteRenderer>(true);
+                float units = renderer != null && renderer.sprite != null ? Mathf.Max(0.01f, renderer.sprite.bounds.size.x) : 1f;
+                piece.transform.localScale = Vector3.one * (cell * Mathf.Max(1, slot.Width) * fill / units);
+            }
+        }
+
+        /// <summary>장비 칸 한 변(열차 한 칸 길이 ÷ 열 수).</summary>
+        private float RaidCellSize()
+        {
+            ITrainLoadout loadout = GameServices.Get<ITrainLoadout>();
+            int columns = loadout != null ? loadout.Columns : 3;
+            TrainAxis(out _, out _, out float length);
+            int cars = _data != null ? _data.TrainCars : 3;
+            return length / cars / columns;
+        }
+
+        /// <summary>slot 장비 중심의 월드 위치: 칸 중심 + 진행 방향(열 0 = 앞) + 왼쪽(행 0 = 위) 오프셋.</summary>
+        private Vector3 SlotPosition(EquipmentSlot slot)
+        {
+            ITrainLoadout loadout = GameServices.Get<ITrainLoadout>();
+            int columns = loadout != null ? loadout.Columns : 3, rows = loadout != null ? loadout.Rows : 2;
+            TrainAxis(out _, out Vector3 forward, out _);
+            Vector3 left = new Vector3(-forward.y, forward.x, 0f);
+            float cell = RaidCellSize();
+            float center = slot.Column + (Mathf.Max(1, slot.Width) - 1) * 0.5f;
+            Vector3 car = CarPosition(slot.Car);
+            return car + forward * (((columns - 1) * 0.5f - center) * cell) + left * (((rows - 1) * 0.5f - slot.Row) * cell);
+        }
+
+        private int TrainOrder()
+        {
+            int order = 0;
+            Transform train = _anchors?.TrainAnchor;
+            if (train != null) foreach (SpriteRenderer renderer in train.GetComponentsInChildren<SpriteRenderer>()) order = Mathf.Max(order, renderer.sortingOrder);
+            return order;
         }
 
         private IEnumerator FlyShell(Vector3 from, Vector3 to)

@@ -602,4 +602,70 @@ namespace IronRing.Contracts
         /// <summary>발사(true = 플레이어 대포, false = 포탑), 맞은 지점 X, Y.</summary>
         event Action<bool, float, float> ShotFired;
     }
+
+    /// <summary>스토리 034. 열차 장비 그리드의 칸 하나(읽기 전용 보기). 2칸짜리 장비는 차지한 두 칸 모두 같은 id를 갖고 앞쪽(작은 열) 칸만 IsAnchor다.</summary>
+    public sealed class EquipmentSlot
+    {
+        /// <summary>열차 칸 순번(0 = 맨 앞 칸).</summary>
+        public int Car { get; set; }
+        /// <summary>칸 안 열(0 = 진행 방향 앞쪽).</summary>
+        public int Column { get; set; }
+        /// <summary>칸 안 행(0 = 위, 1 = 아래).</summary>
+        public int Row { get; set; }
+        /// <summary>놓인 장비 id(비었으면 null).</summary>
+        public string EquipmentId { get; set; }
+        /// <summary>이 칸이 장비가 시작하는 칸이면 true(표현은 이 칸에서만 장비를 그린다).</summary>
+        public bool IsAnchor { get; set; }
+        /// <summary>장비가 차지하는 가로 칸 수(빈 칸이면 0).</summary>
+        public int Width { get; set; }
+    }
+
+    /// <summary>
+    /// 스토리 034. 열차 칸마다 Columns×Rows(3×2) 장비 그리드. 거점 내부의 장비 모드가 놓고 떼며, 습격(IRaidLoadout)이 이 배치를 읽는다.
+    /// 칸 수가 상한(Cars×Columns×Rows)이라 무제한 타일과 달리 무엇을 실을지가 선택이다. 런 동안 유지된다.
+    /// </summary>
+    public interface ITrainLoadout
+    {
+        /// <summary>열차 칸 수.</summary>
+        int Cars { get; }
+        /// <summary>칸당 가로 칸 수.</summary>
+        int Columns { get; }
+        /// <summary>칸당 세로 칸 수.</summary>
+        int Rows { get; }
+        /// <summary>모든 장비 칸(색인 = (car × Rows + row) × Columns + column).</summary>
+        IReadOnlyList<EquipmentSlot> Slots { get; }
+        /// <summary>차 있는 장비 칸 수(2칸 장비는 2).</summary>
+        int UsedCells { get; }
+        /// <summary>equipmentId를 (car, column, row)에서 시작해 놓을 수 있는지(범위·빈 칸·가로 폭).</summary>
+        bool CanPlace(int car, int column, int row, string equipmentId);
+        /// <summary>장비를 놓는다. 성공하면 EquipmentPlaced(시작 칸).</summary>
+        bool TryPlace(int car, int column, int row, string equipmentId);
+        /// <summary>(car, column, row)를 차지한 장비 전체를 뗀다. 성공하면 EquipmentRemoved(뗀 장비의 시작 칸 상태, 떼기 전 id).</summary>
+        bool TryRemove(int car, int column, int row);
+        /// <summary>놓인 equipmentId 장비 개수(칸 수가 아니라 개수).</summary>
+        int CountOf(string equipmentId);
+        /// <summary>장비를 놓았을 때(시작 칸).</summary>
+        event Action<EquipmentSlot> EquipmentPlaced;
+        /// <summary>장비를 뗐을 때(시작 칸 위치와 뗀 장비 id를 담은 사본).</summary>
+        event Action<EquipmentSlot> EquipmentRemoved;
+    }
+
+    /// <summary>
+    /// 스토리 034. IRaidLoadout 제공자가 장비 효과 수치까지 줄 때 함께 구현한다(선택). RaidSystem은 이 값이 있으면 Raid.json의 같은 값 대신 쓴다.
+    /// </summary>
+    public interface IRaidLoadoutStats
+    {
+        /// <summary>방벽판이 더하는 최대 내구도 합.</summary>
+        int HullBonus { get; }
+        /// <summary>습격 중 초당 내구도 회복(수리 장치 합).</summary>
+        float RepairPerSecond { get; }
+        /// <summary>포탑 한 문의 초당 발사 수.</summary>
+        float TurretShotsPerSecond { get; }
+        /// <summary>포탑 한 발 피해.</summary>
+        int TurretDamage { get; }
+        /// <summary>중포 한 문의 초당 발사 수.</summary>
+        float HeavyTurretShotsPerSecond { get; }
+        /// <summary>중포 한 발 피해.</summary>
+        int HeavyTurretDamage { get; }
+    }
 }
