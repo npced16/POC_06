@@ -1,0 +1,27 @@
+{
+  "_npcSeed": 1,
+  "_combatSeed": 690,
+  "_combatStepSeconds": 1.2,
+  "_stationDwellSeconds": 1.0,
+  "_demoTimeScale": 8.0,
+  "_capturePauseSeconds": 0.35,
+  "_maxDemoLaps": 24,
+  "_demoHubId": "hub-2",
+  "_demoFacilityId": "wall",
+  "_eventKeys": [
+    { "_id": "Abandoned freight", "_name": "event_abandoned_freight" },
+    { "_id": "Trackside provisions", "_name": "event_trackside_provisions" },
+    { "_id": "Coal cache", "_name": "event_coal_cache" },
+    { "_id": "Leaking water tank", "_name": "event_leaking_water_tank" }
+  ],
+  "_names": [
+    { "_id": "hub-1", "_name": "Foundry / Trade" },
+    { "_id": "hub-2", "_name": "Garden / Shrine" },
+    { "_id": "hub-3", "_name": "Harbor / Mine" },
+    { "_id": "hub-4", "_name": "Citadel / Farm" },
+    { "_id": "NORTH PASS", "_name": "North Pass" },
+    { "_id": "EAST PASS", "_name": "East Pass" },
+    { "_id": "SOUTH PASS", "_name": "South Pass" },
+    { "_id": "WEST PASS", "_name": "West Pass" }
+  ]
+}

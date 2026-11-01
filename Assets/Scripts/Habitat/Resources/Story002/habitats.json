@@ -1,0 +1,14 @@
+{
+  "_resources": [
+    { "_id": "coal", "_startingStock": 6 },
+    { "_id": "scrap", "_startingStock": 6 },
+    { "_id": "water", "_startingStock": 6 },
+    { "_id": "grain", "_startingStock": 6 }
+  ],
+  "_hubs": [
+    { "_hubId": "hub-1", "_slotCount": 4, "_allowedResources": ["coal", "scrap", "water", "grain"], "_pattern": ["coal", "scrap", "water", ""], "_flagSticky": true },
+    { "_hubId": "hub-2", "_slotCount": 4, "_allowedResources": ["coal", "scrap", "water", "grain"], "_pattern": ["water", "grain", "grain", ""], "_flagSticky": true },
+    { "_hubId": "hub-3", "_slotCount": 4, "_allowedResources": ["coal", "scrap", "water", "grain"], "_pattern": ["scrap", "coal", "coal", ""], "_flagSticky": true },
+    { "_hubId": "hub-4", "_slotCount": 4, "_allowedResources": ["coal", "scrap", "water", "grain"], "_pattern": ["grain", "water", "scrap", ""], "_flagSticky": true }
+  ]
+}

@@ -1,0 +1,65 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76defdf9b78932942b8010a96a2e6874, type: 3}
+  m_Name: ItemSprites
+  m_EditorClassIdentifier: Assembly-CSharp::IronRing.Presentation.Items.ItemSpriteSet
+  _entries:
+  - _id: tile_boiler
+    _sprite: {fileID: 21300000, guid: f521e43666f6a2d49a11e44dd3ac11f8, type: 3}
+  - _id: tile_pipe
+    _sprite: {fileID: 21300000, guid: 474f61bbce25f5e45904e91b91cdddf1, type: 3}
+  - _id: tile_gear
+    _sprite: {fileID: 21300000, guid: 5604e0ae76261ca49b1a008b53f8d8c1, type: 3}
+  - _id: tile_gaslamp
+    _sprite: {fileID: 21300000, guid: ad2836d540692b942b60a0b39ce61742, type: 3}
+  - _id: tile_coal
+    _sprite: {fileID: 21300000, guid: afe0018a40fabbb40b05aaaabdbb66bb, type: 3}
+  - _id: tile_girder
+    _sprite: {fileID: 21300000, guid: 66f82fad91af03a4fb1ad1f0c41ee3c2, type: 3}
+  - _id: tile_cobble
+    _sprite: {fileID: 21300000, guid: f348ca5e4e54ace4c889bfd3c0cc59ed, type: 3}
+  - _id: tile_tank
+    _sprite: {fileID: 21300000, guid: f301e4a98b463f24a8dad177249e6e55, type: 3}
+  - _id: tile_glass
+    _sprite: {fileID: 21300000, guid: 4f2187c72a34e3445a7849e062d59d07, type: 3}
+  - _id: tile_bunk
+    _sprite: {fileID: 21300000, guid: 158dd3f1a758dc347989ccfb79923926, type: 3}
+  - _id: tile_bench
+    _sprite: {fileID: 21300000, guid: bcbc467052c8c7e4eabfe3da4b25ae91, type: 3}
+  - _id: tile_wire
+    _sprite: {fileID: 21300000, guid: 31fad14cb24c22f4da1d5101da823536, type: 3}
+  - _id: tile_chimney
+    _sprite: {fileID: 21300000, guid: f92f1d9d58d60d44493b1cbfbae0053d, type: 3}
+  - _id: lantern
+    _sprite: {fileID: 21300000, guid: 856e287f2b7cf4d40a915e49486ca6f6, type: 3}
+  - _id: brazier
+    _sprite: {fileID: 21300000, guid: bd1cd644a20ac144ba8f6c4cfa16002c, type: 3}
+  - _id: water_barrel
+    _sprite: {fileID: 21300000, guid: d1d718d65567535408f887ebb0c091c9, type: 3}
+  - _id: well
+    _sprite: {fileID: 21300000, guid: 67c8ff38f1dbdf24788527ccaa2f8d1d, type: 3}
+  - _id: seedling
+    _sprite: {fileID: 21300000, guid: cace2227705d2d246ac4817e359a4959, type: 3}
+  - _id: vegetable_patch
+    _sprite: {fileID: 21300000, guid: 83652b36ee6367b40aa93b7f4bc7fbbe, type: 3}
+  - _id: bench
+    _sprite: {fileID: 21300000, guid: 62571d928ecbe5e46a7a1866ac7eea52, type: 3}
+  - _id: tent
+    _sprite: {fileID: 21300000, guid: ef5a4598783db4247a3274589c163de3, type: 3}
+  - _id: storage_crate
+    _sprite: {fileID: 21300000, guid: 901695cad00af0d42bfa3e70367b7629, type: 3}
+  - _id: gear
+    _sprite: {fileID: 21300000, guid: 822a1076346c4a94091db01d34ba04cc, type: 3}
+  - _id: flag
+    _sprite: {fileID: 21300000, guid: 7bf0997752bf8ae41a7917fd0bf39450, type: 3}
+  - _id: steam_pipe
+    _sprite: {fileID: 21300000, guid: ead0243471f34744dbfc56e9e88d4324, type: 3}

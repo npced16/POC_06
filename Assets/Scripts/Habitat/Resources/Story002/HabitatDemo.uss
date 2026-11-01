@@ -1,0 +1,22 @@
+.screen { flex-grow: 1; background-color: rgb(17, 25, 29); color: rgb(236, 229, 210); padding: 28px; }
+Label { margin: 0; padding: 0; flex-shrink: 0; }
+.screen > *, .panel > *, .slot > * { flex-shrink: 0; }
+.eyebrow { color: rgb(196, 158, 91); font-size: 16px; margin-bottom: 6px; }
+.title { font-size: 34px; -unity-font-style: bold; margin-bottom: 8px; }
+.subtitle { color: rgb(160, 177, 181); font-size: 17px; margin-bottom: 16px; }
+.row { flex-direction: row; margin-bottom: 12px; }
+.panel { padding: 14px; background-color: rgb(29, 40, 44); border-radius: 8px; margin-bottom: 14px; }
+.section { font-size: 19px; color: rgb(210, 176, 112); margin-bottom: 10px; }
+Button { background-color: rgb(46, 60, 63); color: rgb(237, 232, 213); border-width: 1px; border-color: rgb(92, 111, 112); border-radius: 5px; padding: 8px 14px; margin: 0 12px 0 0; font-size: 18px; -unity-text-align: middle-center; flex-shrink: 0; }
+Button:hover { background-color: rgb(67, 84, 83); }
+Button:disabled { opacity: 0.45; }
+.selected { border-color: rgb(220, 179, 97); background-color: rgb(79, 67, 43); }
+.slot { flex-grow: 1; flex-basis: 0; padding: 12px; margin-right: 12px; background-color: rgb(20, 30, 34); border-width: 2px; border-color: rgb(68, 85, 87); border-radius: 6px; }
+.slot-filled { border-color: rgb(202, 164, 92); }
+.slot-index { color: rgb(155, 172, 175); font-size: 14px; margin-bottom: 8px; }
+.resource { font-size: 22px; -unity-font-style: bold; margin-bottom: 12px; }
+.requirement { color: rgb(172, 186, 183); font-size: 15px; margin-top: 10px; }
+.status { font-size: 23px; -unity-font-style: bold; margin-bottom: 8px; }
+.complete { color: rgb(126, 217, 161); }
+.incomplete { color: rgb(222, 183, 112); }
+.footnote { font-size: 15px; color: rgb(160, 177, 181); margin-top: 8px; }

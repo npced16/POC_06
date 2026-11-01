@@ -1,0 +1,14 @@
+{
+  "_hubId": "hub-1",
+  "_facilityId": "wall",
+  "_startDelaySeconds": 1.0,
+  "_seedProsperity": 20,
+  "_habitatItems": ["brazier", "brazier", "gear"],
+  "_extraEmptyCells": 3,
+  "_maxInvestigations": 36,
+  "_npcVisitAttempts": 20,
+  "_recoveringHoldSeconds": 6.0,
+  "_lapIntervalSeconds": 0.5,
+  "_maxLaps": 30,
+  "_deadlineLapIntervalSeconds": 0.5
+}

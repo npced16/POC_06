@@ -1,0 +1,41 @@
+{
+  "_unlimited": true,
+  "_unlimitedCount": 999,
+  "_craftingDisabled": true,
+  "_tags": [
+    { "_id": "tile", "_name": "타일" },
+    { "_id": "light", "_name": "빛" },
+    { "_id": "heat", "_name": "열" },
+    { "_id": "water", "_name": "물" },
+    { "_id": "plant", "_name": "식물" },
+    { "_id": "shelter", "_name": "쉼터" },
+    { "_id": "industry", "_name": "산업" }
+  ],
+  "_items": [
+    { "_id": "tile_boiler", "_name": "보일러", "_category": "tile", "_tags": ["tile", "heat"], "_cost": [] },
+    { "_id": "tile_pipe", "_name": "증기관", "_category": "tile", "_tags": ["tile", "heat", "industry"], "_cost": [] },
+    { "_id": "tile_gear", "_name": "톱니장치", "_category": "tile", "_tags": ["tile", "industry"], "_cost": [] },
+    { "_id": "tile_gaslamp", "_name": "가스등", "_category": "tile", "_tags": ["tile", "light"], "_cost": [] },
+    { "_id": "tile_coal", "_name": "석탄더미", "_category": "tile", "_tags": ["tile", "heat"], "_cost": [] },
+    { "_id": "tile_girder", "_name": "철골", "_category": "tile", "_tags": ["tile", "industry"], "_cost": [] },
+    { "_id": "tile_cobble", "_name": "벽돌길", "_category": "tile", "_tags": ["tile", "shelter"], "_cost": [] },
+    { "_id": "tile_tank", "_name": "물탱크", "_category": "tile", "_tags": ["tile", "water"], "_cost": [] },
+    { "_id": "tile_glass", "_name": "온실유리", "_category": "tile", "_tags": ["tile", "plant"], "_cost": [] },
+    { "_id": "tile_bunk", "_name": "침상", "_category": "tile", "_tags": ["tile", "shelter"], "_cost": [] },
+    { "_id": "tile_bench", "_name": "작업대", "_category": "tile", "_tags": ["tile", "industry"], "_cost": [] },
+    { "_id": "tile_wire", "_name": "전신주", "_category": "tile", "_tags": ["tile", "light"], "_cost": [] },
+    { "_id": "tile_chimney", "_name": "굴뚝", "_category": "tile", "_tags": ["tile", "heat"], "_cost": [] },
+    { "_id": "lantern", "_name": "가로등", "_category": "decor", "_tags": ["light"], "_cost": [] },
+    { "_id": "brazier", "_name": "화로", "_category": "decor", "_tags": ["heat"], "_cost": [] },
+    { "_id": "water_barrel", "_name": "물통", "_category": "decor", "_tags": ["water"], "_cost": [] },
+    { "_id": "well", "_name": "우물", "_category": "decor", "_tags": ["water", "shelter"], "_cost": [] },
+    { "_id": "seedling", "_name": "화분", "_category": "decor", "_tags": ["plant"], "_cost": [] },
+    { "_id": "vegetable_patch", "_name": "텃밭", "_category": "decor", "_tags": ["plant", "water"], "_cost": [] },
+    { "_id": "bench", "_name": "벤치", "_category": "decor", "_tags": ["shelter"], "_cost": [] },
+    { "_id": "tent", "_name": "천막", "_category": "decor", "_tags": ["shelter"], "_cost": [] },
+    { "_id": "storage_crate", "_name": "창고 상자", "_category": "decor", "_tags": ["industry"], "_cost": [] },
+    { "_id": "gear", "_name": "톱니 장식", "_category": "decor", "_tags": ["industry"], "_cost": [] },
+    { "_id": "flag", "_name": "깃발", "_category": "decor", "_tags": ["light"], "_cost": [] },
+    { "_id": "steam_pipe", "_name": "증기관", "_category": "decor", "_tags": ["heat", "industry"], "_cost": [] }
+  ]
+}

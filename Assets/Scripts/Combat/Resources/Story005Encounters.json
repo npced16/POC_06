@@ -1,0 +1,22 @@
+{
+  "_eventRatio": 0.5,
+  "_rounds": 3,
+  "_trainStrength": 10,
+  "_enemyMin": 8,
+  "_enemyMax": 14,
+  "_rewardResource": "scrap",
+  "_rewardAmount": 0,
+  "_rewardItem": "",
+  "_rewardItemAmount": 0,
+  "_penaltyResources": ["scrap", "grain", "coal", "water"],
+  "_penaltyAmount": 0,
+  "_prosperityPenalty": -10,
+  "_victoryProsperity": 5,
+  "_eventProsperity": 5,
+  "_events": [
+    {"_title": "Abandoned freight", "_resource": "scrap", "_delta": 0},
+    {"_title": "Trackside provisions", "_resource": "grain", "_delta": 0},
+    {"_title": "Coal cache", "_resource": "coal", "_delta": 0},
+    {"_title": "Leaking water tank", "_resource": "water", "_delta": 0}
+  ]
+}

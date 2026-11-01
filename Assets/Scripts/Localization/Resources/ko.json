@@ -1,0 +1,439 @@
+{
+  "_entries": [
+    { "_key": "hud_remove", "_value": "회수" },
+    { "_key": "hud_next_round", "_value": "다음 라운드" },
+    { "_key": "hud_empty", "_value": "비어 있음" },
+    { "_key": "hud_complete", "_value": "완성" },
+    { "_key": "hud_incomplete", "_value": "미완성" },
+    { "_key": "event_abandoned_freight", "_value": "버려진 화물" },
+    { "_key": "event_trackside_provisions", "_value": "선로변 보급품" },
+    { "_key": "event_coal_cache", "_value": "석탄 저장고" },
+    { "_key": "event_leaking_water_tank", "_value": "새는 물탱크" },
+    {
+      "_key": "hub_1",
+      "_value": "주조소"
+    },
+    {
+      "_key": "hub_2",
+      "_value": "정원"
+    },
+    {
+      "_key": "hub_3",
+      "_value": "항구"
+    },
+    {
+      "_key": "hub_4",
+      "_value": "성채"
+    },
+    {
+      "_key": "waypoint_north",
+      "_value": "북쪽 고개"
+    },
+    {
+      "_key": "waypoint_east",
+      "_value": "동쪽 고개"
+    },
+    {
+      "_key": "waypoint_south",
+      "_value": "남쪽 고개"
+    },
+    {
+      "_key": "waypoint_west",
+      "_value": "서쪽 고개"
+    },
+    {
+      "_key": "resource_coal",
+      "_value": "석탄"
+    },
+    {
+      "_key": "resource_scrap",
+      "_value": "고철"
+    },
+    {
+      "_key": "resource_water",
+      "_value": "물"
+    },
+    {
+      "_key": "resource_grain",
+      "_value": "곡물"
+    },
+    {
+      "_key": "facility_wall",
+      "_value": "방벽"
+    },
+    {
+      "_key": "facility_turret",
+      "_value": "포탑"
+    },
+    {
+      "_key": "facility_workshop",
+      "_value": "공방"
+    },
+    {
+      "_key": "event_supply",
+      "_value": "보급품을 발견했습니다"
+    },
+    {
+      "_key": "event_quiet",
+      "_value": "고요한 경유지를 지납니다"
+    },
+    {
+      "_key": "event_recruit",
+      "_value": "새 동료가 합류했습니다"
+    },
+    {
+      "_key": "event_habitat",
+      "_value": "서식지가 완성되었습니다"
+    },
+    {
+      "_key": "event_no_recruit",
+      "_value": "아직 찾아온 동료가 없습니다"
+    },
+    {
+      "_key": "combat_start",
+      "_value": "습격자가 나타났습니다"
+    },
+    {
+      "_key": "combat_victory",
+      "_value": "습격을 막아냈습니다"
+    },
+    {
+      "_key": "combat_defeat",
+      "_value": "방어선이 무너졌습니다"
+    },
+    {
+      "_key": "combat_damage",
+      "_value": "피해"
+    },
+    {
+      "_key": "combat_reward",
+      "_value": "전리품"
+    },
+    {
+      "_key": "combat_raider",
+      "_value": "습격자"
+    },
+    {
+      "_key": "hud_title",
+      "_value": "철환 장갑열차"
+    },
+    {
+      "_key": "hud_resources",
+      "_value": "자원"
+    },
+    {
+      "_key": "hud_location",
+      "_value": "현재 위치"
+    },
+    {
+      "_key": "hud_prosperity",
+      "_value": "번영"
+    },
+    {
+      "_key": "hud_hub",
+      "_value": "거점"
+    },
+    {
+      "_key": "hud_habitat",
+      "_value": "서식지"
+    },
+    {
+      "_key": "hud_facilities",
+      "_value": "방어시설"
+    },
+    {
+      "_key": "hud_npcs",
+      "_value": "동료"
+    },
+    {
+      "_key": "hud_depart",
+      "_value": "출발"
+    },
+    {
+      "_key": "hud_donate",
+      "_value": "자원 배치"
+    },
+    {
+      "_key": "hud_build",
+      "_value": "건설"
+    },
+    {
+      "_key": "hud_close",
+      "_value": "닫기"
+    },
+    {
+      "_key": "hud_status",
+      "_value": "상태"
+    },
+    {
+      "_key": "hud_visit",
+      "_value": "방문"
+    },
+    {
+      "_key": "hud_stock",
+      "_value": "보유량"
+    },
+    {
+      "_key": "hud_cost",
+      "_value": "비용"
+    },
+    {
+      "_key": "hud_next",
+      "_value": "다음 경유지"
+    },
+    {
+      "_key": "hud_turn",
+      "_value": "순환"
+    },
+    {
+      "_key": "hud_insufficient",
+      "_value": "자원이 부족합니다"
+    },
+    {
+      "_key": "hud_unavailable",
+      "_value": "지금은 사용할 수 없습니다"
+    },
+    {
+      "_key": "hub_normal",
+      "_value": "유지"
+    },
+    {
+      "_key": "hub_thriving",
+      "_value": "번영"
+    },
+    {
+      "_key": "hub_declining",
+      "_value": "쇠락"
+    },
+    {
+      "_key": "hub_ruined",
+      "_value": "폐허"
+    },
+    {
+      "_key": "train_moving",
+      "_value": "이동 중"
+    },
+    {
+      "_key": "train_stopped",
+      "_value": "정차 중"
+    },
+    {
+      "_key": "defeat_title",
+      "_value": "모든 거점이 무너졌습니다"
+    },
+    {
+      "_key": "defeat_body",
+      "_value": "철환의 여정이 끝났습니다"
+    },
+    {
+      "_key": "defeat_restart",
+      "_value": "다시 시작"
+    },
+    {
+      "_key": "npc_engineer",
+      "_value": "기술자"
+    },
+    {
+      "_key": "demo_title",
+      "_value": "철환 · 황동과 증기의 기록"
+    },
+    {
+      "_key": "demo_subtitle",
+      "_value": "주조소 · 정원 · 항구 · 성채"
+    },
+    {
+      "_key": "demo_font_sample",
+      "_value": "북쪽 고개  ·  석탄  고철  물  곡물  ·  방벽  포탑  공방"
+    },
+    {
+      "_key": "demo_caption",
+      "_value": "선로 6종 · 거점과 폐허 8종 · 열차와 표식 · 습격자와 시설 · 동료와 번영"
+    },
+    {
+      "_key": "demo_footer",
+      "_value": "한글 표시 확인  |  황동 · 증기 팔레트  |  32픽셀 아트"
+    },
+    {
+      "_key": "art_rail_horizontal",
+      "_value": "가로 선로"
+    },
+    {
+      "_key": "art_rail_vertical",
+      "_value": "세로 선로"
+    },
+    {
+      "_key": "art_rail_curve_ne",
+      "_value": "북동 곡선"
+    },
+    {
+      "_key": "art_rail_curve_nw",
+      "_value": "북서 곡선"
+    },
+    {
+      "_key": "art_rail_curve_se",
+      "_value": "남동 곡선"
+    },
+    {
+      "_key": "art_rail_curve_sw",
+      "_value": "남서 곡선"
+    },
+    {
+      "_key": "art_train",
+      "_value": "장갑열차"
+    },
+    {
+      "_key": "art_waypoint",
+      "_value": "경유지"
+    },
+    {
+      "_key": "art_raider",
+      "_value": "습격자"
+    },
+    {
+      "_key": "art_npc",
+      "_value": "동료"
+    },
+    {
+      "_key": "art_prosperity_bg",
+      "_value": "번영 바탕"
+    },
+    {
+      "_key": "art_prosperity_fill",
+      "_value": "번영 채움"
+    },
+    { "_key": "inv_bar_title", "_value": "아이템" },
+    { "_key": "inv_bar_empty", "_value": "가진 아이템이 없습니다" },
+    { "_key": "inv_craft", "_value": "제작" },
+    { "_key": "inv_craft_title", "_value": "아이템 제작" },
+    { "_key": "inv_close", "_value": "닫기" },
+    { "_key": "inv_place_title", "_value": "배치" },
+    { "_key": "inv_place_none", "_value": "놓을 아이템이 없습니다" },
+    { "_key": "inv_pickup", "_value": "회수" },
+    { "_key": "inv_pickup_title", "_value": "놓인 아이템" },
+    { "_key": "inv_cell_title", "_value": "칸" },
+    { "_key": "inv_habitat_title", "_value": "서식지 조건" },
+    { "_key": "inv_habitat_complete", "_value": "서식지 완성!" },
+    { "_key": "inv_habitat_incomplete", "_value": "서식지 미완성" },
+    { "_key": "inv_habitat_list", "_value": "완성 서식지:" },
+    { "_key": "inv_banner_complete", "_value": "서식지가 완성되었습니다! 이벤트 플래그가 켜졌습니다" },
+    { "_key": "inv_crafted", "_value": "제작 완료" },
+    { "_key": "inv_craft_refused", "_value": "자원이 부족합니다" },
+    { "_key": "inv_place_refused", "_value": "할 수 없습니다" },
+    { "_key": "inv_placed", "_value": "배치 완료" },
+    { "_key": "inv_picked", "_value": "회수 완료" },
+    { "_key": "inv_cost", "_value": "비용" },
+    { "_key": "inv_tags", "_value": "태그" },
+    { "_key": "phase_ruined", "_value": "폐허" },
+    { "_key": "phase_recovering", "_value": "복구 중" },
+    { "_key": "phase_settled", "_value": "정착" },
+    { "_key": "phase_collapsed", "_value": "붕괴" },
+    { "_key": "phase_prosperity", "_value": "번영" },
+    { "_key": "phase_deadline", "_value": "정착 기한" },
+    { "_key": "phase_laps_left", "_value": "바퀴 남음" },
+    { "_key": "phase_build_title", "_value": "시설 건설" },
+    { "_key": "phase_build_refused", "_value": "지금은 건설할 수 없습니다 (정차·자원·한도·폐허 확인)" },
+    { "_key": "phase_loss_deadline", "_value": "기한 안에 정착한 거점이 없습니다" },
+    { "_key": "phase_loss_collapse", "_value": "정착했던 거점이 모두 붕괴했습니다" },
+    { "_key": "interior_investigate", "_value": "조사" },
+    { "_key": "interior_investigations_left", "_value": "남은 조사" },
+    { "_key": "interior_items", "_value": "아이템" },
+    { "_key": "interior_cell_rubble", "_value": "잔해" },
+    { "_key": "interior_result_empty", "_value": "빈 터였습니다" },
+    { "_key": "interior_result_item", "_value": "묻힌 아이템을 찾았습니다" },
+    { "_key": "interior_result_resource", "_value": "묻힌 자원을 찾았습니다" },
+    { "_key": "interior_result_plot", "_value": "옛 시설 부지를 발견했습니다" },
+    { "_key": "interior_no_investigations", "_value": "이번 정차의 조사 횟수를 모두 썼습니다" },
+    { "_key": "interior_item_lantern", "_value": "등불" },
+    { "_key": "interior_item_gear", "_value": "톱니바퀴" },
+    { "_key": "interior_item_seedling", "_value": "모종" },
+    { "_key": "hotbar_hint", "_value": "1~9 선택 · 좌클릭 배치 · 끌어서 놓기 · 우클릭/Esc 취소 · 빈 손 우클릭 회수" },
+    { "_key": "hotbar_palette", "_value": "팔레트" },
+    { "_key": "hotbar_palette_title", "_value": "배치 팔레트" },
+    { "_key": "hotbar_palette_hint", "_value": "항목을 누른 뒤 핫바 칸을 누르면 그 칸에 들어갑니다. 항목을 칸으로 끌어 바로 놓을 수도 있습니다." },
+    { "_key": "hotbar_assigned", "_value": "핫바 배정" },
+    { "_key": "placement_refused", "_value": "놓을 수 없는 칸" },
+    { "_key": "placement_placed", "_value": "배치" },
+    { "_key": "placement_picked", "_value": "회수" },
+    { "_key": "placement_habitat_complete", "_value": "{0} 완성!" },
+    { "_key": "habitat_completed", "_value": "서식지 완성" },
+    { "_key": "habitat_completed_format", "_value": "{0} 완성!" },
+    { "_key": "habitat_broken", "_value": "서식지가 흩어졌습니다" },
+    { "_key": "habitat_broken_format", "_value": "{0}이(가) 흩어졌습니다" },
+    { "_key": "habitat_none", "_value": "완성된 서식지가 없습니다" },
+    { "_key": "habitat_list", "_value": "완성 서식지" },
+    { "_key": "habitat_npc_joined_format", "_value": "{0}이(가) 합류했습니다" },
+    { "_key": "habitat_type_boiler_room", "_value": "보일러실" },
+    { "_key": "habitat_type_pipe_gallery", "_value": "배관 회랑" },
+    { "_key": "habitat_type_cogworks", "_value": "톱니공방" },
+    { "_key": "habitat_type_lamp_street", "_value": "가스등 거리" },
+    { "_key": "habitat_type_coal_yard", "_value": "석탄 야적장" },
+    { "_key": "habitat_type_iron_depot", "_value": "철골 창고" },
+    { "_key": "habitat_type_cobble_plaza", "_value": "벽돌 광장" },
+    { "_key": "habitat_type_cistern", "_value": "저수조" },
+    { "_key": "habitat_type_greenhouse", "_value": "온실" },
+    { "_key": "habitat_type_barracks", "_value": "막사촌" },
+    { "_key": "habitat_type_toolshop", "_value": "공구상" },
+    { "_key": "habitat_type_telegraph_line", "_value": "전신선" },
+    { "_key": "habitat_type_grand_cogworks", "_value": "대공방" },
+    { "_key": "habitat_type_engine_room", "_value": "증기 기관실" },
+    { "_key": "habitat_type_blast_furnace", "_value": "용광로" },
+    { "_key": "habitat_type_lamp_road", "_value": "가로등길" },
+    { "_key": "habitat_type_water_tower", "_value": "급수탑" },
+    { "_key": "habitat_type_repair_bay", "_value": "정비창" },
+    { "_key": "habitat_type_power_house", "_value": "발전소" },
+    { "_key": "npc_stoker", "_value": "화부" },
+    { "_key": "npc_pipefitter", "_value": "배관공" },
+    { "_key": "npc_mechanic", "_value": "기계공" },
+    { "_key": "npc_lamplighter", "_value": "점등부" },
+    { "_key": "npc_coal_merchant", "_value": "석탄 상인" },
+    { "_key": "npc_ironworker", "_value": "철공" },
+    { "_key": "npc_peddler", "_value": "행상" },
+    { "_key": "npc_water_keeper", "_value": "급수원" },
+    { "_key": "npc_gardener", "_value": "원예사" },
+    { "_key": "npc_night_watch", "_value": "야간 경비" },
+    { "_key": "npc_tinker", "_value": "수리공" },
+    { "_key": "npc_telegrapher", "_value": "전신 기사" },
+    { "_key": "npc_chief_engineer", "_value": "수석 기술자" },
+    { "_key": "npc_engine_driver", "_value": "기관사" },
+    { "_key": "npc_smelter", "_value": "제련공" },
+    { "_key": "npc_patrol", "_value": "순찰대원" },
+    { "_key": "npc_tower_keeper", "_value": "급수탑지기" },
+    { "_key": "npc_repairer", "_value": "정비사" },
+    { "_key": "npc_electrician", "_value": "전기 기사" },
+    { "_key": "npc_quote_stoker", "_value": "불을 꺼뜨리지 않는 게 내 일이오." },
+    { "_key": "npc_quote_pipefitter", "_value": "새는 데가 있으면 소리로 먼저 알지." },
+    { "_key": "npc_quote_mechanic", "_value": "톱니 하나만 맞아도 마을이 돌아가요." },
+    { "_key": "npc_quote_lamplighter", "_value": "해 지기 전에 등을 다 밝혀 둘게요." },
+    { "_key": "npc_quote_coal_merchant", "_value": "좋은 석탄은 오래 타고 값도 정직하지." },
+    { "_key": "npc_quote_ironworker", "_value": "철골만 튼튼하면 폭풍도 버티오." },
+    { "_key": "npc_quote_peddler", "_value": "광장이 생겼다니, 좌판부터 펴야겠네!" },
+    { "_key": "npc_quote_water_keeper", "_value": "물탱크 수위는 내가 매일 잽니다." },
+    { "_key": "npc_quote_gardener", "_value": "유리 아래라면 잿빛 땅에서도 싹이 나요." },
+    { "_key": "npc_quote_night_watch", "_value": "눈 붙이세요. 밤은 내가 지킵니다." },
+    { "_key": "npc_quote_tinker", "_value": "망가진 건 다 가져오시오. 고쳐 드리지." },
+    { "_key": "npc_quote_telegrapher", "_value": "선만 이어지면 소식은 바퀴보다 빠르죠." },
+    { "_key": "npc_quote_chief_engineer", "_value": "이 정도 공방이면 열차도 새로 짜겠군." },
+    { "_key": "npc_quote_engine_driver", "_value": "기관이 숨 쉬는 소리가 들리나? 아주 건강해." },
+    { "_key": "npc_quote_smelter", "_value": "용광로가 달아오르면 철이 노래하지." },
+    { "_key": "npc_quote_patrol", "_value": "가로등길을 따라 한 바퀴 돌고 오겠습니다." },
+    { "_key": "npc_quote_tower_keeper", "_value": "열차가 목마르면 언제든 들르시오." },
+    { "_key": "npc_quote_repairer", "_value": "정비창이 있으니 열차를 맡겨도 됩니다." },
+    { "_key": "npc_quote_electrician", "_value": "불꽃이 튀는 걸 보니 발전기가 제대로군." },
+    { "_key": "item_tile_boiler", "_value": "보일러" },
+    { "_key": "item_tile_pipe", "_value": "증기관" },
+    { "_key": "item_tile_gear", "_value": "톱니장치" },
+    { "_key": "item_tile_gaslamp", "_value": "가스등" },
+    { "_key": "item_tile_coal", "_value": "석탄더미" },
+    { "_key": "item_tile_girder", "_value": "철골" },
+    { "_key": "item_tile_cobble", "_value": "벽돌길" },
+    { "_key": "item_tile_tank", "_value": "물탱크" },
+    { "_key": "item_tile_glass", "_value": "온실유리" },
+    { "_key": "item_tile_bunk", "_value": "침상" },
+    { "_key": "item_tile_bench", "_value": "작업대" },
+    { "_key": "item_tile_wire", "_value": "전신주" },
+    { "_key": "item_tile_chimney", "_value": "굴뚝" },
+    { "_key": "npc_dialog_home", "_value": "집" },
+    { "_key": "npc_dialog_home_none", "_value": "집 없음" },
+    { "_key": "npc_dialog_close", "_value": "닫기" }
+  ]
+}
