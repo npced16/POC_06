@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efc11b1d426a97342a512c0f646d2b10, type: 3}
   m_Name: UiTheme
   m_EditorClassIdentifier: Assembly-CSharp::IronRing.Hud.Ui.UiTheme
+  _skin: 0
   _panel: {r: 0.16862746, g: 0.11372549, b: 0.16470589, a: 1}
   _border: {r: 0.8392157, g: 0.627451, b: 0.3254902, a: 1}
   _accent: {r: 1, g: 0.8117647, b: 0.41568628, a: 1}
@@ -24,23 +25,23 @@ MonoBehaviour:
   _fontTitle: 28
   _fontHeading: 22
   _lineHeightFactor: 1.3
-  _buttonHeight: 40
-  _buttonHeightSmall: 32
-  _panelSprite: {fileID: 1580464829, guid: 374d35ea950bd2944aa68c7801272673, type: 3}
-  _buttonSprite: {fileID: 1887732192, guid: 374d35ea950bd2944aa68c7801272673, type: 3}
-  _buttonPressedSprite: {fileID: 2126276004, guid: 374d35ea950bd2944aa68c7801272673, type: 3}
-  _slotSprite: {fileID: 1488545869, guid: 374d35ea950bd2944aa68c7801272673, type: 3}
-  _slotSelectedSprite: {fileID: 475083056, guid: 374d35ea950bd2944aa68c7801272673, type: 3}
-  _toastSprite: {fileID: 2041732347, guid: 374d35ea950bd2944aa68c7801272673, type: 3}
-  _sliceMultiplier: 2
-  _frameTitledSprite: {fileID: 951090247, guid: 374d35ea950bd2944aa68c7801272673, type: 3}
-  _progressBarSprite: {fileID: -969260987, guid: 374d35ea950bd2944aa68c7801272673, type: 3}
-  _roundCloseSprite: {fileID: -1058436808, guid: 374d35ea950bd2944aa68c7801272673, type: 3}
-  _buttonDarkSprite: {fileID: -1606023625, guid: 374d35ea950bd2944aa68c7801272673, type: 3}
-  _slotCopperSprite: {fileID: 1985273450, guid: 374d35ea950bd2944aa68c7801272673, type: 3}
-  _panelPad: {x: 64, y: 48, z: 48, w: 76}
-  _frameTitledPad: {x: 44, y: 60, z: 44, w: 116}
-  _toastPad: {x: 40, y: 12, z: 40, w: 18}
-  _buttonPad: {x: 28, y: 24, z: 28, w: 24}
-  _slotPad: {x: 13, y: 12, z: 12, w: 12}
-  _progressBarPad: {x: 112, y: 16, z: 112, w: 20}
+  _buttonHeight: 36
+  _buttonHeightSmall: 28
+  _panelSprite: {fileID: 21300000, guid: 2792aae06f3f0f54ab44fae657fec367, type: 3}
+  _buttonSprite: {fileID: 21300000, guid: 89676bec0edeb53469a9f9c4a0777d54, type: 3}
+  _buttonPressedSprite: {fileID: 21300000, guid: 2205b611480f9e04fa5e5ece9ba7ec51, type: 3}
+  _slotSprite: {fileID: 21300000, guid: dc7bf5d61cc7ddf4fafd7b9cba281d22, type: 3}
+  _slotSelectedSprite: {fileID: 21300000, guid: 9273b1eb2bc0e2a46b99c0e00142d035, type: 3}
+  _toastSprite: {fileID: 21300000, guid: 5a289478639410848b5677e65aec1a8a, type: 3}
+  _sliceMultiplier: 1
+  _frameTitledSprite: {fileID: 21300000, guid: 2792aae06f3f0f54ab44fae657fec367, type: 3}
+  _progressBarSprite: {fileID: 21300000, guid: dc7bf5d61cc7ddf4fafd7b9cba281d22, type: 3}
+  _roundCloseSprite: {fileID: 21300000, guid: 89676bec0edeb53469a9f9c4a0777d54, type: 3}
+  _buttonDarkSprite: {fileID: 21300000, guid: 89676bec0edeb53469a9f9c4a0777d54, type: 3}
+  _slotCopperSprite: {fileID: 21300000, guid: 9273b1eb2bc0e2a46b99c0e00142d035, type: 3}
+  _panelPad: {x: 12, y: 12, z: 12, w: 12}
+  _frameTitledPad: {x: 12, y: 12, z: 12, w: 12}
+  _toastPad: {x: 12, y: 12, z: 12, w: 12}
+  _buttonPad: {x: 12, y: 12, z: 12, w: 12}
+  _slotPad: {x: 3, y: 3, z: 3, w: 3}
+  _progressBarPad: {x: 12, y: 12, z: 12, w: 12}

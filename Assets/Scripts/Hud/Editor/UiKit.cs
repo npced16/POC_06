@@ -8,6 +8,7 @@ using UnityEditor;
 using TMPro;
 
 using IronRing.Hud.Ui;
+using IronRing.Localization;
 
 using UImage = UnityEngine.UI.Image;
 using UButton = UnityEngine.UI.Button;
@@ -132,6 +133,7 @@ namespace IronRing.Hud.Editor
         public static UImage Slot(Transform parent, string name, UiTheme theme)
         {
             UImage image = Sliced(parent, name, theme.SlotSprite, theme, true);
+            if (theme.Skin == UiSkin.Simple) return image; // 스토리 026: 평면 슬롯은 가운데까지 채운다(SlotBack 불필요)
             image.fillCenter = false;
             AddSlotBack(image, theme);
             return image;
@@ -149,7 +151,12 @@ namespace IronRing.Hud.Editor
         public static int PlateSide(UiTheme theme) => theme.ContentPadding(theme.ToastSprite).left + 6;
 
         /// <summary>제목판이 걸친 프레임에서 내용(힌트 첫 줄)이 시작하는 위쪽 거리 = pad.top + 제목판 높이/2 + 8.</summary>
-        public static float ContentTop(UiTheme theme) => FramePad(theme).top + TITLE_PLATE_HEIGHT / 2f + 8f;
+        public static float ContentTop(UiTheme theme) => theme.Skin == UiSkin.Sheet
+            ? FramePad(theme).top + TITLE_PLATE_HEIGHT / 2f + 8f
+            : FramePad(theme).top + theme.LineHeight(UiTextSize.Heading) + 6f; // Simple: 패널 안 제목 줄 아래
+
+        /// <summary>Simple 스킨의 "닫기" 텍스트 버튼 폭(화면 px).</summary>
+        public const float SIMPLE_CLOSE_WIDTH = 64f;
 
         /// <summary>
         /// 스토리 024. 프레임 위 가장자리 가운데에 걸치는 제목판(title_plate) + 제목 라벨(이름 name, Title, 강조색, 한 줄).
@@ -158,6 +165,18 @@ namespace IronRing.Hud.Editor
         /// </summary>
         public static TextMeshProUGUI TitlePlate(Transform panel, string name, string text, UiTheme theme)
         {
+            if (theme.Skin == UiSkin.Simple)
+            {
+                // 스토리 026: 제목판 없이 패널 안쪽 왼쪽 위의 굵은 Heading 한 줄(닫기 버튼 자리 비움).
+                RectOffset pad = FramePad(theme);
+                TextMeshProUGUI heading = Label(panel, name, text, UiTextSize.Heading, theme, TextAlignmentOptions.MidlineLeft);
+                StretchTop(heading.rectTransform, theme.LineHeight(UiTextSize.Heading), pad.top, pad.left, pad.right + SIMPLE_CLOSE_WIDTH + 8);
+                heading.color = theme.Accent;
+                heading.fontStyle = FontStyles.Bold;
+                heading.textWrappingMode = TextWrappingModes.NoWrap;
+                heading.overflowMode = TextOverflowModes.Ellipsis;
+                return heading;
+            }
             UImage plate = Sliced(panel, name + "Plate", theme.ToastSprite, theme, false);
             Place(plate.rectTransform, new Vector2(0.5f, 1), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(0, TITLE_PLATE_HEIGHT));
             HorizontalLayoutGroup layout = plate.gameObject.AddComponent<HorizontalLayoutGroup>();
@@ -177,6 +196,16 @@ namespace IronRing.Hud.Editor
         /// <summary>스토리 024. 패널 오른쪽 위 모서리에 얹는 둥근 X 닫기 버튼(btn_round_close, Simple, 색 변화로 눌림 표시). 라벨 없음.</summary>
         public static UButton CloseButton(Transform panel, string name, UiTheme theme)
         {
+            if (theme.Skin == UiSkin.Simple)
+            {
+                // 스토리 026: 오른쪽 위 작은 "닫기" 텍스트 버튼(Small 글자, 좁은 버튼 높이).
+                RectOffset pad = FramePad(theme);
+                UButton text = Button(panel, name, Strings.Get("hud_close"), theme);
+                Place((RectTransform)text.transform, Vector2.one, Vector2.one, new Vector2(-pad.right, -pad.top), new Vector2(SIMPLE_CLOSE_WIDTH, theme.ButtonHeightSmall));
+                TextMeshProUGUI label = text.GetComponentInChildren<TextMeshProUGUI>(true);
+                if (label != null) label.fontSize = theme.Size(UiTextSize.Small);
+                return text;
+            }
             RectTransform rect = Node(panel, name);
             Place(rect, Vector2.one, new Vector2(0.5f, 0.5f), new Vector2(-CLOSE_INSET, -CLOSE_INSET), new Vector2(CLOSE_SIZE, CLOSE_SIZE));
             UImage image = rect.gameObject.AddComponent<UImage>();
@@ -211,6 +240,16 @@ namespace IronRing.Hud.Editor
             image.color = theme.Panel;
             image.raycastTarget = false;
             return image;
+        }
+
+        /// <summary>표식 파일 .bridge/rebuild/&lt;id&gt;가 있으면 지우고 true(부품 프리팹을 같은 경로·GUID로 다시 만들 때).</summary>
+        public static bool ConsumeMarker(string id)
+        {
+            string marker = System.IO.Path.Combine(System.IO.Directory.GetParent(Application.dataPath).FullName, ".bridge", "rebuild", id);
+            if (!System.IO.File.Exists(marker)) return false;
+            System.IO.File.Delete(marker);
+            Debug.Log("MAINCANVAS REBUILT PART: " + id);
+            return true;
         }
 
         /// <summary>슬롯 바탕 자식 이름.</summary>

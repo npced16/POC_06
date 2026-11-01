@@ -7,6 +7,9 @@ namespace IronRing.Hud.Ui
     /// <summary>스토리 022. 테마 글자 크기 단계.</summary>
     public enum UiTextSize { Small, Normal, Title, Heading }
 
+    /// <summary>스토리 026. UI 스킨: Simple(평면 패널·텍스트 닫기, 기본) | Sheet(스토리 024 시트 조각·제목판·둥근 닫기).</summary>
+    public enum UiSkin { Simple, Sheet }
+
     /// <summary>
     /// 스토리 022. UGUI 화면 공용 테마 데이터(Assets/Prefabs/UI/UiTheme.asset). 색은 BuildMainCanvas가 SteampunkPalette.json에서 처음 한 번 채우고,
     /// 이후에는 디자이너가 이 에셋에서 고친다. 스크립트는 색·크기·스프라이트를 코드에 두지 않고 여기서 읽는다.
@@ -14,6 +17,9 @@ namespace IronRing.Hud.Ui
     [CreateAssetMenu(menuName = "IronRing/UI Theme", fileName = "UiTheme")]
     public sealed class UiTheme : ScriptableObject
     {
+        [Header("스킨 (스토리 026) — 바꾼 뒤 BuildMainCanvas.Generate(전체 표식)로 재생성")]
+        [SerializeField] private UiSkin _skin = UiSkin.Simple;
+
         [Header("색 (팔레트에서 생성)")]
         [SerializeField] private Color _panel = Color.white;
         [SerializeField] private Color _border = Color.white;
@@ -60,6 +66,8 @@ namespace IronRing.Hud.Ui
         [SerializeField] private Vector4 _slotPad;
         [SerializeField] private Vector4 _progressBarPad;
 
+        /// <summary>현재 스킨 모드. UiKit이 제목·닫기·슬롯 모양을 이 값으로 고른다.</summary>
+        public UiSkin Skin => _skin;
         /// <summary>패널 바탕색(자두색).</summary>
         public Color Panel => _panel;
         /// <summary>테두리색(황동).</summary>

@@ -30,8 +30,8 @@ namespace IronRing.Hud.Editor.Screens
         /// <summary>화면 루트(UiScreen "Hotbar", 항상 켜짐) + HotbarScreen + 내용.</summary>
         public static GameObject Build(UiTheme theme)
         {
-            GameObject slotPart = UiKit.SavePrefabIfMissing(SLOT_PART, () => Cell(theme, "HotbarSlot", SlotSize, true));
-            GameObject entryPart = UiKit.SavePrefabIfMissing(PALETTE_PART, () => Cell(theme, "PaletteItem", EntrySize, false));
+            GameObject slotPart = UiKit.SavePrefab(SLOT_PART, () => Cell(theme, "HotbarSlot", SlotSize, true), UiKit.ConsumeMarker("HotbarSlot"));
+            GameObject entryPart = UiKit.SavePrefab(PALETTE_PART, () => Cell(theme, "PaletteItem", EntrySize, false), UiKit.ConsumeMarker("PaletteItem"));
             HotbarData data = HotbarData.Load();
             ItemSpriteSet sprites = ItemSpriteSet.Load();
 

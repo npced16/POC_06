@@ -48,6 +48,7 @@ namespace IronRing.Hud.Editor
             P("_panelPad", "frame_plain"); P("_frameTitledPad", "frame_titled"); P("_toastPad", "title_plate");
             P("_buttonPad", "btn_copper"); P("_progressBarPad", "progress_bar"); P("_slotPad", "slot_dark");
             so.FindProperty("_sliceMultiplier").floatValue = SHEET_MULTIPLIER;
+            so.FindProperty("_skin").enumValueIndex = (int)UiSkin.Sheet;
             // 사용자 지시(21:40) 글자 4단계: Title 28 · Heading 22 · Normal 18 · Small 14, 줄 높이 ×1.3, 버튼 높이 40(상단 바 기준)·좁은 줄 32.
             so.FindProperty("_fontTitle").floatValue = 28f;
             so.FindProperty("_fontHeading").floatValue = 22f;
@@ -60,6 +61,37 @@ namespace IronRing.Hud.Editor
             if (changed) { EditorUtility.SetDirty(theme); AssetDatabase.SaveAssets(); }
             Debug.Log("[UiSheetTheme] ApplySheetTheme " + (changed ? "변경" : "변경 없음"));
         }
+
+        /// <summary>
+        /// 스토리 026. Simple 스킨: 평면 스프라이트(SpriteGenUi.GenerateFlat, 없으면 만든다)로 테마를 바꾼다.
+        /// sliceMultiplier 1, pad 12, 버튼 높이 36(좁은 줄 28). 글자 4단계는 그대로. 이미 같으면 변경 없음.
+        /// </summary>
+        public static void ApplySimpleTheme()
+        {
+            if (Flat("ui_panel_flat") == null) IronRing.Art.Editor.SpriteGenUi.GenerateFlat();
+            var theme = AssetDatabase.LoadAssetAtPath<UiTheme>(THEME);
+            var so = new SerializedObject(theme);
+            void S(string field, string name) => so.FindProperty(field).objectReferenceValue = Flat(name);
+            S("_panelSprite", "ui_panel_flat"); S("_buttonSprite", "ui_button_flat"); S("_buttonPressedSprite", "ui_button_flat_pressed");
+            S("_slotSprite", "ui_slot_flat"); S("_slotSelectedSprite", "ui_slot_flat_selected"); S("_toastSprite", "ui_toast_flat");
+            S("_buttonDarkSprite", "ui_button_flat"); S("_slotCopperSprite", "ui_slot_flat_selected");
+            S("_frameTitledSprite", "ui_panel_flat"); S("_progressBarSprite", "ui_slot_flat"); S("_roundCloseSprite", "ui_button_flat");
+            var pad = new Vector4(SIMPLE_PAD, SIMPLE_PAD, SIMPLE_PAD, SIMPLE_PAD);
+            foreach (string field in new[] { "_panelPad", "_frameTitledPad", "_toastPad", "_buttonPad", "_slotPad", "_progressBarPad" })
+                so.FindProperty(field).vector4Value = field == "_slotPad" ? new Vector4(3, 3, 3, 3) : pad;
+            so.FindProperty("_sliceMultiplier").floatValue = 1f;
+            so.FindProperty("_buttonHeight").floatValue = 36f;
+            so.FindProperty("_buttonHeightSmall").floatValue = 28f;
+            so.FindProperty("_skin").enumValueIndex = (int)UiSkin.Simple;
+            bool changed = so.ApplyModifiedPropertiesWithoutUndo();
+            if (changed) { EditorUtility.SetDirty(theme); AssetDatabase.SaveAssets(); }
+            Debug.Log("[UiSheetTheme] ApplySimpleTheme " + (changed ? "변경" : "변경 없음"));
+        }
+
+        /// <summary>Simple 스킨 패널·띠·버튼의 안쪽 여백(화면 px, sliceMultiplier 1이라 그대로).</summary>
+        private const float SIMPLE_PAD = 12f;
+
+        private static Sprite Flat(string name) => AssetDatabase.LoadAssetAtPath<Sprite>(OLD + name + ".png");
 
         /// <summary>
         /// 화면·부품 프리팹의 Image.sprite와 Button SpriteSwap을 옛 스프라이트에서 시트 조각으로 바꾼다.

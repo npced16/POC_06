@@ -29,7 +29,7 @@ namespace IronRing.Hud.Editor.Screens
         /// <summary>화면 루트(UiScreen "Codex", 상황 화면) + CodexScreen + 패널·머리줄·카드 격자.</summary>
         public static GameObject Build(UiTheme theme)
         {
-            GameObject tilePart = UiKit.SavePrefabIfMissing(TILE_PART, () => Tile(theme));
+            GameObject tilePart = UiKit.SavePrefab(TILE_PART, () => Tile(theme), ConsumeMarker("TileIcon"));
             // 표식 .bridge/rebuild/CodexCard가 있으면 카드 부품도 같은 경로(GUID 유지)에 다시 만든다.
             GameObject cardPart = UiKit.SavePrefab(CARD_PART, () => Card(theme), ConsumeMarker("CodexCard"));
 

@@ -28,7 +28,9 @@ namespace IronRing.Hud.Editor.Screens
             UiKit.Place(panel.rectTransform, Vector2.zero, Vector2.zero, new Vector2(18, 150), new Vector2(418, 0)); // 스토리 025: 출신지 줄만큼 넓힘, 024: 프레임 여백만큼 더(내용 폭 유지)
             VerticalLayoutGroup column = panel.gameObject.AddComponent<VerticalLayoutGroup>();
             RectOffset pad = UiKit.FramePad(theme);
-            column.padding = new RectOffset(pad.left, pad.right + (int)(UiKit.CLOSE_SIZE / 2), pad.top, pad.bottom);
+            // 오른쪽 위 닫기 자리: Sheet는 둥근 X 반지름, Simple은 "닫기" 텍스트 버튼 폭(스토리 026)
+            int closeReserve = theme.Skin == UiSkin.Simple ? (int)UiKit.SIMPLE_CLOSE_WIDTH + 8 : (int)(UiKit.CLOSE_SIZE / 2);
+            column.padding = new RectOffset(pad.left, pad.right + closeReserve, pad.top, pad.bottom);
             column.spacing = 6;
             column.childControlWidth = true; column.childControlHeight = true;
             column.childForceExpandWidth = true; column.childForceExpandHeight = false;
