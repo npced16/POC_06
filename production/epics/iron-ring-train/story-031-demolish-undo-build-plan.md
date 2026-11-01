@@ -1,12 +1,12 @@
 # Story 031: 부수기·되돌리기, 그리고 건물을 먼저 고르고 타일을 하나씩 놓는 건설 계획
 
 > **Epic**: 철환 장갑열차 MVP (iron-ring-train)
-> **Status**: Ready (A는 착수, B는 사용자 확인 뒤)
+> **Status**: A Done (2026-11-02 00:40 KST 코디네이터 검증 — 컴파일 통과, 캡처: 철거 전/후, 되돌리기) · B 대기(사용자 확인 뒤)
 > **Layer**: Core + Presentation
 > **Type**: UI
 > **Estimate**: M
 > **Manifest Version**: N/A (minimal — no control manifest)
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-11-02
 
 ## Context
 
@@ -27,9 +27,9 @@
 ## Acceptance Criteria
 
 ### A. 부수기·되돌리기
-- [ ] 부수기: 완성된 건물의 아무 칸에서 빈 손 우클릭 → 그 건물의 타일이 모두 회수되고 건물이 허물어진다(짧은 무너짐 연출: 조각이 0.25초 동안 내려앉으며 사라짐, 토스트 "<종류> 철거"). 사는 NPC는 집을 잃고 열차 옆 자리로 간다(기존 집 없음 규칙). 미완성 타일의 우클릭 회수는 그대로.
-- [ ] 되돌리기: Ctrl+Z(새 Input System)로 최근 배치·회수·철거를 순서대로 되돌린다(최대 5단계, 데이터). 되돌린 결과는 일반 배치와 같은 경로(`IItemPlacement`)를 거쳐 서식지 판정·건물·번영이 다시 계산된다. 거점을 떠나면 기록이 비워진다.
-- [ ] 핫바 안내줄에 "우클릭: 회수/철거 · Ctrl+Z: 되돌리기"를 넣는다.
+- [x] 부수기: 완성된 건물의 아무 칸에서 빈 손 우클릭 → 그 건물의 타일이 모두 회수되고 건물이 허물어진다(짧은 무너짐 연출: 조각이 0.25초 동안 내려앉으며 사라짐, 토스트 "<종류> 철거"). 사는 NPC는 집을 잃고 열차 옆 자리로 간다(기존 집 없음 규칙). 미완성 타일의 우클릭 회수는 그대로.
+- [x] 되돌리기: Ctrl+Z(새 Input System)로 최근 배치·회수·철거를 순서대로 되돌린다(최대 5단계, 데이터). 되돌린 결과는 일반 배치와 같은 경로(`IItemPlacement`)를 거쳐 서식지 판정·건물·번영이 다시 계산된다. 거점을 떠나면 기록이 비워진다.
+- [x] 핫바 안내줄에 "우클릭: 회수/철거 · Ctrl+Z: 되돌리기"를 넣는다.
 
 ### B. 건설 계획(사용자 확인 뒤)
 - [ ] 핫바 오른쪽 "건물" 버튼(B 키)으로 건물 목록 패널: 해금된 종류마다 건물 그림(지붕 계열 + 상징물 썸네일)과 "<이름>은 <타일>×n + <타일>×m (+ 아무거나 k)이면 된다 · N칸" 한 줄. 미해금은 "???"로 끝에.
@@ -73,7 +73,7 @@
 **Required evidence**:
 - 브리지 컴파일 확인 + 스크린샷 4장: `production/qa/evidence/story-031-demolish-undo-build-plan/` + `verification.md`
 
-**Status**: [ ] 미완
+**Status**: [x] A — `031-demolish.png`(--placement-demo --placement-stage demolish 75프레임: L자 가스등 거리 건물), `031-demolish-after.png`(160프레임: 철거 뒤 빈 칸, 로그 `DEMOLISH: lamp_street hub-1 cells 49,50,51,61`, `BUILDING COLLAPSE … 0.25초`), `031-undo.png`(stage undo: 2칸 놓고 1칸 되돌림, 로그 `UNDO: Place hub-1 칸 50`). B 미착수.
 
 ---
 

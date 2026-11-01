@@ -28,6 +28,7 @@
       { "_upper": false, "_row": 0, "_column": 2 },
       { "_upper": false, "_row": 0, "_column": 3 },
       { "_upper": false, "_row": 1, "_column": 1 }
-    ]
+    ],
+    "_demolishDelayFrames": 40
   }
 }

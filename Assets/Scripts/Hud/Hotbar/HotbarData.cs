@@ -66,12 +66,15 @@ namespace IronRing.Hud.Hotbar
             [SerializeField] private CellRef _dragCell = new CellRef();
             [SerializeField] private int _dragSlot = 1;
             [SerializeField] private CellRef[] _lCells = Array.Empty<CellRef>();
+            [SerializeField] private int _demolishDelayFrames = 40;
             public int WaitFrames => _waitFrames;
             public CellRef GhostCell => _ghostCell;
             public CellRef BlockedCell => _blockedCell;
             public CellRef DragCell => _dragCell;
             public int DragSlot => _dragSlot;
             public CellRef[] LCells => _lCells ?? Array.Empty<CellRef>();
+            /// <summary>스토리 031 demolish 단계: 건물이 선 뒤 철거까지 기다리는 프레임 수.</summary>
+            public int DemolishDelayFrames => Mathf.Max(0, _demolishDelayFrames);
         }
     }
 }
