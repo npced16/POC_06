@@ -7,6 +7,7 @@ using IronRing.Contracts;
 using IronRing.Contracts.Presentation;
 using IronRing.Hud.Ui;
 using IronRing.Localization;
+using DevPhase = IronRing.Contracts.HubPhase;
 
 namespace IronRing.Hud
 {
@@ -110,7 +111,8 @@ namespace IronRing.Hud
             _title.text = Strings.Get(_catalog.NodeKey(_selectedHub));
             _state.text = Strings.Get(_hubs.IsRuined(_selectedHub) ? "hub_ruined" : "hud_prosperity") + "  " + _hubs.GetProsperity(_selectedHub).ToString("0")
                 + "    " + Strings.Get("hud_npcs") + "  " + _npcs.NpcsAt(_selectedHub).Count;
-            _habitatLine.text = Strings.Get("hud_habitat") + "  " + Strings.Get(_habitat.IsHabitatComplete(_selectedHub) ? "hud_complete" : "hud_incomplete");
+            _habitatLine.text = Strings.Get("hud_habitat") + "  " + Strings.Get(_habitat.IsHabitatComplete(_selectedHub) ? "hud_complete" : "hud_incomplete")
+                + SettleText(_selectedHub);
             _message.text = canManage ? Strings.Get("train_stopped") : Strings.Get("hud_unavailable");
             for (int i = 0; i < _rows.Length && i < _catalog.Facilities.Length; i++)
             {
@@ -154,6 +156,17 @@ namespace IronRing.Hud
         private void OnProsperity(string hub, float value) { Refresh(); }
         private void OnEncounterEnded(ITrackNode node, EncounterOutcome outcome) { Refresh(); }
         private void OnInteriorChanged(bool open) { Refresh(); }
+
+        /// <summary>스토리 028: "  ·  정착까지 번영 K"(정착 단계면 "  ·  정착"). 예보·단계 서비스가 없으면 빈 문자열.</summary>
+        private string SettleText(string hubId)
+        {
+            IProsperityForecast forecast = GameServices.Get<IProsperityForecast>();
+            IHubDevelopment development = GameServices.Get<IHubDevelopment>();
+            if (forecast == null || development == null) return "";
+            if (development.GetPhase(hubId) == DevPhase.Settled) return "  ·  " + Strings.Get("phase_settled");
+            int left = Mathf.Max(0, Mathf.CeilToInt(forecast.SettledThreshold(hubId) - _hubs.GetProsperity(hubId)));
+            return "  ·  " + Strings.Get("hub_to_settle") + " " + left;
+        }
 
         void OnDestroy()
         {

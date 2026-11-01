@@ -8,10 +8,11 @@ namespace IronRing.Habitats
     /// <summary>
     /// 스토리 016 (design/game-brief.md MVP 3). 칸 배치가 바뀔 때마다 거점을 다시 판정해 완성 서식지 목록(HabitatMatcher)을 갱신한다.
     /// IHabitatClusters: 종류별 완성 수가 늘면 HabitatCompleted, 줄면 HabitatBroken(늘거나 준 수만큼, 종류 id 단위).
+    /// IHabitatClusterChanges(스토리 028, QA S3-1): 수는 같은데 그 종류 완성 묶음들의 칸 구성이 바뀌면 HabitatChanged(종류당 1회).
     /// IHabitatSystem: IsHabitatComplete = 완성 서식지 1개 이상, EventFlagRaised = 거점마다 처음 완성될 때 1회(sticky, 깨져도 유지).
     /// 002의 슬롯 메서드는 비활성(TryPlace/TryRemove false, SlotContent null). 013의 TagHabitatSystem을 대신해 등록된다.
     /// </summary>
-    public sealed class ClusterHabitatSystem : IHabitatClusters, IHabitatSystem, IDisposable
+    public sealed class ClusterHabitatSystem : IHabitatClusters, IHabitatSystem, IHabitatClusterChanges, IDisposable
     {
         private static readonly IReadOnlyList<HabitatCluster> None = Array.Empty<HabitatCluster>();
 
@@ -26,6 +27,8 @@ namespace IronRing.Habitats
         public event Action<string, string> HabitatCompleted;
         /// <summary>hubId, 서식지 종류 id. 타일이 빠져 더는 완성이 아닐 때.</summary>
         public event Action<string, string> HabitatBroken;
+        /// <summary>스토리 028. hubId, 서식지 종류 id. 완성 수는 그대로인데 칸 구성이 바뀔 때(Completed/Broken 뒤에 낸다).</summary>
+        public event Action<string, string> HabitatChanged;
         /// <summary>hubId: 플래그가 처음 켜질 때 한 번.</summary>
         public event Action<string> EventFlagRaised;
 
@@ -96,6 +99,11 @@ namespace IronRing.Habitats
                 int delta = (newCounts.TryGetValue(typeId, out int n) ? n : 0) - (oldCounts.TryGetValue(typeId, out int o) ? o : 0);
                 for (int i = 0; i < delta; i++) HabitatCompleted?.Invoke(hubId, typeId);
             }
+            foreach (string typeId in _catalog.TypeIds)
+            {
+                int n = newCounts.TryGetValue(typeId, out int nv) ? nv : 0, o = oldCounts.TryGetValue(typeId, out int ov) ? ov : 0;
+                if (n == o && n > 0 && CellKey(before, typeId) != CellKey(after, typeId)) HabitatChanged?.Invoke(hubId, typeId);
+            }
             if (after.Count > 0 && _flags.Add(hubId)) EventFlagRaised?.Invoke(hubId);
         }
 
@@ -126,6 +134,21 @@ namespace IronRing.Habitats
             var counts = new Dictionary<string, int>(StringComparer.Ordinal);
             foreach (HabitatCluster cluster in clusters) counts[cluster.TypeId] = (counts.TryGetValue(cluster.TypeId, out int n) ? n : 0) + 1;
             return counts;
+        }
+
+        /// <summary>Order-independent key of every cell set of typeId's clusters (each cluster's cells sorted, clusters sorted).</summary>
+        private static string CellKey(IReadOnlyList<HabitatCluster> clusters, string typeId)
+        {
+            var parts = new List<string>();
+            foreach (HabitatCluster cluster in clusters)
+            {
+                if (cluster.TypeId != typeId) continue;
+                var cells = new List<int>(cluster.Cells ?? Array.Empty<int>());
+                cells.Sort();
+                parts.Add(string.Join(",", cells));
+            }
+            parts.Sort(StringComparer.Ordinal);
+            return string.Join("|", parts);
         }
 
         private void OnCellChanged(string hubId, int cellIndex) => Evaluate(hubId);

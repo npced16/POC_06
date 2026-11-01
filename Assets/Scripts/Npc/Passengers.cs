@@ -37,6 +37,7 @@ namespace IronRing.Npc
         private readonly List<Rider> _riders = new List<Rider>();
         private readonly Dictionary<string, int> _visits = new Dictionary<string, int>(StringComparer.Ordinal);
         private bool _disposed;
+        private int _boardRolls;
 
         /// <summary>npcId, waypointId.</summary>
         public event Action<string, string> Boarded;
@@ -166,14 +167,54 @@ namespace IronRing.Npc
             }
         }
 
+        /// <summary>
+        /// Story 028 (QA S2-2). Collects every eligible candidate, shuffles them with the pool's seeded random, then moves the
+        /// roster of this roll's priority hub to the front (k-th boarding roll prefers hub k, cycling through the hub ids) and
+        /// rolls each candidate's chance in that order until the seats are full. Deterministic for a given seed and history.
+        /// </summary>
         private void RollBoarding(string waypointId)
         {
+            if (_riders.Count >= _pool.MaxPassengers) return;
+            var candidates = new List<NpcDefinition>();
             foreach (NpcDefinition npc in _pool.Definitions)
+                if (npc.Passenger != null && !_recruiter.IsJoined(npc.Id) && Find(npc.Id) == null && IsBoardCandidate(npc, waypointId)) candidates.Add(npc);
+            string priority = PriorityHub(_boardRolls++);
+            List<NpcDefinition> order = BoardingOrder(candidates, priority, _random);
+            UnityEngine.Debug.Log($"PASSENGER: roll at {waypointId} priority={priority ?? "-"} candidates={order.Count}");
+            foreach (NpcDefinition npc in order)
             {
                 if (_riders.Count >= _pool.MaxPassengers) return;
-                if (npc.Passenger == null || _recruiter.IsJoined(npc.Id) || Find(npc.Id) != null || !IsBoardCandidate(npc, waypointId)) continue;
                 if (_random.NextDouble() < npc.Passenger.Chance) Board(npc, waypointId);
             }
+        }
+
+        /// <summary>Hub whose roster goes first on the given roll: hub ids in data order, cycling; null without hubs.</summary>
+        private string PriorityHub(int roll)
+        {
+            IReadOnlyList<string> ids = _hubs?.HubIds;
+            if (ids == null || ids.Count == 0) return null;
+            return ids[((roll % ids.Count) + ids.Count) % ids.Count];
+        }
+
+        /// <summary>
+        /// Story 028. Fisher-Yates shuffle of candidates with random, then a stable partition that puts NPCs whose first eligible
+        /// hub (home roster) is priorityHub first. Returns a new list; the input is not changed.
+        /// </summary>
+        public static List<NpcDefinition> BoardingOrder(IReadOnlyList<NpcDefinition> candidates, string priorityHub, Random random)
+        {
+            var shuffled = new List<NpcDefinition>(candidates);
+            for (int i = shuffled.Count - 1; i > 0; i--)
+            {
+                int j = random.Next(i + 1);
+                (shuffled[i], shuffled[j]) = (shuffled[j], shuffled[i]);
+            }
+            if (priorityHub == null) return shuffled;
+            var first = new List<NpcDefinition>();
+            var rest = new List<NpcDefinition>();
+            foreach (NpcDefinition npc in shuffled)
+                (npc.EligibleHubIds.Count > 0 && npc.EligibleHubIds[0] == priorityHub ? first : rest).Add(npc);
+            first.AddRange(rest);
+            return first;
         }
 
         /// <summary>Origin matches (or "*") and boarding conditions hold, judged against the NPC's first hub.</summary>

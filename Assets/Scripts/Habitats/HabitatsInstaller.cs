@@ -56,6 +56,7 @@ namespace IronRing.Habitats
             System = new ClusterHabitatSystem(Catalog, interior, placement, hubIds);
             GameServices.Register<IHabitatSystem>(System);
             GameServices.Register<IHabitatClusters>(System);
+            GameServices.Register<IHabitatClusterChanges>(System); // 스토리 028: 완성 묶음 칸 구성 변화(S3-1)
             InstallCodex();
             return System;
         }

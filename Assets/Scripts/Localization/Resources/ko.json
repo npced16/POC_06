@@ -476,6 +476,20 @@
     { "_key": "ui_sample_passenger_2_name", "_value": "가스관 기술자" },
     { "_key": "ui_sample_passenger_2_origin", "_value": "북쪽 고개" },
     { "_key": "ui_sample_passenger_2_proposal", "_value": "가스등 거리를 깔아 주면 가스관을 이어 드리지." },
-    { "_key": "ui_sample_passenger_2_hint", "_value": "가스관만 이어지면 어느 마을이든 좋소." }
-  ]
+    { "_key": "ui_sample_passenger_2_hint", "_value": "가스관만 이어지면 어느 마을이든 좋소." },
+    { "_key": "phase_next_lap", "_value": "다음 바퀴" },
+    { "_key": "phase_run_deadline", "_value": "결산까지" },
+    { "_key": "hub_to_settle", "_value": "정착까지 번영" },
+    { "_key": "result_victory", "_value": "승리" },
+    { "_key": "result_partial", "_value": "부분 성공 (정착 {0}/{1})" },
+    { "_key": "result_defeat", "_value": "패배" },
+    { "_key": "result_body_victory", "_value": "네 거점이 모두 정착했다. 철환은 다시 숨을 쉰다." },
+    { "_key": "result_body_partial", "_value": "기한이 다했다. 정착한 거점만이 다음 겨울을 넘긴다." },
+    { "_key": "result_body_deadline", "_value": "기한 안에 정착한 거점이 하나도 없다." },
+    { "_key": "result_body_collapse", "_value": "정착했던 거점이 모두 무너졌다." },
+    { "_key": "result_hub_line", "_value": "{0}  ·  {1}  ·  번영 {2}  ·  합류 {3}명" },
+    { "_key": "result_laps", "_value": "총 {0}바퀴" },
+    { "_key": "result_restart", "_value": "다시 시작" },
+    { "_key": "building_empty", "_value": "{0} — 아직 아무도 살지 않는다. 승객이 찾아오길 기다린다." }
+]
 }

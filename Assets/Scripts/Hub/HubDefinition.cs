@@ -29,7 +29,7 @@ namespace IronRing.Hub
         public float Initial { get; }
         /// <summary>Prosperity at or below which a hub is Ruined (never settled) or Collapsed (settled before).</summary>
         public float RuinThreshold { get; }
-        /// <summary>Base lap contribution after the profile decay multiplier. Not applied while Ruined.</summary>
+        /// <summary>Base lap contribution after the profile decay multiplier. Applied in every phase but Collapsed (Story 028: ruins too).</summary>
         public float BasePerLap { get; }
         /// <summary>Contribution per NPC after the profile NPC multiplier.</summary>
         public float PerNpc { get; }
@@ -37,6 +37,8 @@ namespace IronRing.Hub
         public float PerFacility { get; }
         /// <summary>Story 014: lap contribution per item placed in the hub interior.</summary>
         public float PerPlacedItem { get; }
+        /// <summary>Story 028: lap contribution per interior cell that belongs to a completed habitat cluster.</summary>
+        public float PerHabitatCell { get; }
         /// <summary>Story 014: lap contribution while the hub habitat is complete.</summary>
         public float HabitatBonus { get; }
         /// <summary>Story 014: prosperity at or above which a recovering hub settles.</summary>
@@ -54,10 +56,10 @@ namespace IronRing.Hub
         /// <summary>Validates the supplied id, bounds, growth coefficients and phase threshold and stores an immutable definition.</summary>
         public HubDefinition(string id, float minimum, float maximum, float initial, float ruinThreshold,
             float basePerLap, float perNpc, float perFacility, float perPlacedItem, float habitatBonus,
-            float settledThreshold, HubRunRules rules, bool settleByHabitat = false)
+            float settledThreshold, HubRunRules rules, bool settleByHabitat = false, float perHabitatCell = 0f)
         {
             if (string.IsNullOrWhiteSpace(id)) throw new ArgumentException("Hub id is required.", nameof(id));
-            float[] values = { minimum, maximum, initial, ruinThreshold, basePerLap, perNpc, perFacility, perPlacedItem, habitatBonus, settledThreshold };
+            float[] values = { minimum, maximum, initial, ruinThreshold, basePerLap, perNpc, perFacility, perPlacedItem, habitatBonus, settledThreshold, perHabitatCell };
             foreach (float value in values)
                 if (float.IsNaN(value) || float.IsInfinity(value)) throw new ArgumentException("Hub values must be finite.");
             if (minimum > ruinThreshold || ruinThreshold >= maximum || initial < minimum || initial > maximum)
@@ -77,6 +79,7 @@ namespace IronRing.Hub
             SettledThreshold = settledThreshold;
             Rules = rules;
             SettleByHabitat = settleByHabitat;
+            PerHabitatCell = perHabitatCell;
         }
     }
 }

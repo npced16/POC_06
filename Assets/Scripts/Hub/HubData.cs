@@ -9,7 +9,7 @@ namespace IronRing.Hub
     /// Unity JSON wire-format boundary (HubProfiles.json) that converts authorable profiles into pure immutable definitions.
     /// Schema: _deadlineLaps (laps before the first settlement, &gt;= 1); per hub: bounds (_minimum, _maximum, _initial,
     /// _ruinThreshold, _settledThreshold), per-lap contributions (_basePerLap, _perNpc, _perFacility, _perPlacedItem,
-    /// _habitatBonus) and Story 004 profile multipliers (_decayScale, _npcScale, _facilityScale).
+    /// _perHabitatCell (Story 028), _habitatBonus) and Story 004 profile multipliers (_decayScale, _npcScale, _facilityScale).
     /// </summary>
     [Serializable]
     public sealed class HubData
@@ -46,6 +46,8 @@ namespace IronRing.Hub
             [SerializeField] private float _perNpc;
             [SerializeField] private float _perFacility;
             [SerializeField] private float _perPlacedItem;
+            [Tooltip("Story 028: prosperity per lap for each cell inside a completed habitat cluster.")]
+            [SerializeField] private float _perHabitatCell = 1f;
             [SerializeField] private float _habitatBonus;
             [Header("Profile multipliers")]
             [SerializeField] private float _decayScale;
@@ -58,7 +60,7 @@ namespace IronRing.Hub
             /// <summary>Resolves serialized growth multipliers, bounds and phase threshold into a validated immutable hub definition.</summary>
             public HubDefinition ToDefinition(HubRunRules rules) => new HubDefinition(_id, _minimum, _maximum, _initial,
                 _ruinThreshold, _basePerLap * _decayScale, _perNpc * _npcScale, _perFacility * _facilityScale,
-                _perPlacedItem, _habitatBonus, _settledThreshold, rules, _settleByHabitat);
+                _perPlacedItem, _habitatBonus, _settledThreshold, rules, _settleByHabitat, _perHabitatCell);
         }
     }
 }

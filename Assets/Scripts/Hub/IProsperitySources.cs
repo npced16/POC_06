@@ -18,6 +18,8 @@ namespace IronRing.Hub
         /// rule: perHabitat when the habitat is complete, else 0.
         /// </summary>
         float HabitatBonus(string hubId, float perHabitat);
+        /// <summary>Story 028. Number of interior cells of hubId that belong to completed habitat clusters; 0 when unknown.</summary>
+        int HabitatCellCount(string hubId);
     }
 
     /// <summary>Default sources before the installer runs: no items, no habitat.</summary>
@@ -31,6 +33,8 @@ namespace IronRing.Hub
         public bool IsHabitatComplete(string hubId) => false;
         /// <summary>Always 0.</summary>
         public float HabitatBonus(string hubId, float perHabitat) => 0f;
+        /// <summary>Always 0.</summary>
+        public int HabitatCellCount(string hubId) => 0;
     }
 
     /// <summary>
@@ -72,6 +76,16 @@ namespace IronRing.Hub
                 float bonus = _typeBonus?.Invoke(cluster.TypeId) ?? 0f;
                 total += bonus > 0f ? bonus : perHabitat;
             }
+            return total;
+        }
+
+        /// <summary>Story 028. Sums the cell counts of hubId's completed clusters, or 0 without a cluster system.</summary>
+        public int HabitatCellCount(string hubId)
+        {
+            IReadOnlyList<HabitatCluster> completed = _clusters?.Invoke()?.CompletedAt(hubId);
+            if (completed == null) return 0;
+            int total = 0;
+            foreach (HabitatCluster cluster in completed) total += cluster?.Cells?.Count ?? 0;
             return total;
         }
 

@@ -38,12 +38,11 @@ namespace IronRing.Hub
             else Phase = HubPhase.Recovering;
         }
 
-        /// <summary>Clamps delta to the data bounds and returns whether prosperity changed; Collapsed ignores all changes and Ruined ignores decreases.</summary>
+        /// <summary>Clamps delta to the data bounds and returns whether prosperity changed; Collapsed ignores all changes; Ruined takes decreases too (Story 028, floored at Minimum).</summary>
         internal bool ApplyDelta(float delta)
         {
             if (float.IsNaN(delta) || float.IsInfinity(delta)) throw new ArgumentOutOfRangeException(nameof(delta));
             if (Phase == HubPhase.Collapsed) return false;
-            if (Phase == HubPhase.Ruined && delta < 0) return false;
             float previous = Prosperity;
             Prosperity = (float)Math.Max(Definition.Minimum, Math.Min(Definition.Maximum, (double)Prosperity + delta));
             return previous != Prosperity;
