@@ -44,7 +44,18 @@ namespace IronRing.Economy
         /// <summary>설치된 거래 세션.</summary>
         public static TradeSession Session { get; private set; }
 
+        /// <summary>스토리 041. 설치된 거점 창고.</summary>
+        public static Warehouse Warehouse { get; private set; }
+        /// <summary>스토리 041. 설치된 창고 ↔ 화물칸 이동.</summary>
+        public static Transfer Transfer { get; private set; }
+        /// <summary>스토리 041. 설치된 배치 비용.</summary>
+        public static PlacementCost Cost { get; private set; }
+        /// <summary>스토리 041. 설치된 생산(Ready에서 만든다).</summary>
+        public static Production Production { get; private set; }
+
         private static EconomyDemoDriver _demo;
+        private static ProductionDemoDriver _productionDemo;
+        private static IronRing.Items.ItemPlacement _paidPlacement;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStatics()
@@ -68,6 +79,11 @@ namespace IronRing.Economy
             ScreenTicker.Remove(Tick);
             _demo?.Dispose();
             _demo = null;
+            _productionDemo?.Dispose();
+            _productionDemo = null;
+            if (_paidPlacement != null) { _paidPlacement.TryCharge = null; _paidPlacement.CanAfford = null; _paidPlacement.Refund = null; _paidPlacement = null; }
+            Production?.Dispose();
+            Production = null; Warehouse = null; Transfer = null; Cost = null;
             Settlement?.Dispose();
             Session?.Dispose();
             Settlement = null; Session = null; Markets = null; Ledger = null; Cargo = null; Money = null; Goods = null; Settings = null;
@@ -98,19 +114,64 @@ namespace IronRing.Economy
             GameServices.Register<IMarkets>(Markets);
             GameServices.Register<ILedger>(Ledger);
             GameServices.Register<ITradeSession>(Session);
+            GoodsCatalog goods = Goods;
+            Warehouse = new Warehouse(id => goods.Get(id) != null, Settings.WarehouseCapacity);
+            string hub = Settings.WarehouseHubId;
+            Transfer = new Transfer(Warehouse, Cargo, () =>
+            {
+                IViewMode view = GameServices.Get<IViewMode>();
+                return view != null && view.InteriorOpen && view.InteriorHubId == hub;
+            });
+            Cost = new PlacementCost(id => IronRing.Items.ItemsInstaller.Catalog?.Get(id)?.Price ?? 0, Money, Settings.RefundRatio);
+            GameServices.Register<IWarehouse>(Warehouse);
+            GameServices.Register<ITransfer>(Transfer);
+            GameServices.Register<IPlacementCost>(Cost);
             if (stage != null) _demo = new EconomyDemoDriver(stage, Settings, track, Markets, Cargo, Money, Ledger, Session, run);
             ScreenTicker.Add(Tick);
             Debug.Log($"ECON: installed balance={Money.Balance} upkeep={Settings.TrainUpkeep} fare={Settings.Fare} cargo={Cargo.Capacity} stops={Markets.StopIds.Count} goods={Goods.Ids.Count} demo={stage ?? "none"}");
         }
 
         /// <summary>승객 서비스는 같은 Composing의 NpcInstaller가 등록하므로 Ready에서 연결한다.</summary>
-        private static void OnReady() => Settlement?.BindPassengers(GameServices.Get<IPassengers>());
+        private static void OnReady()
+        {
+            if (Settlement == null) return;
+            Settlement.BindPassengers(GameServices.Get<IPassengers>());
+            BindProduction();
+        }
+
+        /// <summary>
+        /// 스토리 041. 서식지·배치는 같은 Composing의 ItemsInstaller가 등록하므로 Ready에서 연결한다:
+        /// ItemPlacement에 결제·환급을 걸고, Production을 정산(Settlement.Producing)에 걸어 IProductionStatus로 등록한다.
+        /// </summary>
+        private static void BindProduction()
+        {
+            if (Production != null) return;
+            _paidPlacement = GameServices.Get<IItemPlacement>() as IronRing.Items.ItemPlacement;
+            if (_paidPlacement != null && Cost != null)
+            {
+                _paidPlacement.TryCharge = Cost.TryCharge;
+                _paidPlacement.CanAfford = Cost.CanAfford;
+                _paidPlacement.Refund = Cost.Refund;
+            }
+            IHabitatClusters clusters = GameServices.Get<IHabitatClusters>();
+            IronRing.Habitats.HabitatCatalog catalog = IronRing.Habitats.HabitatsInstaller.Catalog;
+            if (clusters == null || catalog == null) { Debug.LogWarning("ECON: 서식지가 없어 생산을 건너뜁니다."); return; }
+            Production = new Production(Settings.WarehouseHubId, catalog, clusters, Warehouse, Money, Ledger, GameServices.Get<IItemPlacement>());
+            Settlement.Producing = Production.Tick;
+            GameServices.Register<IProductionStatus>(Production);
+            string stage = ProductionDemoDriver.ReadStage();
+            if (stage != null)
+                _productionDemo = new ProductionDemoDriver(stage, Settings, GameServices.Get<IItemPlacement>(), GameServices.Get<IHubInterior>(),
+                    GameServices.Get<IInteriorAnchors>(), GameServices.Get<IInteriorNavigation>(), Warehouse, Transfer, Cargo, Money, Ledger, Settlement, Production);
+            Debug.Log($"PROD: installed hub={Settings.WarehouseHubId} warehouse={Warehouse.Capacity} refund={Settings.RefundRatio} placementPaid={_paidPlacement != null} demo={stage ?? "none"}");
+        }
 
         private static void Tick()
         {
             float dt = Time.deltaTime;
             Session?.Tick(dt);
             _demo?.Tick(dt);
+            _productionDemo?.Tick(dt);
         }
 
         private static void ShowSettleToast(string line) => ToastScreen.Show(line, Settings != null ? Settings.SettleToastSeconds : 4f);

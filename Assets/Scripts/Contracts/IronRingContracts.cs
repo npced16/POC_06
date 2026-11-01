@@ -645,4 +645,76 @@ namespace IronRing.Contracts
         /// <summary>거래를 끝내고 출발한다. 닫혀 있으면 아무것도 하지 않는다.</summary>
         void Depart();
     }
+    // ----- 생산 건물·거점 창고·타일 비용(스토리 041) -----
+
+    /// <summary>스토리 041. 거점(hub-1) 창고. 품목별 수량, 전체 상한(Economy.json _warehouseCapacity).</summary>
+    public interface IWarehouse
+    {
+        /// <summary>전체 상한(품목 수량 합).</summary>
+        int Capacity { get; }
+        /// <summary>품목 수량(모르는 id면 0).</summary>
+        int CountOf(string goodsId);
+        /// <summary>모든 품목 수량 합.</summary>
+        int Total { get; }
+        /// <summary>n개 넣는다. 모르는 품목·상한 초과·n&lt;=0이면 아무것도 바꾸지 않고 false.</summary>
+        bool TryAdd(string goodsId, int n);
+        /// <summary>n개 꺼낸다. 수량 부족·n&lt;=0이면 false.</summary>
+        bool TryTake(string goodsId, int n);
+        /// <summary>수량이 바뀔 때마다.</summary>
+        event Action Changed;
+    }
+
+    /// <summary>스토리 041. 창고 ↔ 열차 화물칸 이동(UI 창고 패널). 거점 내부 화면이 그 거점에서 열려 있을 때만 된다.</summary>
+    public interface ITransfer
+    {
+        /// <summary>지금 옮길 수 있는지(내부 화면이 창고 거점에서 열려 있음).</summary>
+        bool CanTransfer { get; }
+        /// <summary>창고 → 화물칸 n개(원자적). 창고 수량·빈 칸 부족이면 false.</summary>
+        bool TryLoad(string goodsId, int n);
+        /// <summary>화물칸 → 창고 n개(원자적). 화물 수량·창고 상한 부족이면 false.</summary>
+        bool TryUnload(string goodsId, int n);
+    }
+
+    /// <summary>스토리 041. 타일·장식 배치 가격(ItemCatalog.json _price). 배치 때 잔고에서 빠지고, 회수·철거·되돌리기 때 _refundRatio만큼 돌아온다.</summary>
+    public interface IPlacementCost
+    {
+        /// <summary>아이템 1개 배치 가격(마르크, 모르는 id면 0).</summary>
+        int PriceOf(string itemId);
+        /// <summary>아이템 1개 회수 때 돌려받는 금액.</summary>
+        int RefundOf(string itemId);
+        /// <summary>지금 잔고로 놓을 수 있는지.</summary>
+        bool CanAfford(string itemId);
+    }
+
+    /// <summary>스토리 041. 생산 건물 상태(정산 때 판정 순서: 노동자 → 증기 → 물 → 입력).</summary>
+    public enum BuildingStatus
+    {
+        /// <summary>가동(입력 소비, 출력 생산).</summary>
+        Running,
+        /// <summary>노동자 부족(042가 노동 공급을 붙인다).</summary>
+        NoWorkers,
+        /// <summary>창고에 입력 품목이 모자람.</summary>
+        NoInput,
+        /// <summary>증기가 필요한데 가동 중인 증기 공급 건물이 없음.</summary>
+        NoSteam,
+        /// <summary>물이 필요한데 물 공급 건물이 없음.</summary>
+        NoWater
+    }
+
+    /// <summary>스토리 041. 거점 생산 상태(UI·건물 상태 아이콘). clusterIndex는 IHabitatClusters.CompletedAt(HubId)의 순서다.</summary>
+    public interface IProductionStatus
+    {
+        /// <summary>생산 거점 id(hub-1).</summary>
+        string HubId { get; }
+        /// <summary>
+        /// clusterIndex 건물의 상태 = 지금 창고 상태로 다음 정산을 미리 판정한 결과. 범위 밖이면 Running.
+        /// </summary>
+        BuildingStatus Status(int clusterIndex);
+        /// <summary>상태 아이콘 id(status_running|status_no_workers|status_no_input|status_no_steam|status_no_water).</summary>
+        string IconId(BuildingStatus status);
+        /// <summary>상태가 바뀌었을 수 있을 때(창고·건물 변화, 정산).</summary>
+        event Action Changed;
+        /// <summary>정산 생산이 끝났을 때(바퀴 번호).</summary>
+        event Action<int> Produced;
+    }
 }

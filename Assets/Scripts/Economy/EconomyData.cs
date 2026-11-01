@@ -31,6 +31,14 @@ namespace IronRing.Economy
         [SerializeField] private int _demoTradeCount = 4;
         [SerializeField] private string _demoSellStop = "REST-2";
         [SerializeField] private float _demoHubDwellSeconds = 1f;
+        [SerializeField] private int _warehouseCapacity = 60;
+        [SerializeField] private float _refundRatio = 1f;
+        [SerializeField] private string _warehouseHubId = "hub-1";
+        [SerializeField] private string _demoSeedGoods = "iron";
+        [SerializeField] private int _demoSeedCount = 2;
+        [SerializeField] private int _demoTicks = 2;
+        [SerializeField] private string _demoLoadGoods = "coal";
+        [SerializeField] private int _demoLoadCount = 3;
 
         /// <summary>시작 잔고(마르크). 데모 bankrupt 단계만 덮어쓴다.</summary>
         public int StartBalance { get => _startBalance; set => _startBalance = value; }
@@ -72,6 +80,23 @@ namespace IronRing.Economy
         public string DemoSellStop => _demoSellStop;
         /// <summary>데모에서 거점 정차 후 자동 출발까지 초.</summary>
         public float DemoHubDwellSeconds => _demoHubDwellSeconds;
+
+        /// <summary>스토리 041. 거점 창고 상한(품목 수량 합).</summary>
+        public int WarehouseCapacity => _warehouseCapacity;
+        /// <summary>스토리 041. 회수·철거·되돌리기 때 배치 가격에서 돌려받는 비율(1 = 전액).</summary>
+        public float RefundRatio => _refundRatio;
+        /// <summary>스토리 041. 창고·생산 거점 id.</summary>
+        public string WarehouseHubId => _warehouseHubId;
+        /// <summary>스토리 041 데모 tick 단계: 창고에 미리 넣는 품목.</summary>
+        public string DemoSeedGoods => _demoSeedGoods;
+        /// <summary>스토리 041 데모: 미리 넣는 수량.</summary>
+        public int DemoSeedCount => _demoSeedCount;
+        /// <summary>스토리 041 데모: 돌릴 정산 횟수.</summary>
+        public int DemoTicks => _demoTicks;
+        /// <summary>스토리 041 데모 load 단계: 싣는 품목.</summary>
+        public string DemoLoadGoods => _demoLoadGoods;
+        /// <summary>스토리 041 데모 load 단계: 싣는 수량.</summary>
+        public int DemoLoadCount => _demoLoadCount;
 
         /// <summary>JSON을 읽고 범위를 검사한다.</summary>
         public static EconomySettings Parse(string json)

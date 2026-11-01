@@ -567,6 +567,16 @@
     {"_key": "ui_trade_goods_parts", "_value": "부품"},
     {"_key": "ui_trade_goods_food", "_value": "식량"},
     {"_key": "ui_trade_goods_glass", "_value": "유리"},
-    {"_key": "ui_trade_goods_brass", "_value": "황동"}
+    {"_key": "ui_trade_goods_brass", "_value": "황동"},
+    {"_key": "econ_no_funds", "_value": "잔고 부족"},
+    {"_key": "ui_warehouse_open", "_value": "창고 (W)"},
+    {"_key": "ui_warehouse_title", "_value": "{0} 창고 · {1}/{2}"},
+    {"_key": "ui_warehouse_stock", "_value": "창고 {0}"},
+    {"_key": "ui_warehouse_train", "_value": "열차 {0}"},
+    {"_key": "ui_warehouse_load", "_value": "싣기"},
+    {"_key": "ui_warehouse_unload", "_value": "내리기"},
+    {"_key": "ui_warehouse_cargo", "_value": "화물 {0}/{1}"},
+    {"_key": "ui_warehouse_hint", "_value": "품목을 1개씩 옮깁니다. 출발하면 창고가 닫힙니다."},
+    {"_key": "ui_hotbar_price", "_value": "{0}마르크"}
 ]
 }

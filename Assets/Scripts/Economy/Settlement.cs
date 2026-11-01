@@ -32,6 +32,8 @@ namespace IronRing.Economy
         public int NegativeLaps { get; private set; }
         /// <summary>마지막 정산 토스트 문구(없으면 null).</summary>
         public string LastLine { get; private set; }
+        /// <summary>스토리 041. 정산 첫 단계(열차 유지비 앞)에서 부른다: 건물 생산·건물 유지비. 인자는 바퀴 번호.</summary>
+        public Action<int> Producing { get; set; }
         /// <summary>정산 토스트 문구가 만들어질 때(로직 토스트; 설치자가 ToastScreen에 띄운다).</summary>
         public event Action<string> Settled;
 
@@ -81,6 +83,7 @@ namespace IronRing.Economy
         {
             if (lap <= _settledLap) return;
             _settledLap = lap;
+            Producing?.Invoke(lap);
             _money.Charge(_settings.TrainUpkeep, "upkeep:train");
             _ledger.Record(LedgerKind.Upkeep, -_settings.TrainUpkeep, "train");
             int fare = _ledger.Total(lap, LedgerKind.Fare);
@@ -115,6 +118,7 @@ namespace IronRing.Economy
             if (_passengers != null) _passengers.Disembarked -= OnDisembarked;
             _passengers = null;
             Settled = null;
+            Producing = null;
         }
     }
 

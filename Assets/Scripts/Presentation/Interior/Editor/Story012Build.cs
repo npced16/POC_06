@@ -38,6 +38,8 @@ namespace IronRing.Presentation.Interior.Editor
         private const int GHOST_ORDER = 25;
         private const string BUILDING_PIECE_PREFAB = ROOT + "BuildingPiece.prefab";
         private const string BUILDING_PROP_PREFAB = ROOT + "BuildingProp.prefab";
+        private const string BUILDING_STATUS_PREFAB = ROOT + "BuildingStatus.prefab";
+        private const string ICON_CATALOG = "Assets/Prefabs/UI/IconCatalog.asset";
         private const string SMOKE_PREFAB = "Assets/Prefabs/Fx/Smoke.prefab";
         private const int FRAME_ORDER = 5;
         private static readonly string[] FACILITY_SPRITES = { "wall", "turret", "workshop" };
@@ -309,9 +311,50 @@ namespace IronRing.Presentation.Interior.Editor
             if (pieceProperty.objectReferenceValue == null) pieceProperty.objectReferenceValue = piece;
             SerializedProperty propProperty = serialized.FindProperty("_buildingPropPrefab");
             if (propProperty.objectReferenceValue == null) propProperty.objectReferenceValue = prop;
+            SerializedProperty statusProperty = serialized.FindProperty("_buildingStatusPrefab");
+            if (statusProperty.objectReferenceValue == null) statusProperty.objectReferenceValue = EnsureStatusPrefab(catalog, material);
+            else EnsureStatusPrefab(catalog, material);
             SerializedProperty smokeProperty = serialized.FindProperty("_buildingSmokePrefab");
             if (smokeProperty.objectReferenceValue == null) smokeProperty.objectReferenceValue = AssetDatabase.LoadAssetAtPath<GameObject>(SMOKE_PREFAB);
             serialized.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        /// <summary>
+        /// 스토리 041. BuildingStatus.prefab(SpriteRenderer + BuildingStatusIcon)이 없을 때만 만들고, 아이콘 카탈로그(codex의 IconCatalog.asset)
+        /// 참조가 비어 있고 에셋이 있으면 채운다(멱등: 바뀐 것이 없으면 저장하지 않는다).
+        /// </summary>
+        private static GameObject EnsureStatusPrefab(InteriorCatalog catalog, Material material)
+        {
+            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(BUILDING_STATUS_PREFAB);
+            if (prefab == null)
+            {
+                var temp = new GameObject("BuildingStatus");
+                var renderer = temp.AddComponent<SpriteRenderer>();
+                renderer.sharedMaterial = material;
+                renderer.sortingOrder = catalog.BuildingSignOrder + 2;
+                renderer.enabled = false;
+                temp.transform.localScale = Vector3.one * (catalog.TileSize * 0.6f);
+                var icon = temp.AddComponent<BuildingStatusIcon>();
+                var so = new SerializedObject(icon);
+                so.FindProperty("_renderer").objectReferenceValue = renderer;
+                so.ApplyModifiedPropertiesWithoutUndo();
+                prefab = PrefabUtility.SaveAsPrefabAsset(temp, BUILDING_STATUS_PREFAB);
+                UnityEngine.Object.DestroyImmediate(temp);
+            }
+            BuildingStatusIcon component = prefab.GetComponent<BuildingStatusIcon>();
+            var icons = AssetDatabase.LoadAssetAtPath<global::IronRing.Hud.Ui.IconCatalog>(ICON_CATALOG);
+            if (component != null && icons != null)
+            {
+                var serialized = new SerializedObject(component);
+                SerializedProperty property = serialized.FindProperty("_icons");
+                if (property.objectReferenceValue == null)
+                {
+                    property.objectReferenceValue = icons;
+                    serialized.ApplyModifiedPropertiesWithoutUndo();
+                    EditorUtility.SetDirty(prefab);
+                }
+            }
+            return prefab;
         }
 
         /// <summary>path의 단일 SpriteRenderer 프리팹이 없으면 name, sprite, material, order, scale, rotation으로 만들어 돌려준다.</summary>

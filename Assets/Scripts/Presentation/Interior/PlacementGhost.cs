@@ -168,10 +168,13 @@ namespace IronRing.Presentation.Interior
         public void Park(int cellIndex) => _parkedCell = cellIndex;
 
         /// <summary>entry를 hubId의 cellIndex에 놓을 수 있는지. 아이템은 IItemPlacement.CanPlace, 시설은 빈 칸(또는 부지) + IFacilityBuilder.CanBuild.</summary>
+        public bool Affordable(string itemId) => GameServices.Get<IPlacementCost>()?.CanAfford(itemId) ?? true;
+
+        /// <summary>엔트리를 hubId의 cellIndex에 놓을 수 있는지(스토리 041: 아이템은 잔고도 검사).</summary>
         public bool CanPlace(string hubId, int cellIndex, PlacementEntry entry)
         {
             if (!entry.IsValid || hubId == null) return false;
-            if (entry.Kind == PlacementKind.Item) return _placement != null && _placement.CanPlace(hubId, cellIndex, entry.Id);
+            if (entry.Kind == PlacementKind.Item) return _placement != null && Affordable(entry.Id) && _placement.CanPlace(hubId, cellIndex, entry.Id);
             IInteriorCell cell = Cell(hubId, cellIndex);
             if (cell == null || _facilities == null || _facilityCells == null) return false;
             return (cell.State == InteriorCellState.Empty || cell.State == InteriorCellState.FacilityPlot) && _facilities.CanBuild(hubId, entry.Id);
@@ -183,6 +186,13 @@ namespace IronRing.Presentation.Interior
         /// </summary>
         public bool TryPlace(string hubId, int cellIndex, PlacementEntry entry)
         {
+            if (entry.Kind == PlacementKind.Item && !Affordable(entry.Id))
+            {
+                // 스토리 041: 잔고 부족이면 배치 거절 토스트(고스트는 CanPlace가 붉게 칠한다).
+                IronRing.Hud.Ui.ToastScreen.Show(IronRing.Localization.Strings.Get("econ_no_funds"), 2f);
+                Notice?.Invoke("placement_refused", entry);
+                return false;
+            }
             if (!CanPlace(hubId, cellIndex, entry)) { Notice?.Invoke("placement_refused", entry); return false; }
             bool ok;
             if (entry.Kind == PlacementKind.Item)

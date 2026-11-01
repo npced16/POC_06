@@ -35,6 +35,24 @@ namespace IronRing.Habitats
         }
     }
 
+    /// <summary>스토리 041. 생산·소비 품목 한 줄(품목 id, 바퀴당 수량).</summary>
+    public sealed class HabitatGoodsAmount
+    {
+        /// <summary>품목 id(Economy/Goods.json).</summary>
+        public string GoodsId { get; }
+        /// <summary>바퀴당 수량(1 이상).</summary>
+        public int Amount { get; }
+
+        /// <summary>한 줄을 만든다.</summary>
+        public HabitatGoodsAmount(string goodsId, int amount)
+        {
+            if (string.IsNullOrWhiteSpace(goodsId)) throw new ArgumentException("Goods amount needs a goods id.");
+            if (amount < 1) throw new ArgumentException("Goods amount must be >= 1: " + goodsId);
+            GoodsId = goodsId.Trim();
+            Amount = amount;
+        }
+    }
+
     /// <summary>
     /// 스토리 016 (design/game-brief.md MVP 3). 서식지 종류 하나. 모든 값은 Resources/Habitats/HabitatTypes.json에서 온다.
     /// </summary>
@@ -65,6 +83,38 @@ namespace IronRing.Habitats
         public string BuildingStyle { get; private set; }
         /// <summary>스토리 027. 건물 지붕 위 상징물 id(SpriteGenBuildings.SIGNS). 없으면 null.</summary>
         public string SignProp { get; private set; }
+
+        /// <summary>스토리 041. 바퀴 정산마다 창고에 넣는 품목(가동 중일 때). 없으면 빈 목록.</summary>
+        public IReadOnlyList<HabitatGoodsAmount> Produces { get; private set; } = Array.Empty<HabitatGoodsAmount>();
+        /// <summary>스토리 041. 바퀴 정산마다 창고에서 꺼내는 입력 품목. 모자라면 가동 중단(NoInput).</summary>
+        public IReadOnlyList<HabitatGoodsAmount> Consumes { get; private set; } = Array.Empty<HabitatGoodsAmount>();
+        /// <summary>스토리 041. 가동에 필요한 노동자 수(042가 노동 공급을 붙인다).</summary>
+        public int Workers { get; private set; }
+        /// <summary>스토리 041. 가동한 바퀴마다 장부에 적는 건물 유지비(마르크).</summary>
+        public int Upkeep { get; private set; }
+        /// <summary>스토리 041. 가동 중인 증기 공급 건물이 필요한지.</summary>
+        public bool NeedsSteam { get; private set; }
+        /// <summary>스토리 041. 가동하면 거점에 증기를 공급하는지(보일러실 등).</summary>
+        public bool ProvidesSteam { get; private set; }
+        /// <summary>스토리 041. 물 공급 건물이 필요한지(온실).</summary>
+        public bool NeedsWater { get; private set; }
+        /// <summary>스토리 041. 가동하면 거점에 물을 공급하는지(저수조·급수탑).</summary>
+        public bool ProvidesWater { get; private set; }
+        /// <summary>스토리 041(042용). 주거 칸(사는 사람 수).</summary>
+        public int Housing { get; private set; }
+        /// <summary>스토리 041(042용). 빛(가스등 계열 만족도).</summary>
+        public int Light { get; private set; }
+
+        /// <summary>스토리 041. 카탈로그 파서가 생산 데이터를 붙인다.</summary>
+        internal void SetProduction(IReadOnlyList<HabitatGoodsAmount> produces, IReadOnlyList<HabitatGoodsAmount> consumes, int workers, int upkeep,
+            bool needsSteam, bool providesSteam, bool needsWater, bool providesWater, int housing, int light)
+        {
+            if (workers < 0 || upkeep < 0 || housing < 0 || light < 0) throw new ArgumentException("Habitat production numbers must be >= 0: " + Id);
+            Produces = produces ?? Array.Empty<HabitatGoodsAmount>();
+            Consumes = consumes ?? Array.Empty<HabitatGoodsAmount>();
+            Workers = workers; Upkeep = upkeep; NeedsSteam = needsSteam; ProvidesSteam = providesSteam;
+            NeedsWater = needsWater; ProvidesWater = providesWater; Housing = housing; Light = light;
+        }
 
         /// <summary>스토리 027. 카탈로그 파서가 건물 외관 데이터를 붙인다.</summary>
         internal void SetBuilding(string style, string signProp)
@@ -233,8 +283,22 @@ namespace IronRing.Habitats
                 }
                 else throw new ArgumentException("Unknown habitat kind " + t._kind + " on " + t._id, nameof(json));
                 types[types.Count - 1].SetBuilding(t._buildingStyle, t._signProp);
+                types[types.Count - 1].SetProduction(Amounts(t._produces, t._id), Amounts(t._consumes, t._id), t._workers, t._upkeep,
+                    t._needsSteam, t._providesSteam, t._needsWater, t._providesWater, t._housing, t._light);
             }
             return new HabitatCatalog(types) { LockCompleted = data._lockCompleted };
+        }
+
+        private static IReadOnlyList<HabitatGoodsAmount> Amounts(GoodsData[] data, string typeId)
+        {
+            if (data == null || data.Length == 0) return Array.Empty<HabitatGoodsAmount>();
+            var list = new List<HabitatGoodsAmount>();
+            foreach (GoodsData g in data)
+            {
+                if (g == null) throw new ArgumentException("Null goods amount on " + typeId);
+                list.Add(new HabitatGoodsAmount(g._goodsId, g._amount));
+            }
+            return list.AsReadOnly();
         }
 
 #pragma warning disable 0649
@@ -245,7 +309,10 @@ namespace IronRing.Habitats
             public string _id; public string _name; public string _kind; public string _tileItemId; public int _requiredCount;
             public string[] _pattern; public TileData[] _tiles; public float _prosperityBonus; public string _npcTypeId;
             public string _buildingStyle; public string _signProp;
+            public GoodsData[] _produces; public GoodsData[] _consumes; public int _workers; public int _upkeep;
+            public bool _needsSteam; public bool _providesSteam; public bool _needsWater; public bool _providesWater; public int _housing; public int _light;
         }
+        [Serializable] private sealed class GoodsData { public string _goodsId; public int _amount; }
         [Serializable] private sealed class TileData { public string _tileItemId; public int _minCount; }
 #pragma warning restore 0649
     }

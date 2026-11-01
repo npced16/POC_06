@@ -190,6 +190,8 @@ MonoBehaviour:
   _buildingCollapseDistance: 0.3
   _undoDepth: 5
   _undoToast: 1
+  _buildingStatusPrefab: {fileID: 8075801477200034079, guid: 2e30122c200bb1d42a9123a8db1ac2fa, type: 3}
+  _statusLift: 0.75
   _buildingSignScale: 0.8
   _signLift: 0.1
   _chimneyOffset: {x: 0.28, y: 0.2}

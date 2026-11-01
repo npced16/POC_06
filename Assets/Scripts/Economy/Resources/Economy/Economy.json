@@ -18,5 +18,13 @@
   "_demoTradeGoods": "coal",
   "_demoTradeCount": 4,
   "_demoSellStop": "REST-2",
-  "_demoHubDwellSeconds": 1.0
+  "_demoHubDwellSeconds": 1.0,
+  "_warehouseCapacity": 60,
+  "_refundRatio": 1.0,
+  "_warehouseHubId": "hub-1",
+  "_demoSeedGoods": "iron",
+  "_demoSeedCount": 2,
+  "_demoTicks": 2,
+  "_demoLoadGoods": "coal",
+  "_demoLoadCount": 3
 }
