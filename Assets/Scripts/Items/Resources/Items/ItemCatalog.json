@@ -9,7 +9,8 @@
     { "_id": "water", "_name": "물" },
     { "_id": "plant", "_name": "식물" },
     { "_id": "shelter", "_name": "쉼터" },
-    { "_id": "industry", "_name": "산업" }
+    { "_id": "industry", "_name": "산업" },
+    { "_id": "deco", "_name": "장식" }
   ],
   "_items": [
     { "_id": "tile_boiler", "_name": "보일러", "_category": "tile", "_tags": ["tile", "heat"], "_cost": [] },
@@ -36,6 +37,9 @@
     { "_id": "storage_crate", "_name": "창고 상자", "_category": "decor", "_tags": ["industry"], "_cost": [] },
     { "_id": "gear", "_name": "톱니 장식", "_category": "decor", "_tags": ["industry"], "_cost": [] },
     { "_id": "flag", "_name": "깃발", "_category": "decor", "_tags": ["light"], "_cost": [] },
-    { "_id": "steam_pipe", "_name": "증기관", "_category": "decor", "_tags": ["heat", "industry"], "_cost": [] }
+    { "_id": "steam_pipe", "_name": "증기관", "_category": "decor", "_tags": ["heat", "industry"], "_cost": [] },
+    { "_id": "deco_campfire", "_name": "모닥불", "_category": "deco", "_tags": ["deco"], "_cost": [] },
+    { "_id": "deco_puddle", "_name": "웅덩이", "_category": "deco", "_tags": ["deco"], "_cost": [] },
+    { "_id": "deco_weeds", "_name": "잡초", "_category": "deco", "_tags": ["deco"], "_cost": [] }
   ]
 }

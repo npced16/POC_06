@@ -44,6 +44,22 @@ namespace IronRing.Presentation.Interior
         private GameObject _ghost;
         private SpriteRenderer _ghostRenderer;
         private PlacementEntry _ghostShows;
+        private IPlacementSurface _surface;
+        private Vector3 _ghostBaseScale = Vector3.one;
+        private int _ghostBaseOrder;
+
+        /// <summary>스토리 034. 거점 칸 대신 쓰는 배치 면(열차 장비 모드). null이면 거점 칸.</summary>
+        public IPlacementSurface Surface => _surface;
+
+        /// <summary>스토리 034. 배치 면을 바꾼다(드래그·선택은 지운다). null이면 거점 칸으로 돌아간다.</summary>
+        public void SetSurface(IPlacementSurface surface)
+        {
+            if (ReferenceEquals(_surface, surface)) return;
+            EndDrag(false);
+            ClearSelection();
+            _surface = surface;
+            _ghostShows = default;
+        }
 
         /// <summary>선택이 바뀔 때(해제는 IsValid가 false인 값).</summary>
         public event Action<PlacementEntry> SelectionChanged;
@@ -144,7 +160,7 @@ namespace IronRing.Presentation.Interior
             if (!place) return false;
             Vector2 pointer = Pointer();
             if (_parkedCell < 0 && IsPointerOverUi(pointer)) return false;
-            int cell = _parkedCell >= 0 ? _parkedCell : NearestCell(pointer, out _);
+            int cell = _parkedCell >= 0 ? _parkedCell : _surface != null ? _surface.Nearest(PointerWorld(pointer), entry, out _) : NearestCell(pointer, out _);
             return cell >= 0 && TryPlace(_view.InteriorHubId, cell, entry);
         }
 
@@ -155,6 +171,7 @@ namespace IronRing.Presentation.Interior
         public bool CanPlace(string hubId, int cellIndex, PlacementEntry entry)
         {
             if (!entry.IsValid || hubId == null) return false;
+            if (entry.Kind == PlacementKind.Equipment) return _surface != null && _surface.CanPlace(cellIndex, entry);
             if (entry.Kind == PlacementKind.Item) return _placement != null && _placement.CanPlace(hubId, cellIndex, entry.Id);
             IInteriorCell cell = Cell(hubId, cellIndex);
             if (cell == null || _facilities == null || _facilityCells == null) return false;
@@ -169,6 +186,12 @@ namespace IronRing.Presentation.Interior
         {
             if (!CanPlace(hubId, cellIndex, entry)) { Notice?.Invoke("placement_refused", entry); return false; }
             bool ok;
+            if (entry.Kind == PlacementKind.Equipment)
+            {
+                ok = _surface.TryPlace(cellIndex, entry);
+                Notice?.Invoke(ok ? "placement_placed" : "placement_refused", entry);
+                return ok;
+            }
             if (entry.Kind == PlacementKind.Item)
             {
                 ok = _placement.TryPlace(hubId, cellIndex, entry.Id);
@@ -245,6 +268,7 @@ namespace IronRing.Presentation.Interior
         public Sprite IconFor(PlacementEntry entry)
         {
             if (!entry.IsValid) return null;
+            if (entry.Kind == PlacementKind.Equipment) return IronRing.Train.Equipment.TrainEquipmentCatalog.Load()?.Icon(entry.Id);
             if (entry.Kind == PlacementKind.Facility) return _catalog != null ? _catalog.FacilityIcon(entry.Id) : null;
             return _sprites != null ? _sprites.Get(entry.Id) : null;
         }
@@ -272,9 +296,10 @@ namespace IronRing.Presentation.Interior
             if (parked)
             {
                 cell = _parkedCell;
-                Transform parkedAnchor = _anchors.CellAnchor(hub, cell);
-                world = parkedAnchor != null ? parkedAnchor.position : Vector3.zero;
+                Transform parkedAnchor = _surface != null ? null : _anchors.CellAnchor(hub, cell);
+                world = _surface != null ? _surface.Anchor(cell, active) : parkedAnchor != null ? parkedAnchor.position : Vector3.zero;
             }
+            else if (_surface != null) cell = _surface.Nearest(PointerWorld(pointer), active, out world);
             else
             {
                 cell = NearestCell(pointer, out world);
@@ -300,10 +325,11 @@ namespace IronRing.Presentation.Interior
                 return;
             }
             if (escape && _selected.IsValid) { ClearSelection(); return; }
-            if (keyboard != null && keyboard.zKey.wasPressedThisFrame && keyboard.ctrlKey.isPressed) { TryUndo(); return; }
+            if (keyboard != null && keyboard.zKey.wasPressedThisFrame && keyboard.ctrlKey.isPressed) { if (_surface != null) _surface.TryUndo(); else TryUndo(); return; }
             if (right)
             {
                 if (_selected.IsValid) ClearSelection();
+                else if (!overUi && cell >= 0 && _surface != null) _surface.TryRemove(cell);
                 else if (!overUi && cell >= 0 && !TryDemolish(hub, cell)) TryPickUp(hub, cell);
                 return;
             }
@@ -325,6 +351,8 @@ namespace IronRing.Presentation.Interior
                 _ghost.name = "GhostPiece";
                 _ghostRenderer = _ghost.GetComponentInChildren<SpriteRenderer>(true);
                 _ghostShows = default;
+                _ghostBaseScale = _ghost.transform.localScale;
+                _ghostBaseOrder = _ghostRenderer != null ? _ghostRenderer.sortingOrder : 0;
             }
             if (!_ghostShows.Equals(entry) && _ghostRenderer != null)
             {
@@ -332,6 +360,9 @@ namespace IronRing.Presentation.Interior
                 _ghostShows = entry;
             }
             if (_ghostRenderer != null) _ghostRenderer.color = HoverValid ? _catalog.GhostValidColor : _catalog.GhostInvalidColor;
+            bool onSurface = _surface != null && entry.Kind == PlacementKind.Equipment;
+            _ghost.transform.localScale = onSurface ? _ghostBaseScale * _surface.GhostScale(entry) : _ghostBaseScale;
+            if (_ghostRenderer != null) _ghostRenderer.sortingOrder = onSurface ? _surface.GhostOrder : _ghostBaseOrder;
             _ghost.transform.position = new Vector3(world.x, world.y, 0);
             if (!_ghost.activeSelf) _ghost.SetActive(true);
         }
@@ -367,6 +398,16 @@ namespace IronRing.Presentation.Interior
             return EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
         }
 
+        /// <summary>화면 좌표 pointer의 월드 위치(z = 0). 카메라가 없으면 원점.</summary>
+        private Vector3 PointerWorld(Vector2 pointer)
+        {
+            Camera camera = _map.MapCamera;
+            if (camera == null) return Vector3.zero;
+            Vector3 world = camera.ScreenToWorldPoint(new Vector3(pointer.x, pointer.y, -camera.transform.position.z));
+            world.z = 0;
+            return world;
+        }
+
         private static Vector2 Pointer() => Mouse.current != null ? Mouse.current.position.ReadValue() : Vector2.zero;
 
         private IInteriorCell Cell(string hubId, int cellIndex)
@@ -382,6 +423,7 @@ namespace IronRing.Presentation.Interior
         private void OnInteriorChanged(bool open)
         {
             if (open) return;
+            _surface = null;
             EndDrag(false);
             _parkedCell = -1;
             ClearSelection();

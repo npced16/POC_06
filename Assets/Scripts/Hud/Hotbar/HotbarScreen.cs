@@ -51,6 +51,8 @@ namespace IronRing.Hud.Hotbar
         [SerializeField] private GameObject _noticeBox;
         [SerializeField] private TMP_Text _notice;
         [SerializeField] private Button _paletteToggle;
+        [Tooltip("스토리 034. 열차 장비 모드 전환 버튼(T 키와 같음).")]
+        [SerializeField] private Button _trainToggle;
         [SerializeField] private GameObject _palette;
         [SerializeField] private TMP_Text _paletteTitle;
         [SerializeField] private TMP_Text _paletteHint;
@@ -71,6 +73,8 @@ namespace IronRing.Hud.Hotbar
         private UiTheme _theme;
 
         private readonly PlacementEntry[] _slots = new PlacementEntry[SLOT_COUNT];
+        private readonly PlacementEntry[] _tileSlots = new PlacementEntry[SLOT_COUNT];
+        private bool _equipmentMode;
         private readonly List<(PlacementEntry entry, HotbarCellView view)> _paletteViews = new List<(PlacementEntry, HotbarCellView)>();
         private int _selectedSlot = -1;
         private PlacementEntry _pendingAssign;
@@ -114,6 +118,12 @@ namespace IronRing.Hud.Hotbar
             SetButtonText(_paletteClose, Strings.Get("inv_close"));
             _paletteToggle.onClick.AddListener(() => SetPaletteOpen(!_paletteOpen));
             _paletteClose.onClick.AddListener(() => SetPaletteOpen(false));
+            if (_trainToggle != null)
+            {
+                SetButtonText(_trainToggle, Strings.Get("hotbar_train"));
+                _trainToggle.onClick.AddListener(TrainEquipmentMode.Toggle);
+            }
+            TrainEquipmentMode.Changed += OnEquipmentModeChanged;
             _noticeBox.SetActive(false);
             _dragChip.gameObject.SetActive(false);
 
@@ -170,6 +180,7 @@ namespace IronRing.Hud.Hotbar
         {
             if (!entry.IsValid) return false;
             if (entry.Kind == PlacementKind.Item) return _items.Contains(entry.Id);
+            if (entry.Kind == PlacementKind.Equipment) return TrainEquipmentMode.Entries().Contains(entry);
             return Array.IndexOf(_data.Facilities, entry.Id) >= 0;
         }
 
@@ -252,6 +263,7 @@ namespace IronRing.Hud.Hotbar
         private string DisplayName(PlacementEntry entry)
         {
             if (!entry.IsValid) return "";
+            if (entry.Kind == PlacementKind.Equipment) return Strings.Get("equip_" + entry.Id);
             if (entry.Kind == PlacementKind.Facility) return Strings.Get("facility_" + entry.Id);
             ItemDefinition item = _items.Get(entry.Id);
             return item != null ? item.Name : entry.Id;
@@ -457,8 +469,33 @@ namespace IronRing.Hud.Hotbar
             Refresh();
         }
 
+        /// <summary>
+        /// 스토리 034. 장비 모드가 켜지면 타일 슬롯을 보관하고 9칸을 장비 목록(TrainEquipment.json 순서)으로 바꾸며 팔레트를 닫는다.
+        /// 꺼지면 보관한 타일 슬롯과 안내 문구를 되돌린다.
+        /// </summary>
+        private void OnEquipmentModeChanged(bool active)
+        {
+            if (active == _equipmentMode) return;
+            _equipmentMode = active;
+            if (active)
+            {
+                Array.Copy(_slots, _tileSlots, SLOT_COUNT);
+                List<PlacementEntry> entries = TrainEquipmentMode.Entries();
+                for (int i = 0; i < SLOT_COUNT; i++) _slots[i] = i < entries.Count ? entries[i] : default;
+                _paletteOpen = false;
+                _pendingAssign = default;
+            }
+            else Array.Copy(_tileSlots, _slots, SLOT_COUNT);
+            _selectedSlot = -1;
+            _hint.text = Strings.Get(active ? "hotbar_hint_equipment" : "hotbar_hint");
+            if (_paletteToggle != null) _paletteToggle.interactable = !active;
+            if (_trainToggle != null) SetButtonText(_trainToggle, Strings.Get(active ? "hotbar_tiles" : "hotbar_train"));
+            Refresh();
+        }
+
         void OnDestroy()
         {
+            TrainEquipmentMode.Changed -= OnEquipmentModeChanged;
             GameServices.Ready -= Create;
             if (_ghost != null)
             {

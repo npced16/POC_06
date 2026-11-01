@@ -11,6 +11,8 @@ namespace IronRing.Habitats
     /// IHabitatClusterChanges(스토리 028, QA S3-1): 수는 같은데 그 종류 완성 묶음들의 칸 구성이 바뀌면 HabitatChanged(종류당 1회).
     /// IHabitatSystem: IsHabitatComplete = 완성 서식지 1개 이상, EventFlagRaised = 거점마다 처음 완성될 때 1회(sticky, 깨져도 유지).
     /// 002의 슬롯 메서드는 비활성(TryPlace/TryRemove false, SlotContent null). 013의 TagHabitatSystem을 대신해 등록된다.
+    /// 스토리 035(카탈로그 LockCompleted): 완성되는 순간의 칸 묶음을 거점별 고정 목록에 넣고, 이후 판정에서 고정 칸은 처음부터 차지된
+    /// 것으로 본다(옆에 타일을 놓아도 커지지 않음). 자기 칸의 타일이 빠지거나 바뀔 때만 고정이 풀리고, 풀린 칸은 같은 판정에서 다시 본다.
     /// </summary>
     public sealed class ClusterHabitatSystem : IHabitatClusters, IHabitatSystem, IHabitatClusterChanges, IDisposable
     {
@@ -20,6 +22,7 @@ namespace IronRing.Habitats
         private readonly IHubInterior _interior;
         private readonly IItemPlacement _placement;
         private readonly Dictionary<string, IReadOnlyList<HabitatCluster>> _completed = new Dictionary<string, IReadOnlyList<HabitatCluster>>(StringComparer.Ordinal);
+        private readonly Dictionary<string, List<LockedCluster>> _locked = new Dictionary<string, List<LockedCluster>>(StringComparer.Ordinal);
         private readonly HashSet<string> _flags = new HashSet<string>(StringComparer.Ordinal);
         private bool _disposed;
 
@@ -125,8 +128,49 @@ namespace IronRing.Habitats
             IReadOnlyList<IInteriorCell> cells;
             try { cells = _interior.Cells(hubId); }
             catch (ArgumentException) { return None; }
-            List<HabitatCluster> found = HabitatMatcher.Evaluate(cells, _catalog);
-            return found.Count == 0 ? None : found.AsReadOnly();
+            if (!_catalog.LockCompleted)
+            {
+                List<HabitatCluster> all = HabitatMatcher.Evaluate(cells, _catalog);
+                return all.Count == 0 ? None : all.AsReadOnly();
+            }
+            var tileAt = new Dictionary<int, string>();
+            foreach (IInteriorCell cell in cells)
+                if (cell != null) tileAt[cell.Index] = cell.State == InteriorCellState.ItemPlaced && !string.IsNullOrEmpty(cell.ItemId) ? cell.ItemId : null;
+            if (!_locked.TryGetValue(hubId, out List<LockedCluster> locked)) _locked[hubId] = locked = new List<LockedCluster>();
+            locked.RemoveAll(entry => !entry.Intact(tileAt));
+            var reserved = new HashSet<int>();
+            foreach (LockedCluster entry in locked) foreach (int index in entry.Cluster.Cells) reserved.Add(index);
+            foreach (HabitatCluster fresh in HabitatMatcher.Evaluate(cells, _catalog, reserved))
+                locked.Add(LockedCluster.Snapshot(fresh, tileAt));
+            if (locked.Count == 0) return None;
+            var result = new List<HabitatCluster>(locked.Count);
+            foreach (LockedCluster entry in locked) result.Add(entry.Cluster);
+            return result.AsReadOnly();
+        }
+
+        /// <summary>스토리 035. 고정된 서식지 하나: 완성 순간의 클러스터와 칸마다 놓여 있던 타일.</summary>
+        private sealed class LockedCluster
+        {
+            public HabitatCluster Cluster;
+            private Dictionary<int, string> _tiles;
+
+            public static LockedCluster Snapshot(HabitatCluster cluster, Dictionary<int, string> tileAt)
+            {
+                var tiles = new Dictionary<int, string>();
+                foreach (int index in cluster.Cells ?? Array.Empty<int>()) tiles[index] = tileAt.TryGetValue(index, out string tile) ? tile : null;
+                return new LockedCluster { Cluster = cluster, _tiles = tiles };
+            }
+
+            /// <summary>모든 칸의 타일이 고정 당시와 같으면 true.</summary>
+            public bool Intact(Dictionary<int, string> tileAt)
+            {
+                foreach (KeyValuePair<int, string> pair in _tiles)
+                {
+                    string now = tileAt.TryGetValue(pair.Key, out string tile) ? tile : null;
+                    if (!string.Equals(now, pair.Value, StringComparison.Ordinal)) return false;
+                }
+                return true;
+            }
         }
 
         private static Dictionary<string, int> Count(IReadOnlyList<HabitatCluster> clusters)

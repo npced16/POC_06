@@ -21,10 +21,20 @@ namespace IronRing.Track
         private float _elapsed;
         private float _waiting;
         private bool _captureStarted;
+        private float _headStart;
+        /// <summary>
+        /// Story 033: while the track is held at a waypoint (raid), this supplies the visual progress along the outgoing edge so the
+        /// train crawls through the occupied segment; null = stand on the node as before.
+        /// </summary>
+        public Func<float> HeldProgressSource { get; set; }
         /// <summary>Initialized movement model for location queries and arrival subscriptions.</summary>
         public RingTrack Track => _track;
         /// <summary>Normalized progress along the active edge, or zero while standing at a node.</summary>
-        public float TravelProgress => _track.IsMoving ? Mathf.Clamp01(_elapsed / _data.EdgeSeconds) : 0;
+        public float TravelProgress => _track.IsMoving ? Mathf.Clamp01(_elapsed / _data.EdgeSeconds)
+            : _headStart > 0 ? _headStart : HeldProgressSource != null && !_track.IsStopped ? Mathf.Clamp01(HeldProgressSource()) : 0;
+
+        /// <summary>Story 033: the next departure starts this far (0..0.95) into the edge so the train continues from where the raid crawl left it.</summary>
+        public void SetDepartureHeadStart(float fraction) => _headStart = Mathf.Clamp(fraction, 0f, 0.95f);
 
         void Awake()
         {
@@ -62,7 +72,7 @@ namespace IronRing.Track
         /// <summary>Requests one edge of travel and resets interpolation only when the movement model accepts departure.</summary>
         public void Depart()
         {
-            if (_track.TryDepart()) _elapsed = 0;
+            if (_track.TryDepart()) { _elapsed = _headStart * _data.EdgeSeconds; _headStart = 0; }
         }
 
         /// <summary>Configures the standalone view and keyboard option during scene creation so an integrated HUD can own presentation and input.</summary>

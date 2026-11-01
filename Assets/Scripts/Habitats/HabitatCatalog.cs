@@ -174,6 +174,8 @@ namespace IronRing.Habitats
         public IReadOnlyList<HabitatType> Types => _types;
         /// <summary>데이터 순서의 모든 종류 id.</summary>
         public IReadOnlyList<string> TypeIds { get; }
+        /// <summary>스토리 035. true(기본)면 한 번 완성된 서식지는 칸이 고정되어 더 커지지 않는다. false면 매번 전체 재판정(예전 규칙).</summary>
+        public bool LockCompleted { get; set; } = true;
 
         /// <summary>종류 목록을 검증한다(id 중복·빈 목록 거부).</summary>
         public HabitatCatalog(IEnumerable<HabitatType> types)
@@ -232,11 +234,11 @@ namespace IronRing.Habitats
                 else throw new ArgumentException("Unknown habitat kind " + t._kind + " on " + t._id, nameof(json));
                 types[types.Count - 1].SetBuilding(t._buildingStyle, t._signProp);
             }
-            return new HabitatCatalog(types);
+            return new HabitatCatalog(types) { LockCompleted = data._lockCompleted };
         }
 
 #pragma warning disable 0649
-        [Serializable] private sealed class CatalogData { public TypeData[] _types; }
+        [Serializable] private sealed class CatalogData { public TypeData[] _types; public bool _lockCompleted = true; }
         [Serializable]
         private sealed class TypeData
         {

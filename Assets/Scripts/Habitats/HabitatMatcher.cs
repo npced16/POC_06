@@ -18,14 +18,18 @@ namespace IronRing.Habitats
     /// </summary>
     public static class HabitatMatcher
     {
-        /// <summary>cells(거점의 모든 칸)에서 완성된 서식지를 결정적 순서로 돌려준다.</summary>
-        public static List<HabitatCluster> Evaluate(IReadOnlyList<IInteriorCell> cells, HabitatCatalog catalog)
+        /// <summary>
+        /// cells(거점의 모든 칸)에서 완성된 서식지를 결정적 순서로 돌려준다. reserved(스토리 035: 이미 고정된 서식지의 칸)는
+        /// 처음부터 차지된 것으로 보아 새 판정에 쓰지 않는다. 고정된 서식지 자체는 돌려주지 않는다(호출자가 합친다).
+        /// </summary>
+        public static List<HabitatCluster> Evaluate(IReadOnlyList<IInteriorCell> cells, HabitatCatalog catalog, IEnumerable<int> reserved = null)
         {
             if (catalog == null) throw new ArgumentNullException(nameof(catalog));
             var result = new List<HabitatCluster>();
             if (cells == null || cells.Count == 0) return result;
             Region[] regions = { Region.Build(cells, true), Region.Build(cells, false) };
             var claimed = new HashSet<int>();
+            if (reserved != null) foreach (int index in reserved) claimed.Add(index);
 
             IEnumerable<HabitatType> patterns = catalog.Types
                 .Select((type, order) => (type, order))

@@ -1,4 +1,5 @@
 {
+  "_lockCompleted": true,
   "_types": [
     {"_id": "lamp_street", "_name": "가스등 거리", "_kind": "cluster", "_tileItemId": "tile_gaslamp", "_requiredCount": 3, "_prosperityBonus": 4, "_npcTypeId": "lamplighter", "_buildingStyle": "housing", "_signProp": "lamp_post"},
     {"_id": "coal_yard", "_name": "석탄 야적장", "_kind": "cluster", "_tileItemId": "tile_coal", "_requiredCount": 4, "_prosperityBonus": 5, "_npcTypeId": "coal_merchant", "_buildingStyle": "storage", "_signProp": "coal_heap"},

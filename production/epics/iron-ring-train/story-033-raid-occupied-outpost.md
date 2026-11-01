@@ -1,7 +1,7 @@
 # Story 033: 습격 — 몬스터에게 점령된 종점을 뚫고 지나가기
 
 > **Epic**: 철환 장갑열차 MVP (iron-ring-train)
-> **Status**: Ready
+> **Status**: Done (2026-11-02 01:17 KST 코디네이터 — 컴파일 통과, RaidBuild/BuildMainCanvas/SpriteGenRaid 실행, 캡처 4장; 구도(전선·돌진) 수정은 034에서)
 > **Layer**: Core + Presentation
 > **Type**: Integration
 > **Estimate**: L

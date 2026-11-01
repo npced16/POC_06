@@ -13,6 +13,7 @@
   "_prosperityPenalty": -10,
   "_victoryProsperity": 5,
   "_eventProsperity": 5,
+  "_raidMode": true,
   "_events": [
     {"_title": "Abandoned freight", "_resource": "scrap", "_delta": 0},
     {"_title": "Trackside provisions", "_resource": "grain", "_delta": 0},

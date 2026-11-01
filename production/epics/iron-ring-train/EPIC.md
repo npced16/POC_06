@@ -57,13 +57,18 @@ Brief Build order: 이동 → 서식지·NPC → 거점 상태·패배 → 전�
 | 030 | 조기 승리와 NPC를 따라가는 레시피 해금 | Logic | Done | N/A |
 | 031 | 부수기·되돌리기, 건물 먼저 고르고 타일 하나씩 놓는 건설 계획 | UI | A Done / B 대기 | N/A |
 | 032 | POC 축소 — 역 1곳과 종점 1곳을 오가는 선로 | Integration | Done | N/A |
-| 033 | 습격 — 몬스터에게 점령된 종점을 뚫고 지나가기 | Integration | Ready | N/A |
+| 033 | 습격 — 몬스터에게 점령된 종점을 뚫고 지나가기 | Integration | Done | N/A |
+| 034 | 열차 강화 — 칸마다 3×2 장비 그리드와 습격 연동 | Integration | Done | N/A |
+| 035 | 서식지 고정 — 완성된 서식지는 더 커지지 않음 | Logic | Done | N/A |
+| 036 | 폐허 연출 — 웅덩이·잡초·모닥불·잔해, 복구될수록 걷힘 | Visual/Feel | Done | N/A |
 
 배치 개편(2026-11-01 16:30): 사용자 결정으로 잔해 조사를 없애고, 핫바(1~9)·고스트·드래그 앤 드롭으로 타일을 배치하며, 서식지는 묶음형(같은 타일 N칸 상하좌우 연결, 모양 무관, 크기 3·4·9칸 등)과 패턴형(타일 배열 템플릿이 회전·거울상 8변형 중 하나로 들어맞으면 완성, 예: 물-불-풀 = 풀-불-물, 불-풀-물은 불인정)으로 완성된다. 서식지 종류는 데이터 카탈로그(묶음형 13종·패턴형 3종 이상). 자원·제작 시스템은 당분간 없애고 타일·아이템·시설은 무제한으로 놓는다. 015(UI)와 016(로직)을 병렬로 진행해 2026-11-01 17:00 KST에 둘 다 Done(브리지 컴파일 통과, 캡처 `story-015-placement-hotbar-dragdrop/01~04(-v2).png`, `story-016-habitat-types-clusters/habitat-demo-v2.png`·`-v3-pattern.png` 육안 확인). 코디네이터 통합 수정: 붉은 고스트 색 진하게(카탈로그), 서식지 테두리 정렬 순서 15(타일 위), 칸 클릭 건설 메뉴는 `hub_phase_view.json` `_buildMenuOnCellClick:false`로 꺼서 핫바 7~9와 충돌 제거, 내부 패널에 완성 서식지 이름 나열. 세계관 수정(17:10, 사용자): 타일·서식지를 자연물이 아닌 스팀펑크 마을 요소(보일러·증기관·톱니장치·가스등·석탄더미·철골·벽돌길·물탱크·온실유리·침상·작업대·전신주·굴뚝, 서식지 19종)로 전면 교체 — 2026-11-01 17:25 KST 재검증 완료(캡처 `habitat-demo-v4-steampunk.png`, `story-015/*-steampunk.png`). 012의 조사, 013의 태그 합산·제작, 002의 자원 슬롯은 코드만 보존한다.
 
 프리팹·씬 배치 전환(2026-11-01 16시): 사용자 요구("코드로 배치하지 말고 씬에 직접 배치, 프리팹 기반으로 편집 쉽게")에 따라 고정 배치의 런타임 생성을 없앴다. `Assets/Scenes/Main.unity`의 고정 배치는 모두 프리팹 인스턴스다 — `HubInteriors` 루트 아래 `HubInterior` 인스턴스 4개(`Assets/Prefabs/Interior/HubInterior.prefab`, 중첩 `InteriorCell`·`FloorTile`·`TrackTile`·`TrainCar`)와 선로 화면의 거점·경유지·열차·선로 프리팹(`Assets/Prefabs/Map/HubBuilding`·`WaypointMarker`·`Train`·`TrackTile.prefab`). 그림·재질·폰트·조각 프리팹 참조는 카탈로그 `Assets/Prefabs/Interior/InteriorCatalog.asset`과 `Assets/Prefabs/Map/MapCatalog.asset`에 있다. 재생성은 편집기 메서드(브리지 execute-method) `IronRing.Bootstrap.Editor.BuildTopDownMain.Rebuild`(Main 전체를 지우고 다시 놓는 파괴적 재생성)와 `IronRing.Presentation.Interior.Editor.Story012Build.Generate`(프리팹·카탈로그 보장 + 빠진 내부 인스턴스만 추가, 여러 번 실행해도 결과가 같음)로 한다. 아이템·시설·NPC 같은 동적 조각은 카탈로그가 가리키는 프리팹(`ItemPiece.prefab` 등)을 런타임에 인스턴스화한다. 전환 뒤 전체 EditMode 154/154(`production/qa/evidence/integration/editmode-prefab.xml`), 012~014 스크린샷 8장 재캡처·육안 확인, `Main.unity` 저장(isDirty=false). 편집 규칙은 `design/game-brief.md`의 Art & audio direction 아래 한 줄로 고정했다. 남은 항목: 내부 화면 실제 마우스 조작 기록(사용자 확인), `InteriorViewSettings.cs` 스텁 삭제(사용자), 선로 화면 단계 라벨 겹침(014 에이전트 수정 중).
 
 NPC 집·대화(017, 2026-11-01 18:05 KST): 사용자 지시로 합류 NPC는 자기 종류의 완성 서식지를 집으로 받아 그 곁(집 칸 + 붙은 빈 칸)만 배회하고, 빈 손 좌클릭이면 대화 패널(직업명·집·대사 순환·격려(정차 1회 번영 +3, 데이터)·닫기)이 열린다. 계약 `INpcHomes`/`INpcInteraction`/`INpcClickSource`, 로직 `Assets/Scripts/Npc/`(NpcHomes·NpcInteraction·NpcInstaller·데이터), 표현 `InteriorNpcWalker`+`NpcBody`+프리팹 콜라이더, HUD `Assets/Scripts/Hud/Npc/NpcDialogHud`. 캡처 `story-017-npc-homes-dialogue/017-homes|panel|encouraged.png`. 메모: 격려 횟수는 출발 이벤트가 없어 다음 도착 때 초기화.
+
+열차 강화·CG 의뢰(034, 2026-11-02 01:00 KST): 사용자 "캐릭터 CG는 codex한테 넘겨서 다시 하게, 첫 거점에서 내 열차 포탑 디펜스를 그리드(칸마다 3×2)로, 열차가 다음 역에서 몰려오는 몹을 잡는 게임으로 열차 강화·거점 강화 반복". 034 = 열차 칸 3량 × 3×2 장비 그리드(포탑·중포·방벽판·부스터·수리), 거점 시설은 열차 장비로 대체, 습격(033)의 IRaidLoadout 제공자 교체. 캐릭터 CG는 `production/handoffs/codex-character-cg.md`로 codex에 의뢰.
 
 습격 개편(033, 2026-11-02 00:45 KST 착수): 사용자 "습격 막아내는 게 재밌었으면 — 몬스터로 점령된 거점 지나가는 느낌". 종점을 둥지 3개가 있는 점령 거점으로, 통과 12초 동안 몬스터가 달려들고 클릭 사격 + 포탑 자동 사격 + 방벽 내구도로 막아낸다. 결과는 기존 Victory/Defeat 신호로 연결.
 

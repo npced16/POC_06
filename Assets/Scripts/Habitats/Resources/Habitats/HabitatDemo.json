@@ -181,5 +181,21 @@
       "_row": 3,
       "_column": 7
     }
+  ],
+  "_lockedPlacements": [
+    {"_itemId": "tile_gaslamp", "_upper": true, "_row": 3, "_column": 8},
+    {"_itemId": "tile_gaslamp", "_upper": true, "_row": 3, "_column": 9},
+    {"_itemId": "tile_gaslamp", "_upper": true, "_row": 2, "_column": 9},
+    {"_itemId": "tile_boiler", "_upper": true, "_row": 1, "_column": 2},
+    {"_itemId": "tile_pipe", "_upper": true, "_row": 1, "_column": 3},
+    {"_itemId": "tile_gear", "_upper": true, "_row": 1, "_column": 4},
+    {"_itemId": "tile_boiler", "_upper": false, "_row": 1, "_column": 8},
+    {"_itemId": "tile_boiler", "_upper": false, "_row": 1, "_column": 9},
+    {"_itemId": "tile_coal", "_upper": false, "_row": 2, "_column": 8},
+    {"_itemId": "tile_coal", "_upper": false, "_row": 2, "_column": 9},
+    {"_itemId": "tile_gaslamp", "_upper": true, "_row": 3, "_column": 10},
+    {"_itemId": "tile_gaslamp", "_upper": true, "_row": 2, "_column": 10},
+    {"_itemId": "tile_boiler", "_upper": false, "_row": 1, "_column": 10},
+    {"_itemId": "tile_coal", "_upper": false, "_row": 2, "_column": 10}
   ]
 }

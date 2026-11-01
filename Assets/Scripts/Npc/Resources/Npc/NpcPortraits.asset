@@ -14,73 +14,73 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::IronRing.Npc.NpcPortraitCatalog
   _entries:
   - _id: lamplighter
-    _sprite: {fileID: 21300000, guid: 9096f83b003afdf449dd02a53a82b588, type: 3}
+    _sprite: {fileID: 21300000, guid: efea89150c1b8b1439b6ad05020ebaed, type: 3}
   - _id: gardener
-    _sprite: {fileID: 21300000, guid: 0a5c7219cc8dd364595dcf22dc3ec787, type: 3}
+    _sprite: {fileID: 21300000, guid: 9f5824561ace6a641940a64363f74c73, type: 3}
   - _id: stoker
-    _sprite: {fileID: 21300000, guid: d80af09b7f3c30f4685e2d2439a9b29e, type: 3}
+    _sprite: {fileID: 21300000, guid: d16c84965aa470845aa3c36af38c9639, type: 3}
   - _id: water_keeper
-    _sprite: {fileID: 21300000, guid: 44b41b7490c3b404989e78a81c69317b, type: 3}
+    _sprite: {fileID: 21300000, guid: ef44412fea2f5f34191c268c19195305, type: 3}
   - _id: tinker
-    _sprite: {fileID: 21300000, guid: 8f9ef8012c42a6a44abfefc10d0be489, type: 3}
+    _sprite: {fileID: 21300000, guid: 980f195f3aaa74642968942af42faecd, type: 3}
   - _id: peddler
-    _sprite: {fileID: 21300000, guid: 3a5be48b91d39ee4db6fea4711a9c391, type: 3}
+    _sprite: {fileID: 21300000, guid: 90f5e367fb99c594e93088b02f4d3f78, type: 3}
   - _id: glass_blower
-    _sprite: {fileID: 21300000, guid: 9142092ef707ac846a0f6a47a2ec0f19, type: 3}
+    _sprite: {fileID: 21300000, guid: d7bed590ac3478346a7f65a7d10ba2e0, type: 3}
   - _id: lamp_oiler
-    _sprite: {fileID: 21300000, guid: 4b13ad67a7dc81246b958526f850a85f, type: 3}
+    _sprite: {fileID: 21300000, guid: 7147615414e44154cade8885dba10a56, type: 3}
   - _id: chimney_sweep
-    _sprite: {fileID: 21300000, guid: 99fe4cdf05bf6604eb014ebd8a52089b, type: 3}
+    _sprite: {fileID: 21300000, guid: c637cbd89b2b46742bce226ea9953669, type: 3}
   - _id: clockmaker
-    _sprite: {fileID: 21300000, guid: 97861d736bb83e444b441607e43849fe, type: 3}
+    _sprite: {fileID: 21300000, guid: 5734732cce76f2d46b7d9828d9e4d931, type: 3}
   - _id: mechanic
-    _sprite: {fileID: 21300000, guid: 65cffc699e7aca440926dc867dabf41a, type: 3}
+    _sprite: {fileID: 21300000, guid: 1fd5e5174b0b96a44bda8511ebfb2074, type: 3}
   - _id: pipefitter
-    _sprite: {fileID: 21300000, guid: 98d60f9b042b1c544bb5393134738dc1, type: 3}
+    _sprite: {fileID: 21300000, guid: 6e01aa03edc03dc46830e2270ef96d2e, type: 3}
   - _id: coal_merchant
-    _sprite: {fileID: 21300000, guid: 5c1b073a48ab6754894d103df9e87ac8, type: 3}
+    _sprite: {fileID: 21300000, guid: 4d274876faed8344780490b7a02308f3, type: 3}
   - _id: telegrapher
-    _sprite: {fileID: 21300000, guid: 63f2c27e0bc6c144d927a84b6eb776f7, type: 3}
+    _sprite: {fileID: 21300000, guid: 5fa7ab42661dc254f9d95007f4584876, type: 3}
   - _id: gas_fitter
-    _sprite: {fileID: 21300000, guid: 21f1a38806319cc49bfcc12c8f589f20, type: 3}
+    _sprite: {fileID: 21300000, guid: 8e1e3eaf03563434184fc577575088b2, type: 3}
   - _id: engine_driver
-    _sprite: {fileID: 21300000, guid: c58c4b196148cac4b8db4f4c05e51eeb, type: 3}
+    _sprite: {fileID: 21300000, guid: cc84a18baf4a1c2428da234611afa30d, type: 3}
   - _id: brass_polisher
-    _sprite: {fileID: 21300000, guid: 023c4a104fe05c5449d9fdaa84abea04, type: 3}
+    _sprite: {fileID: 21300000, guid: d08577cc900adc742ba89c9a8672909e, type: 3}
   - _id: signal_keeper
-    _sprite: {fileID: 21300000, guid: eee0bc125b1af874da9d2bc8661b5a36, type: 3}
+    _sprite: {fileID: 21300000, guid: 939b2bf9521ce5c429fb947d7ee45bdd, type: 3}
   - _id: dirigible_rigger
-    _sprite: {fileID: 21300000, guid: e8270a261e9759d4a84315c0fd721209, type: 3}
+    _sprite: {fileID: 21300000, guid: 61ee6f53e567f284ba7ded71d42e3ede, type: 3}
   - _id: steam_cook
-    _sprite: {fileID: 21300000, guid: 131f35446744482458f6424f88861a4a, type: 3}
+    _sprite: {fileID: 21300000, guid: 316839cc28300b64691dee9cca215893, type: 3}
   - _id: ironworker
-    _sprite: {fileID: 21300000, guid: b10e9ef81cb1ef145bd81b908b75be8b, type: 3}
+    _sprite: {fileID: 21300000, guid: 8c65e71d69261e34c98519dc2a486299, type: 3}
   - _id: smelter
-    _sprite: {fileID: 21300000, guid: 8c8184d7911339544b49e1183d2be67e, type: 3}
+    _sprite: {fileID: 21300000, guid: abb224dfa3866244f947718cd1660ccb, type: 3}
   - _id: night_watch
-    _sprite: {fileID: 21300000, guid: 60bf49b685bdfab47aa9d3b06fb3b369, type: 3}
+    _sprite: {fileID: 21300000, guid: 8143f7d534745d946bb3049e04e57a69, type: 3}
   - _id: riveter
-    _sprite: {fileID: 21300000, guid: 527c99514ca7e2440881faaf29b4bd8a, type: 3}
+    _sprite: {fileID: 21300000, guid: 053e629bc20c6674c9107321eace85cf, type: 3}
   - _id: foundry_hand
-    _sprite: {fileID: 21300000, guid: 8b160dfdfa8519e42a4b3d07a306fdba, type: 3}
+    _sprite: {fileID: 21300000, guid: 74c49df49c03ece4eb17a343a96c6ab9, type: 3}
   - _id: chief_engineer
-    _sprite: {fileID: 21300000, guid: a518cce27ff1fa449b644ee057625512, type: 3}
+    _sprite: {fileID: 21300000, guid: 99d078a748adacf4c99a9e3e4db5d7cc, type: 3}
   - _id: boilermaker
-    _sprite: {fileID: 21300000, guid: 3695e58489e082e43acb4ea820e418a2, type: 3}
+    _sprite: {fileID: 21300000, guid: 362c203c3d5bf424d9f5634d0d238ebf, type: 3}
   - _id: scrap_dealer
-    _sprite: {fileID: 21300000, guid: dc632aa8e12b6d949bd15899ce985d62, type: 3}
+    _sprite: {fileID: 21300000, guid: 180cdf08a10cfd94fa7d270f6c4b9419, type: 3}
   - _id: tower_keeper
-    _sprite: {fileID: 21300000, guid: 9c13583caa2baad4eb14e25caf3633eb, type: 3}
+    _sprite: {fileID: 21300000, guid: b146de5f2f7247041afd562e7341b297, type: 3}
   - _id: patrol
-    _sprite: {fileID: 21300000, guid: 9debc4092c703864891b9789bdf30536, type: 3}
+    _sprite: {fileID: 21300000, guid: b37c17f785b1baa498e3b4d47cc00851, type: 3}
   - _id: repairer
-    _sprite: {fileID: 21300000, guid: 6fd1077491bbfcf45b62bb0b55d91e82, type: 3}
+    _sprite: {fileID: 21300000, guid: b52560d8136f5364ba61daf7cce0f160, type: 3}
   - _id: electrician
-    _sprite: {fileID: 21300000, guid: 543383c291787224fa90014fefc4bd5c, type: 3}
+    _sprite: {fileID: 21300000, guid: 184b55aee428a534a94afc5529297dca, type: 3}
   - _id: lineman
-    _sprite: {fileID: 21300000, guid: c1173420761fc4046b408803f94ceffb, type: 3}
+    _sprite: {fileID: 21300000, guid: 04c9cbe79c7653249aec504118ea01a4, type: 3}
   - _id: pump_operator
-    _sprite: {fileID: 21300000, guid: e2e01f03e111ea247904b3ec87da74b1, type: 3}
+    _sprite: {fileID: 21300000, guid: bbbfcad4d8b009847b827c6272abc132, type: 3}
   - _id: valve_keeper
-    _sprite: {fileID: 21300000, guid: f6401d9edce00064c9bf3c26c23de65a, type: 3}
-  _fallback: {fileID: 21300000, guid: a5646c4bdefaebc489e2661d81e89f9b, type: 3}
+    _sprite: {fileID: 21300000, guid: 0073e54c23ac27a4eb8940537803bf58, type: 3}
+  _fallback: {fileID: 21300000, guid: 0f8eeb64fe784b64d9fd5dbcdbc1c24a, type: 3}

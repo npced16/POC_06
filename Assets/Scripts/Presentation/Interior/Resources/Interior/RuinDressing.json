@@ -1,0 +1,43 @@
+{
+  "_comment": "Story 036. 폐허 연출 수치. _density: 단계별로 빈 바닥 칸(Empty) 중 소품이 놓이는 비율(칸마다 hash(거점 id, 칸) < 밀도, 결정적). _kinds: 종류 가중치. 모닥불은 열차 앵커에 가장 가까운 빈 칸 1개(_campfirePhases 단계에만). 아이템·시설이 놓인 칸은 즉시 지우고 다시 놓지 않는다. _fadeSeconds: 밀도가 내려가 빠지는 소품이 사라지는 시간. 정렬 = InteriorCatalog.CellOrder + _sortingOffset(바닥·칸 위, 타일 조각 PieceOrder 아래). _map: 선로 화면 거점 둘레 소품(오프셋은 PropsBuild처럼 링 안쪽이 +, 정렬은 HubOrder + 오프셋).",
+  "_density": [
+    { "_phase": "Ruined", "_value": 0.35 },
+    { "_phase": "Collapsed", "_value": 0.45 },
+    { "_phase": "Recovering", "_value": 0.15 },
+    { "_phase": "Settled", "_value": 0 }
+  ],
+  "_kinds": [
+    { "_kind": "puddle", "_weight": 3 },
+    { "_kind": "weeds", "_weight": 4 },
+    { "_kind": "rubble", "_weight": 2 },
+    { "_kind": "tent", "_weight": 1 }
+  ],
+  "_campfirePhases": ["Ruined", "Collapsed", "Recovering"],
+  "_fadeSeconds": 1.0,
+  "_framesPerSecond": 2,
+  "_campfireFramesPerSecond": 6,
+  "_propScale": 0.9,
+  "_campfireScale": 1.0,
+  "_jitter": 0.08,
+  "_sortingOffset": 1,
+  "_smokeScale": 0.35,
+  "_smokeOffsetY": 0.3,
+  "_seedSalt": 3607,
+  "_map": {
+    "_propPhases": ["Ruined", "Collapsed"],
+    "_campfirePhases": ["Ruined", "Collapsed", "Recovering"],
+    "_groundOrderOffset": -2,
+    "_campfireOrderOffset": -1,
+    "_smokeScale": 0.5,
+    "_smokeOffsetY": 0.35,
+    "_props": [
+      { "_kind": "puddle", "_variant": 0, "_x": -1.0, "_y": -0.75, "_scale": 0.55 },
+      { "_kind": "weeds", "_variant": 0, "_x": 0.75, "_y": -1.15, "_scale": 0.5 },
+      { "_kind": "weeds", "_variant": 2, "_x": -1.9, "_y": 0.35, "_scale": 0.5 },
+      { "_kind": "rubble", "_variant": 0, "_x": 2.35, "_y": 0.35, "_scale": 0.5 },
+      { "_kind": "puddle", "_variant": 1, "_x": 0.2, "_y": 1.55, "_scale": 0.45 },
+      { "_kind": "weeds", "_variant": 1, "_x": 2.6, "_y": -1.0, "_scale": 0.45 },
+      { "_kind": "campfire", "_variant": 0, "_x": -2.0, "_y": -0.55, "_scale": 0.55 }
+    ]
+  }
+}
