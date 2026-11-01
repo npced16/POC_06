@@ -17,7 +17,8 @@ namespace IronRing.Hud.Editor.Screens
             RaidScreen screen = root.AddComponent<RaidScreen>();
 
             UnityEngine.UI.Image panel = UiKit.Panel(root.transform, "Panel", theme, false);
-            UiKit.Place(panel.rectTransform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -124), new Vector2(440, 112));
+            // 스토리 034 후속: 맨 위 둥지와 겹치지 않게 화면 왼쪽 위(상태줄 아래)로 옮겼다.
+            UiKit.Place(panel.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(16, -124), new Vector2(440, 112));
 
             UnityEngine.UI.Image back = UiKit.Image(panel.transform, "HullBack", null, new Color(0.12f, 0.09f, 0.07f, 0.9f));
             UiKit.Place(back.rectTransform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -16), new Vector2(400, 26));

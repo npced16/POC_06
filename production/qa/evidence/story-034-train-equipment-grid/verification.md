@@ -82,7 +82,51 @@
 - Main 씬에 거점 내부가 hub-1 하나뿐이라 그리드도 3개다. 다른 거점이 생기면 Generate를 다시 실행하면 된다.
 - `Assets/Fonts/NotoSansKR SDF.asset` 변경은 캔버스 재빌드 때 동적 글리프가 추가된 것으로 보인다.
 
+## 후속 (캡처 034-grid/034-placed/034-raid-mid 검토 반영)
+
+### 발견한 버그: 습격 데모에 열차 장비가 실리지 않음
+`034-raid-mid` 로그가 `RAID: start hull=15/15 walls=1 turrets=2+0`, `RAID: equipment pieces=0`이었다. 습격 데모의 `Bind`(Composing 중)가 `TrainEquipmentInstaller`보다 먼저 돌아서 `Loadout`이 null이었고, 그래서 033의 수 강제로 넘어간 것이다. Composing 구독 순서는 보장되지 않는다. 고친 방법: `RaidDemoDriver.ApplyLoadout()`을 `Start`에서 `GameServices.IsReady` 뒤에 부르도록 옮겼다. 이제 mid는 hull 14(10 + 방벽판 4), 포탑 2가 열차 칸에서 쏘는 것이 기대값이다.
+
+### 1. 장비 모드 카메라
+장비 모드에 들어가면 `TrainEquipmentView`가 카메라를 열차 칸 그리드 3개의 중심으로, 직교 크기 `_equipmentCameraSize` 1.6으로 지수 보간한다(`_cameraLerpPerSecond` 8, unscaled time). 1.6은 3량(약 3.9 유닛)이 16:9 화면 폭의 약 70%를 차지하는 값이다. 나가면 거점 기본값(루트 위치, `HubInteriorRoot.CameraSize`)으로 되돌린다. 목표에 닿으면 멈추고, 내부 화면이 닫히면 보간을 취소해 HubInteriorView의 복귀와 다투지 않는다. 확대 상태에서 칸 테두리는 약 4~5픽셀로 보인다(64px 틀의 3px 테두리, Point 필터). 값은 `TrainEquipmentCatalog.asset`에 있다.
+
+### 2. 습격 화면 가시성 (`Raid.json`)
+
+| 키 | 전 | 후 |
+|---|---|---|
+| `_raidCameraSize` | 5 | 3.5 |
+| `_raidTrainScale` (신규) | — | 2.2 (습격 동안 선로 열차 TrainAnchor를 키우고 끝나면 복원) |
+| `_cameraOffsetX` | 1.8 | 1.5 |
+| `_nestOffsets` | (4.2, ±1.7), (4.7, 0) | (3.4, ±1.3), (3.8, 0) |
+| spider `_speed` | 2.2 | 1.3 |
+| automaton `_speed` | 1.0 | 0.6 |
+
+몬스터 속도를 바꾼 이유: 열차가 2.2배로 커지고 둥지가 가까워져서 둥지와 열차 머리 사이 거리가 약 3.85에서 약 2.15로 줄었다(0.56배). 접근 시간(거미 약 1.7초)을 전과 같게 유지하려고 속도를 같은 비율로 줄였다. 위의 곡선 표 추정은 그대로 유효하다는 전제다. 칸 위치(`CarPosition`)와 열차 머리(`TrainFront`)는 렌더러 bounds로 계산하므로 커진 열차를 따라가고, 포탄도 커진 열차의 칸 자리에서 나간다. 칸 한 변은 약 0.31 유닛, 화면에서 약 32px다.
+
+### 3. 습격 HUD 위치
+`RaidScreenBuilder`에서 패널을 화면 왼쪽 위(앵커·피벗 (0,1), 위치 (16, −124), 상태줄 아래)로 옮겼다. 맨 위 둥지와 더는 겹치지 않는다. `.bridge/rebuild/Raid` + `BuildMainCanvas.Generate`로 다시 만들었다.
+
+### 4. 선로 화면
+`ring-track.json` `_map._cameraSize`를 7.5에서 8.5로 바꿨다. 이 값은 `BuildTopDownMain`(씬 전체 재생성)이 씬에 굽는 값이라, 새 편집기 메서드 `IronRing.Bootstrap.Editor.MapCameraSync.Apply`(멱등)로 Main 씬 카메라에만 반영했다. 둥지가 종점에서 최대 3.8 유닛 거리로 가까워진 것도 함께 작용해 오른쪽 끝에서 잘리지 않을 것으로 본다(캡처로 확인 필요).
+
+### 후속 브리지 결과
+- `refresh`: failed=false (매회)
+- `TrainEquipmentBuild.Generate`: ok
+- `RaidBuild.Generate` 2회: ok
+- `.bridge/rebuild/Raid` + `BuildMainCanvas.Generate`: ok
+- `MapCameraSync.Apply` 2회: ok, 씬 카메라 8.5
+- `scene-status`: isDirty=false
+
+### 후속 캡처 플래그
+- `--equipment-demo --equipment-stage grid`, `--equipment-demo --equipment-stage placed`: 확대된 장비 모드
+- `--raid-demo --raid-stage mid`, `--raid-demo --raid-stage win`: 확대 습격, 왼쪽 위 HUD, 열차 위 장비와 칸별 발사. 로그에서 `EQUIP: demo loadout mid`, `RAID: start hull=14/14 … turrets=2+0`, `RAID: equipment pieces=3 guns=2`를 확인한다(win은 hull 18, turrets=4+2, repair=0.20, pieces=10).
+- 선로 화면 기본 캡처: 둥지 잘림 여부
+
 
 ## 코디네이터 검증 (2026-11-02 02:05 KST)
 - refresh failed=false. `034-grid.png`(--equipment-demo --equipment-stage grid 200프레임): 열차 3량 위에 3×2 그리드 3개, 핫바가 장비 목록(포탑·중포·방벽판·증기 부스터·수리 장치), 안내줄 "열차 장비 · 1~9 선택 · 좌클릭 장착 · 우클릭 떼기 · Ctrl+Z 되돌리기 · T/Esc 나가기", "타일" 버튼으로 복귀. `034-placed.png`(stage placed 260프레임): 포탑 2·중포 1·방벽판 2·부스터 1이 칸에 보임(로그 `EQUIP: capture-ready stage=placed … used=7/18`). `034-raid-mid.png`(--raid-demo --raid-stage mid 1300프레임): 열차 장비에서 포탑 사격(`RAID: start … turrets=2+0 repair=0.00/s`).
 - 메모: 열차 칸이 내부 격자 1칸 크기라 3×2 장비 칸이 작게 보임 → 장비 모드에서 카메라를 열차로 당기는 후속.
+
+## 코디네이터 확인 — 후속 (2026-11-02 02:25 KST)
+- refresh failed=false. `034-placed-v2.png`(--equipment-demo --equipment-stage placed 300프레임): 장비 모드에서 카메라가 열차 3량으로 당겨져 3×2 칸·포탑·중포(2칸)·방벽판·부스터가 또렷함. `034-raid-mid-v2.png`(--raid-demo --raid-stage mid 1300프레임): 열차 2.2배, 둥지 3개가 오른쪽 가까이, 자동인형 돌진, 열차 위 포탑 2개 식별(로그 `RAID: equipment pieces=3 guns=2`), 내구도 패널 왼쪽 위. `034-map-v2.png`(--map-depart 120프레임): 카메라 8.5로 둥지·"둥지 3" 라벨이 화면 안.
+- 남은 메모: 습격 화면의 열차는 선로 화면 열차 스프라이트(1량) 확대라 3량으로 보이지 않음 → 습격 전용 3량 열차 표시는 후속. 몬스터 속도 1.3/0.6으로 하향(거리 비례).

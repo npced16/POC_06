@@ -41,6 +41,7 @@ namespace IronRing.Combat.Raid
         [SerializeField] private RaidWave[] _waves;
         [SerializeField] private float _liberatedBoardBonus = 0.15f;
         [SerializeField] private float _raidCameraSize = 5f;
+        [SerializeField] private float _raidTrainScale = 1f;
         [SerializeField] private float _cameraLerpPerSecond = 4f;
         [SerializeField] private float _shellSeconds = 0.15f;
         [SerializeField] private float _hitSeconds = 0.18f;
@@ -117,6 +118,8 @@ namespace IronRing.Combat.Raid
         public float LiberatedBoardBonus => _liberatedBoardBonus;
         /// <summary>습격 중 선로 카메라 크기.</summary>
         public float RaidCameraSize => _raidCameraSize;
+        /// <summary>스토리 034 후속: 습격 동안 선로 화면 열차(TrainAnchor)를 키우는 배율(장비가 보이게). 1이면 그대로.</summary>
+        public float RaidTrainScale => Mathf.Max(0.1f, _raidTrainScale);
         /// <summary>카메라 이동 보간 속도(초당).</summary>
         public float CameraLerpPerSecond => _cameraLerpPerSecond;
         /// <summary>포탄 비행 시간.</summary>

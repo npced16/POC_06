@@ -24,6 +24,8 @@ namespace IronRing.Presentation.Interior
         private TrainCarGridView[] _grids;
         private readonly Dictionary<int, GameObject> _pieces = new Dictionary<int, GameObject>();
         private bool _hadSelection;
+        private IMapAnchors _map;
+        private bool _blending;
 
         private IEnumerator Start()
         {
@@ -32,6 +34,7 @@ namespace IronRing.Presentation.Interior
             _loadout = GameServices.Get<ITrainLoadout>();
             _view = GameServices.Get<IViewMode>();
             _catalog = TrainEquipmentCatalog.Load();
+            _map = GameServices.Get<IMapAnchors>();
             if (_root == null || _loadout == null || _view == null || _catalog == null)
             {
                 Debug.LogWarning($"TrainEquipmentView({name}): 서비스·카탈로그가 없어 꺼집니다(TrainEquipmentBuild.Generate 실행 필요할 수 있음).");
@@ -77,13 +80,48 @@ namespace IronRing.Presentation.Interior
         {
             PlacementGhost ghost = PlacementGhost.Instance;
             _hadSelection = ghost != null && (ghost.Selected.IsValid || ghost.IsDragging);
+            BlendCamera();
         }
 
-        private void OnModeChanged(bool active) => RefreshFrames();
+        private void OnModeChanged(bool active)
+        {
+            RefreshFrames();
+            _blending = IsCurrent;
+        }
+
+        /// <summary>
+        /// 장비 모드면 카메라를 열차 칸 그리드들의 중심으로, 카탈로그 _equipmentCameraSize로 부드럽게 당기고, 모드를 나가면 거점 내부 기본
+        /// (루트 위치·HubInteriorRoot.CameraSize)으로 되돌린다. 목표에 닿으면 멈춰 HubInteriorView의 카메라 처리와 다투지 않는다.
+        /// </summary>
+        private void BlendCamera()
+        {
+            if (!_blending) return;
+            Camera camera = _map != null ? _map.MapCamera : null;
+            if (camera == null || !IsCurrent) { _blending = false; return; }
+            Vector3 center = _root.transform.position;
+            float size = _root.CameraSize;
+            if (TrainEquipmentMode.Active && _grids != null)
+            {
+                Vector3 sum = Vector3.zero; int n = 0;
+                foreach (TrainCarGridView grid in _grids) if (grid != null) { sum += grid.transform.position; n++; }
+                if (n > 0) center = sum / n;
+                size = _catalog.EquipmentCameraSize;
+            }
+            var target = new Vector3(center.x, center.y, camera.transform.position.z);
+            float t = 1f - Mathf.Exp(-_catalog.CameraLerpPerSecond * Time.unscaledDeltaTime);
+            camera.transform.position = Vector3.Lerp(camera.transform.position, target, t);
+            camera.orthographicSize = Mathf.Lerp(camera.orthographicSize, size, t);
+            if ((camera.transform.position - target).sqrMagnitude < 1e-6f && Mathf.Abs(camera.orthographicSize - size) < 1e-3f)
+            {
+                camera.transform.position = target;
+                camera.orthographicSize = size;
+                _blending = false;
+            }
+        }
 
         private void OnInteriorChanged(bool open)
         {
-            if (!open) TrainEquipmentMode.Set(false);
+            if (!open) { _blending = false; TrainEquipmentMode.Set(false); }
             RefreshFrames();
         }
 

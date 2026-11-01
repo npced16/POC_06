@@ -50,6 +50,8 @@ namespace IronRing.Presentation.Raid
         // 스토리 034: 습격 동안 열차 위에 얹는 장비 조각과 포 순번별 발사 칸(RaidSystem 순번: 포탑 먼저, 그다음 중포).
         private readonly List<(GameObject piece, EquipmentSlot slot)> _equipment = new List<(GameObject, EquipmentSlot)>();
         private readonly List<EquipmentSlot> _guns = new List<EquipmentSlot>();
+        private Transform _scaledTrain;
+        private Vector3 _trainBaseScale = Vector3.one;
 
         private IEnumerator Start()
         {
@@ -88,6 +90,7 @@ namespace IronRing.Presentation.Raid
             _raid.NestDestroyed -= OnNestDestroyed;
             _raid.ShotFired -= OnShot;
             _raid.GunFired -= OnGunFired;
+            RestoreTrainScale();
             if (_train != null) _train.HeldProgressSource = null;
         }
 
@@ -219,6 +222,7 @@ namespace IronRing.Presentation.Raid
                 SpriteRenderer renderer = go.GetComponent<SpriteRenderer>();
                 if (renderer != null && Mathf.Abs(unit.X - previous.x) > 0.0001f) renderer.flipX = unit.X < previous.x;
             }
+            ScaleTrain();
             PlaceEquipment();
             UpdateCamera();
         }
@@ -247,6 +251,7 @@ namespace IronRing.Presentation.Raid
             Camera camera = _anchors.MapCamera;
             if (camera != null && _restoreLeft <= 0f) { _savedCameraPosition = camera.transform.position; _savedCameraSize = camera.orthographicSize; }
             _restoreLeft = 0f;
+            ScaleTrain();
             BuildEquipment();
         }
 
@@ -256,6 +261,7 @@ namespace IronRing.Presentation.Raid
             foreach (GameObject go in _monsters.Values) if (go != null) { Smoke(go.transform.position); Destroy(go); }
             _monsters.Clear();
             ClearEquipment();
+            RestoreTrainScale();
             _restoreLeft = 1.2f;
             RefreshLabel();
         }
@@ -347,6 +353,22 @@ namespace IronRing.Presentation.Raid
                 foreach ((GameObject _, EquipmentSlot slot) in _equipment) if (slot.EquipmentId == id) _guns.Add(slot);
             PlaceEquipment();
             UnityEngine.Debug.Log($"RAID: equipment pieces={_equipment.Count} guns={_guns.Count}");
+        }
+
+        /// <summary>습격 동안 선로 화면 열차를 데이터 배율(_raidTrainScale)로 키운다(매 프레임 다시 적용). 칸 위치·열차 머리도 따라 커진다.</summary>
+        private void ScaleTrain()
+        {
+            if (!_raid.IsActive || Mathf.Approximately(_data.RaidTrainScale, 1f)) return;
+            Transform train = _anchors?.TrainAnchor;
+            if (train == null) return;
+            if (_scaledTrain != train) { RestoreTrainScale(); _scaledTrain = train; _trainBaseScale = train.localScale; }
+            train.localScale = _trainBaseScale * _data.RaidTrainScale;
+        }
+
+        private void RestoreTrainScale()
+        {
+            if (_scaledTrain != null) _scaledTrain.localScale = _trainBaseScale;
+            _scaledTrain = null;
         }
 
         private void ClearEquipment()

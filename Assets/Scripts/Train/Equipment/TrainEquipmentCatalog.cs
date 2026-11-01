@@ -34,6 +34,10 @@ namespace IronRing.Train.Equipment
         [Tooltip("습격 화면에서 장비 스프라이트가 칸을 채우는 비율.")]
         [SerializeField] private float _raidPieceFill = 1.0f;
         [SerializeField] private int _raidPieceOrderOffset = 1;
+        [Tooltip("장비 모드에서 열차 3량에 맞춰 당기는 카메라 직교 크기(작을수록 확대).")]
+        [SerializeField] private float _equipmentCameraSize = 1.6f;
+        [Tooltip("장비 모드 카메라 보간 속도(초당, 지수 감쇠).")]
+        [SerializeField] private float _cameraLerpPerSecond = 8f;
 
         private static TrainEquipmentCatalog _cached;
 
@@ -63,6 +67,11 @@ namespace IronRing.Train.Equipment
         public float RaidPieceFill => _raidPieceFill;
         /// <summary>습격 화면 장비 정렬(열차 위 + 이 값).</summary>
         public int RaidPieceOrderOffset => _raidPieceOrderOffset;
+
+        /// <summary>장비 모드 카메라 직교 크기.</summary>
+        public float EquipmentCameraSize => Mathf.Max(0.3f, _equipmentCameraSize);
+        /// <summary>장비 모드 카메라 보간 속도.</summary>
+        public float CameraLerpPerSecond => Mathf.Max(0.1f, _cameraLerpPerSecond);
 
         /// <summary>id 장비 스프라이트. 없으면 null.</summary>
         public Sprite Icon(string id)

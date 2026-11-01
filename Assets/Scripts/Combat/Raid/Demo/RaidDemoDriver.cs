@@ -24,19 +24,6 @@ namespace IronRing.Combat.Raid.Demo
         {
             _raid = raid;
             _stage = stage;
-            RaidData data = raid.Data;
-            // 스토리 034: 열차 장비 데이터(TrainEquipment.json _demoLoadouts)의 단계 배치를 실제로 놓는다. 없으면 033의 수 강제로 돌아간다.
-            IronRing.Train.Equipment.TrainLoadout train = IronRing.Train.Equipment.TrainEquipmentInstaller.Loadout;
-            if (train != null && train.ApplyDemo(stage))
-            {
-                if (stage == "lose") raid.OverrideHullMax = data.DemoHullLose;
-            }
-            else switch (stage)
-            {
-                case "win": raid.OverrideTurrets = data.DemoTurretsWin; raid.OverrideWalls = data.DemoWallsWin; break;
-                case "lose": raid.OverrideTurrets = 0; raid.OverrideWalls = 0; raid.OverrideHullMax = data.DemoHullLose; break;
-                default: raid.OverrideTurrets = data.DemoTurretsMid; raid.OverrideWalls = data.DemoWallsMid; break;
-            }
             raid.RaidEnded += OnEnded;
             UnityEngine.Debug.Log($"RAID: demo stage={stage}");
         }
@@ -45,9 +32,31 @@ namespace IronRing.Combat.Raid.Demo
         {
             Application.runInBackground = true;
             while (!GameServices.IsReady) yield return null;
+            ApplyLoadout();
             yield return null;
             TrainController train = FindFirstObjectByType<TrainController>();
             if (train != null) train.Depart();
+        }
+
+        /// <summary>
+        /// 단계별 장비를 정한다. 스토리 034: 열차 장비 데이터(TrainEquipment.json _demoLoadouts)의 단계 배치를 실제로 놓는다
+        /// (GameServices 준비 뒤에 해야 설치 순서와 무관하다). 열차 장비가 없으면 033의 수 강제로 돌아간다.
+        /// </summary>
+        private void ApplyLoadout()
+        {
+            RaidData data = _raid.Data;
+            IronRing.Train.Equipment.TrainLoadout train = IronRing.Train.Equipment.TrainEquipmentInstaller.Loadout;
+            if (train != null && train.ApplyDemo(_stage))
+            {
+                if (_stage == "lose") _raid.OverrideHullMax = data.DemoHullLose;
+                return;
+            }
+            switch (_stage)
+            {
+                case "win": _raid.OverrideTurrets = data.DemoTurretsWin; _raid.OverrideWalls = data.DemoWallsWin; break;
+                case "lose": _raid.OverrideTurrets = 0; _raid.OverrideWalls = 0; _raid.OverrideHullMax = data.DemoHullLose; break;
+                default: _raid.OverrideTurrets = data.DemoTurretsMid; _raid.OverrideWalls = data.DemoWallsMid; break;
+            }
         }
 
         private void Update()

@@ -36,3 +36,5 @@ MonoBehaviour:
   _undoDepth: 8
   _raidPieceFill: 1
   _raidPieceOrderOffset: 1
+  _equipmentCameraSize: 1.6
+  _cameraLerpPerSecond: 8
