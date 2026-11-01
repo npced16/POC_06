@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: efc11b1d426a97342a512c0f646d2b10, type: 3}
+  m_Name: UiTheme
+  m_EditorClassIdentifier: Assembly-CSharp::IronRing.Hud.Ui.UiTheme
+  _panel: {r: 0.16862746, g: 0.11372549, b: 0.16470589, a: 1}
+  _border: {r: 0.8392157, g: 0.627451, b: 0.3254902, a: 1}
+  _accent: {r: 1, g: 0.8117647, b: 0.41568628, a: 1}
+  _button: {r: 0.6, g: 0.3372549, b: 0.21176471, a: 1}
+  _text: {r: 0.9490196, g: 0.87058824, b: 0.8039216, a: 1}
+  _muted: {r: 0.7882353, g: 0.7058824, b: 0.6509804, a: 1}
+  _font: {fileID: 11400000, guid: 285eac0e2e745804c8b2e663e3abe268, type: 2}
+  _fontSmall: 16
+  _fontNormal: 20
+  _fontTitle: 28
+  _panelSprite: {fileID: 21300000, guid: 3498a0e441854854bb0db02567b812b8, type: 3}
+  _buttonSprite: {fileID: 21300000, guid: 8fdaafa6de3047043a942a363ac12d06, type: 3}
+  _buttonPressedSprite: {fileID: 21300000, guid: 8f3eb093c56dcbb4fb149859d9584216, type: 3}
+  _slotSprite: {fileID: 21300000, guid: 8e0ebb164c5547b43a15c6201255d779, type: 3}
+  _slotSelectedSprite: {fileID: 21300000, guid: 850b98f36870d7c4c84f70d4a544301e, type: 3}
+  _toastSprite: {fileID: 21300000, guid: 3229d29b350b45a42bd197bd996f84cd, type: 3}
+  _sliceMultiplier: 0.5

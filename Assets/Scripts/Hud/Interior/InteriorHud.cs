@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 
 using IronRing.Contracts.Presentation;
+using IronRing.Hud.Ui;
 using IronRing.Localization;
 
 namespace IronRing.Hud.Interior
@@ -35,6 +36,8 @@ namespace IronRing.Hud.Interior
         private static void Create()
         {
             if (_instance != null || GameServices.Get<IViewMode>() == null || GameServices.Get<IInteriorAnchors>() == null) return;
+            // 스토리 022: UGUI MainCanvas가 있으면 InteriorTitleScreen이 맡는다(3단계에서 이 파일을 지운다).
+            if (UiScreens.Instance != null) return;
             InteriorHud placed = FindAnyObjectByType<InteriorHud>(FindObjectsInactive.Include);
             // 스토리 018: 씬(MainUI)에 놓인 HUD에 바인딩한다. 제작자가 꺼 둔 화면이면 대비책도 만들지 않는다.
             if (placed != null && !(placed.enabled && placed.gameObject.activeInHierarchy)) return;

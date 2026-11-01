@@ -7,6 +7,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;
 using UnityEngine.UIElements;
 
+using IronRing.Hud.Ui;
 using IronRing.Contracts;
 using IronRing.Contracts.Presentation;
 using IronRing.Items;
@@ -52,6 +53,7 @@ namespace IronRing.Hud.Hotbar
         private float _toastUntil;
         /// <summary>스토리 021: 도감 토스트는 내부 화면이 닫혀 있어도 보인다.</summary>
         private bool _toastAnyView;
+        private bool _uguiInteriorToast;
         private float _noticeUntil;
         private bool _paletteOpen;
 
@@ -460,14 +462,19 @@ namespace IronRing.Hud.Hotbar
         private void OnHabitatCompleted(string hubId, string typeId)
         {
             if (hubId != _view.InteriorHubId) return;
-            _toast.text = string.Format(Strings.Get("placement_habitat_complete"), HabitatName(typeId));
-            _toastUntil = Time.realtimeSinceStartup + _data.ToastSeconds;
+            string text = string.Format(Strings.Get("placement_habitat_complete"), HabitatName(typeId));
             _toastAnyView = false;
+            // 스토리 022: UGUI 토스트가 있으면 넘긴다(내부 전용: 내부 화면을 닫으면 숨긴다).
+            if (ToastScreen.Show(text, _data.ToastSeconds)) { _uguiInteriorToast = true; return; }
+            _toast.text = text;
+            _toastUntil = Time.realtimeSinceStartup + _data.ToastSeconds;
         }
 
         /// <summary>스토리 021: 같은 토스트 자리에 문구를 띄운다(지도·내부 화면 모두). 도감 해금 알림이 쓴다.</summary>
         public void ShowToast(string text)
         {
+            // 스토리 022: UGUI 토스트(ToastScreen)가 있으면 그쪽에 띄운다.
+            if (_data != null && ToastScreen.Show(text, _data.ToastSeconds)) { _uguiInteriorToast = false; return; }
             if (_toast == null) return;
             _toast.text = text;
             _toastUntil = Time.realtimeSinceStartup + _data.ToastSeconds;
@@ -506,6 +513,7 @@ namespace IronRing.Hud.Hotbar
                 _pendingAssign = default;
                 _paletteOpen = false;
                 if (!_toastAnyView) _toastUntil = 0;
+                if (_uguiInteriorToast) { ToastScreen.Hide(); _uguiInteriorToast = false; }
                 ClearPress();
             }
             Refresh();
