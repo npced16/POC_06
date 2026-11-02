@@ -158,7 +158,7 @@ namespace IronRing.Hud.Editor.Screens
             if (view == null) return;
             if (key != null) view.SetKey(key);
             if (!entry.IsValid) { view.Show(null, ""); return; }
-            string name = Lookup((entry.Kind == PlacementKind.Facility ? "facility_" : "item_") + entry.Id) ?? entry.Id;
+            string name = Lookup("item_" + entry.Id) ?? entry.Id;
             Sprite sprite = entry.Kind == PlacementKind.Item && sprites != null ? sprites.Get(entry.Id) : null;
             view.Show(sprite, name);
             TextAsset catalogJson = UnityEngine.Resources.Load<TextAsset>("Items/ItemCatalog");

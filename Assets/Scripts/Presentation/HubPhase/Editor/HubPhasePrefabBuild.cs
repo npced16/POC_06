@@ -9,7 +9,7 @@ using IronRing.Presentation.Effects;
 namespace IronRing.Presentation.HubPhase.Editor
 {
     /// <summary>
-    /// Story 014 editor generator: builds the interior NPC and facility prefabs under Assets/Prefabs/HubPhase/ from the
+    /// Story 014 editor generator: builds the interior NPC prefab under Assets/Prefabs/HubPhase/ from the
     /// existing generated art (Story 010 sprite set) and assigns them to the HubPhasePrefabCatalog asset. Re-runnable.
     /// Story 017: the NPC prefab also carries a trigger BoxCollider2D sized to its sprite.
     /// Bridge: execute-method --method IronRing.Presentation.HubPhase.Editor.HubPhasePrefabBuild.Generate
@@ -29,9 +29,6 @@ namespace IronRing.Presentation.HubPhase.Editor
             var settings = JsonUtility.FromJson<HubPhaseViewSettings>(AssetDatabase.LoadAssetAtPath<TextAsset>(ViewJsonPath).text);
             EnsureFolder(PrefabFolder);
             GameObject npc = SavePiece("HubPhaseNpc", art, "npc", settings.NpcSortingOrder, true);
-            var facilities = new List<KeyValuePair<string, GameObject>>();
-            foreach (string id in settings.BuildFacilityIds)
-                facilities.Add(new KeyValuePair<string, GameObject>(id, SavePiece("HubPhaseFacility_" + id, art, id, settings.FacilitySortingOrder)));
 
             var catalog = AssetDatabase.LoadAssetAtPath<HubPhasePrefabCatalog>(CatalogPath);
             if (catalog == null)
@@ -41,18 +38,10 @@ namespace IronRing.Presentation.HubPhase.Editor
             }
             var serialized = new SerializedObject(catalog);
             serialized.FindProperty("_npc").objectReferenceValue = npc;
-            SerializedProperty list = serialized.FindProperty("_facilities");
-            list.arraySize = facilities.Count;
-            for (int i = 0; i < facilities.Count; i++)
-            {
-                SerializedProperty entry = list.GetArrayElementAtIndex(i);
-                entry.FindPropertyRelative("_facilityId").stringValue = facilities[i].Key;
-                entry.FindPropertyRelative("_prefab").objectReferenceValue = facilities[i].Value;
-            }
             serialized.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(catalog);
             AssetDatabase.SaveAssets();
-            return "HubPhase prefabs: npc + " + facilities.Count + " facilities -> " + CatalogPath;
+            return "HubPhase prefabs: npc -> " + CatalogPath;
         }
 
         /// <summary>

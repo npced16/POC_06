@@ -130,7 +130,6 @@ namespace IronRing.Bootstrap.Editor
                 Load<TextAsset>("Assets/Scripts/Npc/Data/NpcPool.json"),
                 Load<TextAsset>("Assets/Scripts/Hub/Data/HubProfiles.json"),
                 Load<TextAsset>("Assets/Scripts/Combat/Resources/Story005Encounters.json"),
-                Load<TextAsset>("Assets/Scripts/Defense/Data/Facilities.json"),
                 Load<TextAsset>("Assets/Scripts/Bootstrap/Data/MainSettings.json"), train, map);
             // Story 012: 거점 내부 프리팹 인스턴스(HubInteriors/HubInterior hub-n)를 같은 씬에 놓는다.
             Story012Build.PlaceInteriors(scene, Story012Build.EnsurePrefabs());

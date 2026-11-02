@@ -8,7 +8,6 @@
 //   003 NPC        -> INpcRecruiter
 //   004 Hub state  -> IHubStateSystem
 //   005 Waypoint   -> IWaypointResolver
-//   006 Facilities -> IFacilityBuilder
 //   007 HUD        -> consumes all of the above through events
 //
 // Dependency rule: pure C# core classes take the interfaces they need through constructor parameters.
@@ -164,21 +163,6 @@ namespace IronRing.Contracts
         event Action<ITrackNode, EncounterOutcome> EncounterEnded;
     }
 
-    /// <summary>Story 006. Defense facilities per hub.</summary>
-    public interface IFacilityBuilder
-    {
-        /// <summary>Facility ids built at a hub.</summary>
-        IReadOnlyList<string> FacilitiesAt(string hubId);
-        /// <summary>True when cost, hub limit and ruin rule allow it.</summary>
-        bool CanBuild(string hubId, string facilityId);
-        /// <summary>Spend resources and build; false and no change if refused.</summary>
-        bool TryBuild(string hubId, string facilityId);
-        /// <summary>Combat bonus the hub's facilities grant; 0 when none. Consumed by Story 005.</summary>
-        float CombatBonus(string hubId);
-        /// <summary>hubId, facilityId.</summary>
-        event Action<string, string> FacilityBuilt;
-    }
-
     /// <summary>Injectable random source so every probabilistic rule is deterministic under test.</summary>
     public interface IRandomSource
     {
@@ -203,9 +187,7 @@ namespace IronRing.Contracts
         /// <summary>조사됨: 옛 시설 부지. 방어시설을 지을 수 있다.</summary>
         FacilityPlot,
         /// <summary>빈 터에 아이템이 놓임.</summary>
-        ItemPlaced,
-        /// <summary>부지에 시설이 지어짐.</summary>
-        FacilityBuilt
+        ItemPlaced
     }
 
     /// <summary>거점 내부의 칸 하나. Index는 0부터, 위 구역 3×6 다음 아래 구역 3×6 순서.</summary>
@@ -221,8 +203,6 @@ namespace IronRing.Contracts
         InteriorCellState State { get; }
         /// <summary>ItemPlaced일 때 아이템 id, 아니면 null.</summary>
         string ItemId { get; }
-        /// <summary>FacilityBuilt일 때 시설 id, 아니면 null.</summary>
-        string FacilityId { get; }
     }
 
     /// <summary>조사 결과. 묻힌 아이템·자원은 즉시 인벤토리/재고로 들어가고 칸은 Empty가 된다.</summary>
@@ -251,13 +231,6 @@ namespace IronRing.Contracts
         event Action<string, int> CellChanged;
         /// <summary>hubId, 남은 횟수.</summary>
         event Action<string, int> InvestigationsChanged;
-    }
-
-    /// <summary>스토리 012가 구현(선택 계약, IHubInterior와 함께 등록). 부지 칸에 시설이 지어졌음을 칸 상태에 반영한다. 014가 호출한다.</summary>
-    public interface IInteriorFacilityCells
-    {
-        /// <summary>FacilityPlot 칸을 FacilityBuilt(facilityId)로 바꾼다. 부지가 아니거나 이미 지어졌으면 false.</summary>
-        bool TryBuildFacility(string hubId, int cellIndex, string facilityId);
     }
 
     /// <summary>스토리 013. 아이템 인벤토리. 아이템 id와 태그, 제작 비용은 데이터에서 온다.</summary>

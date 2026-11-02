@@ -39,7 +39,6 @@ namespace IronRing.Presentation.Interior
             new Color(0.55f, 0.9f, 0.45f, 0.9f), new Color(0.4f, 0.7f, 1f, 0.9f), new Color(1f, 0.8f, 0.35f, 0.9f),
             new Color(0.95f, 0.5f, 0.8f, 0.9f), new Color(0.6f, 0.95f, 0.9f, 0.9f), new Color(1f, 0.55f, 0.35f, 0.9f)
         };
-        [SerializeField] private FacilitySprite[] _facilitySprites = Array.Empty<FacilitySprite>();
         [Header("건물 (스토리 027)")]
         [Tooltip("지붕 조각 프리팹(SpriteRenderer + 트리거 BoxCollider2D + BuildingPiece).")]
         [SerializeField] private GameObject _buildingPiecePrefab;
@@ -132,24 +131,17 @@ namespace IronRing.Presentation.Interior
         public int PieceOrder => _pieceOrder;
         public int TrainOrder => _trainOrder;
 
-        /// <summary>칸 state에 보이는 타일. ItemPlaced는 빈 터 타일 위에 013 조각이, FacilityBuilt는 built 타일 위에 014 조각이 놓인다.</summary>
+        /// <summary>칸 state에 보이는 타일. ItemPlaced는 빈 터 타일 위에 013 조각이 놓인다.</summary>
         public Sprite CellSprite(InteriorCellState state)
         {
             switch (state)
             {
                 case InteriorCellState.Rubble: return _rubbleSprite;
                 case InteriorCellState.FacilityPlot: return _plotSprite;
-                case InteriorCellState.FacilityBuilt: return _builtSprite != null ? _builtSprite : _plotSprite;
                 default: return _emptySprite;
             }
         }
 
-        /// <summary>시설 id의 아이콘·고스트 스프라이트, 없으면 null.</summary>
-        public Sprite FacilityIcon(string facilityId)
-        {
-            foreach (FacilitySprite entry in _facilitySprites) if (entry != null && entry.Id == facilityId) return entry.Sprite;
-            return null;
-        }
 
         /// <summary>서식지 종류 id에 고정으로 대응하는 묶음 색(문자열 해시로 색 목록에서 고른다).</summary>
         public Color ClusterColor(string typeId)
@@ -265,9 +257,6 @@ namespace IronRing.Presentation.Interior
             public Sprite Piece(int mask) => _pieces != null && mask >= 0 && mask < _pieces.Length ? _pieces[mask] : null;
             public Sprite Corner(int corner) => _innerCorners != null && corner >= 0 && corner < _innerCorners.Length ? _innerCorners[corner] : null;
         }
-
-        /// <summary>편집기 제작 도구가 시설 아이콘 표를 채운다.</summary>
-        public void SetFacilitySprites(FacilitySprite[] entries) => _facilitySprites = entries ?? Array.Empty<FacilitySprite>();
 
         /// <summary>시설 id와 스프라이트 한 쌍.</summary>
         [Serializable]

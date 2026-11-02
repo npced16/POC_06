@@ -598,6 +598,7 @@
     {"_key": "ui_result_body_victory_town", "_value": "{0}이 {1}로 자랐다. 철환은 다시 숨을 쉰다."},
     {"_key": "ui_result_body_partial_town", "_value": "기한이 다했다. {0}은 {1} 등급으로 다음 겨울을 맞는다."},
     {"_key": "ui_result_body_ruin_town", "_value": "기한이 다했다. {0}은 아직 {1}다."},
-    {"_key": "ui_result_body_collapse_town", "_value": "{0}이 무너졌다."}
+    {"_key": "ui_result_body_collapse_town", "_value": "{0}이 무너졌다."},
+    {"_key": "ui_npcdialog_more", "_value": "▼ 계속"}
 ]
 }

@@ -17,7 +17,7 @@ namespace IronRing.Hud.Hotbar
     /// 브리지 캡처 중에만 extraArgs를 읽는다(MainRoot의 --integration-demo와 같은 SessionState 방식). 내부 화면이 열리면 데이터(Hotbar.json _demo)의 칸으로:
     /// ghost = 슬롯 1 선택 + 빈 칸 위 고스트 고정(초록), blocked = 그 칸에 슬롯 1을 놓은 뒤 같은 칸 위 고스트(붉음),
     /// drag = 슬롯 _dragSlot 항목을 끌고 있는 상태로 빈 칸 위 고정, placed = 슬롯 1 항목을 L자 네 칸에 놓고 선택 해제.
-    /// 실제 시스템 API(PlacementGhost → IItemPlacement/IFacilityBuilder)만 호출한다. 무제한 플래그(016) 전에는 수량이 0이면 데모 지급 로그를 남긴다.
+    /// 실제 시스템 API(PlacementGhost → IItemPlacement)만 호출한다. 무제한 플래그(016) 전에는 수량이 0이면 데모 지급 로그를 남긴다.
     /// </summary>
     public sealed class PlacementDemoDriver : MonoBehaviour
     {

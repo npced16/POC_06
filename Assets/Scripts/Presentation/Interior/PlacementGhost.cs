@@ -17,7 +17,7 @@ namespace IronRing.Presentation.Interior
     /// 반투명 GhostPiece 프리팹(InteriorCatalog)을 마우스 아래 가장 가까운 칸 앵커(IInteriorAnchors)에 스냅해 보이고, 놓을 수 있으면 초록·없으면 붉게 칠한다.
     /// 좌클릭 = 배치, 우클릭·Esc = 선택/드래그 취소, 선택이 없을 때 우클릭 = 놓인 아이템 회수(완성된 건물 칸이면 그 건물 전체 철거, 스토리 031),
     /// Ctrl+Z = 최근 배치·회수·철거 되돌리기(PlacementHistory, 스토리 031). UI 위의 클릭과 닫힌 내부 화면에서는 아무것도 하지 않는다.
-    /// 게임 상태는 IItemPlacement, IFacilityBuilder, IInteriorFacilityCells가 소유하며 이 뷰는 명령만 보낸다.
+    /// 게임 상태는 IItemPlacement가 소유하며 이 뷰는 명령만 보낸다.
     /// </summary>
     public sealed class PlacementGhost : MonoBehaviour
     {
@@ -30,8 +30,6 @@ namespace IronRing.Presentation.Interior
         private IMapAnchors _map;
         private IHubInterior _interior;
         private IItemPlacement _placement;
-        private IFacilityBuilder _facilities;
-        private IInteriorFacilityCells _facilityCells;
         private IHabitatClusters _clusters;
         private PlacementHistory _history;
         private InteriorCatalog _catalog;
@@ -113,8 +111,6 @@ namespace IronRing.Presentation.Interior
             _map = GameServices.Get<IMapAnchors>();
             _interior = GameServices.Get<IHubInterior>();
             _placement = GameServices.Get<IItemPlacement>();
-            _facilities = GameServices.Get<IFacilityBuilder>();
-            _facilityCells = GameServices.Get<IInteriorFacilityCells>();
             _clusters = GameServices.Get<IHabitatClusters>();
             _sprites = ItemSpriteSet.Load();
             foreach (HubInteriorRoot root in UnityEngine.Object.FindObjectsByType<HubInteriorRoot>(FindObjectsInactive.Include, FindObjectsSortMode.None))
@@ -167,7 +163,7 @@ namespace IronRing.Presentation.Interior
         /// <summary>데모·캡처용: 마우스 대신 cellIndex 칸 위에 고스트를 고정한다(마우스 입력은 무시). 음수면 해제.</summary>
         public void Park(int cellIndex) => _parkedCell = cellIndex;
 
-        /// <summary>entry를 hubId의 cellIndex에 놓을 수 있는지. 아이템은 IItemPlacement.CanPlace, 시설은 빈 칸(또는 부지) + IFacilityBuilder.CanBuild.</summary>
+        /// <summary>entry를 hubId의 cellIndex에 놓을 수 있는지. 아이템은 IItemPlacement.CanPlace.</summary>
         public bool Affordable(string itemId) => GameServices.Get<IPlacementCost>()?.CanAfford(itemId) ?? true;
 
         /// <summary>엔트리를 hubId의 cellIndex에 놓을 수 있는지(스토리 041: 아이템은 잔고도 검사).</summary>
@@ -175,14 +171,11 @@ namespace IronRing.Presentation.Interior
         {
             if (!entry.IsValid || hubId == null) return false;
             if (entry.Kind == PlacementKind.Item) return _placement != null && Affordable(entry.Id) && _placement.CanPlace(hubId, cellIndex, entry.Id);
-            IInteriorCell cell = Cell(hubId, cellIndex);
-            if (cell == null || _facilities == null || _facilityCells == null) return false;
-            return (cell.State == InteriorCellState.Empty || cell.State == InteriorCellState.FacilityPlot) && _facilities.CanBuild(hubId, entry.Id);
+            return false;
         }
 
         /// <summary>
-        /// entry를 놓는다. 아이템: IItemPlacement.TryPlace. 시설: 칸을 IInteriorFacilityCells.TryBuildFacility로 먼저 FacilityBuilt로 바꾼 뒤
-        /// IFacilityBuilder.TryBuild로 거점 기록(한도·폐허 규칙)을 남긴다. 칸 쓰기가 거부되면 아무것도 소모하지 않는다.
+        /// entry를 놓는다. 아이템: IItemPlacement.TryPlace.
         /// </summary>
         public bool TryPlace(string hubId, int cellIndex, PlacementEntry entry)
         {
@@ -200,12 +193,7 @@ namespace IronRing.Presentation.Interior
                 ok = _placement.TryPlace(hubId, cellIndex, entry.Id);
                 if (ok) Record(PlacementActionKind.Place, hubId, null, new[] { new KeyValuePair<int, string>(cellIndex, entry.Id) });
             }
-            else
-            {
-                ok = _facilityCells.TryBuildFacility(hubId, cellIndex, entry.Id);
-                if (!ok) UnityEngine.Debug.LogWarning($"PlacementGhost: {hubId} 칸 {cellIndex}({Cell(hubId, cellIndex)?.State})에 시설 {entry.Id}를 칸 상태로 기록하지 못했습니다(IInteriorFacilityCells가 거부).");
-                else if (!_facilities.TryBuild(hubId, entry.Id)) UnityEngine.Debug.LogWarning($"PlacementGhost: {hubId} 시설 {entry.Id} 건설이 칸 기록 뒤 거부되었습니다.");
-            }
+            else ok = false;
             Notice?.Invoke(ok ? "placement_placed" : "placement_refused", entry);
             return ok;
         }
@@ -271,7 +259,6 @@ namespace IronRing.Presentation.Interior
         public Sprite IconFor(PlacementEntry entry)
         {
             if (!entry.IsValid) return null;
-            if (entry.Kind == PlacementKind.Facility) return _catalog != null ? _catalog.FacilityIcon(entry.Id) : null;
             return _sprites != null ? _sprites.Get(entry.Id) : null;
         }
 

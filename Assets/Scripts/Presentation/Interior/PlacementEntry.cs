@@ -6,9 +6,7 @@ namespace IronRing.Presentation.Interior
     public enum PlacementKind
     {
         /// <summary>아이템 카탈로그의 타일·아이템(IItemPlacement로 놓는다).</summary>
-        Item,
-        /// <summary>방어시설(IFacilityBuilder + IInteriorFacilityCells로 짓는다).</summary>
-        Facility
+        Item
     }
 
     /// <summary>스토리 015. 핫바 슬롯 하나에 담기는 배치 대상(종류 + id). 값 형식이다.</summary>

@@ -35,13 +35,6 @@ MonoBehaviour:
   - {r: 0.95, g: 0.5, b: 0.8, a: 0.9}
   - {r: 0.6, g: 0.95, b: 0.9, a: 0.9}
   - {r: 1, g: 0.55, b: 0.35, a: 0.9}
-  _facilitySprites:
-  - _id: wall
-    _sprite: {fileID: 21300000, guid: 28f06408f732e2c45938bbff19877b57, type: 3}
-  - _id: turret
-    _sprite: {fileID: 21300000, guid: 396c315ad6376d949ab559c3d898350c, type: 3}
-  - _id: workshop
-    _sprite: {fileID: 21300000, guid: c548c7e423d2a5949b8ce9073f8c7887, type: 3}
   _buildingPiecePrefab: {fileID: 4403550517391783781, guid: 97aa409874334544b99f55bbab541ed4, type: 3}
   _buildingPropPrefab: {fileID: 7241096613422828736, guid: 4d422e78ebf921c4894bcb2df15495cc, type: 3}
   _buildingSmokePrefab: {fileID: 1162208155780925468, guid: 272f2944d3898d848a16c3fdfa8896a1, type: 3}

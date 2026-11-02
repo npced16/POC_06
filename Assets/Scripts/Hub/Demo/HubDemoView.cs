@@ -34,8 +34,8 @@ namespace IronRing.Hub.Demo
             _definitions = HubData.Parse(_profiles.text);
             var population = new HubDemoPopulation();
             foreach (HubDefinition definition in _definitions)
-                population.SetCounts(definition.Id, _npcsPerHub, _facilitiesPerHub);
-            _state = new RunState(_definitions, population, population);
+                population.SetCounts(definition.Id, _npcsPerHub);
+            _state = new RunState(_definitions, population);
         }
 
         IEnumerator Start()

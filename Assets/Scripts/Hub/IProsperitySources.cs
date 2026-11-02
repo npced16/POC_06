@@ -48,14 +48,17 @@ namespace IronRing.Hub
         private readonly Func<IHabitatSystem> _habitat;
         private readonly Func<IHabitatClusters> _clusters;
         private readonly Func<string, float> _typeBonus;
+        private readonly Func<string, int> _cellCap;
+        private readonly HashSet<string> _cappedLogged = new HashSet<string>();
 
         /// <summary>
         /// Stores the providers; any may be null or return null. clusters (Story 016) lists completed habitats per hub and
         /// typeBonus returns the catalog prosperity bonus of a habitat type id (0 or less means "use the hub default").
         /// </summary>
         public ServiceProsperitySources(Func<IHubInterior> interior, Func<IHabitatSystem> habitat,
-            Func<IHabitatClusters> clusters = null, Func<string, float> typeBonus = null)
+            Func<IHabitatClusters> clusters = null, Func<string, float> typeBonus = null, Func<string, int> cellCap = null)
         {
+            _cellCap = cellCap;
             _interior = interior;
             _habitat = habitat;
             _clusters = clusters;
@@ -79,13 +82,28 @@ namespace IronRing.Hub
             return total;
         }
 
-        /// <summary>Story 028. Sums the cell counts of hubId's completed clusters, or 0 without a cluster system.</summary>
+        /// <summary>
+        /// Story 028. Sums the cell counts of hubId's completed clusters, or 0 without a cluster system.
+        /// QA 2026-11-01: each cluster counts at most cellCap(typeId) cells (a negative or absent cap = no cap); a capped
+        /// building is logged once as "PROSPERITY: cap &lt;typeId&gt; cells=&lt;n&gt; counted=&lt;m&gt;".
+        /// </summary>
         public int HabitatCellCount(string hubId)
         {
             IReadOnlyList<HabitatCluster> completed = _clusters?.Invoke()?.CompletedAt(hubId);
             if (completed == null) return 0;
             int total = 0;
-            foreach (HabitatCluster cluster in completed) total += cluster?.Cells?.Count ?? 0;
+            foreach (HabitatCluster cluster in completed)
+            {
+                int cells = cluster?.Cells?.Count ?? 0;
+                int cap = cells > 0 && _cellCap != null ? _cellCap(cluster.TypeId) : -1;
+                if (cap >= 0 && cells > cap)
+                {
+                    string key = hubId + "|" + cluster.TypeId + "|" + cluster.Cells[0] + "|" + cells;
+                    if (_cappedLogged.Add(key)) UnityEngine.Debug.Log("PROSPERITY: cap " + cluster.TypeId + " cells=" + cells + " counted=" + cap);
+                    cells = cap;
+                }
+                total += cells;
+            }
             return total;
         }
 

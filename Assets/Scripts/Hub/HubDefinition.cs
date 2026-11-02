@@ -13,10 +13,13 @@ namespace IronRing.Hub
         public bool UseTownTiers { get; }
         /// <summary>Story 042/045: prosperity per lap for each resident of the town hub (HubProfiles.json `_perResident`).</summary>
         public float PerResident { get; }
+        /// <summary>QA 2026-11-01 (mixed-cluster prosperity cap): a Cluster/Set building counts at most ceil(RequiredCount x ratio) cells for prosperity (HubProfiles.json `_cellCapRatio`, default 1.5).</summary>
+        public float CellCapRatio { get; }
 
         /// <summary>Validates and stores the data-driven deadline in laps (at least 1) and the Story 030 early-win switch.</summary>
-        public HubRunRules(int deadlineLaps, bool earlyWin = false, bool useTownTiers = false, float perResident = 0f)
+        public HubRunRules(int deadlineLaps, bool earlyWin = false, bool useTownTiers = false, float perResident = 0f, float cellCapRatio = 1.5f)
         {
+            CellCapRatio = cellCapRatio > 0f ? cellCapRatio : 1.5f;
             UseTownTiers = useTownTiers;
             PerResident = perResident;
             if (deadlineLaps < 1) throw new ArgumentOutOfRangeException(nameof(deadlineLaps), "Deadline must be at least one lap.");
@@ -42,8 +45,6 @@ namespace IronRing.Hub
         public float BasePerLap { get; }
         /// <summary>Contribution per NPC after the profile NPC multiplier.</summary>
         public float PerNpc { get; }
-        /// <summary>Contribution per facility after the profile facility multiplier.</summary>
-        public float PerFacility { get; }
         /// <summary>Story 014: lap contribution per item placed in the hub interior.</summary>
         public float PerPlacedItem { get; }
         /// <summary>Story 028: lap contribution per interior cell that belongs to a completed habitat cluster.</summary>
@@ -59,16 +60,16 @@ namespace IronRing.Hub
 
         /// <summary>Story 004 overload: no item/habitat contribution, settles only at Maximum, no deadline.</summary>
         public HubDefinition(string id, float minimum, float maximum, float initial, float ruinThreshold,
-            float basePerLap, float perNpc, float perFacility)
-            : this(id, minimum, maximum, initial, ruinThreshold, basePerLap, perNpc, perFacility, 0f, 0f, maximum, null) { }
+            float basePerLap, float perNpc)
+            : this(id, minimum, maximum, initial, ruinThreshold, basePerLap, perNpc, 0f, 0f, maximum, null) { }
 
         /// <summary>Validates the supplied id, bounds, growth coefficients and phase threshold and stores an immutable definition.</summary>
         public HubDefinition(string id, float minimum, float maximum, float initial, float ruinThreshold,
-            float basePerLap, float perNpc, float perFacility, float perPlacedItem, float habitatBonus,
+            float basePerLap, float perNpc, float perPlacedItem, float habitatBonus,
             float settledThreshold, HubRunRules rules, bool settleByHabitat = false, float perHabitatCell = 0f)
         {
             if (string.IsNullOrWhiteSpace(id)) throw new ArgumentException("Hub id is required.", nameof(id));
-            float[] values = { minimum, maximum, initial, ruinThreshold, basePerLap, perNpc, perFacility, perPlacedItem, habitatBonus, settledThreshold, perHabitatCell };
+            float[] values = { minimum, maximum, initial, ruinThreshold, basePerLap, perNpc, perPlacedItem, habitatBonus, settledThreshold, perHabitatCell };
             foreach (float value in values)
                 if (float.IsNaN(value) || float.IsInfinity(value)) throw new ArgumentException("Hub values must be finite.");
             if (minimum > ruinThreshold || ruinThreshold >= maximum || initial < minimum || initial > maximum)
@@ -82,7 +83,6 @@ namespace IronRing.Hub
             RuinThreshold = ruinThreshold;
             BasePerLap = basePerLap;
             PerNpc = perNpc;
-            PerFacility = perFacility;
             PerPlacedItem = perPlacedItem;
             HabitatBonus = habitatBonus;
             SettledThreshold = settledThreshold;

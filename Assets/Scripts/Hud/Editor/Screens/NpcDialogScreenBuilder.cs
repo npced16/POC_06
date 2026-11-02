@@ -97,7 +97,7 @@ namespace IronRing.Hud.Editor.Screens
 
             TextMeshProUGUI line = UiKit.Label(panel.transform, "Line", Strings.Get("ui_sample_npc_line"), UiTextSize.Normal, theme, TextAlignmentOptions.TopLeft);
             UiKit.Stretch(line.rectTransform, textLeft, pad.top + heading + GAP, pad.right, pad.bottom + theme.ButtonHeight + GAP);
-            line.overflowMode = TextOverflowModes.Truncate;
+            line.overflowMode = TextOverflowModes.Page; // 넘치는 대사는 쪽으로 나눠 "▼ 계속"으로 넘긴다(NpcDialogScreen). 잘라내지 않는다.
 
             TextMeshProUGUI reasons = UiKit.Label(panel.transform, "Reasons", "", UiTextSize.Small, theme, TextAlignmentOptions.MidlineLeft);
             UiKit.Place(reasons.rectTransform, Vector2.zero, Vector2.zero, new Vector2(textLeft, pad.bottom), new Vector2(boxWidth * 0.4f, theme.ButtonHeight));

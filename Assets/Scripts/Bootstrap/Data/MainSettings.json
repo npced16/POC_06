@@ -7,7 +7,6 @@
   "_capturePauseSeconds": 0.35,
   "_maxDemoLaps": 24,
   "_demoHubId": "hub-1",
-  "_demoFacilityId": "wall",
   "_eventKeys": [
     { "_id": "Abandoned freight", "_name": "event_abandoned_freight" },
     { "_id": "Trackside provisions", "_name": "event_trackside_provisions" },

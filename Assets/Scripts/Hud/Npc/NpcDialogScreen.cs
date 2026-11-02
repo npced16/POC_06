@@ -23,6 +23,9 @@ namespace IronRing.Hud.Npc
     /// (NpcPortraitCatalog, 없으면 몸체 스프라이트 ×_fallbackPortraitScale), 아래 가운데에 이중 테두리 대화 상자(이름·집/출신·대사·버튼 줄)를 둔다.
     /// 상태: 닫힘 → 읽기(대사 순서 = NPC의 _quote + _lines, [계속하기]: 타자기 중이면 즉시 완성, 아니면 다음 줄) → 선택(마지막 줄 뒤
     /// [계속하기] 대신 INpcInteraction.Options 버튼 + [닫기]; 결과 문장은 대사 칸에 타자기로). Esc·그늘 클릭·닫기·내부 화면 닫힘·다른 거점이면 닫는다.
+    /// 긴 대사(QA 2026-11-01 "4줄 초과 대사"): 대사 칸은 TMP Overflow=Page. 한 대사가 칸(빌더 BODY_LINES줄)을 넘으면 쪽으로 나뉘어
+    /// 타자기가 1쪽부터 치고, [계속하기] 자리에 "▼ 계속"(ui_npcdialog_more)이 떠 다음 쪽으로 넘긴다. 마지막 쪽에서만 다음 대사·선택지로 간다.
+    /// 선택 단계의 결과 문장이 넘쳐도 같은 버튼이 잠시 떠 쪽을 넘긴다. 말줄임(…)·잘림은 쓰지 않는다.
     /// 게임 상태는 바꾸지 않고 TryInteract 명령만 보낸다. 데모 단계(NpcHomesDemoDriver.StageReady)는 HandleDemoStage가 처리한다.
     /// </summary>
     [RequireComponent(typeof(UiScreen))]
@@ -41,7 +44,7 @@ namespace IronRing.Hud.Npc
         [SerializeField] private TMP_Text _title;
         [Tooltip("이름 줄 오른쪽의 집·출신지(Small, 흐린 색).")]
         [SerializeField] private TMP_Text _meta;
-        [Tooltip("대사 영역(Normal, 최대 4줄, 타자기).")]
+        [Tooltip("대사 영역(Normal, 한 쪽 최대 4줄, Overflow=Page, 타자기).")]
         [SerializeField] private TMP_Text _line;
         [Tooltip("비활성 선택지 이유(Small, 버튼 줄 왼쪽).")]
         [SerializeField] private TMP_Text _reasons;
@@ -90,6 +93,8 @@ namespace IronRing.Hud.Npc
         private string _typedLine;
         private float _typed;
         private bool _typing;
+        private int _page = 1;
+        private bool _labelMore;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStatics() { GameServices.Ready -= Create; _instance = null; _loggedMissing = false; }
@@ -118,6 +123,7 @@ namespace IronRing.Hud.Npc
             if (_portrait != null) _portraitHeight = _portrait.rectTransform.sizeDelta.y;
             SetLabel(_close, "npc_dialog_close");
             SetLabel(_continue, "npc_dialog_continue");
+            _line.overflowMode = TextOverflowModes.Page; // 프리팹이 옛 Truncate여도 잘리지 않게(빌더도 Page로 만든다)
             _close.onClick.AddListener(Close);
             _continue.onClick.AddListener(Continue);
             if (_dim != null)
@@ -186,8 +192,8 @@ namespace IronRing.Hud.Npc
             SetPortrait(npcId);
             _screens.Show(_screen.Id);
             RefreshHeader();
+            LayoutText(); // 쪽 나눔이 실제 글자 폭으로 계산되도록 대사보다 먼저
             ShowStep();
-            LayoutText();
             InteriorNpcWalker.SetHighlighted(_npc);
             InteriorNpcWalker.SetTalking(_npc, true);
             HotbarScreen.Instance?.SetSuppressed(true);
@@ -196,11 +202,13 @@ namespace IronRing.Hud.Npc
         /// <summary>대화를 닫는다(닫기 버튼·Esc·그늘 클릭).</summary>
         public void Close() => Hide();
 
-        /// <summary>[계속하기]: 타자기 중이면 즉시 완성, 아니면 다음 줄, 마지막 줄 뒤에는 선택 단계로.</summary>
+        /// <summary>[계속하기]: 타자기 중이면 지금 쪽을 즉시 완성, 남은 쪽이 있으면 다음 쪽, 아니면 다음 줄, 마지막 줄 뒤에는 선택 단계로.</summary>
         public void Continue()
         {
-            if (_npc == null || _choosing) return;
+            if (_npc == null) return;
             if (_typing) { FinishTyping(); return; }
+            if (HasMorePages()) { ShowPage(_page + 1); return; }
+            if (_choosing) return;
             if (_index < _sequence.Count - 1) { _index++; ShowStep(); return; }
             _choosing = true;
             ShowStep();
@@ -257,7 +265,6 @@ namespace IronRing.Hud.Npc
         /// <summary>읽기 단계면 _index 줄과 [계속하기], 선택 단계면 선택지 + [닫기](대사 칸은 마지막 줄 그대로).</summary>
         private void ShowStep()
         {
-            _continue.gameObject.SetActive(!_choosing);
             _options.gameObject.SetActive(_choosing);
             _close.gameObject.SetActive(_choosing);
             if (_choosing) BuildOptions();
@@ -266,6 +273,7 @@ namespace IronRing.Hud.Npc
                 SetLine(_sequence[Mathf.Clamp(_index, 0, _sequence.Count - 1)], true);
                 _reasons.gameObject.SetActive(false);
             }
+            RefreshContinue();
         }
 
         private string HomeHabitatName(string npcId)
@@ -358,6 +366,7 @@ namespace IronRing.Hud.Npc
             if (keyboard != null && keyboard.escapeKey.wasPressedThisFrame) { Hide(); return; }
             LayoutText();
             TickTyping();
+            RefreshContinue();
         }
 
         /// <summary>
@@ -401,22 +410,70 @@ namespace IronRing.Hud.Npc
             if (line == _typedLine) return;
             _typedLine = line;
             _line.text = line;
-            _typing = _typeSpeed > 0f && line.Length > 0;
-            _typed = 0f;
-            _line.maxVisibleCharacters = _typing ? 0 : int.MaxValue;
+            _line.pageToDisplay = 1;
+            _line.ForceMeshUpdate(true, true); // pageCount·pageInfo를 지금 폭으로 채운다
+            ShowPage(1);
+        }
+
+        /// <summary>대사 칸의 page쪽(1부터)을 보이고 그 쪽 첫 글자부터 타자기를 시작한다.</summary>
+        private void ShowPage(int page)
+        {
+            _page = Mathf.Clamp(page, 1, PageCount());
+            _line.pageToDisplay = _page;
+            _typing = _typeSpeed > 0f && !string.IsNullOrEmpty(_typedLine);
+            _typed = PageFirst(_page);
+            _line.maxVisibleCharacters = _typing ? (int)_typed : int.MaxValue;
+            RefreshContinue();
+        }
+
+        private int PageCount()
+        {
+            TMP_TextInfo info = _line != null ? _line.textInfo : null;
+            return info != null ? Mathf.Max(1, info.pageCount) : 1;
+        }
+
+        private bool HasMorePages() => _line != null && _page < PageCount();
+
+        /// <summary>page쪽 첫 글자의 textInfo 문자 번호(쪽 정보가 없으면 0).</summary>
+        private int PageFirst(int page)
+        {
+            TMP_TextInfo info = _line != null ? _line.textInfo : null;
+            if (info == null || info.pageInfo == null || page < 1 || page > info.pageCount || page > info.pageInfo.Length) return 0;
+            return Mathf.Max(0, info.pageInfo[page - 1].firstCharacterIndex);
+        }
+
+        /// <summary>page쪽 마지막 글자 다음 번호(타자기 끝). 쪽 정보가 없으면 전체 글자 수.</summary>
+        private int PageEnd(int page)
+        {
+            TMP_TextInfo info = _line != null ? _line.textInfo : null;
+            int all = info != null && info.characterCount > 0 ? info.characterCount : (_typedLine ?? string.Empty).Length;
+            if (info == null || info.pageInfo == null || page < 1 || page > info.pageCount || page > info.pageInfo.Length) return Mathf.Max(1, all);
+            return Mathf.Max(1, info.pageInfo[page - 1].lastCharacterIndex + 1);
+        }
+
+        /// <summary>[계속하기] 버튼: 읽기 단계면 늘, 선택 단계면 남은 쪽이 있을 때만. 남은 쪽이 있으면 "▼ 계속", 없으면 "계속하기".</summary>
+        private void RefreshContinue()
+        {
+            if (_continue == null) return;
+            bool more = HasMorePages();
+            bool show = _npc != null && (!_choosing || more);
+            if (_continue.gameObject.activeSelf != show) _continue.gameObject.SetActive(show);
+            if (more == _labelMore) return;
+            _labelMore = more;
+            SetLabel(_continue, more ? "ui_npcdialog_more" : "npc_dialog_continue");
         }
 
         private void FinishTyping()
         {
             _typing = false;
-            if (_line != null) _line.maxVisibleCharacters = int.MaxValue;
+            if (_line != null) _line.maxVisibleCharacters = int.MaxValue; // Page 모드라 지금 쪽만 보인다
         }
 
         /// <summary>초당 _typeSpeed 글자씩 드러내고, 대화 상자 위 왼쪽 클릭이면 즉시 완성한다.</summary>
         private void TickTyping()
         {
             if (!_typing || _line == null) return;
-            int total = Mathf.Max(1, _line.textInfo != null && _line.textInfo.characterCount > 0 ? _line.textInfo.characterCount : _typedLine.Length);
+            int total = PageEnd(_page);
             _typed += _typeSpeed * Time.unscaledDeltaTime;
             Mouse mouse = Mouse.current;
             if (mouse != null && mouse.leftButton.wasPressedThisFrame && _panel != null)

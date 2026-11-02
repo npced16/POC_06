@@ -32,7 +32,7 @@ namespace IronRing.Hub
     /// Per lap per hub (Collapsed skipped; Story 028: ruins also take the base decay, floored at Minimum):
     ///   BasePerLap + PerPlacedItem * items + PerHabitatCell * cells of completed habitats
     ///   + Σ completed habitat clusters (catalog bonus, or HabitatBonus when the catalog gives none; Story 016)
-    ///   + PerNpc * npcs + PerFacility * facilities. Settlement is judged before the deadline in the same lap.
+    ///   + PerNpc * npcs. Settlement is judged before the deadline in the same lap.
     /// Story 028 run ending: when the deadline reaches 0 the run always ends: every hub Settled = Victory, some = Partial,
     /// none = Defeat (DeadlineExpired). "Every once-settled hub collapsed" still ends it early as Defeat. IsRunLost means
     /// "the run is over" for every outcome so the train and controls freeze; IRunResult tells the outcome.
@@ -48,7 +48,6 @@ namespace IronRing.Hub
 
         private readonly Dictionary<string, HubState> _states = new Dictionary<string, HubState>();
         private readonly INpcRecruiter _npcs;
-        private readonly IFacilityBuilder _facilities;
         private readonly HubRunRules _rules;
         private IProsperitySources _sources = NullProsperitySources.Instance;
         private int _lastLap;
@@ -90,12 +89,11 @@ namespace IronRing.Hub
         /// <summary>hubId and the phase it just entered, once per transition in order.</summary>
         public event Action<string, HubPhase> PhaseChanged;
 
-        /// <summary>Copies hub definitions and injects NPC/facility interfaces; rejects empty or duplicate hub data.</summary>
-        public RunState(IEnumerable<HubDefinition> definitions, INpcRecruiter npcs, IFacilityBuilder facilities)
+        /// <summary>Copies hub definitions and injects the NPC interface; rejects empty or duplicate hub data.</summary>
+        public RunState(IEnumerable<HubDefinition> definitions, INpcRecruiter npcs)
         {
             if (definitions == null) throw new ArgumentNullException(nameof(definitions));
             _npcs = npcs ?? throw new ArgumentNullException(nameof(npcs));
-            _facilities = facilities ?? throw new ArgumentNullException(nameof(facilities));
             var ids = new List<string>();
             foreach (HubDefinition definition in definitions)
             {
@@ -120,6 +118,9 @@ namespace IronRing.Hub
             Town = link;
             if (link != null && _states.ContainsKey(link.HubId)) RefreshPhase(link.HubId);
         }
+
+        /// <summary>QA 2026-11-01: HubProfiles.json `_cellCapRatio` (1.5 before any definition is loaded).</summary>
+        public float CellCapRatio => _rules?.CellCapRatio ?? 1.5f;
 
         /// <summary>Attaches placed-item and habitat readers (Story 014 installer); until then both read as 0/false.</summary>
         public void AttachSources(IProsperitySources sources)
@@ -212,7 +213,6 @@ namespace IronRing.Hub
                 + data.PerHabitatCell * _sources.HabitatCellCount(id)
                 + _sources.HabitatBonus(id, data.HabitatBonus)
                 + data.PerNpc * _npcs.NpcsAt(id).Count
-                + data.PerFacility * _facilities.FacilitiesAt(id).Count
                 + (Town != null && id == Town.HubId && _rules != null ? _rules.PerResident * (Town.Residents?.Invoke() ?? 0) : 0f);
         }
 

@@ -202,6 +202,6 @@ namespace IronRing.Hud
             GameServices.Get<ITrackRuntime>() != null && GameServices.Get<IResourceInventory>() != null
             && GameServices.Get<IHabitatSystem>() != null && GameServices.Get<INpcRecruiter>() != null
             && GameServices.Get<IHubStateSystem>() != null && GameServices.Get<IWaypointResolver>() != null
-            && GameServices.Get<IFacilityBuilder>() != null && GameServices.Get<IHubClickSource>() != null;
+            && GameServices.Get<IHubClickSource>() != null;
     }
 }
