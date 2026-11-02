@@ -65,3 +65,8 @@ LOOP: demo done
 - 돈이 드는 선택지는 잔고 부족이면 고를 수 없음(`IsChoiceAvailable` false).
 - 우편 행낭 "배달": `_onReturn` 마르크를 다음 거점 도착 때 지급(`LOOP: pending money+12 paid at hub-1`).
 - 옛 휴식지 확률 탑승은 끔(인내 바퀴 하차 규칙은 그대로).
+
+## 코디네이터 실행 (2026-11-02 23:00 KST)
+- refresh failed=false(051 로직 + codex UI), scene-status isDirty=false.
+- `--loop-demo` 로그: `LOOP: phase Build lap=1` → 보일러실 → `LOOP: phase Circulate lap=1` → `LOOP: event coal_merchant at REST-1 … choices=2` → `LOOP: stock tile_coal=3` …
+- 캡처 051-build-banner.png, 051-event.png(데모가 1.2초 만에 자동 선택해 사건 창은 이미 닫힌 뒤 — 사건 창 화면은 편집기에서 직접 확인 필요).

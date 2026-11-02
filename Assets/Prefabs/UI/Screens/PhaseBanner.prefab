@@ -385,6 +385,7 @@ MonoBehaviour:
   _tierBanner: {fileID: 2851407213511089118}
   _tierBannerText: {fileID: 5244798899872175306}
   _tierBannerSeconds: 2
+  _loopBannerSeconds: 2
   _hubLabel: {fileID: 7464178468763899544}
   _deadlineBox: {fileID: 6939689794067502667}
   _deadline: {fileID: 5740090963539638368}

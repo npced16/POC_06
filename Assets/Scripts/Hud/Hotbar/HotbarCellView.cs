@@ -21,6 +21,7 @@ namespace IronRing.Hud.Hotbar
     {
         [Header("가격 표시")]
         [SerializeField] private TMP_Text _price;
+        [SerializeField] private TMP_Text _stockBadge;
         [SerializeField] private Color _unaffordableTint = new Color(1f, 0.45f, 0.4f, 0.55f);
         [SerializeField] private Color _unaffordableText = new Color(1f, 0.5f, 0.45f, 1f);
         [Header("칸 참조")]
@@ -66,6 +67,20 @@ namespace IronRing.Hud.Hotbar
             _price.color = affordable ? Color.white : _unaffordableText;
             SetAffordable(affordable);
             if (!affordable) _frame.color = _unaffordableTint;
+        }
+
+        /// <summary>count가 양수이면 ×N 배지와 재고 N 가격 줄을 표시하고, 없으면 배지를 숨긴다.</summary>
+        public void SetStock(int count)
+        {
+            if (_stockBadge != null)
+            {
+                _stockBadge.gameObject.SetActive(count > 0);
+                if (count > 0) _stockBadge.text = string.Format(Strings.Get("stock_badge"), count);
+            }
+            if (count <= 0) return;
+            _price.text = string.Format(Strings.Get("stock_price"), count);
+            _price.color = Color.white;
+            SetAffordable(true);
         }
 
         /// <summary>키 번호 문구(편집기 미리보기·생성기용).</summary>

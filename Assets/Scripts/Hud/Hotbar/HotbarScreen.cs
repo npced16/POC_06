@@ -76,6 +76,7 @@ namespace IronRing.Hud.Hotbar
         private ItemCatalog _items;
         private UiTheme _theme;
         private IHabitatCodex _codex;
+        private ITileStock _stock;
 
         private readonly PlacementEntry[] _slots = new PlacementEntry[SLOT_COUNT];
         private readonly float[] _unlockFlashUntil = new float[SLOT_COUNT];
@@ -117,6 +118,7 @@ namespace IronRing.Hud.Hotbar
             _money = GameServices.Get<IMoney>();
             _cost = GameServices.Get<IPlacementCost>();
             _codex = GameServices.Get<IHabitatCodex>();
+            _stock = GameServices.Get<ITileStock>();
             if (_money != null) _money.Changed += Refresh;
             _data = HotbarData.Load();
 
@@ -147,6 +149,7 @@ namespace IronRing.Hud.Hotbar
             _view.InteriorChanged += OnInteriorChanged;
             if (_clusters != null) _clusters.HabitatCompleted += OnHabitatCompleted;
             if (_codex != null) _codex.TileUnlocked += OnTileUnlocked;
+            if (_stock != null) _stock.Changed += OnStockChanged;
             Refresh();
         }
 
@@ -279,9 +282,14 @@ namespace IronRing.Hud.Hotbar
         private void RefreshPrice(HotbarCellView view, PlacementEntry entry)
         {
             ItemDefinition item = entry.Kind == PlacementKind.Item ? _items.Get(entry.Id) : null;
-            bool affordable = item == null || _money == null || (_cost != null ? _cost.CanAfford(entry.Id) : _money.Balance >= item.Price);
+            int stockCount = item != null && _stock != null ? _stock.CountOf(entry.Id) : 0;
+            bool affordable = stockCount > 0 || item == null || _money == null || (_cost != null ? _cost.CanAfford(entry.Id) : _money.Balance >= item.Price);
             view.SetPrice(item != null ? (_cost != null ? _cost.PriceOf(entry.Id) : item.Price) : (int?)null, affordable);
+            view.SetStock(stockCount);
         }
+
+        /// <summary>itemId의 재고 수가 바뀌면 핫바와 열린 팔레트의 배지·가격 줄을 갱신한다.</summary>
+        private void OnStockChanged(string itemId, int count) { Refresh(); }
 
         /// <summary>entry에 해당하는 시설 또는 아이템의 표시 이름을 반환한다.</summary>
         private string DisplayName(PlacementEntry entry)
@@ -530,6 +538,7 @@ namespace IronRing.Hud.Hotbar
             if (_view != null) _view.InteriorChanged -= OnInteriorChanged;
             if (_clusters != null) _clusters.HabitatCompleted -= OnHabitatCompleted;
             if (_codex != null) _codex.TileUnlocked -= OnTileUnlocked;
+            if (_stock != null) _stock.Changed -= OnStockChanged;
             if (_instance == this) _instance = null;
         }
     }

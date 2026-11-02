@@ -26,6 +26,9 @@ namespace IronRing.Hud.Editor.Screens
             TextMeshProUGUI lap = UiKit.Label(bar.transform, "Lap", Strings.Get("hud_turn") + "  3", UiTextSize.Normal, theme, TextAlignmentOptions.MidlineLeft);
             UiKit.Place(lap.rectTransform, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(744, 0), new Vector2(140, 44));
             lap.color = theme.Accent;
+            TextMeshProUGUI loopPhase = UiKit.Label(bar.transform, "LoopPhase", Strings.Get("loop_phase_short_build"), UiTextSize.Small, theme);
+            UiKit.Place(loopPhase.rectTransform, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(884, 0), new Vector2(76, 36));
+            loopPhase.color = theme.Accent;
             IconCatalog icons = AssetDatabase.LoadAssetAtPath<IconCatalog>("Assets/Prefabs/UI/IconCatalog.asset");
             var coin = UiKit.Image(bar.transform, "Coin", icons.Get("ui_coin"), Color.white, false);
             UiKit.Place(coin.rectTransform, new Vector2(0, .5f), new Vector2(0, .5f), new Vector2(328, 0), new Vector2(28, 28));
@@ -52,6 +55,7 @@ namespace IronRing.Hud.Editor.Screens
 
             UiKit.Bind(screen, "_location", location);
             UiKit.Bind(screen, "_lap", lap);
+            UiKit.Bind(screen, "_loopPhase", loopPhase);
             UiKit.Bind(screen, "_depart", depart);
             UiKit.Bind(screen, "_codex", codex);
             UiKit.Bind(screen, "_passengers", passengers);

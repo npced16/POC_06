@@ -48,13 +48,13 @@ namespace IronRing.Hud.Editor
 
         /// <summary>
         /// 화면 id(= 프리팹 이름)와 생성 함수, 그리는 순서(하이어라키 순서)대로. 최종 순서:
-        /// TopBar, HubPanel, Defeat, PhaseBanner, InteriorTitle, Hotbar, Toast, NpcDialog, Codex (스토리 039: Raid·CombatFx 제거).
+        /// TopBar, HubPanel, Defeat, PhaseBanner, InteriorTitle, Hotbar, Toast, NpcDialog, Codex, RestEvent (스토리 039: Raid·CombatFx 제거).
         /// 2단계는 이 파일을 고치지 않고 Screens/&lt;Id&gt;ScreenBuilder.cs(public static GameObject Build(UiTheme))만 만든다.
         /// 빌더 형식은 리플렉션으로 찾고, 아직 없는 화면은 건너뛴다(병렬 작업 충돌 방지).
         /// </summary>
         public static readonly string[] SCREEN_IDS =
         {
-            "TopBar", "Passengers", "HubPanel", "Defeat", "RunResult", "PhaseBanner", "InteriorTitle", "Hotbar", "Toast", "NpcDialog", "Codex",
+            "TopBar", "Passengers", "HubPanel", "Defeat", "RunResult", "PhaseBanner", "InteriorTitle", "Hotbar", "Toast", "NpcDialog", "Codex", "RestEvent",
         };
 
         /// <summary>스토리 039: 보관함으로 옮긴 화면 id. MainCanvas에 인스턴스가 남아 있으면 지운다.</summary>

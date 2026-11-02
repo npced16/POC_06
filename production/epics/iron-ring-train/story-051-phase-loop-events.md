@@ -1,7 +1,7 @@
 # Story 051: 건설 → 순환(중간역 사건·선택지) → 건설·조합 반복 루프
 
 > **Epic**: 황동골 철도 회사 MVP (iron-ring-train)
-> **Status**: Ready (050 뒤)
+> **Status**: Done (사건 창 화면 육안 확인만 남음)
 > **Layer**: Core + Presentation
 > **Type**: Integration
 > **Estimate**: L
