@@ -1,16 +1,19 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 using UnityEngine;
 
 using IronRing.Contracts;
 using IronRing.Contracts.Presentation;
+using IronRing.Localization;
 
 namespace IronRing.Presentation.Map
 {
     /// <summary>
-    /// 스토리 048. 잠긴 역(ring-track.json `_locked`)의 지도 표지. BuildTopDownMain이 잠긴 역의 MapNode에 붙인다.
-    /// 잠겨 있으면 역 건물을 어두운 폐허 실루엣(_lockedTint)으로, 라벨을 "폐쇄된 선로"로, 클릭(HubTarget 콜라이더)과 둘레 폐허 소품을 끈다.
-    /// ILineOpener.HubOpened가 오면 원래 색·라벨 "{이름} · 폐허"로 바꾸고 클릭과 폐허 소품(MapRuinProps, 단계별 켜짐은 그쪽 규칙)을 켠다.
+    /// 스토리 048/049. 잠긴 역(ring-track.json `_locked`)의 지도 표지. BuildTopDownMain이 잠긴 역의 MapNode에 붙인다.
+    /// 잠겨 있으면 역 건물·라벨, 둘레 폐허 소품(MapRuinProps), 거점 장식 소품(씬 Props/Prop_{거점 순번}_*)을 아예 그리지 않고 클릭도 끈다 — 선로만 지나간다.
+    /// ILineOpener.HubOpened가 오면 씬에 저장된 켜짐 상태로 되돌리고 _revealSeconds 동안 투명 → 불투명으로 폐허가 나타난다.
     /// </summary>
     public sealed class MapLockedHub : MonoBehaviour
     {
@@ -20,10 +23,13 @@ namespace IronRing.Presentation.Map
         [SerializeField] private Collider2D[] _colliders = Array.Empty<Collider2D>();
         [SerializeField] private string _lockedText;
         [SerializeField] private string _openText;
-        [SerializeField] private Color _lockedTint = new Color(0.22f, 0.2f, 0.24f, 1f);
-        private Color[] _openColors;
+        [SerializeField, Min(0f)] private float _revealSeconds = 1.5f;
         private ILineOpener _opener;
         private bool? _applied;
+        private float _reveal = -1f;
+        private readonly List<Renderer> _managed = new List<Renderer>();
+        private readonly Dictionary<Renderer, bool> _authored = new Dictionary<Renderer, bool>();
+        private readonly Dictionary<UnityEngine.Object, float> _baseAlpha = new Dictionary<UnityEngine.Object, float>();
 
         /// <summary>이 표지의 거점 id.</summary>
         public string HubId => _hubId;
@@ -41,8 +47,7 @@ namespace IronRing.Presentation.Map
 
         private void Awake()
         {
-            _openColors = new Color[_renderers.Length];
-            for (int i = 0; i < _renderers.Length; i++) _openColors[i] = _renderers[i] != null ? _renderers[i].color : Color.white;
+            Collect();
             Apply(false);
         }
 
@@ -63,47 +68,91 @@ namespace IronRing.Presentation.Map
             _opener = GameServices.Get<ILineOpener>();
             if (_opener == null) return;
             _opener.HubOpened += OnOpened;
-            Apply(_opener.IsOpen(_hubId));
+            if (_opener.IsOpen(_hubId)) { Apply(true); SetAlpha(1f); }
         }
 
-        private void OnOpened(string hubId) { if (hubId == _hubId) Apply(true); }
+        private void OnOpened(string hubId)
+        {
+            if (hubId != _hubId) return;
+            Apply(true);
+            _reveal = 0f;
+            SetAlpha(0f);
+        }
 
         private void LateUpdate()
         {
-            // 폐허 소품은 RuinBuild.GenerateMap이 따로 만들고 단계마다 켜고 끈다. 잠긴 동안은 렌더러만 꺼서 그 규칙과 겹치지 않게 한다.
-            if (_applied != false) return;
-            SetRuinProps(false);
-            SetMapLabel(false);
+            // 다른 뷰(RingHubPhaseView, MapRuinProps 단계 규칙)가 렌더러를 다시 켜도 잠긴 동안은 매 프레임 끈다.
+            if (_applied == false) { Hide(); return; }
+            if (_reveal < 0f) return;
+            _reveal += Time.deltaTime;
+            float t = _revealSeconds <= 0f ? 1f : Mathf.Clamp01(_reveal / _revealSeconds);
+            SetAlpha(t * t * (3f - 2f * t));
+            if (t >= 1f) _reveal = -1f;
+        }
+
+        /// <summary>숨길 렌더러(역 아래 전부, 폐허 소품, 장식 소품)와 씬에 저장된 켜짐 상태를 기억한다.</summary>
+        private void Collect()
+        {
+            var all = new List<Renderer>(GetComponentsInChildren<Renderer>(true));
+            foreach (MapRuinProps props in FindObjectsByType<MapRuinProps>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+                if (props.HubId == _hubId) all.AddRange(props.GetComponentsInChildren<Renderer>(true));
+            string prefix = DecorPrefix();
+            if (prefix != null)
+                foreach (GameObject root in gameObject.scene.GetRootGameObjects())
+                {
+                    if (root.name != "Props") continue;
+                    foreach (Transform child in root.transform)
+                        if (child.name.StartsWith(prefix, StringComparison.Ordinal)) all.AddRange(child.GetComponentsInChildren<Renderer>(true));
+                }
+            foreach (Renderer r in all)
+            {
+                if (r == null || _authored.ContainsKey(r)) continue;
+                _authored[r] = r.enabled;
+                _managed.Add(r);
+            }
+        }
+
+        /// <summary>PropsBuild가 거점 id 순번(1부터)으로 붙인 장식 소품 이름 머리 "Prop_{n}_".</summary>
+        private string DecorPrefix()
+        {
+            string[] ids = FindObjectsByType<HubTarget>(FindObjectsInactive.Include, FindObjectsSortMode.None)
+                .Select(h => h.HubId).Distinct().OrderBy(id => id, StringComparer.Ordinal).ToArray();
+            int index = Array.IndexOf(ids, _hubId);
+            return index < 0 ? null : "Prop_" + (index + 1) + "_";
         }
 
         private void Apply(bool open)
         {
             if (_applied == open) return;
             _applied = open;
-            for (int i = 0; i < _renderers.Length; i++)
-                if (_renderers[i] != null) _renderers[i].color = open ? _openColors[i] : _lockedTint;
             foreach (Collider2D c in _colliders) if (c != null) c.enabled = open;
             if (_label != null) _label.text = open ? _openText : _lockedText;
-            SetRuinProps(open);
-            SetMapLabel(open);
-        }
-
-        /// <summary>보이는 이름은 HubBuilding 프리팹의 MapLabel(TMP)이다. 잠긴 동안 "폐쇄된 선로"로 덮고 단계 줄을 숨긴다. 열리면 한 번 "{이름} · 폐허".</summary>
-        private void SetMapLabel(bool open)
-        {
+            if (!open) { Hide(); return; }
+            foreach (Renderer r in _managed) if (r != null) r.enabled = _authored[r];
             MapLabel label = GetComponentInChildren<MapLabel>(true);
-            if (label == null) return;
-            label.SetPhaseVisible(open);
-            if (!open) label.SetName(_lockedText);
-            else label.SetName(_openText);
+            if (label != null) { label.SetPhaseVisible(true); label.SetName(Strings.Get(_hubId.Replace('-', '_'))); }
         }
 
-        private void SetRuinProps(bool visible)
+        private void Hide()
         {
-            foreach (MapRuinProps props in FindObjectsByType<MapRuinProps>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            foreach (Renderer r in _managed) if (r != null && r.enabled) r.enabled = false;
+        }
+
+        /// <summary>나타나는 동안 스프라이트·TMP 알파를 원래 알파 × a로 둔다.</summary>
+        private void SetAlpha(float a)
+        {
+            foreach (Renderer r in _managed)
             {
-                if (props.HubId != _hubId) continue;
-                foreach (Renderer r in props.GetComponentsInChildren<Renderer>(true)) if (r.enabled != visible) r.enabled = visible;
+                if (r is SpriteRenderer sr)
+                {
+                    if (!_baseAlpha.TryGetValue(sr, out float b)) _baseAlpha[sr] = b = sr.color.a;
+                    Color c = sr.color; c.a = b * a; sr.color = c;
+                }
+                else if (r != null && r.TryGetComponent(out TMPro.TMP_Text t))
+                {
+                    if (!_baseAlpha.TryGetValue(t, out float b)) _baseAlpha[t] = b = t.alpha;
+                    t.alpha = b * a;
+                }
             }
         }
     }
