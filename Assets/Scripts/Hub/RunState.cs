@@ -53,6 +53,8 @@ namespace IronRing.Hub
         private int _lastLap;
         private int _endSettled = -1;
         private IReadOnlyList<RunHubSummary> _summary;
+        private readonly HashSet<string> _closed = new HashSet<string>();
+        private readonly Dictionary<string, TownLink> _towns = new Dictionary<string, TownLink>();
 
         /// <summary>Permanent read-only hub identities in data order, including ruins.</summary>
         public IReadOnlyList<string> HubIds { get; }
@@ -67,7 +69,7 @@ namespace IronRing.Hub
         /// <summary>IRunResult: hubs in Settled when the run ended (live count while it continues).</summary>
         public int SettledCount => _endSettled >= 0 ? _endSettled : CountSettled();
         /// <summary>IRunResult: number of hubs.</summary>
-        public int HubCount => HubIds.Count;
+        public int HubCount => OpenHubIds.Count;
         /// <summary>IRunResult: laps applied so far.</summary>
         public int Laps => _lastLap;
         /// <summary>IRunResult: per-hub snapshot taken when the run ended; empty while it continues.</summary>
@@ -106,8 +108,33 @@ namespace IronRing.Hub
             LapsUntilDeadline = _rules?.DeadlineLaps ?? int.MaxValue;
         }
 
-        /// <summary>Story 042: attached town link (null until EconomyInstaller attaches it).</summary>
+        /// <summary>Story 042: attached town link (null until EconomyInstaller attaches it). Story 048: the first attached link (hub-1) decides the run.</summary>
         public TownLink Town { get; private set; }
+
+        /// <summary>
+        /// Story 048: hubs whose line is open, in data order. Closed (locked) hubs keep their state but take no lap rule,
+        /// are not counted in HubCount/SettledCount and are left out of the result summary.
+        /// </summary>
+        public IReadOnlyList<string> OpenHubIds
+        {
+            get
+            {
+                if (_closed.Count == 0) return HubIds;
+                var open = new List<string>();
+                foreach (string id in HubIds) if (!_closed.Contains(id)) open.Add(id);
+                return open;
+            }
+        }
+
+        /// <summary>Story 048: true unless hubId's line is still locked.</summary>
+        public bool IsHubOpen(string hubId) => !_closed.Contains(hubId);
+
+        /// <summary>Story 048: opens or closes hubId's line (unknown ids are ignored).</summary>
+        public void SetHubOpen(string hubId, bool open)
+        {
+            if (!_states.ContainsKey(hubId)) return;
+            if (open) _closed.Remove(hubId); else _closed.Add(hubId);
+        }
 
         /// <summary>Story 042: true when the town link is attached and HubProfiles.json `_useTownTiers` is on.</summary>
         public bool TownActive => Town != null && _rules != null && _rules.UseTownTiers;
@@ -115,8 +142,10 @@ namespace IronRing.Hub
         /// <summary>Story 042: attaches the town tier link and re-evaluates the town hub phase.</summary>
         public void AttachTown(TownLink link)
         {
-            Town = link;
-            if (link != null && _states.ContainsKey(link.HubId)) RefreshPhase(link.HubId);
+            if (link == null || link.HubId == null) return;
+            if (Town == null) Town = link;
+            _towns[link.HubId] = link;
+            if (_states.ContainsKey(link.HubId)) RefreshPhase(link.HubId);
         }
 
         /// <summary>QA 2026-11-01: HubProfiles.json `_cellCapRatio` (1.5 before any definition is loaded).</summary>
@@ -159,7 +188,7 @@ namespace IronRing.Hub
             foreach (string id in HubIds)
             {
                 HubState state = _states[id];
-                if (state.Phase == HubPhase.Collapsed) continue;
+                if (state.Phase == HubPhase.Collapsed || _closed.Contains(id)) continue;
                 ApplyDelta(id, LapDelta(id, state), "Lap completed");
                 if (IsRunLost) return;
             }
@@ -176,7 +205,7 @@ namespace IronRing.Hub
             }
             int settled = CountSettled();
             if (settled == 0) End(RunOutcome.Defeat, RunLossReason.DeadlineExpired);
-            else End(settled >= HubIds.Count ? RunOutcome.Victory : RunOutcome.Partial, RunLossReason.None);
+            else End(settled >= HubCount ? RunOutcome.Victory : RunOutcome.Partial, RunLossReason.None);
         }
 
         /// <summary>
@@ -213,15 +242,16 @@ namespace IronRing.Hub
                 + data.PerHabitatCell * _sources.HabitatCellCount(id)
                 + _sources.HabitatBonus(id, data.HabitatBonus)
                 + data.PerNpc * _npcs.NpcsAt(id).Count
-                + (Town != null && id == Town.HubId && _rules != null ? _rules.PerResident * (Town.Residents?.Invoke() ?? 0) : 0f);
+                + (_rules != null && _towns.TryGetValue(id, out TownLink link) ? _rules.PerResident * (link.Residents?.Invoke() ?? 0) : 0f);
         }
 
         /// <summary>Runs hubId's transition table and raises PhaseChanged/HubRuined per transition, then checks the collapse loss.</summary>
         private void Evaluate(string hubId, HubState state)
         {
             var transitions = new List<HubPhase>(2);
-            bool town = TownActive && hubId == Town.HubId;
-            if (town) state.SetPhase(Town.Phase(), transitions);
+            TownLink townLink = TownActive && _towns.TryGetValue(hubId, out TownLink found) ? found : null;
+            bool town = townLink != null && townLink == Town;
+            if (townLink != null) state.SetPhase(townLink.Phase(), transitions);
             else state.Evaluate(_sources.IsHabitatComplete(hubId), transitions);
             bool collapsed = false;
             foreach (HubPhase phase in transitions)
@@ -237,10 +267,10 @@ namespace IronRing.Hub
                 if (!IsRunLost && _rules.EarlyWin && Town.Tier() >= Town.VictoryTier) End(RunOutcome.Victory, RunLossReason.None, true);
                 return;
             }
-            if (TownActive) return;
+            if (TownActive) return; // Story 048: other town hubs (잿골) follow their own tier but never decide the run.
             if (collapsed && !IsRunLost && AllSettledCollapsed()) End(RunOutcome.Defeat, RunLossReason.AllSettledCollapsed);
             // Story 030: early win the moment the last hub enters Settled.
-            if (!IsRunLost && _rules != null && _rules.EarlyWin && transitions.Contains(HubPhase.Settled) && CountSettled() >= HubIds.Count)
+            if (!IsRunLost && _rules != null && _rules.EarlyWin && transitions.Contains(HubPhase.Settled) && CountSettled() >= HubCount)
                 End(RunOutcome.Victory, RunLossReason.None, true);
         }
 
@@ -261,7 +291,7 @@ namespace IronRing.Hub
         private int CountSettled()
         {
             int count = 0;
-            foreach (HubState state in _states.Values) if (state.Phase == HubPhase.Settled) count++;
+            foreach (var pair in _states) if (pair.Value.Phase == HubPhase.Settled && !_closed.Contains(pair.Key)) count++;
             return count;
         }
 
@@ -275,13 +305,13 @@ namespace IronRing.Hub
             LastLossReason = reason;
             _endSettled = CountSettled();
             var summary = new List<RunHubSummary>(HubIds.Count);
-            foreach (string id in HubIds)
+            foreach (string id in OpenHubIds)
             {
                 HubState state = _states[id];
                 summary.Add(new RunHubSummary { HubId = id, Phase = state.Phase, Prosperity = state.Prosperity, NpcCount = _npcs.NpcsAt(id).Count });
             }
             _summary = summary.AsReadOnly();
-            UnityEngine.Debug.Log($"RUN END: outcome={outcome}, settled={_endSettled}/{HubIds.Count}, laps={_lastLap}, reason={reason}, early={early}");
+            UnityEngine.Debug.Log($"RUN END: outcome={outcome}, settled={_endSettled}/{HubCount}, laps={_lastLap}, reason={reason}, early={early}");
             RunLost?.Invoke();
             RunEnded?.Invoke();
         }

@@ -46,12 +46,14 @@ namespace IronRing.Hud.HubPhase
         private ITownTier _town;
         private IPopulation _population;
         private readonly System.Collections.Generic.Queue<string> _tierMessages = new System.Collections.Generic.Queue<string>();
+        private readonly System.Collections.Generic.Queue<(string text, float seconds)> _bannerMessages = new System.Collections.Generic.Queue<(string text, float seconds)>();
         private float _tierBannerUntil;
         private IHubStateSystem _hubs;
         private IHubDevelopment _development;
         private ITrackRuntime _track;
         private IHabitatClusters _clusters;
         private IViewMode _view;
+        private ILineOpener _lineOpener;
         private string _lastHub;
         private string _bannerKey;
 
@@ -102,6 +104,8 @@ namespace IronRing.Hud.HubPhase
             _track = GameServices.Get<ITrackRuntime>();
             _clusters = GameServices.Get<IHabitatClusters>();
             _view = GameServices.Get<IViewMode>();
+            _lineOpener = GameServices.Get<ILineOpener>();
+            if (_lineOpener != null) _lineOpener.HubOpened += OnHubOpened;
             _lastHub = _hubs.HubIds.Count > 0 ? _hubs.HubIds[0] : null;
             Refresh(true);
         }
@@ -120,6 +124,8 @@ namespace IronRing.Hud.HubPhase
         /// <summary>띠가 보여 줄 거점: 열린 내부, 아니면 정차한 거점, 아니면 마지막으로 보인 거점.</summary>
         private string CurrentHub()
         {
+            if (_town != null && !string.IsNullOrEmpty(_town.CurrentHubId)) return _lastHub = _town.CurrentHubId;
+            if (_population != null && !string.IsNullOrEmpty(_population.CurrentHubId)) return _lastHub = _population.CurrentHubId;
             if (_view != null && _view.InteriorOpen && _view.InteriorHubId != null) return _lastHub = _view.InteriorHubId;
             ITrackNode node = _track.CurrentNode;
             if (node != null && node.Kind == TrackNodeKind.Hub) return _lastHub = node.HubId;
@@ -141,10 +147,12 @@ namespace IronRing.Hud.HubPhase
             IProsperityForecast forecast = GameServices.Get<IProsperityForecast>();
             int threshold = forecast != null ? Mathf.RoundToInt(forecast.SettledThreshold(hub)) : 0;
             int next = forecast != null ? Mathf.RoundToInt(forecast.NextLapDelta(hub)) : 0;
-            string townHub = TownUiText.HubId(_population);
+            string townHub = TownUiText.DEFAULT_HUB;
             int townProsperity = _town != null ? Mathf.RoundToInt(_hubs.GetProsperity(townHub)) : 0;
+            int currentResidents = _population != null ? _population.ResidentsAt(hub) : 0;
+            int townResidents = _population != null ? _population.ResidentsAt(townHub) : 0;
             int lap = _track.Lap;
-            string key = (_town != null ? _town.TierId : "") + "|" + (_population?.Residents ?? 0) + "|" + townProsperity + "|" + lap + "|" + hub + "|" + phase + "|" + prosperity + "|" + laps + "|" + anySettled + "|" + _hubs.IsRunLost + "|" + habitats + "|" + threshold + "|" + next;
+            string key = (_town != null ? _town.TierAt(hub).ToString() : "") + "|" + currentResidents + "|" + townProsperity + "|" + lap + "|" + hub + "|" + phase + "|" + prosperity + "|" + laps + "|" + anySettled + "|" + _hubs.IsRunLost + "|" + habitats + "|" + threshold + "|" + next;
             if (!force && key == _bannerKey) return;
             _bannerKey = key;
             _hubLabel.transform.parent.gameObject.SetActive(true);
@@ -153,15 +161,14 @@ namespace IronRing.Hud.HubPhase
             _hubLabel.text = Strings.Get(hub.Replace('-', '_')) + "  ·  " + PhaseText(phase) + "  ·  " + prosperityText
                 + "  ·  " + Strings.Get("phase_habitats") + " " + habitats;
             // 스토리 045: 등급 거점(hub-1)은 단계 대신 등급 이름(붕괴만 기존 문구). 다른 거점은 기존 띠 그대로.
-            if (_town != null && hub == townHub && phase != DevPhase.Collapsed)
-                _hubLabel.text = Strings.Get(hub.Replace('-', '_')) + "  ·  " + _town.TierName + "  ·  " + Strings.Get("phase_prosperity") + " " + prosperity;
-            int residents = _population?.Residents ?? 0;
+            if (_town != null && phase != DevPhase.Collapsed)
+                _hubLabel.text = Strings.Get(hub.Replace('-', '_')) + "  ·  " + _town.TierNameAt(hub) + "  ·  " + Strings.Get("phase_prosperity") + " " + prosperity;
             if (_nextTier != null)
             {
-                if (_town != null) _nextTier.text = TownUiText.Next(_town, residents, townProsperity);
+                if (_town != null) _nextTier.text = TownUiText.NextAt(_town, hub, currentResidents, prosperity);
                 _nextTier.gameObject.SetActive(_town != null);
             }
-            string goal = _town != null && !_hubs.IsRunLost ? TownUiText.Goal(_town, residents, townProsperity, lap, laps != int.MaxValue ? lap + laps : 0) : null;
+            string goal = _town != null && !_hubs.IsRunLost ? TownUiText.Goal(_town, townResidents, townProsperity, lap, laps != int.MaxValue ? lap + laps : 0) : null;
             if (_goal != null)
             {
                 _goal.gameObject.SetActive(goal != null);
@@ -190,18 +197,25 @@ namespace IronRing.Hud.HubPhase
             if (_population == null) _population = GameServices.Get<IPopulation>();
             if (_town != null) return;
             _town = GameServices.Get<ITownTier>();
-            if (_town != null) _town.TierChanged += OnTierChanged;
+            if (_town != null) _town.HubTierChanged += OnHubTierChanged;
         }
 
         /// <summary>number 등급의 상승 문구를 큐에 넣어 각 상승을 Inspector 지정 시간 동안 표시한다.</summary>
-        private void OnTierChanged(int number)
+        /// <summary>hubId 마을 등급 상승을 큐에 넣고 해당 로직 토스트를 삼킨 뒤 배너 내용을 갱신한다.</summary>
+        private void OnHubTierChanged(string hubId, int number)
         {
-            // 스토리 045: 배너가 주 연출이다. 같은 소식의 로직 토스트(town_tier_up)는 HUD 쪽에서 삼킨다.
-            string tierName = TownUiText.Name(_town, number);
+            string tierName = _town.TierNameAt(hubId);
             IronRing.Hud.Ui.ToastScreen.Swallow(TownUiText.TierToastMatcher(tierName), _tierToastSwallowSeconds);
-            string townHub = TownUiText.HubId(_population);
-            _tierMessages.Enqueue(string.Format(Strings.Get("ui_tier_promoted"), Strings.Get(townHub.Replace('-', '_')), tierName));
+            _tierMessages.Enqueue(string.Format(Strings.Get("ui_tier_promoted"), Strings.Get(hubId.Replace('-', '_')), tierName));
             Refresh(true);
+        }
+
+        /// <summary>새로 열린 hubId 마을의 개통 배너를 표시하고 같은 로직 토스트의 중복을 막는다.</summary>
+        private void OnHubOpened(string hubId)
+        {
+            string lineMessage = string.Format(Strings.Get("line_opened"), Strings.Get(hubId.Replace('-', '_')));
+            IronRing.Hud.Ui.ToastScreen.Swallow(text => text == lineMessage, 2.5f);
+            _bannerMessages.Enqueue((string.Format(Strings.Get("ui_line_opened"), Strings.Get(hubId.Replace('-', '_'))), 2.5f));
         }
 
         void LateUpdate()
@@ -210,10 +224,19 @@ namespace IronRing.Hud.HubPhase
             ResolveTown(); Refresh(false);
             if (_tierBanner == null || _tierBannerText == null) { _tierMessages.Clear(); return; }
             if (_tierBanner.activeSelf && Time.unscaledTime >= _tierBannerUntil) _tierBanner.SetActive(false);
-            if (!_tierBanner.activeSelf && _tierMessages.Count > 0)
+            if (!_tierBanner.activeSelf && (_bannerMessages.Count > 0 || _tierMessages.Count > 0))
             {
-                _tierBannerText.text = _tierMessages.Dequeue();
-                _tierBannerUntil = Time.unscaledTime + _tierBannerSeconds;
+                if (_bannerMessages.Count > 0)
+                {
+                    var message = _bannerMessages.Dequeue();
+                    _tierBannerText.text = message.text;
+                    _tierBannerUntil = Time.unscaledTime + message.seconds;
+                }
+                else
+                {
+                    _tierBannerText.text = _tierMessages.Dequeue();
+                    _tierBannerUntil = Time.unscaledTime + _tierBannerSeconds;
+                }
                 _tierBanner.SetActive(true);
             }
         }
@@ -221,7 +244,8 @@ namespace IronRing.Hud.HubPhase
         void OnDestroy()
         {
             GameServices.Ready -= Create;
-            if (_town != null) _town.TierChanged -= OnTierChanged;
+            if (_town != null) _town.HubTierChanged -= OnHubTierChanged;
+            if (_lineOpener != null) _lineOpener.HubOpened -= OnHubOpened;
             if (_instance == this) _instance = null;
         }
     }

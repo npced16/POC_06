@@ -89,6 +89,25 @@
         "y": 360
       },
       "_labelKey": "rest_2",
+      "_hasBend": false,
+      "_bend": {
+        "x": 7,
+        "y": 1
+      },
+      "_mapPosition": {
+        "x": 7,
+        "y": 1
+      }
+    },
+    {
+      "_id": "hub-2",
+      "_isStation": true,
+      "_locked": true,
+      "_position": {
+        "x": 900,
+        "y": 560
+      },
+      "_labelKey": "hub_2",
       "_hasBend": true,
       "_bend": {
         "x": 7,
@@ -96,7 +115,7 @@
       },
       "_mapPosition": {
         "x": 7,
-        "y": 1
+        "y": -4
       }
     },
     {

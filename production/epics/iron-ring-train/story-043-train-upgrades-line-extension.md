@@ -1,7 +1,9 @@
 # Story 043: 열차 업그레이드와 선로 확장 — 화물칸·승객칸·기관 구매, 새 휴식지/거점 개통
 
+> **상태 메모(2026-11-02 정리)**: 대체 — 열차 업그레이드는 보류, 선로 확장은 048의 '정착촌 달성 시 선로 개통'으로 부분 채택. 현재 규칙은 design/game-brief.md §선로가 열린다 와 story-048 참조.
+
 > **Epic**: 황동골 철도 회사 MVP (iron-ring-train)
-> **Status**: Ready (042 뒤)
+> **Status**: Superseded(045) — 원래: Ready (042 뒤)
 > **Layer**: Core + Presentation
 > **Type**: Integration
 > **Estimate**: M

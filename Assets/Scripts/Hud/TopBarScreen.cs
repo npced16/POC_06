@@ -41,6 +41,7 @@ namespace IronRing.Hud
         [SerializeField] private TextAsset _catalogJson;
 
         private IPopulation _population;
+        private IViewMode _view;
         private IMoney _money;
         private ITrackRuntime _track;
         private IHubStateSystem _hubs;
@@ -86,6 +87,8 @@ namespace IronRing.Hud
             if (_money != null) { _money.Changed += RefreshBalance; if (_coin != null && _icons != null) _coin.sprite = _icons.Get("ui_coin"); RefreshBalance(); }
             if (_coin != null && _coin.sprite == null) _coin.gameObject.SetActive(false);
             _track = GameServices.Get<ITrackRuntime>();
+            _view = GameServices.Get<IViewMode>();
+            if (_view != null) _view.InteriorChanged += OnInteriorChanged;
             _hubs = GameServices.Get<IHubStateSystem>();
             _waypoints = GameServices.Get<IWaypointResolver>();
             _encounter = GameServices.Get<IEncounterPresentationSource>();
@@ -109,6 +112,7 @@ namespace IronRing.Hud
             _location.text = Strings.Get("hud_location") + "  " + Strings.Get(_catalog.NodeKey(_track.CurrentNode?.Id));
             _lap.text = Strings.Get("hud_turn") + "  " + _track.Lap;
             SetInteractable(_depart, (!_hubs.IsRunLost && _track.IsHeld && _track.CurrentNode?.Kind == TrackNodeKind.Hub && !_waypoints.IsEncounterActive));
+            RefreshPeople();
             RefreshPassengers();
         }
 
@@ -153,7 +157,15 @@ namespace IronRing.Hud
         }
 
         /// <summary>현재 일반 주민 수를 읽어 상단 주민 라벨을 갱신한다.</summary>
-        private void RefreshPeople() { _people.text = string.Format(Strings.Get("ui_topbar_people"), _population.Residents); }
+        private void RefreshPeople()
+        {
+            string hubId = _population.CurrentHubId;
+            string town = Strings.Get(hubId.Replace('-', '_'));
+            _people.text = string.Format(Strings.Get("ui_topbar_people_at"), town, _population.ResidentsAt(hubId));
+        }
+
+        /// <summary>열린 거점 내부 변경을 받아 현재 마을 주민 표시를 갱신한다.</summary>
+        private void OnInteriorChanged(bool open) { RefreshPeople(); }
 
         /// <summary>현재 잔고를 읽어 상단 라벨을 갱신하고 음수 잔고를 테마 강조색으로 표시한다.</summary>
         private void RefreshBalance()
@@ -184,6 +196,7 @@ namespace IronRing.Hud
             if (_money != null) _money.Changed -= RefreshBalance;
             ScreenTicker.Remove(ResolvePopulation);
             if (_population != null) _population.Changed -= RefreshPeople;
+            if (_view != null) _view.InteriorChanged -= OnInteriorChanged;
             if (_instance == this) _instance = null;
             if (_riders != null) { _riders.Boarded -= OnBoarded; _riders.Disembarked -= OnDisembarked; _riders.Left -= OnLeft; }
             if (_track == null) return;

@@ -3,16 +3,16 @@ using IronRing.Localization;
 
 namespace IronRing.Hud.Ui
 {
-    /// <summary>스토리 045. 마을 등급 문구(상태줄·패널·결과 공용). 등급은 한 거점(기본 hub-1)에만 붙는다.</summary>
+    /// <summary>마을 등급 문구와 주민·번영 조건을 화면에 맞게 구성한다.</summary>
     public static class TownUiText
     {
         /// <summary>마을 설정을 못 읽을 때 쓰는 등급 거점 id.</summary>
         public const string DEFAULT_HUB = "hub-1";
 
-        /// <summary>등급이 붙는 거점 id(주민 서비스의 설정값, 없으면 hub-1).</summary>
+        /// <summary>현재 마을 id를 반환하며, 서비스가 없으면 기본 hub-1을 반환한다.</summary>
         public static string HubId(IPopulation population)
         {
-            return population is IronRing.Economy.Population data && !string.IsNullOrEmpty(data.HubId) ? data.HubId : DEFAULT_HUB;
+            return population != null && !string.IsNullOrEmpty(population.CurrentHubId) ? population.CurrentHubId : DEFAULT_HUB;
         }
 
         /// <summary>"목표: 도시 (주민 a/b · 번영 c/d) · 바퀴 e/f". 승리 등급 데이터를 못 읽으면 null.</summary>
@@ -44,6 +44,13 @@ namespace IronRing.Hud.Ui
         {
             if (tier.IsMax) return Strings.Get("ui_tier_max");
             return string.Format(Strings.Get("ui_tier_next"), Name(tier, tier.NextTier), residents, tier.NextResidentsNeed, prosperity, tier.NextProsperityNeed);
+        }
+
+        /// <summary>마을별 등급과 다음 조건을 hubId 기준으로 표시한다. hubId, 주민 수, 번영을 사용하며 다음 조건 문구를 반환한다.</summary>
+        public static string NextAt(ITownTier tier, string hubId, int residents, int prosperity)
+        {
+            if (!tier.NextNeedsAt(hubId, out int residentsNeed, out int prosperityNeed)) return Strings.Get("ui_tier_max");
+            return string.Format(Strings.Get("ui_tier_next"), Name(tier, tier.TierAt(hubId) + 1), residents, residentsNeed, prosperity, prosperityNeed);
         }
     }
 }

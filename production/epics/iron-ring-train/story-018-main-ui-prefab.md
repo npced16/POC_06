@@ -1,7 +1,9 @@
 # Story 018: MainUI 프리팹 — 씬에 놓인 UI 문서와 편집 모드 미리보기
 
+> **상태 메모(2026-11-02 정리)**: 대체 — UI Toolkit MainUI 프리팹은 022 UGUI MainCanvas로 대체. 현재 규칙은 design/game-brief.md §편집 규칙 과 story-022 참조.
+
 > **Epic**: 철환 장갑열차 MVP (iron-ring-train)
-> **Status**: Done (2026-11-01 19:30 KST 코디네이터 브리지 검증 — 컴파일 통과, Generate 멱등, 편집 모드 Game 뷰 캡처 1장 + Play 캡처 2장 육안 확인. 참고: 사용자 결정(19:20)으로 UI는 UGUI 화면별 프리팹으로 전환 예정(019) — 이 스토리의 UI Toolkit MainUI는 그때 대체됨)
+> **Status**: Superseded(022) — 원래: Done (2026-11-01 19:30 KST 코디네이터 브리지 검증 — 컴파일 통과, Generate 멱등, 편집 모드 Game 뷰 캡처 1장 + Play 캡처 2장 육안 확인. 참고: 사용자 결정(19:20)으로 UI는 UGUI 화면별 프리팹으로 전환 예정(019) — 이 스토리의 UI Toolkit MainUI는 그때 대체됨)
 > **Layer**: Presentation
 > **Type**: UI
 > **Estimate**: M

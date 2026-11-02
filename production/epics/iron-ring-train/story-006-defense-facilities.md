@@ -1,7 +1,9 @@
 # Story 006: 방어시설 건설
 
+> **상태 메모(2026-11-02 정리)**: 제거/보관 — 방어시설은 전투 제거(039)로 빠졌고 코드는 047에서 archive/combat-2026-11-02/ 로 옮김. 현재 규칙은 design/game-brief.md §Out of scope 참조.
+
 > **Epic**: 철환 장갑열차 MVP (iron-ring-train)
-> **Status**: Done
+> **Status**: Removed(039) — 코드 보관 047, 원래: Done
 > **Layer**: Feature
 > **Type**: Integration
 > **Estimate**: M

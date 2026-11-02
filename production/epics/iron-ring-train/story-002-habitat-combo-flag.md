@@ -1,7 +1,9 @@
 # Story 002: 서식지 조합 판정과 이벤트 플래그
 
+> **상태 메모(2026-11-02 정리)**: 대체 — 서식지 판정은 016(연결 판정)·020(카탈로그 재설계)로 바뀜. 현재 규칙은 design/game-brief.md §Core loop 과 story-020 참조.
+
 > **Epic**: 철환 장갑열차 MVP (iron-ring-train)
-> **Status**: Done
+> **Status**: Superseded(016·020) — 원래: Done
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: M

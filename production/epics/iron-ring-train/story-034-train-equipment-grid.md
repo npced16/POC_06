@@ -1,7 +1,9 @@
 # Story 034: 열차 강화 — 칸마다 3×2 장비 그리드(포탑·방벽판)와 습격 연동
 
+> **상태 메모(2026-11-02 정리)**: 제거/보관 — 열차 장비 그리드는 039 전투 제거로 빠짐(코드 archive/combat-2026-11-02/). 현재 규칙은 design/game-brief.md §Out of scope 와 story-039 참조.
+
 > **Epic**: 철환 장갑열차 MVP (iron-ring-train)
-> **Status**: Done (2026-11-02 02:05 KST 코디네이터 — 컴파일 통과, TrainEquipmentBuild 멱등, 캡처 3장; 장비 모드 카메라 확대 후속)
+> **Status**: Removed(039) — 원래: Done (2026-11-02 02:05 KST 코디네이터 — 컴파일 통과, TrainEquipmentBuild 멱등, 캡처 3장; 장비 모드 카메라 확대 후속)
 > **Layer**: Core + Presentation
 > **Type**: Integration
 > **Estimate**: L

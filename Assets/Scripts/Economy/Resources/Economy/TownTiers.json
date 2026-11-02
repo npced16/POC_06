@@ -5,6 +5,7 @@
   "_minResidents": 1,
   "_baseHousing": 3,
   "_hubName": "황동골",
+  "_hubComment": "Story 048: 등급·주민은 열린 마을마다 따로(같은 표). _unlockHubs는 황동골(_hubId) 등급에서만 선로를 연다. 승리는 황동골 _victoryTier, 패배는 황동골 붕괴만(다른 마을 붕괴 = 토스트, 보너스 상실).",
   "_growPerLap": 1,
   "_growPerLapLit": 2,
   "_shrinkPerLap": 1,
@@ -34,7 +35,8 @@
       "_phase": "Recovering",
       "_unlockRecipes": ["cobble_plaza", "water_tower", "iron_depot", "toolshop"],
       "_unlockUpgrades": ["cargo_plus"],
-      "_unlockStops": ["REST-2"]
+      "_unlockStops": ["REST-2"],
+      "_unlockHubs": ["hub-2"]
     },
     {
       "_id": "village",

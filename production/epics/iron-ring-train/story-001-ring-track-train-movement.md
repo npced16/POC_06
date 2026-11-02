@@ -1,5 +1,7 @@
 # Story 001: 고리형 선로와 열차 이동
 
+> **상태 메모(2026-11-02 정리)**: 부분 유효 — 고리 선로·열차 이동은 살아 있으나 '거점 4곳' 구성은 039의 원형 선로(황동골 + 휴식지 3)로 대체. 현재 규칙은 design/game-brief.md §Core loop 과 story-039 참조.
+
 > **Epic**: 철환 장갑열차 MVP (iron-ring-train)
 > **Status**: Done
 > **Layer**: Foundation

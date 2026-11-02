@@ -7,81 +7,126 @@ using IronRing.Habitats;
 namespace IronRing.Economy
 {
     /// <summary>
-    /// 스토리 042·045(가벼운 경제, design/game-brief.md MVP 3). 마을 거점의 일반 주민(IPopulation). 순수 C#, 결정적.
-    /// 주거 = _baseHousing + 완성 건물 _housing 합. 빛 = 완성 건물 _light 합. 수입 = 완성 건물 _income 합(Settlement.Income).
-    /// 정산(Settle): 주거 &gt; 주민 → +_growPerLap(빛 ≥ 주민 × _lightPerResident면 +_growPerLapLit), 주거를 넘지 않음.
-    ///               주거 &lt; 주민 → −_shrinkPerLap(최소 _minResidents). 같으면 그대로. 노동·식량·만족도는 없다.
-    /// 고유 NPC(INpcRecruiter)는 여기서 세지 않는다(번영 _perNpc는 RunState가 따로 더한다).
+    /// 스토리 042·045·048(가벼운 경제, design/game-brief.md "주민·등급"). 열린 마을(거점)마다의 일반 주민(IPopulation). 순수 C#, 결정적.
+    /// 마을마다: 주거 = _baseHousing + 그 마을 완성 건물 _housing 합. 빛 = 완성 건물 _light 합. 수입 = 완성 건물 _income 합.
+    /// 정산(SettleAt): 주거 &gt; 주민 → +_growPerLap(빛 ≥ 주민 × _lightPerResident면 +_growPerLapLit), 주거를 넘지 않음.
+    ///               주거 &lt; 주민 → −_shrinkPerLap(최소 _minResidents). 같으면 그대로.
+    /// 048: 마을은 AddHub로 늘어난다(선로가 열린 역). Residents·Housing·Light는 "현재 마을"(CurrentHub, 없으면 _hubId) 값,
+    /// Income은 열린 모든 마을의 건물 수입 합(정산이 쓴다). ExtraBuildings·SetResidents·HubId는 첫 마을(_hubId, 황동골) 기준(데모용).
+    /// 고유 NPC(INpcRecruiter)는 여기서 세지 않는다.
     /// </summary>
     public sealed class Population : IPopulation, IDisposable
     {
+        private sealed class Town { public int Residents, Housing, Light, Income; }
+
         private readonly TownSettings _settings;
         private readonly HabitatCatalog _catalog;
         private readonly IHabitatClusters _clusters;
+        private readonly Dictionary<string, Town> _towns = new Dictionary<string, Town>(StringComparer.Ordinal);
+        private readonly List<string> _order = new List<string>();
 
-        /// <summary>마을 거점 id.</summary>
+        /// <summary>첫 마을 거점 id(황동골).</summary>
         public string HubId => _settings.HubId;
+        /// <summary>스토리 048. 주민을 세는 마을 id(열린 순서).</summary>
+        public IReadOnlyList<string> HubIds => _order;
+        /// <summary>스토리 048. "현재 마을" 공급자(설치자가 건다). null이거나 모르는 id면 HubId.</summary>
+        public Func<string> CurrentHub { get; set; }
         /// <inheritdoc />
-        public int Residents { get; private set; }
+        public string CurrentHubId { get { string id = CurrentHub?.Invoke(); return id != null && _towns.ContainsKey(id) ? id : HubId; } }
         /// <inheritdoc />
-        public int Housing { get; private set; }
+        public int Residents => ResidentsAt(CurrentHubId);
         /// <inheritdoc />
-        public int Light { get; private set; }
-        /// <summary>이번 바퀴 건물 수입(완성 건물 _income 합).</summary>
-        public int Income { get; private set; }
-        /// <summary>데모용 가상 건물 종류(완성 건물 뒤에 더한다). 비어 있으면 실제 건물만.</summary>
+        public int Housing => HousingAt(CurrentHubId);
+        /// <inheritdoc />
+        public int Light => LightAt(CurrentHubId);
+        /// <summary>이번 바퀴 건물 수입(열린 모든 마을의 완성 건물 _income 합).</summary>
+        public int Income { get { int sum = 0; foreach (Town t in _towns.Values) sum += t.Income; return sum; } }
+        /// <summary>데모용 가상 건물 종류(첫 마을의 완성 건물 뒤에 더한다). 비어 있으면 실제 건물만.</summary>
         public List<string> ExtraBuildings { get; } = new List<string>();
         /// <inheritdoc />
         public event Action Changed;
 
-        /// <summary>수치·카탈로그·완성 서식지를 주입한다.</summary>
+        /// <summary>수치·카탈로그·완성 서식지를 주입하고 첫 마을(_hubId)을 연다.</summary>
         public Population(TownSettings settings, HabitatCatalog catalog, IHabitatClusters clusters)
         {
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _catalog = catalog ?? throw new ArgumentNullException(nameof(catalog));
             _clusters = clusters ?? throw new ArgumentNullException(nameof(clusters));
-            Residents = settings.StartResidents;
             _clusters.HabitatCompleted += OnClusterChanged;
             _clusters.HabitatBroken += OnClusterChanged;
-            Recompute();
+            AddHub(settings.HubId);
         }
 
-        private void OnClusterChanged(string hubId, string typeId) { if (hubId == HubId) Refresh(); }
+        /// <summary>스토리 048. hubId 마을을 시작 주민으로 세기 시작한다(이미 있으면 무시). Changed.</summary>
+        public void AddHub(string hubId)
+        {
+            if (string.IsNullOrEmpty(hubId) || _towns.ContainsKey(hubId)) return;
+            _towns.Add(hubId, new Town { Residents = _settings.StartResidents });
+            _order.Add(hubId);
+            Recompute(hubId);
+            Changed?.Invoke();
+        }
 
-        /// <summary>주거·빛·수입을 다시 세고 Changed.</summary>
+        /// <summary>스토리 048. hubId 마을을 세고 있는지.</summary>
+        public bool Tracks(string hubId) => hubId != null && _towns.ContainsKey(hubId);
+        /// <inheritdoc />
+        public int ResidentsAt(string hubId) => hubId != null && _towns.TryGetValue(hubId, out Town t) ? t.Residents : 0;
+        /// <inheritdoc />
+        public int HousingAt(string hubId) => hubId != null && _towns.TryGetValue(hubId, out Town t) ? t.Housing : 0;
+        /// <inheritdoc />
+        public int LightAt(string hubId) => hubId != null && _towns.TryGetValue(hubId, out Town t) ? t.Light : 0;
+        /// <summary>스토리 048. hubId 마을의 건물 수입.</summary>
+        public int IncomeAt(string hubId) => hubId != null && _towns.TryGetValue(hubId, out Town t) ? t.Income : 0;
+
+        private void OnClusterChanged(string hubId, string typeId) { if (Tracks(hubId)) Refresh(); }
+
+        /// <summary>모든 마을의 주거·빛·수입을 다시 세고 Changed.</summary>
         public void Refresh()
         {
-            Recompute();
+            foreach (string id in _order) Recompute(id);
             Changed?.Invoke();
         }
 
-        /// <summary>정산 주민 단계. 로그 "TOWN: lap=…".</summary>
+        /// <summary>모든 마을의 정산 주민 단계(옛 경로). 설치자는 마을마다 SettleAt을 부른다.</summary>
         public void Settle(int lap)
         {
-            Recompute();
-            int before = Residents;
-            bool lit = Light >= Residents * _settings.LightPerResident;
-            if (Housing > Residents)
-                Residents = Math.Min(Housing, Residents + (lit ? _settings.GrowPerLapLit : _settings.GrowPerLap));
-            else if (Housing < Residents)
-                Residents = Math.Max(_settings.MinResidents, Residents - _settings.ShrinkPerLap);
-            UnityEngine.Debug.Log($"TOWN: lap={lap} residents {before}->{Residents} housing={Housing} light={Light} lit={lit} income={Income}");
+            foreach (string id in _order.ToArray()) SettleAt(id, lap);
+        }
+
+        /// <summary>스토리 048. hubId 마을의 정산 주민 단계. 로그 "TOWN: lap=… hub=…".</summary>
+        public void SettleAt(string hubId, int lap)
+        {
+            if (!Tracks(hubId)) return;
+            Recompute(hubId);
+            Town t = _towns[hubId];
+            int before = t.Residents;
+            bool lit = t.Light >= t.Residents * _settings.LightPerResident;
+            if (t.Housing > t.Residents)
+                t.Residents = Math.Min(t.Housing, t.Residents + (lit ? _settings.GrowPerLapLit : _settings.GrowPerLap));
+            else if (t.Housing < t.Residents)
+                t.Residents = Math.Max(_settings.MinResidents, t.Residents - _settings.ShrinkPerLap);
+            UnityEngine.Debug.Log($"TOWN: lap={lap} hub={hubId} residents {before}->{t.Residents} housing={t.Housing} light={t.Light} lit={lit} income={t.Income}");
             Changed?.Invoke();
         }
 
-        /// <summary>데모용: 주민 수를 바로 정한다(최소값 적용).</summary>
-        public void SetResidents(int residents)
+        /// <summary>데모용: 첫 마을 주민 수를 바로 정한다(최소값 적용).</summary>
+        public void SetResidents(int residents) => SetResidentsAt(HubId, residents);
+
+        /// <summary>스토리 048. 데모용: hubId 마을 주민 수를 바로 정한다(최소값 적용).</summary>
+        public void SetResidentsAt(string hubId, int residents)
         {
-            Residents = Math.Max(_settings.MinResidents, residents);
+            if (!Tracks(hubId)) return;
+            _towns[hubId].Residents = Math.Max(_settings.MinResidents, residents);
             Changed?.Invoke();
         }
 
-        private void Recompute()
+        private void Recompute(string hubId)
         {
+            Town t = _towns[hubId];
             int housing = _settings.BaseHousing, light = 0, income = 0;
             var ids = new List<string>();
-            foreach (HabitatCluster c in _clusters.CompletedAt(HubId) ?? Array.Empty<HabitatCluster>()) ids.Add(c?.TypeId);
-            ids.AddRange(ExtraBuildings);
+            foreach (HabitatCluster c in _clusters.CompletedAt(hubId) ?? Array.Empty<HabitatCluster>()) ids.Add(c?.TypeId);
+            if (hubId == HubId) ids.AddRange(ExtraBuildings);
             foreach (string id in ids)
             {
                 HabitatType type = _catalog.Get(id);
@@ -90,7 +135,7 @@ namespace IronRing.Economy
                 light += type.Light;
                 income += type.Income;
             }
-            Housing = housing; Light = light; Income = income;
+            t.Housing = housing; t.Light = light; t.Income = income;
         }
 
         /// <summary>구독을 푼다.</summary>
@@ -99,6 +144,7 @@ namespace IronRing.Economy
             _clusters.HabitatCompleted -= OnClusterChanged;
             _clusters.HabitatBroken -= OnClusterChanged;
             Changed = null;
+            CurrentHub = null;
         }
     }
 }

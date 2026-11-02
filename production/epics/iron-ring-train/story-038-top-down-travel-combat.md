@@ -1,7 +1,9 @@
 # Story 038: 2차 — 중간역 정차: 탑뷰 디펜스와 자원 파밍(프리미티브), 고철로 열차 장비를 산다
 
+> **상태 메모(2026-11-02 정리)**: 제거/보관 — 중간역 탑뷰 디펜스·고철 파밍은 039에서 제거(코드 archive/combat-2026-11-02/). 현재 규칙은 story-039 참조.
+
 > **Epic**: 철환 장갑열차 MVP (iron-ring-train)
-> **Status**: Done (2026-11-02 03:50 KST 코디네이터 — 파이프라인 검증: refresh 통과, StopTopBuild 멱등, 씬 저장; 캡처 없음, 사용자 편집기 확인)
+> **Status**: Removed(039) — 원래: Done (2026-11-02 03:50 KST 코디네이터 — 파이프라인 검증: refresh 통과, StopTopBuild 멱등, 씬 저장; 캡처 없음, 사용자 편집기 확인)
 > **Layer**: Core + Presentation
 > **Type**: Integration
 > **Estimate**: L

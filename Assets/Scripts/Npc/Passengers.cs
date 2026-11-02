@@ -191,10 +191,21 @@ namespace IronRing.Npc
             }
         }
 
+        /// <summary>스토리 048. 열린 거점 id(ILineOpener가 잠갔다고 하는 역은 뺀다). 거점이 없으면 null.</summary>
+        private IReadOnlyList<string> OpenHubs()
+        {
+            IReadOnlyList<string> all = _hubs?.HubIds;
+            ILineOpener opener = IronRing.Contracts.Presentation.GameServices.Get<ILineOpener>();
+            if (all == null || opener == null || opener.LockedHubIds.Count == 0) return all;
+            var open = new List<string>();
+            foreach (string id in all) if (opener.IsOpen(id)) open.Add(id);
+            return open;
+        }
+
         /// <summary>Hub whose roster goes first on the given roll: hub ids in data order, cycling; null without hubs.</summary>
         private string PriorityHub(int roll)
         {
-            IReadOnlyList<string> ids = _hubs?.HubIds;
+            IReadOnlyList<string> ids = OpenHubs();
             if (ids == null || ids.Count == 0) return null;
             return ids[((roll % ids.Count) + ids.Count) % ids.Count];
         }
@@ -236,7 +247,7 @@ namespace IronRing.Npc
         {
             string hub = npc.EligibleHubIds.Count > 0 ? npc.EligibleHubIds[0] : null;
             if (!_pool.IgnoreHubRoster) return hub;
-            IReadOnlyList<string> ids = _hubs?.HubIds;
+            IReadOnlyList<string> ids = OpenHubs();
             if (ids == null || ids.Count == 0) return hub;
             foreach (string id in ids) if (id == hub) return hub;
             return ids[0];

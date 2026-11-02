@@ -19,14 +19,17 @@ namespace IronRing.Track
         public TrackNodeKind Kind => IsStation ? TrackNodeKind.Hub : TrackNodeKind.Waypoint;
         /// <summary>Stable station identity, or null for a waypoint.</summary>
         public string HubId => IsStation ? Id : null;
+        /// <summary>스토리 048. 잠긴 역이면 true(RingTrack.Unlock으로만 풀린다). 열차는 멈추지 않고 지나간다.</summary>
+        public bool IsLocked { get; internal set; }
 
         /// <summary>Validates id and stores station classification and ordered index without allowing subsequent topology edits.</summary>
-        public TrackNode(string id, bool isStation, int index = 0)
+        public TrackNode(string id, bool isStation, int index = 0, bool locked = false)
         {
             if (string.IsNullOrWhiteSpace(id)) throw new ArgumentException("Node ID must not be blank.", nameof(id));
             Id = id;
             IsStation = isStation;
             Index = index;
+            IsLocked = locked;
         }
     }
 
@@ -69,6 +72,10 @@ namespace IronRing.Track
         public event Action<ITrackNode> Arrived;
         /// <summary>Emitted exactly once for each completed circuit, carrying the new lap count.</summary>
         public event Action<int> LapCompleted;
+        /// <summary>스토리 048. 잠긴 노드를 멈추지 않고 지나갈 때(Arrived·WaypointReached 대신).</summary>
+        public event Action<TrackNode> PassedLocked;
+        /// <summary>스토리 048. 잠긴 노드가 풀렸을 때 한 번.</summary>
+        public event Action<TrackNode> NodeUnlocked;
 
         /// <summary>Copies ordered nodes, rejects empty or duplicate topology and derives station count from the input.</summary>
         public RingTrack(IEnumerable<TrackNode> nodes)
@@ -79,10 +86,11 @@ namespace IronRing.Track
             foreach (TrackNode node in nodes)
             {
                 if (node == null || !ids.Add(node.Id)) throw new ArgumentException("Nodes must have unique non-null identities.", nameof(nodes));
-                copy.Add(new TrackNode(node.Id, node.IsStation, copy.Count));
+                copy.Add(new TrackNode(node.Id, node.IsStation, copy.Count, node.IsLocked));
                 if (node.IsStation) StationCount++;
             }
             if (copy.Count == 0) throw new ArgumentException("A ring requires at least one node.", nameof(nodes));
+            if (copy[0].IsLocked) throw new ArgumentException("The first node (lap origin) cannot be locked.", nameof(nodes));
             _nodes = copy.AsReadOnly();
         }
 
@@ -101,12 +109,32 @@ namespace IronRing.Track
             if (HasActiveHolds) throw new InvalidOperationException("All holds must be released before arrival.");
             CurrentIndex = NextIndex;
             if (CurrentIndex == 0) LapCount++;
-            IsMoving = false;
             TrackNode arrived = CurrentNode;
+            if (arrived.IsLocked)
+            {
+                // 스토리 048: 잠긴 노드는 통과만 한다. 위치는 넘기고(지도 보간이 다음 칸으로 이어진다) 계속 달린다. 첫 노드는 잠길 수 없다.
+                PositionChanged?.Invoke(arrived);
+                PassedLocked?.Invoke(arrived);
+                return;
+            }
+            IsMoving = false;
             if (CurrentIndex == 0) LapCompleted?.Invoke(LapCount);
             PositionChanged?.Invoke(arrived);
             Arrived?.Invoke(arrived);
             if (!arrived.IsStation) WaypointReached?.Invoke(arrived);
+        }
+
+        /// <summary>스토리 048. nodeId의 잠금을 푼다. 잠겨 있던 노드였으면 NodeUnlocked 후 true.</summary>
+        public bool Unlock(string nodeId)
+        {
+            foreach (TrackNode node in _nodes)
+            {
+                if (node.Id != nodeId || !node.IsLocked) continue;
+                node.IsLocked = false;
+                NodeUnlocked?.Invoke(node);
+                return true;
+            }
+            return false;
         }
 
         /// <summary>Requests departure through the shared runtime API; has no effect during movement or an active hold.</summary>

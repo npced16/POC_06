@@ -1,7 +1,9 @@
 # Story 042: 주민·노동·만족도·마을 등급 — 일반 주민 증가, 노동자 자동 배치와 가동 조건, 만족도 4요소, 등급과 해금
 
+> **상태 메모(2026-11-02 정리)**: 대체 — 주민·마을 등급은 045의 가벼운 규칙으로 구현, 노동·만족도는 하지 않음. 현재 규칙은 design/game-brief.md §주민·§마을 등급 과 story-045 참조.
+
 > **Epic**: 황동골 철도 회사 MVP (iron-ring-train)
-> **Status**: Ready (041 뒤)
+> **Status**: Superseded(045) — 원래: Ready (041 뒤)
 > **Layer**: Core + Presentation
 > **Type**: Logic
 > **Estimate**: M

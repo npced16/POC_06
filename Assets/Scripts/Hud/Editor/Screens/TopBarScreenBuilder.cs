@@ -34,7 +34,7 @@ namespace IronRing.Hud.Editor.Screens
             UiKit.Bind(screen, "_balance", balance); UiKit.Bind(screen, "_coin", coin); UiKit.Bind(screen, "_icons", icons);
             var peopleIcon = UiKit.Image(bar.transform, "PeopleIcon", icons.Get("ui_people"), Color.white, false);
             UiKit.Place(peopleIcon.rectTransform, new Vector2(0, .5f), new Vector2(0, .5f), new Vector2(574, 0), new Vector2(28, 28));
-            var people = UiKit.Label(bar.transform, "People", string.Format(Strings.Get("ui_topbar_people"), 0), UiTextSize.Normal, theme, TextAlignmentOptions.MidlineLeft);
+            var people = UiKit.Label(bar.transform, "People", string.Format(Strings.Get("ui_topbar_people_at"), Strings.Get("hub_1"), 0), UiTextSize.Small, theme, TextAlignmentOptions.MidlineLeft);
             UiKit.Place(people.rectTransform, new Vector2(0, .5f), new Vector2(0, .5f), new Vector2(610, 0), new Vector2(128, 44));
             UiKit.Bind(screen, "_people", people); UiKit.Bind(screen, "_peopleIcon", peopleIcon);
             Button codex = UiKit.Button(bar.transform, "Codex", Strings.Get("codex_open"), theme);
