@@ -65,7 +65,7 @@ namespace IronRing.Hud.Interior
             if (open)
             {
                 string name = Strings.Get(_catalog.NodeKey(_viewMode.InteriorHubId));
-                _title.text = _town != null && _viewMode.InteriorHubId == TownUiText.HubId(GameServices.Get<IPopulation>()) ? string.Format(Strings.Get("ui_tier_title"), name, _town.TierName) : name;
+                _title.text = _town != null ? string.Format(Strings.Get("ui_tier_title"), name, _town.TierNameAt(_viewMode.InteriorHubId)) : name;
             }
             if (open) _screens.Show(_screen.Id); else _screens.Hide(_screen.Id);
         }
@@ -79,18 +79,18 @@ namespace IronRing.Hud.Interior
             if (_town != null) return;
             _town = GameServices.Get<ITownTier>();
             if (_town == null) return;
-            _town.TierChanged += OnTierChanged;
+            _town.HubTierChanged += OnHubTierChanged;
             Refresh(); ScreenTicker.Remove(ResolveTown);
         }
 
-        /// <summary>새 등급 number의 이벤트를 받아 내부 제목을 최신 등급 이름으로 갱신한다.</summary>
-        private void OnTierChanged(int number) { Refresh(); }
+        /// <summary>hubId 마을 등급 변경을 받아 내부 제목의 등급을 갱신한다.</summary>
+        private void OnHubTierChanged(string hubId, int number) { Refresh(); }
 
         void OnDestroy()
         {
             GameServices.Ready -= Create;
             ScreenTicker.Remove(ResolveTown);
-            if (_town != null) _town.TierChanged -= OnTierChanged;
+            if (_town != null) _town.HubTierChanged -= OnHubTierChanged;
             if (_viewMode != null) _viewMode.InteriorChanged -= OnInteriorChanged;
             if (_instance == this) _instance = null;
         }

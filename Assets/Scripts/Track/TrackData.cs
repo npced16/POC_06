@@ -92,7 +92,7 @@ namespace IronRing.Track
                 if (node == null || float.IsNaN(node.Position.x) || float.IsInfinity(node.Position.x) ||
                     float.IsNaN(node.Position.y) || float.IsInfinity(node.Position.y))
                     throw new ArgumentException("Track nodes require finite positions.");
-                nodes.Add(new TrackNode(node.Id, node.IsStation));
+                nodes.Add(new TrackNode(node.Id, node.IsStation, 0, node.IsLocked));
             }
             return new RingTrack(nodes);
         }
@@ -106,10 +106,13 @@ namespace IronRing.Track
         [SerializeField] private string _id;
         [SerializeField] private bool _isStation;
         [SerializeField] private Vector2 _position;
+        [SerializeField] private bool _locked;
         /// <summary>Stable identity loaded from the external node definition.</summary>
         public string Id => _id;
         /// <summary>Whether this node is a station requiring an explicit departure.</summary>
         public bool IsStation => _isStation;
+        /// <summary>스토리 048. 처음엔 잠긴 역(선로가 열리기 전까지 통과만).</summary>
+        public bool IsLocked => _locked;
         /// <summary>Authored marker position in reference screen coordinates.</summary>
         public Vector2 Position => _position;
     }

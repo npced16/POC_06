@@ -75,7 +75,7 @@ namespace IronRing.Hud
             if (!_result.IsOver) { _screens.Hide(_screen.Id); return; }
             // 스토리 045: 마을 등급이 있으면 "정착 n/n" 대신 최종 등급으로 제목·본문을 쓴다.
             ITownTier town = GameServices.Get<ITownTier>();
-            string townHub = TownUiText.HubId(GameServices.Get<IPopulation>());
+            string townHub = TownUiText.DEFAULT_HUB;
             string townName = Strings.Get(townHub.Replace('-', '_'));
             if (town != null) FillTown(town, townName);
             else switch (_result.Outcome)
@@ -99,9 +99,10 @@ namespace IronRing.Hud
             foreach (RunHubSummary hub in _result.Hubs)
             {
                 if (lines.Length > 0) lines.Append('\n');
-                string phase = town != null && hub.HubId == townHub && hub.Phase != DevPhase.Collapsed ? town.TierName : PhaseText(hub.Phase);
-                lines.Append(string.Format(Strings.Get("result_hub_line"), Strings.Get(hub.HubId.Replace('-', '_')), phase,
-                    Mathf.RoundToInt(hub.Prosperity), hub.NpcCount));
+                string phase = town != null ? town.TierNameAt(hub.HubId) : PhaseText(hub.Phase);
+                IPopulation population = GameServices.Get<IPopulation>();
+                int residents = population != null ? population.ResidentsAt(hub.HubId) : 0;
+                lines.Append(string.Format(Strings.Get("ui_result_hub_line"), Strings.Get(hub.HubId.Replace('-', '_')), phase, residents));
             }
             _hubs.text = lines.ToString();
             if (_laps != null)

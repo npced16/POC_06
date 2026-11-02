@@ -1,7 +1,7 @@
 # Story 048: 유지비 없음, 한 마을 느낌 — 일정 이상 진행되면 선로가 열려 두 번째 마을(잿골)이 생긴다
 
 > **Epic**: 황동골 철도 회사 MVP (iron-ring-train)
-> **Status**: Ready
+> **Status**: Done
 > **Layer**: Core + Presentation
 > **Type**: Integration
 > **Estimate**: L
@@ -68,7 +68,7 @@
 **Required evidence**:
 - 브리지 컴파일 확인 + 생성기 멱등 + 씬 저장: `production/qa/evidence/story-048-line-opens-second-village/verification.md`(캡처 없음)
 
-**Status**: [ ] 미완
+**Status**: [x] Done (2026-11-02 — 데모 locked·opened 로그 확인, 캡처 048-locked.png·048-opened.png)
 
 ---
 

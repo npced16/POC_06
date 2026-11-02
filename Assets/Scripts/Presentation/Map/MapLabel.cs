@@ -43,6 +43,12 @@ namespace IronRing.Presentation.Map
             if (_name != null) _name.text = text;
         }
 
+        /// <summary>스토리 048. 단계 라벨을 보이거나 숨긴다(잠긴 역 표지).</summary>
+        public void SetPhaseVisible(bool visible)
+        {
+            if (_phase != null && _phase.gameObject.activeSelf != visible) _phase.gameObject.SetActive(visible);
+        }
+
         /// <summary>단계 라벨에 text를 쓰고 phase 색을 입힌다(단계 라벨이 없는 표식이면 무시).</summary>
         public void SetPhase(DevPhase phase, string text)
         {

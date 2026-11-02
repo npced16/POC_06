@@ -39,6 +39,24 @@ namespace IronRing.Contracts
         TrackNodeKind Kind { get; }
         /// <summary>Hub id when Kind is Hub, otherwise null.</summary>
         string HubId { get; }
+        /// <summary>스토리 048. 잠긴 역(선로가 아직 열리지 않음): 열차가 멈추지 않고 지나간다(Arrived·이벤트·승객 없음). 기본 false.</summary>
+        bool IsLocked => false;
+    }
+
+    /// <summary>
+    /// 스토리 048. 잠긴 역(ring-track.json `_locked`)을 여는 서비스. EconomyInstaller가 Composing에서 등록한다.
+    /// 황동골이 TownTiers.json `_unlockHubs`가 있는 등급에 오르면 정산이 Open을 부른다.
+    /// </summary>
+    public interface ILineOpener
+    {
+        /// <summary>hubId 역이 열려 있는지(선로에 없는 id·이미 열린 역은 true).</summary>
+        bool IsOpen(string hubId);
+        /// <summary>hubId 역을 연다. 이미 열려 있으면 무시(HubOpened 없음).</summary>
+        void Open(string hubId);
+        /// <summary>역이 열렸을 때 한 번(거점 id).</summary>
+        event Action<string> HubOpened;
+        /// <summary>아직 잠긴 역 id(선로 순서).</summary>
+        IReadOnlyList<string> LockedHubIds { get; }
     }
 
     /// <summary>Story 001. The ring track and the train on it. The ring never breaks.</summary>
@@ -584,6 +602,14 @@ namespace IronRing.Contracts
         int Light { get; }
         /// <summary>값이 바뀌었을 때(정산, 건물 완성·파손).</summary>
         event Action Changed;
+        /// <summary>스토리 048. "현재 마을": 내부가 열린 거점, 아니면 열차가 선 (열린) 역, 아니면 hub-1. Residents·Housing·Light는 이 마을 값.</summary>
+        string CurrentHubId => "hub-1";
+        /// <summary>스토리 048. hubId 마을의 주민(모르는 마을·잠긴 마을 0).</summary>
+        int ResidentsAt(string hubId) => Residents;
+        /// <summary>스토리 048. hubId 마을의 주거.</summary>
+        int HousingAt(string hubId) => Housing;
+        /// <summary>스토리 048. hubId 마을의 빛.</summary>
+        int LightAt(string hubId) => Light;
     }
 
     /// <summary>스토리 042. 창고 거점의 마을 등급(0 폐허 → 1 정착촌 → 2 마을 → 3 도시, TownTiers.json). 등급은 내려가지 않는다.</summary>
@@ -609,5 +635,19 @@ namespace IronRing.Contracts
         IReadOnlyList<string> UnlockedRecipeIds { get; }
         /// <summary>지금까지 등급이 연 열차 업그레이드 id(누적, 043이 쓴다).</summary>
         IReadOnlyList<string> UnlockedUpgradeIds { get; }
+        /// <summary>스토리 048. "현재 마을"(IPopulation.CurrentHubId와 같은 규칙). Tier·TierName·Next*는 이 마을 값.</summary>
+        string CurrentHubId => "hub-1";
+        /// <summary>스토리 048. hubId 마을의 등급 번호(모르는 마을 0).</summary>
+        int TierAt(string hubId) => Tier;
+        /// <summary>스토리 048. hubId 마을의 등급 이름.</summary>
+        string TierNameAt(string hubId) => TierName;
+        /// <summary>스토리 048. hubId 마을의 다음 등급 조건. 최고 등급이면 false(0, 0).</summary>
+        bool NextNeedsAt(string hubId, out int residents, out int prosperity)
+        {
+            residents = NextResidentsNeed; prosperity = NextProsperityNeed;
+            return !IsMax;
+        }
+        /// <summary>스토리 048. 등급이 올랐을 때(거점 id, 새 등급 번호). TierChanged는 hub-1만 낸다.</summary>
+        event Action<string, int> HubTierChanged { add { } remove { } }
     }
 }

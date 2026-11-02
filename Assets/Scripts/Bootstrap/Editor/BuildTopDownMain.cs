@@ -98,7 +98,8 @@ namespace IronRing.Bootstrap.Editor
                     markerPosition.y -= Mathf.Sign(markerPosition.y) * settings.HubInset;
                     labelDirection = -Mathf.Sign(markerPosition.y);
                     marker = Place(catalog.HubBuildingPrefab, anchor.transform, markerPosition);
-                    marker.GetComponentInChildren<SpriteRenderer>().sprite = catalog.Sprite(node.LabelKey);
+                    // 스토리 048: 역 그림이 없는 거점(잿골 등)은 첫 역 그림을 쓴다.
+                    marker.GetComponentInChildren<SpriteRenderer>().sprite = catalog.Sprite(node.LabelKey) ?? catalog.Sprite(data.Nodes[0].LabelKey);
                     marker.GetComponentInChildren<HubTarget>().Configure(node.Id);
                     hub = marker.transform;
                 }
@@ -115,6 +116,14 @@ namespace IronRing.Bootstrap.Editor
                     bend.position = node.Bend;
                 }
                 anchor.Configure(node.Id, hub, bend);
+                if (node.IsStation && node.IsLocked)
+                {
+                    // 스토리 048: 잠긴 역은 어두운 폐허 표지 + "폐쇄된 선로". 열리면 MapLockedHub가 "{이름} · 폐허"로 바꾼다.
+                    anchor.gameObject.AddComponent<MapLockedHub>().Configure(node.Id, marker.GetComponentsInChildren<SpriteRenderer>(true), label,
+                        marker.GetComponentsInChildren<Collider2D>(true), Strings.Get("map_line_closed"),
+                        string.Format(Strings.Get("map_hub_ruin"), Strings.Get(node.LabelKey)));
+                    label.text = Strings.Get("map_line_closed");
+                }
                 nodes.Add(anchor);
             }
             Transform trainSprite = Place(catalog.TrainPrefab, map.transform, data.Nodes[0].Position).transform;
@@ -220,12 +229,14 @@ namespace IronRing.Bootstrap.Editor
         {
             [SerializeField] private string _id;
             [SerializeField] private bool _isStation;
+            [SerializeField] private bool _locked;
             [SerializeField] private Vector2 _mapPosition;
             [SerializeField] private string _labelKey;
             [SerializeField] private bool _hasBend;
             [SerializeField] private Vector2 _bend;
             public string Id => _id;
             public bool IsStation => _isStation;
+            public bool IsLocked => _locked;
             public Vector2 Position => _mapPosition;
             public string LabelKey => _labelKey;
             public bool HasBend => _hasBend;

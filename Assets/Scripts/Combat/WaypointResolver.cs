@@ -106,7 +106,7 @@ namespace IronRing.Combat
             for (int i = 1; i <= _track.Nodes.Count; i++)
             {
                 ITrackNode next = _track.Nodes[(start + i) % _track.Nodes.Count];
-                if (next.Kind == TrackNodeKind.Hub) return next.HubId;
+                if (next.Kind == TrackNodeKind.Hub && !next.IsLocked) return next.HubId; // 스토리 048: 잠긴 역은 건너뛴다
             }
             throw new ArgumentException("Track needs a hub.");
         }

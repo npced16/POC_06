@@ -32,6 +32,10 @@ namespace IronRing.Bootstrap
         public MainSettings Settings { get; private set; }
         /// <summary>Story 012 hub interior grid and investigation rules; null when the composition was built without interior data.</summary>
         public InteriorData Interior { get; private set; }
+        /// <summary>스토리 048. 처음에 잠긴 역(ring-track.json `_locked`). 런 상태(RunState)는 이 역을 열릴 때까지 세지 않는다.</summary>
+        public IReadOnlyList<string> LockedHubIds { get; private set; }
+        /// <summary>스토리 048. 처음부터 열린 역(결과 "정착 N/N"의 N).</summary>
+        public IReadOnlyList<string> OpenHubIds { get; private set; }
 
         /// <summary>Parses the authored JSON inputs (interior optional) and rejects cross-system identity mismatches before constructing a run.</summary>
         public static GameDefinition Parse(string track, string habitats, string npcs, string hubs, string combat, string settings, string interior = null)
@@ -54,6 +58,9 @@ namespace IronRing.Bootstrap
             if (ids.Count == 0 || !ids.IsSubsetOf(allHubs) || !ids.IsSubsetOf(result.Recipes.Select(recipe => recipe.HubId)))
                 throw new ArgumentException("Hub identities differ across production data.");
             result.HubDefinitions = result.HubDefinitions.Where(hub => ids.Contains(hub.Id)).ToList().AsReadOnly();
+            // 스토리 048: 잠긴 역도 프로필·레시피·내부는 처음부터 갖고(열리면 바로 쓰도록), 세는 것만 열린 역으로 한다.
+            result.LockedHubIds = result.Track.Nodes.Where(node => node.IsStation && node.IsLocked).Select(node => node.Id).ToList().AsReadOnly();
+            result.OpenHubIds = result.HubDefinitions.Select(hub => hub.Id).Where(id => !result.LockedHubIds.Contains(id)).ToList().AsReadOnly();
             result.Recipes = result.Recipes.Where(recipe => ids.Contains(recipe.HubId)).ToList().AsReadOnly();
             foreach (var npc in result.Npcs.Definitions)
                 if (npc.EligibleHubIds.Any(id => !allHubs.Contains(id))) throw new ArgumentException("NPC references an unknown hub.");

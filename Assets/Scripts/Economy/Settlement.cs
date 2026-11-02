@@ -10,7 +10,7 @@ namespace IronRing.Economy
     /// 정산 시점: RingTrack은 LapCompleted를 Arrived보다 먼저 내고, 승객 하차는 Arrived(GameSession, 먼저 구독)에서 일어난다.
     /// 그래서 LapCompleted로 바퀴 번호를 기억해 두고 같은 도착의 Arrived(거점)에서 정산한다 = 그 도착의 운임이 그 바퀴에 들어간다.
     /// 정산: 건물 수입(Income, 완성 건물 _income 합)을 벌고 장부에 LedgerKind.Income → 열차 유지비 강제 지출(잔고 0 아래 허용)
-    /// → 장부 마감 → 토스트 한 줄(Settled) → AfterSettle(마을 등급·주민) → 파산 판정.
+    /// (048: 유지비 0이면 생략) → 장부 마감 → 토스트 한 줄(Settled) → AfterSettle(마을 등급·주민) → 파산 판정.
     /// 파산: _bankruptLaps &gt; 0일 때만, 정산 직후 잔고 &lt; 0인 바퀴가 그만큼 연속이면 declareBankrupt 한 번. 0이면 판정하지 않는다(045 기본).
     /// </summary>
     public sealed class Settlement : IDisposable
@@ -41,6 +41,11 @@ namespace IronRing.Economy
         public Func<int> Income { get; set; }
         /// <summary>스토리 042. 토스트 뒤, 파산 판정 앞에서 부른다(마을 등급·주민 증감). 인자는 바퀴 번호.</summary>
         public Action<int> AfterSettle { get; set; }
+        /// <summary>
+        /// 스토리 048. 항목별 토스트 틀(ko.json econ_lap_head·econ_part_buildings·econ_part_fare·econ_part_upkeep·econ_lap_total).
+        /// 다섯이 모두 있으면 0인 항목을 빼고 "바퀴 N 정산: +건물 a +운임 b = +c"로 잇는다. 없으면 생성자 toastTemplate(옛 형식).
+        /// </summary>
+        public string[] PartFormats { get; set; }
         /// <summary>정산 토스트 문구가 만들어질 때(설치자가 ToastScreen에 띄운다).</summary>
         public event Action<string> Settled;
 
@@ -98,13 +103,17 @@ namespace IronRing.Economy
                 _money.TryGain(income, "income:buildings");
                 _ledger.Record(LedgerKind.Income, income, INCOME_NOTE);
             }
-            _money.Charge(_settings.TrainUpkeep, "upkeep:train");
-            _ledger.Record(LedgerKind.Upkeep, -_settings.TrainUpkeep, "train");
+            // 스토리 048: 유지비 0(기본)이면 돈도 장부도 건드리지 않는다.
+            if (_settings.TrainUpkeep > 0)
+            {
+                _money.Charge(_settings.TrainUpkeep, "upkeep:train");
+                _ledger.Record(LedgerKind.Upkeep, -_settings.TrainUpkeep, "train");
+            }
             int buildings = _ledger.Total(lap, LedgerKind.Income);
             int fare = _ledger.Total(lap, LedgerKind.Fare);
             int upkeep = -_ledger.Total(lap, LedgerKind.Upkeep);
             int net = _ledger.Settle(lap);
-            LastLine = string.Format(_toastTemplate ?? "{0}: {4}", lap, buildings, fare, upkeep, Signed(net));
+            LastLine = Line(lap, buildings, fare, upkeep, net);
             UnityEngine.Debug.Log($"ECON: settle lap={lap} buildings={buildings} fare={fare} upkeep={upkeep} net={net} balance={_money.Balance}");
             Settled?.Invoke(LastLine);
             AfterSettle?.Invoke(lap);
@@ -119,6 +128,19 @@ namespace IronRing.Economy
             _bankrupt = true;
             UnityEngine.Debug.Log($"ECON: bankrupt lap={lap} balance={_money.Balance} negativeLaps={NegativeLaps}");
             _declareBankrupt?.Invoke(_bankruptText);
+        }
+
+        /// <summary>스토리 048. 토스트 한 줄. PartFormats가 있으면 0인 항목을 뺀다.</summary>
+        public string Line(int lap, int buildings, int fare, int upkeep, int net)
+        {
+            string[] f = PartFormats;
+            if (f == null || f.Length < 5) return string.Format(_toastTemplate ?? "{0}: {4}", lap, buildings, fare, upkeep, Signed(net));
+            var parts = new System.Collections.Generic.List<string> { string.Format(f[0], lap) };
+            if (buildings != 0) parts.Add(string.Format(f[1], buildings));
+            if (fare != 0) parts.Add(string.Format(f[2], fare));
+            if (upkeep != 0) parts.Add(string.Format(f[3], upkeep));
+            parts.Add(string.Format(f[4], Signed(net)));
+            return string.Join(" ", parts);
         }
 
         /// <summary>부호 붙은 금액(+24 / −18, 빼기는 U+2212).</summary>

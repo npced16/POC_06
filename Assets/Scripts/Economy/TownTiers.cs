@@ -100,6 +100,7 @@ namespace IronRing.Economy
         [SerializeField] private string[] _unlockRecipes;
         [SerializeField] private string[] _unlockUpgrades;
         [SerializeField] private string[] _unlockStops;
+        [SerializeField] private string[] _unlockHubs;
 #pragma warning restore 0649
         /// <summary>등급 id.</summary>
         public string Id => _id;
@@ -117,25 +118,39 @@ namespace IronRing.Economy
         public IReadOnlyList<string> UnlockUpgrades => _unlockUpgrades ?? Array.Empty<string>();
         /// <summary>이 등급이 여는 휴식지(043).</summary>
         public IReadOnlyList<string> UnlockStops => _unlockStops ?? Array.Empty<string>();
+        /// <summary>스토리 048. 이 등급(첫 마을)이 여는 역(ILineOpener.Open).</summary>
+        public IReadOnlyList<string> UnlockHubs => _unlockHubs ?? Array.Empty<string>();
     }
 
     /// <summary>
-    /// 스토리 042. 마을 등급(ITownTier). 순수 C#. 정산마다 Evaluate(주민, 번영)를 부른다(건물 수입·운임·유지비 뒤, 주민 증감 앞).
-    /// 상승: 다음 등급의 주민·번영을 모두 채우면 한 단계씩 오른다(한 정산에 여러 단계 가능, 단계마다 TierChanged). 등급은 내려가지 않는다.
-    /// 등급 0의 해금은 생성 때 이미 열린 것으로 친다(누적 목록에 들어 있다).
-    /// 붕괴: 등급이 CollapseMinTier 이상인데 주민 ≤ CollapseResidents이고 번영 ≤ CollapseProsperity인 정산이 CollapseLaps번 이어지면 Collapsed(끝).
-    /// Phase = Collapsed면 HubPhase.Collapsed, 아니면 등급 표의 _phase. RunState(TownLink)가 이 값을 거점 단계로 쓴다.
+    /// 스토리 042·048. 마을 등급(ITownTier), 열린 마을마다 따로. 순수 C#. 정산마다 마을별 EvaluateAt(거점, 주민, 번영)을 부른다.
+    /// 상승: 다음 등급의 주민·번영을 모두 채우면 한 단계씩 오른다(한 정산에 여러 단계 가능, 단계마다 HubTierChanged; 첫 마을은 TierChanged도). 내려가지 않는다.
+    /// 해금: 레시피·업그레이드·휴식지는 어느 마을이 올라도 전역으로 쌓인다(등급 0의 해금은 생성 때 열림). _unlockHubs는 첫 마을(_hubId) 등급에서만
+    /// HubUnlockRequested로 낸다(설치자가 ILineOpener.Open).
+    /// 붕괴(마을마다): 등급이 CollapseMinTier 이상인데 주민 ≤ CollapseResidents이고 번영 ≤ CollapseProsperity인 정산이 CollapseLaps번 이어지면 그 마을 붕괴(끝).
+    /// 첫 마을 붕괴만 Collapsing(RunState 패배), 모든 마을은 HubCollapsing.
+    /// 048: Tier·TierId·TierName·IsMax·NextTier·Next*Need는 "현재 마을"(CurrentHub, 없으면 _hubId). Collapsed·Phase는 첫 마을(옛 의미; 마을별은 *At).
     /// </summary>
     public sealed class TownTiers : ITownTier
     {
+        private sealed class HubTier { public int Tier; public int LowLaps; public bool Collapsed; }
+
         private readonly TownSettings _settings;
         private readonly List<string> _recipes = new List<string>();
         private readonly List<string> _upgrades = new List<string>();
         private readonly List<string> _stops = new List<string>();
-        private int _lowLaps;
+        private readonly List<string> _unlockedHubs = new List<string>();
+        private readonly Dictionary<string, HubTier> _hubs = new Dictionary<string, HubTier>(StringComparer.Ordinal);
+        private readonly List<string> _order = new List<string>();
 
+        /// <summary>스토리 048. "현재 마을" 공급자(설치자가 건다). null이거나 모르는 id면 _hubId.</summary>
+        public Func<string> CurrentHub { get; set; }
         /// <inheritdoc />
-        public int Tier { get; private set; }
+        public string CurrentHubId { get { string id = CurrentHub?.Invoke(); return id != null && _hubs.ContainsKey(id) ? id : _settings.HubId; } }
+        /// <summary>스토리 048. 등급을 세는 마을 id(열린 순서).</summary>
+        public IReadOnlyList<string> HubIds => _order;
+        /// <inheritdoc />
+        public int Tier => TierAt(CurrentHubId);
         /// <inheritdoc />
         public string TierId => Data(Tier).Id;
         /// <inheritdoc />
@@ -154,10 +169,12 @@ namespace IronRing.Economy
         public IReadOnlyList<string> UnlockedUpgradeIds => _upgrades;
         /// <summary>지금까지 연 휴식지(043).</summary>
         public IReadOnlyList<string> UnlockedStopIds => _stops;
-        /// <summary>붕괴했는지(끝).</summary>
-        public bool Collapsed { get; private set; }
-        /// <summary>거점 단계 사상.</summary>
-        public HubPhase Phase => Collapsed ? HubPhase.Collapsed : Data(Tier).Phase;
+        /// <summary>스토리 048. 첫 마을 등급이 연 역(_unlockHubs 누적).</summary>
+        public IReadOnlyList<string> UnlockedHubIds => _unlockedHubs;
+        /// <summary>첫 마을이 붕괴했는지(끝).</summary>
+        public bool Collapsed => CollapsedAt(_settings.HubId);
+        /// <summary>첫 마을 거점 단계 사상.</summary>
+        public HubPhase Phase => PhaseAt(_settings.HubId);
         /// <summary>승리 등급(데이터).</summary>
         public int VictoryTier => _settings.VictoryTier;
         /// <summary>부분 성공 최소 등급(데이터).</summary>
@@ -168,41 +185,91 @@ namespace IronRing.Economy
         public TownTierData Data(int tier) => _settings.Tiers[Math.Max(0, Math.Min(_settings.Tiers.Count - 1, tier))];
         /// <inheritdoc />
         public event Action<int> TierChanged;
-        /// <summary>붕괴했을 때 한 번.</summary>
+        /// <inheritdoc />
+        public event Action<string, int> HubTierChanged;
+        /// <summary>첫 마을이 붕괴했을 때 한 번.</summary>
         public event Action Collapsing;
+        /// <summary>스토리 048. 어느 마을이든 붕괴했을 때 한 번(거점 id).</summary>
+        public event Action<string> HubCollapsing;
+        /// <summary>스토리 048. 첫 마을 등급이 _unlockHubs의 역을 열라고 할 때(거점 id, 한 번씩).</summary>
+        public event Action<string> HubUnlockRequested;
 
-        /// <summary>수치를 주입하고 등급 0의 해금을 누적 목록에 넣는다.</summary>
+        /// <summary>수치를 주입하고 첫 마을을 등급 0으로 열고 등급 0의 해금을 누적 목록에 넣는다.</summary>
         public TownTiers(TownSettings settings)
         {
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
-            AddUnlocks(Data(0));
+            AddUnlocks(Data(0), false);
+            AddHub(settings.HubId);
         }
 
-        /// <summary>정산 판정. 오른 등급마다 TierChanged, 붕괴하면 Collapsing 한 번. 붕괴 뒤에는 아무것도 하지 않는다.</summary>
-        public void Evaluate(int residents, float prosperity)
+        /// <summary>스토리 048. hubId 마을을 등급 0으로 세기 시작한다(이미 있으면 무시).</summary>
+        public void AddHub(string hubId)
         {
-            if (Collapsed) return;
-            while (!IsMax && residents >= NextResidentsNeed && prosperity >= NextProsperityNeed)
+            if (string.IsNullOrEmpty(hubId) || _hubs.ContainsKey(hubId)) return;
+            _hubs.Add(hubId, new HubTier());
+            _order.Add(hubId);
+        }
+
+        /// <summary>스토리 048. hubId 마을을 세고 있는지.</summary>
+        public bool Tracks(string hubId) => hubId != null && _hubs.ContainsKey(hubId);
+        /// <inheritdoc />
+        public int TierAt(string hubId) => hubId != null && _hubs.TryGetValue(hubId, out HubTier h) ? h.Tier : 0;
+        /// <inheritdoc />
+        public string TierNameAt(string hubId) => Data(TierAt(hubId)).Name;
+        /// <inheritdoc />
+        public bool NextNeedsAt(string hubId, out int residents, out int prosperity)
+        {
+            int tier = TierAt(hubId);
+            bool more = tier < _settings.Tiers.Count - 1;
+            residents = more ? Data(tier + 1).Residents : 0;
+            prosperity = more ? Data(tier + 1).Prosperity : 0;
+            return more;
+        }
+        /// <summary>스토리 048. hubId 마을이 붕괴했는지.</summary>
+        public bool CollapsedAt(string hubId) => hubId != null && _hubs.TryGetValue(hubId, out HubTier h) && h.Collapsed;
+        /// <summary>스토리 048. hubId 마을의 거점 단계 사상(붕괴면 Collapsed, 아니면 등급 표의 _phase).</summary>
+        public HubPhase PhaseAt(string hubId) => CollapsedAt(hubId) ? HubPhase.Collapsed : Data(TierAt(hubId)).Phase;
+
+        /// <summary>첫 마을 정산 판정(옛 경로).</summary>
+        public void Evaluate(int residents, float prosperity) => EvaluateAt(_settings.HubId, residents, prosperity);
+
+        /// <summary>스토리 048. hubId 마을의 정산 판정. 오른 등급마다 HubTierChanged(첫 마을은 TierChanged도), 붕괴하면 HubCollapsing 한 번.</summary>
+        public void EvaluateAt(string hubId, int residents, float prosperity)
+        {
+            if (!Tracks(hubId)) return;
+            HubTier h = _hubs[hubId];
+            if (h.Collapsed) return;
+            bool primary = hubId == _settings.HubId;
+            while (h.Tier < _settings.Tiers.Count - 1 && residents >= Data(h.Tier + 1).Residents && prosperity >= Data(h.Tier + 1).Prosperity)
             {
-                Tier++;
-                AddUnlocks(Data(Tier));
-                TierChanged?.Invoke(Tier);
+                h.Tier++;
+                HubTierChanged?.Invoke(hubId, h.Tier);
+                if (primary) TierChanged?.Invoke(h.Tier);
+                AddUnlocks(Data(h.Tier), primary);
             }
-            bool low = Tier >= _settings.CollapseMinTier && residents <= _settings.CollapseResidents && prosperity <= _settings.CollapseProsperity;
-            _lowLaps = low ? _lowLaps + 1 : 0;
-            if (_lowLaps < _settings.CollapseLaps) return;
-            Collapsed = true;
-            Collapsing?.Invoke();
+            bool low = h.Tier >= _settings.CollapseMinTier && residents <= _settings.CollapseResidents && prosperity <= _settings.CollapseProsperity;
+            h.LowLaps = low ? h.LowLaps + 1 : 0;
+            if (h.LowLaps < _settings.CollapseLaps) return;
+            h.Collapsed = true;
+            HubCollapsing?.Invoke(hubId);
+            if (primary) Collapsing?.Invoke();
         }
 
         /// <summary>구독을 푼다.</summary>
-        public void Clear() { TierChanged = null; Collapsing = null; }
+        public void Clear() { TierChanged = null; HubTierChanged = null; Collapsing = null; HubCollapsing = null; HubUnlockRequested = null; CurrentHub = null; }
 
-        private void AddUnlocks(TownTierData data)
+        private void AddUnlocks(TownTierData data, bool primary)
         {
             foreach (string id in data.UnlockRecipes) if (!_recipes.Contains(id)) _recipes.Add(id);
             foreach (string id in data.UnlockUpgrades) if (!_upgrades.Contains(id)) _upgrades.Add(id);
             foreach (string id in data.UnlockStops) if (!_stops.Contains(id)) _stops.Add(id);
+            if (!primary) return;
+            foreach (string id in data.UnlockHubs)
+            {
+                if (_unlockedHubs.Contains(id)) continue;
+                _unlockedHubs.Add(id);
+                HubUnlockRequested?.Invoke(id);
+            }
         }
     }
 }

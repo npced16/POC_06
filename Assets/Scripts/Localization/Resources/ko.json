@@ -15,7 +15,7 @@
     },
     {
       "_key": "hub_2",
-      "_value": "정원"
+      "_value": "잿골"
     },
     {
       "_key": "hub_3",
@@ -599,6 +599,18 @@
     {"_key": "ui_result_body_partial_town", "_value": "기한이 다했다. {0}은 {1} 등급으로 다음 겨울을 맞는다."},
     {"_key": "ui_result_body_ruin_town", "_value": "기한이 다했다. {0}은 아직 {1}다."},
     {"_key": "ui_result_body_collapse_town", "_value": "{0}이 무너졌다."},
-    {"_key": "ui_npcdialog_more", "_value": "▼ 계속"}
+    {"_key": "ui_npcdialog_more", "_value": "▼ 계속"},
+    {"_key": "econ_lap_head", "_value": "바퀴 {0} 정산:"},
+    {"_key": "econ_part_buildings", "_value": "+건물 {0}"},
+    {"_key": "econ_part_fare", "_value": "+운임 {0}"},
+    {"_key": "econ_part_upkeep", "_value": "−유지비 {0}"},
+    {"_key": "econ_lap_total", "_value": "= {0}"},
+    {"_key": "line_opened", "_value": "선로가 열렸습니다 — {0}"},
+    {"_key": "map_line_closed", "_value": "폐쇄된 선로"},
+    {"_key": "map_hub_ruin", "_value": "{0} · 폐허"},
+    {"_key": "town_collapsed_bonus", "_value": "{0}이(가) 무너졌습니다 — 보너스 마을을 잃었습니다"},
+    {"_key": "ui_line_opened", "_value": "선로가 열렸습니다 — {0}"},
+    {"_key": "ui_topbar_people_at", "_value": "{0} 주민 {1}"},
+    {"_key": "ui_result_hub_line", "_value": "{0} · {1} · 주민 {2}"}
 ]
 }
