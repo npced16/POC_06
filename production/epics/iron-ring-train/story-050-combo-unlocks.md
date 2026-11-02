@@ -18,24 +18,30 @@
 
 ---
 
-## 해금 사슬 (데이터: `Assets/Scripts/Habitats/Resources/Habitats/CodexUnlocks.json`에 새 키)
+## 건물 정리 (사용자 2026-11-02 12:00 "이상한 건 없애주라 건물 중엔")
+
+- **뺀다(겹침)**: 가로등길 `lamp_road`(가스등 거리와 겹침), 대형 톱니공장 `grand_cogworks`(톱니공장과 겹침), 저수조 `cistern`(급수탑과 겹침), 공구점 `toolshop`(톱니공장과 겹침). `HabitatTypes.json`에서 제거하고 원본은 `archive/habitats-2026-11-02/`에 JSON 조각으로 보관. 그 건물 전용 NPC(patrol·chief_engineer·water_keeper·tinker)는 등장 후보에서 빠지게(데이터에서 제거 또는 비활성, 초상화 파일은 그대로).
+- **재료 고침(어색함)**: 철골 창고 `iron_depot` = 철골3 + **작업대1**(굴뚝 대신), 전신소 `telegraph_line` = 전선2 + **철골1**(전신주, 가스등 대신).
+- 남는 건물 15종.
+
+## 해금 사슬 (사용자 "열리는 타일도 연관있게" — 데이터: `CodexUnlocks.json` 새 키)
 
 - 시작 타일 `_starterTiles`: 보일러 `tile_boiler`, 석탄더미 `tile_coal`, 벽돌길 `tile_cobble`, 침상 `tile_bunk`, 작업대 `tile_bench`
-- 건물 첫 완성 → 열리는 타일 `_tileUnlocks` (레시피 id → 타일 id 목록):
+- 건물 첫 완성 → 열리는 타일 `_tileUnlocks`:
 
-| 처음 완성한 건물 | 재료 | 열리는 타일 |
-|---|---|---|
-| 보일러실 `boiler_room` | 보일러2+석탄1 | 증기관 `tile_pipe`, 굴뚝 `tile_chimney` |
-| 석탄 야적장 `coal_yard` | 석탄 묶음 | 철골 `tile_girder` |
-| 벽돌 광장 `cobble_plaza` | 벽돌길 묶음 | 가스등 `tile_gaslamp` |
-| 숙소 `barracks` | 침상3+작업대1 | 톱니장치 `tile_gear` |
-| 배관 회랑 `pipe_gallery` | 증기관3+톱니1 | 물탱크 `tile_tank` |
-| 저수조 `cistern` | 물탱크2+증기관1 | 온실유리 `tile_glass` |
-| 공구점 `toolshop` | 작업대2+톱니1+철골1 | 전선 `tile_wire` |
+| 처음 완성한 건물 | 재료 | 열리는 타일 | 연관 |
+|---|---|---|---|
+| 보일러실 `boiler_room` | 보일러2+석탄1 | 증기관 `tile_pipe`, 굴뚝 `tile_chimney` | 증기를 보낼 관, 연기를 뺄 굴뚝 |
+| 석탄 야적장 `coal_yard` | 석탄 묶음 | 철골 `tile_girder` | 석탄으로 쇠를 녹여 철골 |
+| 벽돌 광장 `cobble_plaza` | 벽돌길 묶음 | 가스등 `tile_gaslamp` | 광장을 밝히는 가스등 |
+| 숙소 `barracks` | 침상3+작업대1 | 물탱크 `tile_tank` | 사람이 살면 물이 필요 |
+| 철골 창고 `iron_depot` | 철골3+작업대1 | 톱니장치 `tile_gear` | 쇠로 기계 부품을 깎음 |
+| 급수탑 `water_tower` | 물탱크/철골 패턴 | 온실유리 `tile_glass` | 물이 생기면 온실 |
+| 가스등 거리 `lamp_street` | 가스등 묶음 | 전선 `tile_wire` | 불빛 다음은 전기 |
 
-- 레시피가 도감에 "알려짐"이 되는 규칙: **재료 타일이 모두 열린 레시피**는 자동으로 알려진다. 단 `_recipeRequires`(레시피 → 먼저 지어야 할 레시피)가 있으면 그 건물도 한 번 지어야 한다: `grand_cogworks` ← `cogworks`, `blast_furnace` ← `iron_depot`, `power_house` ← `engine_room`.
-- 아직 모르는 레시피는 도감에 "???" 칸으로 보이고, 이미 열린 재료만 이름이 보인다(예: "보일러 + ???").
-- 13종 전부는 위 7단계로 열린다. 첫 완성 여부는 마을과 상관없이 전역(잿골에서 처음 지어도 열림).
+- 레시피 "알려짐" 규칙: **재료 타일이 모두 열린 레시피**는 자동으로 알려진다. 예외 `_recipeRequires`: `power_house` ← `engine_room`, `blast_furnace` ← `iron_depot`.
+- 아직 모르는 레시피는 도감에 "???" 칸, 열린 재료만 이름이 보인다(예: "보일러 + ???").
+- 13종 전부는 위 7단계로 열린다. 첫 완성 여부는 전역(잿골에서 처음 지어도 열림).
 
 ## Acceptance Criteria
 
