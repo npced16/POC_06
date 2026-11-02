@@ -79,10 +79,14 @@ namespace IronRing.Hud.Editor
             return image;
         }
 
-        /// <summary>테마 패널(자두색 바탕·황동 테두리). 기본은 부모를 꽉 채운다 — Place/Stretch로 다시 잡는다.</summary>
+        /// <summary>테마의 불투명 바탕과 얇은 외곽선으로 패널을 만든다. parent와 name을 사용하며 배치 가능한 Image를 반환한다.</summary>
         public static UImage Panel(Transform parent, string name, UiTheme theme, bool blocksPointer = true)
         {
-            UImage image = Sliced(parent, name, theme.PanelSprite, theme, blocksPointer);
+            UImage image = Image(parent, name, null, theme.Panel, blocksPointer);
+            image.preserveAspect = false;
+            var edge = image.gameObject.AddComponent<Outline>();
+            edge.effectColor = new Color(theme.Border.r, theme.Border.g, theme.Border.b, 0.32f);
+            edge.effectDistance = new Vector2(1f, -1f);
             Stretch(image.rectTransform);
             return image;
         }
@@ -113,14 +117,25 @@ namespace IronRing.Hud.Editor
             return label;
         }
 
-        /// <summary>구리 버튼 + 라벨 자식("Label"). 눌림·선택(게임패드)은 눌린 스프라이트로 바꾼다. 크기는 Place로 잡는다.</summary>
+        /// <summary>parent 아래에 어두운 단색 버튼을 만들고 theme 색으로 상태를 표시한다. 라벨을 포함한 Button을 반환한다.</summary>
         public static UButton Button(Transform parent, string name, string text, UiTheme theme)
         {
-            UImage image = Sliced(parent, name, theme.ButtonSprite, theme, true);
+            UImage image = Image(parent, name, null, theme.Button, true);
+            image.preserveAspect = false;
+            var edge = image.gameObject.AddComponent<Outline>();
+            edge.effectColor = new Color(theme.Border.r, theme.Border.g, theme.Border.b, 0.68f);
+            edge.effectDistance = new Vector2(1f, -1f);
             UButton button = image.gameObject.AddComponent<UButton>();
             button.targetGraphic = image;
-            button.transition = Selectable.Transition.SpriteSwap;
-            button.spriteState = new SpriteState { pressedSprite = theme.ButtonPressedSprite, selectedSprite = theme.ButtonPressedSprite };
+            button.transition = Selectable.Transition.ColorTint;
+            ColorBlock colors = button.colors;
+            colors.normalColor = theme.Button;
+            colors.highlightedColor = Color.Lerp(theme.Button, theme.Accent, 0.32f);
+            colors.pressedColor = Color.Lerp(theme.Button, theme.Panel, 0.45f);
+            colors.selectedColor = colors.highlightedColor;
+            colors.disabledColor = Color.Lerp(theme.Button, theme.Panel, 0.55f);
+            colors.colorMultiplier = 1f;
+            button.colors = colors;
             TextMeshProUGUI label = Label(image.transform, "Label", text, UiTextSize.Normal, theme);
             Stretch(label.rectTransform, 6, 4, 6, 4);
             return button;
@@ -133,7 +148,11 @@ namespace IronRing.Hud.Editor
         public static UImage Slot(Transform parent, string name, UiTheme theme)
         {
             UImage image = Sliced(parent, name, theme.SlotSprite, theme, true);
-            if (theme.Skin == UiSkin.Simple) return image; // 스토리 026: 평면 슬롯은 가운데까지 채운다(SlotBack 불필요)
+            if (theme.Skin == UiSkin.Simple)
+            {
+                image.color = theme.Muted;
+                return image;
+            }
             image.fillCenter = false;
             AddSlotBack(image, theme);
             return image;
@@ -219,10 +238,11 @@ namespace IronRing.Hud.Editor
             return button;
         }
 
-        /// <summary>스토리 024. 얇은 띠(상단 바·배너·실내 제목) 바탕: 제목판 조각을 부모에 꽉 채운다.</summary>
+        /// <summary>parent 아래에 어두운 단색 상태 띠를 만든다. name과 theme를 사용하며 배치 가능한 Image를 반환한다.</summary>
         public static UImage Bar(Transform parent, string name, UiTheme theme, bool blocksPointer = true)
         {
-            UImage image = Sliced(parent, name, theme.ToastSprite, theme, blocksPointer);
+            UImage image = Image(parent, name, null, Color.Lerp(theme.Panel, theme.Button, 0.24f), blocksPointer);
+            image.preserveAspect = false;
             Stretch(image.rectTransform);
             return image;
         }

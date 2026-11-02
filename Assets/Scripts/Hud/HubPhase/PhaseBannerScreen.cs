@@ -23,6 +23,7 @@ namespace IronRing.Hud.HubPhase
         private static PhaseBannerScreen _instance;
 
         [Header("마을 등급")]
+        [SerializeField] private GameObject _progressPanel;
         [SerializeField] private TMP_Text _nextTier;
         [Tooltip("스토리 045: 목표 줄 \"목표: 도시 (주민 a/b · 번영 c/d) · 바퀴 e/f\".")]
         [SerializeField] private TMP_Text _goal;
@@ -86,6 +87,7 @@ namespace IronRing.Hud.HubPhase
         {
             if (_instance == this) return;
             if (_tierBanner != null) _tierBanner.SetActive(false);
+            if (_progressPanel != null) _progressPanel.SetActive(false);
             if (_nextTier != null) _nextTier.gameObject.SetActive(false);
             if (_goal != null) _goal.gameObject.SetActive(false);
             if (_hubLabel != null) _hubLabel.transform.parent.gameObject.SetActive(false);
@@ -168,6 +170,7 @@ namespace IronRing.Hud.HubPhase
                 if (_town != null) _nextTier.text = TownUiText.NextAt(_town, hub, currentResidents, prosperity);
                 _nextTier.gameObject.SetActive(_town != null);
             }
+            if (_progressPanel != null) _progressPanel.SetActive(_town != null);
             string goal = _town != null && !_hubs.IsRunLost ? TownUiText.Goal(_town, townResidents, townProsperity, lap, laps != int.MaxValue ? lap + laps : 0) : null;
             if (_goal != null)
             {

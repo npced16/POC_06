@@ -13,12 +13,12 @@ MonoBehaviour:
   m_Name: UiTheme
   m_EditorClassIdentifier: Assembly-CSharp::IronRing.Hud.Ui.UiTheme
   _skin: 0
-  _panel: {r: 0.16862746, g: 0.11372549, b: 0.16470589, a: 1}
-  _border: {r: 0.8392157, g: 0.627451, b: 0.3254902, a: 1}
-  _accent: {r: 1, g: 0.8117647, b: 0.41568628, a: 1}
-  _button: {r: 0.6, g: 0.3372549, b: 0.21176471, a: 1}
-  _text: {r: 0.9490196, g: 0.87058824, b: 0.8039216, a: 1}
-  _muted: {r: 0.7882353, g: 0.7058824, b: 0.6509804, a: 1}
+  _panel: {r: 0.09411765, g: 0.09803922, b: 0.11764706, a: 1}
+  _border: {r: 0.42745098, g: 0.44313726, b: 0.4627451, a: 1}
+  _accent: {r: 0.9254902, g: 0.6862745, b: 0.32941177, a: 1}
+  _button: {r: 0.2, g: 0.21960784, b: 0.25490198, a: 1}
+  _text: {r: 0.95686275, g: 0.94509804, b: 0.9137255, a: 1}
+  _muted: {r: 0.6901961, g: 0.7137255, b: 0.7254902, a: 1}
   _font: {fileID: 11400000, guid: 285eac0e2e745804c8b2e663e3abe268, type: 2}
   _fontSmall: 14
   _fontNormal: 18
