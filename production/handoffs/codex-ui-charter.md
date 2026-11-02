@@ -18,7 +18,7 @@
 
 ## UI 규칙(사용자 결정)
 - UGUI 캔버스 프리팹 `MainCanvas` 하나(씬 인스턴스), 화면마다 프리팹 하나를 자식 인스턴스로 두고 `UiScreens.Show/Hide`로 켜고 끈다(`Assets/Scripts/Hud/Ui/`: `UiScreens`, `UiScreen`, `ScreenTicker`, `ToastScreen`, `KoreanFont`). 스크립트는 `[SerializeField]` 참조로 바인딩만, **런타임에 UI를 코드로 만들지 않는다**(생성은 편집기 빌더에서만).
-- 스킨 Simple(단색 패널), 글자 4단계 Title 28 · Heading 22 · Normal 18 · Small 14, 줄 높이 ×1.5, 버튼 36/28. 색·크기는 `UiTheme`에서. 글꼴 `Assets/Fonts/NotoSansKR SDF.asset`(TMP). 참고 화면: `Assets/Scripts/Hud/Editor/Screens/HubPanelScreenBuilder.cs`, `CodexScreenBuilder.cs`, `PassengersScreenBuilder.cs`.
+- 스킨 Simple: 불투명한 짙은 차콜 패널, 얇고 낮은 대비의 외곽선, 따뜻한 황동색은 제목·선택·핵심 수치에만 사용한다. 본문에 금색 테두리와 반투명 겹침을 반복하지 않는다. 글자 4단계 Title 28 · Heading 22 · Normal 18 · Small 14, 줄 높이 ×1.5, 버튼 36/28. 색·크기는 `UiTheme`에서. 글꼴 `Assets/Fonts/NotoSansKR SDF.asset`(TMP). 1280×720에서 배경 위 본문 가독성과 버튼 상태를 우선 확인한다. 참고 화면: `Assets/Scripts/Hud/Editor/Screens/HubPanelScreenBuilder.cs`, `CodexScreenBuilder.cs`, `PassengersScreenBuilder.cs`.
 - 아이콘: 64×64 스팀펑크 톤(황동·구리·녹·어두운 외곽선, 2~3단 명암), 팔레트 `Assets/Art/Palette/SteampunkPalette.json`. 품목·상태·버튼 아이콘은 `IconCatalog.asset`(ScriptableObject, codex가 만듦: id → Sprite)에 등록해 화면 스크립트가 id로 찾는다.
 
 ## 작업 방법
