@@ -50,7 +50,7 @@
 - [ ] 새 타일로 재료가 다 갖춰진 레시피는 같은 순간 도감에 "알려짐"이 되고 토스트 "새 설계도: 배관 회랑"(여러 개면 묶어서 한 줄).
 - [ ] 마을 등급은 레시피를 열지 않는다(`TownTiers.json` `_unlockRecipes` 비움 또는 무시). 등급 상승 토스트에서 "레시피 해금" 문구 제거. 주민 목표·잿골 개통·승리는 그대로.
 - [ ] 기존 `_starters`/`_unlockOrder`/`_perLap` 해금(스토리 021)은 새 규칙으로 대체(코드는 새 규칙만 쓰게, 옛 키는 남겨도 무시).
-- [ ] 데모 `--unlock-demo`: 보일러실을 지어 증기관·굴뚝이 열리고 배관 회랑·굴뚝 관련 레시피가 알려지는 로그 `UNLOCK: tile tile_pipe,tile_chimney by boiler_room`, `UNLOCK: recipe …`. 이후 사슬 끝까지 자동으로 지어 `UNLOCK: all tiles 13/13`.
+- [ ] 데모 `--unlock-demo [--unlock-stage start|first|all]`: 보일러실을 지어 증기관·굴뚝이 열리는 로그 `UNLOCK: tile tile_pipe,tile_chimney by boiler_room`(이때 새로 알려지는 설계도는 없음 — 배관 회랑은 톱니가 열리는 철골 창고 때 알려짐), 사슬 끝까지 자동으로 지어 `UNLOCK: recipes known 15/15`, `UNLOCK: all tiles 13/13`.
 - [ ] 검증: 브리지 refresh failed=false, 생성기 필요시 실행, scene-status isDirty=false, 데모 로그, 캡처(핫바 5종 시작 · 해금 직후) `production/qa/evidence/story-050-combo-unlocks/`.
 - [ ] 브리프 `design/game-brief.md`: "타일은 기본 5종으로 시작, 건물을 처음 지으면 다음 타일이 열린다(조합 해금), 등급은 주민·선로·승리만" 반영.
 
