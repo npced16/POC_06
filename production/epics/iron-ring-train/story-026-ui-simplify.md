@@ -1,7 +1,7 @@
 # Story 026: UI 단순화 — 장식 스킨은 보관, 깔끔한 기본 스킨으로
 
 > **Epic**: 철환 장갑열차 MVP (iron-ring-train)
-> **Status**: Ready
+> **Status**: Done (2026-11-01 — 커밋 e8986d1·806592d, 검증 production/qa/evidence/story-026-ui-simplify/verification.md; 문서 상태만 늦게 갱신)
 > **Layer**: Presentation
 > **Type**: UI
 > **Estimate**: S

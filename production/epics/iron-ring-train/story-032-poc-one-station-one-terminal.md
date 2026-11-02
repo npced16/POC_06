@@ -1,7 +1,9 @@
 # Story 032: POC 축소 — 역 1곳과 종점 1곳을 오가는 선로
 
+> **상태 메모(2026-11-02 정리)**: 대체 — 역 1곳·종점 1곳 왕복 POC 선로는 039 원형 선로(황동골 + 휴식지 3)로 대체. 현재 규칙은 story-039 참조.
+
 > **Epic**: 철환 장갑열차 MVP (iron-ring-train)
-> **Status**: Done (2026-11-02 00:40 KST 코디네이터 — 컴파일 통과, Rebuild + 생성기 4개로 씬 복원(루트: 선로 지도·HubInteriors(hub-1)·MainCanvas·Props·카메라·EventSystem), 2회차 isDirty=false, 캡처 4장)
+> **Status**: Superseded(039) — 원래: Done (2026-11-02 00:40 KST 코디네이터 — 컴파일 통과, Rebuild + 생성기 4개로 씬 복원(루트: 선로 지도·HubInteriors(hub-1)·MainCanvas·Props·카메라·EventSystem), 2회차 isDirty=false, 캡처 4장)
 > **Layer**: Core + Presentation
 > **Type**: Integration
 > **Estimate**: M

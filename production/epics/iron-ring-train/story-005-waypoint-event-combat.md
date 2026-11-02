@@ -1,5 +1,7 @@
 # Story 005: 경유지 이벤트와 간단한 전투
 
+> **상태 메모(2026-11-02 정리)**: 부분 유효 — 경유지 이벤트는 039 휴식지 이벤트로 살아 있고, 전투는 제거(039, 코드 archive/combat-2026-11-02/). 현재 규칙은 design/game-brief.md §Core loop 과 story-039 참조.
+
 > **Epic**: 철환 장갑열차 MVP (iron-ring-train)
 > **Status**: Done
 > **Layer**: Feature

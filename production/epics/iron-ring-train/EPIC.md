@@ -1,7 +1,9 @@
-# Epic: 철환 장갑열차 MVP (iron-ring-train)
+# Epic: 황동골 철도 회사 MVP (구 철환 장갑열차) (iron-ring-train)
 
 > **Source**: `design/game-brief.md` (workflow: minimal, no GDD/ADR)
 > **Engine**: Unity 6000.3.27f1 (6.3 LTS) · Risk HIGH
+
+> **최신 방향 요약**: 전투·교역·생산 없음, 원형 선로(황동골 + 휴식지 3)에서 타일 배치 → 건물 → 주민·NPC → 돈·번영 → 마을 등급, 유지비 없음, 정착촌 달성 시 선로 개통 → 두 번째 마을 잿골(048). 아래 Goal·Scope·Order는 최초(2026-11-01) 기준 이력이다 — 현재 규칙은 `design/game-brief.md` 참조.
 
 ## Goal
 
@@ -23,40 +25,42 @@ Brief Build order: 이동 → 서식지·NPC → 거점 상태·패배 → 전�
 
 ## Stories
 
+현재 유효한 스토리(2026-11-02 정리, 상세는 `production/docs-audit-2026-11-02.md`): **현재** 015·019·020·022·023·025·026·027·029·035·036·039·045·046·047 · **부분 유효** 001·003·005·008·009·012·016·017·021·024·028·030·031·040·041 · **진행 중(스펙)** 048 · 나머지(002·004·006·007·010·011·013·014·018·032·033·034·037·038·042·043·044)는 대체/제거 이력.
+
 | # | Story | Type | Status | ADR |
 |---|-------|------|--------|-----|
-| 001 | 고리형 선로와 열차 이동 | Logic | Done | N/A |
-| 002 | 서식지 조합 판정과 이벤트 플래그 | Logic | Done | N/A |
-| 003 | 고유 NPC 풀과 확률 합류 | Logic | Done | N/A |
-| 004 | 거점 성장·쇠락·폐허 전환과 패배 판정 | Logic | Done | N/A |
-| 005 | 경유지 이벤트와 간단한 전투 | Integration | Done | N/A |
-| 006 | 방어시설 건설 | Integration | Done | N/A |
-| 007 | 최소 HUD | UI | Done | N/A |
-| 008 | 플레이스홀더 아트 세트와 한국어 기반 | Visual/Feel | Done | N/A |
-| 009 | 탑뷰 메인 씬과 열차 이동 | Visual/Feel | Done | N/A |
-| 010 | 거점 상태와 전투 연출 | Visual/Feel | Done | N/A |
-| 011 | 한국어 HUD와 마우스 조작 | UI | Ready | N/A |
-| 012 | 거점 내부 탑뷰 맵과 조사 | Integration | Done | N/A |
-| 013 | 아이템 인벤토리·배치와 태그 조합 서식지 | Logic | Done | N/A |
-| 014 | 거점 단계(폐허→복구→정착→붕괴)와 새 패배 규칙 | Logic | Done | N/A |
+| 001 | 고리형 선로와 열차 이동 | Logic | Partial(039 원형 선로) | N/A |
+| 002 | 서식지 조합 판정과 이벤트 플래그 | Logic | Superseded(016·020) | N/A |
+| 003 | 고유 NPC 풀과 확률 합류 | Logic | Partial(023) | N/A |
+| 004 | 거점 성장·쇠락·폐허 전환과 패배 판정 | Logic | Superseded(014→045) | N/A |
+| 005 | 경유지 이벤트와 간단한 전투 | Integration | Partial(이벤트 유지, 전투 Removed 039) | N/A |
+| 006 | 방어시설 건설 | Integration | Removed(039, 코드 보관 047) | N/A |
+| 007 | 최소 HUD | UI | Superseded(022) | N/A |
+| 008 | 플레이스홀더 아트 세트와 한국어 기반 | Visual/Feel | Partial(한국어 유지, 아트 019) | N/A |
+| 009 | 탑뷰 메인 씬과 열차 이동 | Visual/Feel | Partial(선로 039) | N/A |
+| 010 | 거점 상태와 전투 연출 | Visual/Feel | Removed(039)/Superseded(036·045) | N/A |
+| 011 | 한국어 HUD와 마우스 조작 | UI | Superseded(022) | N/A |
+| 012 | 거점 내부 탑뷰 맵과 조사 | Integration | Partial(조사 제거 015) | N/A |
+| 013 | 아이템 인벤토리·배치와 태그 조합 서식지 | Logic | Superseded(015·016) | N/A |
+| 014 | 거점 단계(폐허→복구→정착→붕괴)와 새 패배 규칙 | Logic | Superseded(045) | N/A |
 | 015 | 배치 개편 — 조사 제거, 드래그 앤 드롭·핫바 고스트 배치 | UI | Done | N/A |
-| 016 | 서식지 종류 카탈로그와 연결 판정 | Logic | Done | N/A |
-| 017 | NPC 집 배정, 서식지 곁 배회, 클릭 대화·상호작용 | Integration | Done | N/A |
-| 018 | MainUI 프리팹 — 씬에 놓인 UI 문서와 편집 모드 미리보기 | UI | Done | N/A |
+| 016 | 서식지 종류 카탈로그와 연결 판정 | Logic | Partial(카탈로그 020) | N/A |
+| 017 | NPC 집 배정, 서식지 곁 배회, 클릭 대화·상호작용 | Integration | Partial(대화 027·029) | N/A |
+| 018 | MainUI 프리팹 — 씬에 놓인 UI 문서와 편집 모드 미리보기 | UI | Superseded(022) | N/A |
 | 019 | 탑뷰 스팀펑크 환경 아트 적용 (참고 이미지 기준) | Visual/Feel | Done | N/A |
 | 020 | 서식지 카탈로그 재설계(혼합 묶음·크기 다양화)와 설치칸 확장 | Logic | Done | N/A |
-| 021 | 레시피 해금과 도감 | Integration | Done | N/A |
+| 021 | 레시피 해금과 도감 | Integration | Partial(해금 030·045) | N/A |
 | 022 | UGUI 전환 — 캔버스 하나와 상황별 화면 프리팹 | UI | Done | N/A |
 | 023 | 열차 승객 — 경유지 탑승·제안과 힌트·거점별 명단·숨은 조건·도착 연출 | Integration | Done | N/A |
-| 024 | UI 스킨 — 사용자 제공 스팀펑크 기어 UI 스프라이트 시트 적용 | UI | Done | N/A |
+| 024 | UI 스킨 — 사용자 제공 스팀펑크 기어 UI 스프라이트 시트 적용 | UI | Partial(선택 테마로 보관, 026) | N/A |
 | 025 | 승객 화면 반영과 UI 잔재 정리 | UI | Done | N/A |
-| 026 | UI 단순화 — 장식 스킨은 보관, 깔끔한 기본 스킨으로 | UI | Ready | N/A |
+| 026 | UI 단순화 — 장식 스킨은 보관, 깔끔한 기본 스킨으로 | UI | Done | N/A |
 | 027 | 조합 완성 → 그 모양대로 건물, 건물 클릭 대화 | Visual/Feel | Done | N/A |
-| 028 | 런의 끝과 번영 규칙(점검 S1·S2 반영) | Logic | Done | N/A |
+| 028 | 런의 끝과 번영 규칙(점검 S1·S2 반영) | Logic | Partial(런의 끝 045) | N/A |
 | 029 | 대화 장면(대형 초상 + 하단 상자), 건물 지붕 디테일, NPC 고정 배치 | Visual/Feel | Done | N/A |
-| 030 | 조기 승리와 NPC를 따라가는 레시피 해금 | Logic | Done | N/A |
-| 031 | 부수기·되돌리기, 건물 먼저 고르고 타일 하나씩 놓는 건설 계획 | UI | A Done / B 대기 | N/A |
-| 032 | POC 축소 — 역 1곳과 종점 1곳을 오가는 선로 | Integration | Done | N/A |
+| 030 | 조기 승리와 NPC를 따라가는 레시피 해금 | Logic | Partial(승리 조건 045) | N/A |
+| 031 | 부수기·되돌리기, 건물 먼저 고르고 타일 하나씩 놓는 건설 계획 | UI | Partial(A Done / B 대기) | N/A |
+| 032 | POC 축소 — 역 1곳과 종점 1곳을 오가는 선로 | Integration | Superseded(039) | N/A |
 | 033 | 습격 — 몬스터에게 점령된 종점을 뚫고 지나가기 | Integration | Removed(039) | N/A |
 | 034 | 열차 강화 — 칸마다 3×2 장비 그리드와 습격 연동 | Integration | Removed(039) | N/A |
 | 035 | 서식지 고정 — 완성된 서식지는 더 커지지 않음 | Logic | Done | N/A |
@@ -64,7 +68,7 @@ Brief Build order: 이동 → 서식지·NPC → 거점 상태·패배 → 전�
 | 037 | 1차 횡스크롤 여정 + 달리면서 치르는 전투(프리미티브) | Visual/Feel | Removed(039) | N/A |
 | 038 | 2차 중간역 정차 — 탑뷰 디펜스·고철 파밍·장비 비용(프리미티브) | Integration | Removed(039) | N/A |
 | 039 | 전투 전부 제거, 원형 선로 + 휴식지 3(이벤트), 거점 지명 "황동골" | Integration | Done | N/A |
-| 040 | 경제 기반 — 마르크·품목 6종·휴식지 시장·화물칸·거래 패널·정산·파산 | Integration | Partial(돈·장부 유지, 교역 보관 045) | N/A |
+| 040 | 경제 기반 — 마르크·품목 6종·휴식지 시장·화물칸·거래 패널·정산·파산 | Integration | Partial(돈·장부·운임 유지, 교역 보관 045, 유지비 0 048) | N/A |
 | 041 | 생산 건물 — 레시피를 생산 데이터로, 창고, 타일 비용, 적재 | Integration | Partial(타일 가격 유지, 생산·창고 보관 045) | N/A |
 | 042 | 주민·노동·만족도·마을 등급·해금 | Logic | Superseded(045) | N/A |
 | 043 | 열차 업그레이드·선로 확장 | Integration | Superseded(045) | N/A |

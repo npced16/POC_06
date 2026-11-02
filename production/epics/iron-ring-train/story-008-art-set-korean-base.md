@@ -1,5 +1,7 @@
 # Story 008: 플레이스홀더 아트 세트와 한국어 기반
 
+> **상태 메모(2026-11-02 정리)**: 부분 유효 — 한국어 기반(ko.json·글꼴)은 살아 있고, 플레이스홀더 아트는 019 스팀펑크 환경 아트로 대체. 현재 규칙은 design/game-brief.md §Art & audio 와 story-019 참조.
+
 > **Epic**: 철환 장갑열차 MVP (iron-ring-train)
 > **Status**: Done
 > **Layer**: Presentation

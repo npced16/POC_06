@@ -1,7 +1,9 @@
 # Story 004: 거점 성장·쇠락·폐허 전환과 패배 판정
 
+> **상태 메모(2026-11-02 정리)**: 대체 — 4거점 성장·쇠락·'모두 폐허면 패배'는 014 거점 단계를 거쳐 045 마을 등급·붕괴로 바뀜. 현재 규칙은 design/game-brief.md §Player goal 과 story-045 참조.
+
 > **Epic**: 철환 장갑열차 MVP (iron-ring-train)
-> **Status**: Done
+> **Status**: Superseded(014→045) — 원래: Done
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: L

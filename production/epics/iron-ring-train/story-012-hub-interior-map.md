@@ -1,5 +1,7 @@
 # Story 012: 거점 내부 탑뷰 맵과 조사
 
+> **상태 메모(2026-11-02 정리)**: 부분 유효 — 거점 내부 탑뷰 맵은 살아 있으나(칸 수는 020의 위·아래 4×12) 잔해 조사는 015에서 제거. 현재 규칙은 design/game-brief.md §Core loop 과 story-015·story-020 참조.
+
 > **Epic**: 철환 장갑열차 MVP (iron-ring-train)
 > **Status**: Done (2026-11-01 16:04 KST 코디네이터 브리지 검증 — EditMode 154/154, 스크린샷 2장 확보·육안 확인)
 > **Layer**: Core

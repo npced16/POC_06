@@ -1,7 +1,9 @@
 # Story 044: 경영 HUD — 장부 화면, 건물 정보 패널, 목표 표시, 결과 재무 요약, 경제 이벤트
 
+> **상태 메모(2026-11-02 정리)**: 대체 — 장부 화면·경제 이벤트는 보류, 정산 토스트·주민/등급 HUD는 045에서 구현. 현재 규칙은 story-045 참조.
+
 > **Epic**: 황동골 철도 회사 MVP (iron-ring-train)
-> **Status**: Ready (043 뒤)
+> **Status**: Superseded(045) — 원래: Ready (043 뒤)
 > **Layer**: Presentation
 > **Type**: UI
 > **Estimate**: M

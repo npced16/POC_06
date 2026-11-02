@@ -1,7 +1,9 @@
 # Story 007: 최소 HUD
 
+> **상태 메모(2026-11-02 정리)**: 대체 — 최소 HUD(UI Toolkit)는 022 UGUI 캔버스·화면 프리팹으로 대체. 현재 규칙은 design/game-brief.md §편집 규칙 과 story-022 참조.
+
 > **Epic**: 철환 장갑열차 MVP (iron-ring-train)
-> **Status**: Done
+> **Status**: Superseded(022) — 원래: Done
 > **Layer**: Presentation
 > **Type**: UI
 > **Estimate**: M

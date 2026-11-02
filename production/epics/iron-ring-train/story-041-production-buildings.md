@@ -1,7 +1,9 @@
 # Story 041: 생산 건물 — 서식지 레시피를 생산 데이터로(입력/출력/노동자/유지비), 거점 창고, 타일 비용, 창고 → 열차 적재
 
+> **상태 메모(2026-11-02 정리)**: 부분 유효 — 타일 가격(4~12마르크, 전액 환급)만 남고 생산 건물·창고·적재는 045에서 보관. 현재 규칙은 design/game-brief.md §Core loop 과 story-045 참조.
+
 > **Epic**: 황동골 철도 회사 MVP (iron-ring-train)
-> **Status**: Ready (040 뒤)
+> **Status**: Partial(045) — 타일 가격·환급만 구현·유지, 생산·창고·적재 보관 — 원래: Ready(040 뒤)
 > **Layer**: Core + Presentation
 > **Type**: Integration
 > **Estimate**: L

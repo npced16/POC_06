@@ -1,7 +1,7 @@
 # Story 035: 서식지 고정 — 한 번 완성된 서식지는 더 커지지 않고, 자기 칸이 빠질 때만 깨진다
 
 > **Epic**: 철환 장갑열차 MVP (iron-ring-train)
-> **Status**: Ready
+> **Status**: Done (2026-11-02 — 커밋 b89a9d4, 검증 production/qa/evidence/story-035-habitat-lock/verification.md; 문서 상태만 늦게 갱신)
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: S

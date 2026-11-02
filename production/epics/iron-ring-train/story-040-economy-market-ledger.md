@@ -1,7 +1,9 @@
 # Story 040: 경제 기반 — 돈(마르크)·품목 6종·휴식지 시장·열차 화물칸·거래 패널·운임·유지비·정산 장부·파산
 
+> **상태 메모(2026-11-02 정리)**: 부분 유효 — 돈(마르크)·장부·운임만 남고 품목·시장·화물칸·거래 패널은 045에서 archive/economy-trade-2026-11-02/ 로 보관, 유지비는 048에서 0. 현재 규칙은 design/game-brief.md §돈 과 story-045·story-048 참조.
+
 > **Epic**: 황동골 철도 회사 MVP (iron-ring-train)
-> **Status**: Ready
+> **Status**: Partial(045·048) — 돈·장부·운임 구현, 교역·파산 보관(045), 유지비 0(048) — 원래: Ready
 > **Layer**: Core + Presentation
 > **Type**: Integration
 > **Estimate**: L

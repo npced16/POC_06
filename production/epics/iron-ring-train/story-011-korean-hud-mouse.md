@@ -1,7 +1,9 @@
 # Story 011: 한국어 HUD와 마우스 조작
 
+> **상태 메모(2026-11-02 정리)**: 대체 — UI Toolkit 기반 한국어 HUD·마우스 조작은 022 UGUI 전환과 015 배치 개편으로 대체(마우스 조작 확인은 더 이상 이 스토리로 추적하지 않음). 현재 규칙은 story-022·story-015 참조.
+
 > **Epic**: 철환 장갑열차 MVP (iron-ring-train)
-> **Status**: Ready
+> **Status**: Superseded(022) — 원래: Ready(부분 검증)
 > **Layer**: Presentation
 > **Type**: UI
 > **Estimate**: M

@@ -1,7 +1,9 @@
 # Story 010: 거점 상태와 전투 연출
 
+> **상태 메모(2026-11-02 정리)**: 제거/대체 — 전투 연출은 039에서 제거, 거점 상태 연출은 036 폐허 연출·045 마을 등급으로 대체. 현재 규칙은 story-036·story-045 참조.
+
 > **Epic**: 철환 장갑열차 MVP (iron-ring-train)
-> **Status**: Done
+> **Status**: Removed(039) / Superseded(036·045) — 원래: Done
 > **Layer**: Presentation
 > **Type**: Visual/Feel
 > **Estimate**: L
