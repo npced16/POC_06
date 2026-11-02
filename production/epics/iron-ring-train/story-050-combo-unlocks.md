@@ -1,7 +1,7 @@
 # Story 050: 조합 해금 — 건물을 처음 완성하면 새 타일이 열린다
 
 > **Epic**: 황동골 철도 회사 MVP (iron-ring-train)
-> **Status**: Ready
+> **Status**: Done
 > **Layer**: Core + Presentation
 > **Type**: Integration
 > **Estimate**: M

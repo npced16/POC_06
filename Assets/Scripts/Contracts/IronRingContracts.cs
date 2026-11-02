@@ -329,6 +329,25 @@ namespace IronRing.Contracts
         string UnlockNpcOf(string typeId) => null;
         /// <summary>typeId, source. 새로 해금될 때 1회(시작 레시피는 생성 때 해금되므로 발생하지 않는다).</summary>
         event Action<string, string> RecipeUnlocked;
+
+        // ----- 스토리 050: 조합 해금(건물 첫 완성 → 새 타일). 기본 구현은 "잠금 없음"이라 옛 가짜 구현도 그대로 컴파일된다. -----
+
+        /// <summary>스토리 050. 타일(아이템) id를 지금 놓을 수 있으면 true. 해금 데이터가 다루지 않는 아이템(장식 등)·null이 아닌 모르는 id는 늘 true. 핫바·팔레트·배치가 이 한 곳으로 판정한다.</summary>
+        bool IsTileUnlocked(string itemId) => true;
+        /// <summary>스토리 050. 열린 타일 id(시작 타일 → 해금 순서). 해금 데이터가 다루는 타일만 담는다.</summary>
+        IReadOnlyList<string> UnlockedTileIds => Array.Empty<string>();
+        /// <summary>스토리 050. 해금 데이터가 다루는 타일 전부(시작 + 해금표, 분모 13).</summary>
+        IReadOnlyList<string> ManagedTileIds => Array.Empty<string>();
+        /// <summary>스토리 050. typeId 건물을 (어느 마을에서든) 한 번이라도 완성했으면 true.</summary>
+        bool HasBuilt(string typeId) => false;
+        /// <summary>스토리 050. typeId 건물을 처음 완성하면 열리는 타일(데이터 _tileUnlocks). 없으면 빈 목록.</summary>
+        IReadOnlyList<string> TilesUnlockedBy(string typeId) => Array.Empty<string>();
+        /// <summary>스토리 050. typeId가 알려지기 전에 먼저 지어야 하는 건물(데이터 _recipeRequires). 없으면 null.</summary>
+        string RequiredRecipeOf(string typeId) => null;
+        /// <summary>스토리 050. (새로 열린 타일 id들, 원인 건물 id). 건물 첫 완성 때 1회, 새 타일이 있을 때만. RecipeUnlocked·RecipesLearned보다 먼저 온다.</summary>
+        event Action<IReadOnlyList<string>, string> TileUnlocked { add { } remove { } }
+        /// <summary>스토리 050. (같은 순간 새로 알려진 레시피 id들, 원인 건물 id). 각 레시피의 RecipeUnlocked(source "combo")가 모두 난 뒤 묶어서 1회. 토스트 한 줄용.</summary>
+        event Action<IReadOnlyList<string>, string> RecipesLearned { add { } remove { } }
     }
 
     // ----- NPC 집(배정 서식지)과 대화·상호작용(스토리 017) -----
@@ -439,6 +458,8 @@ namespace IronRing.Contracts
         event Action<string> Left;
         /// <summary>데모·시험용 탑승. force면 자리·출신지·탑승 조건을 무시한다. 이미 합류했거나 타고 있으면 false.</summary>
         bool TryBoard(string npcId, string waypointId, bool force);
+        /// <summary>스토리 051. 중간역 사건 "합류": 자리가 있으면 아직 합류·탑승하지 않은 NPC 하나를 태운다(출신지·탑승 조건을 채우는 이를 먼저, 없으면 아무나). 태운 id, 없으면 null.</summary>
+        string TryBoardAny(string waypointId) => null;
     }
 
     // ----- 런의 끝과 번영 예보(스토리 028) -----
@@ -649,5 +670,87 @@ namespace IronRing.Contracts
         }
         /// <summary>스토리 048. 등급이 올랐을 때(거점 id, 새 등급 번호). TierChanged는 hub-1만 낸다.</summary>
         event Action<string, int> HubTierChanged { add { } remove { } }
+    }
+
+    // ----- 페이즈 루프·중간역 사건·타일 재고(스토리 051) -----
+    // 한 바퀴 = 건설(거점 정차) → 순환(출발~거점 복귀, 휴식지마다 사건 하나를 골라 푼다) → 다시 건설·조합.
+    // 구현: IronRing.Track.PhaseLoop(IPhaseLoop + IRestEvents), IronRing.Items.TileStock(ITileStock). 설치: IronRing.Track.LoopInstaller(Composing).
+
+    /// <summary>스토리 051. 루프 페이즈.</summary>
+    public enum LoopPhase
+    {
+        /// <summary>건설 페이즈: 거점(선로 첫 역) 정차 중. 타일 배치·건물 완성·조합 해금. 플레이어가 출발하면 끝난다.</summary>
+        Build,
+        /// <summary>순환 페이즈: 출발부터 거점 복귀까지. 휴식지마다 사건 하나.</summary>
+        Circulate
+    }
+
+    /// <summary>스토리 051. 페이즈 상태. 배너 "건설 페이즈 — 바퀴 N" / "순환 페이즈".</summary>
+    public interface IPhaseLoop
+    {
+        /// <summary>지금 페이즈.</summary>
+        LoopPhase Phase { get; }
+        /// <summary>지금 바퀴 번호(1부터). 건설 페이즈 N과 그 뒤 순환 페이즈는 같은 N. 거점 복귀 때 +1.</summary>
+        int Lap { get; }
+        /// <summary>출발 버튼을 보일지: 역(거점·열린 마을)에 서 있고 사건이 없을 때 true. 건설 페이즈가 기본, 순환 중 열린 다른 마을 정차도 기존처럼 출발이 필요하다.</summary>
+        bool CanDepart { get; }
+        /// <summary>출발(CanDepart가 false면 무시). ITrackRuntime.Depart를 직접 불러도 페이즈는 같이 넘어간다.</summary>
+        void Depart();
+        /// <summary>페이즈가 바뀔 때(새 페이즈, 바퀴 번호).</summary>
+        event Action<LoopPhase, int> PhaseChanged;
+    }
+
+    /// <summary>스토리 051. 중간역(휴식지) 사건 진행. 휴식지 도착 → 열차 정지 → EventStarted → Choose → EventResolved(결과 줄) → Continue → EventClosed → 출발.</summary>
+    public interface IRestEvents
+    {
+        /// <summary>사건 창을 띄워야 하는 동안 true(선택 전 + 결과 표시 중). EventClosed에서 false.</summary>
+        bool IsActive { get; }
+        /// <summary>지금(또는 마지막) 사건 id(RestEvents.json _id).</summary>
+        string EventId { get; }
+        /// <summary>사건이 난 휴식지 노드 id.</summary>
+        string NodeId { get; }
+        /// <summary>제목(한국어, ko.json에서 해석됨).</summary>
+        string Title { get; }
+        /// <summary>상황 글(한국어, 1~2문장).</summary>
+        string Text { get; }
+        /// <summary>선택지 문구(한국어, 2~3개, 데이터 순서).</summary>
+        IReadOnlyList<string> Choices { get; }
+        /// <summary>그 선택지를 고를 수 있는지(돈이 드는 선택지는 잔고가 모자라면 false — 버튼 비활성).</summary>
+        bool IsChoiceAvailable(int index);
+        /// <summary>고를 수 없는 이유(한국어, 예: "마르크 부족"). 고를 수 있으면 "".</summary>
+        string UnavailableReason(int index) => "";
+        /// <summary>선택을 마쳐 결과를 보여 주는 중인지.</summary>
+        bool HasResolved { get; }
+        /// <summary>고른 선택지 번호(고르기 전 -1).</summary>
+        int ChosenIndex { get; }
+        /// <summary>결과 한 줄(한국어). 확률 선택지가 실패했으면 실패 문구.</summary>
+        string ResultText { get; }
+        /// <summary>실제로 얻고 잃은 것 요약(한국어, 예: "석탄더미 ×3 · 보일러 ×1 · −10마르크"). 없으면 "".</summary>
+        string ResultDetail { get; }
+        /// <summary>선택지를 고른다. 활성 사건이 없거나 이미 골랐거나 고를 수 없으면 false.</summary>
+        bool Choose(int index);
+        /// <summary>결과를 닫고 열차를 보낸다([계속] 버튼). 선택 전이면 무시. 데이터 _autoContinueSeconds가 지나면 저절로 불린다.</summary>
+        void Continue();
+        /// <summary>사건 창을 열 때.</summary>
+        event Action EventStarted;
+        /// <summary>선택 직후(결과 줄을 보일 때).</summary>
+        event Action EventResolved;
+        /// <summary>사건 창을 닫을 때(Continue 뒤).</summary>
+        event Action EventClosed;
+    }
+
+    /// <summary>스토리 051. 타일 묶음 재고. 사건에서 얻은 타일이 쌓이고, 배치 때 재고가 있으면 재고 1을 쓰고 돈은 내지 않는다.</summary>
+    public interface ITileStock
+    {
+        /// <summary>그 타일의 재고 수(없으면 0).</summary>
+        int CountOf(string itemId);
+        /// <summary>count(&gt;0)만큼 더한다.</summary>
+        void Add(string itemId, int count);
+        /// <summary>count만큼 있으면 빼고 true, 모자라면 아무것도 바꾸지 않고 false.</summary>
+        bool TryTake(string itemId, int count);
+        /// <summary>재고가 있는 품목과 수의 복사본.</summary>
+        IReadOnlyDictionary<string, int> Snapshot();
+        /// <summary>itemId, 새 수.</summary>
+        event Action<string, int> Changed;
     }
 }

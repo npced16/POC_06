@@ -76,6 +76,8 @@ namespace IronRing.Items
             if (slots == null) { WarnOnce("ItemsInstaller: 칸 쓰기(TryPlaceItem/TryRemoveItem)를 지원하지 않는 IHubInterior라 배치를 건너뜁니다."); return; }
 
             var placement = new ItemPlacement(inventory, interior, slots, CanEdit);
+            // 스토리 050: 잠긴 타일은 놓을 수 없다(판정은 도감 한 곳, 도감이 아직 없으면 허용).
+            placement.IsUnlocked = id => GameServices.Get<IHabitatCodex>()?.IsTileUnlocked(id) ?? true;
             GameServices.Register<IItemPlacement>(placement);
             // 스토리 016: 서식지는 같은 타일 묶음·패턴 판정(ClusterHabitatSystem)이 IHabitatSystem과 IHabitatClusters를 맡는다.
             // 013의 TagHabitatSystem(태그 합산)은 코드로 보존하되 등록하지 않는다. NpcRecruiter는 Bootstrap의 BindHabitat(HabitatLink)가 새 구현에 연결한다.

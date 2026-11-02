@@ -30,9 +30,14 @@ namespace IronRing.Habitats
         /// <summary>설치된 레시피 도감. 설치 전에는 null.</summary>
         public static HabitatCodex Codex { get; private set; }
 
+        /// <summary>스토리 050. 해금 로그·토스트. 설치 전에는 null.</summary>
+        private static TileUnlockNotices _notices;
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStatics()
         {
+            _notices?.Dispose();
+            _notices = null;
             Codex?.Dispose();
             Codex = null;
             System?.Dispose();
@@ -67,12 +72,16 @@ namespace IronRing.Habitats
         /// </summary>
         private static void InstallCodex()
         {
+            _notices?.Dispose();
             Codex?.Dispose();
             TextAsset asset = UnityEngine.Resources.Load<TextAsset>(CodexPath);
             if (asset == null) throw new InvalidOperationException("Missing codex unlock resource: " + CodexPath);
             CodexUnlockSettings settings = CodexUnlockSettings.Parse(asset.text);
             Codex = new HabitatCodex(Catalog, settings, GameServices.Get<ITrackRuntime>(), GameServices.Get<IWaypointResolver>(), System);
             GameServices.Register<IHabitatCodex>(Codex);
+            // 스토리 050: 건물 첫 완성 → 새 타일·새 설계도 로그와 토스트.
+            _notices = new TileUnlockNotices(Codex, id => IronRing.Items.ItemsInstaller.Catalog?.Get(id)?.Name ?? id, id => Catalog?.Get(id)?.Name ?? id);
+            UnityEngine.Debug.Log($"UNLOCK: start tiles {string.Join(",", Codex.UnlockedTileIds)} ({Codex.UnlockedTileIds.Count}/{Codex.ManagedTileIds.Count}) recipes {string.Join(",", Codex.UnlockedTypeIds)} ({Codex.UnlockedTypeIds.Count}/{Codex.TotalCount})");
             // 스토리 030: 승객·모집은 NpcInstaller가 같은 Composing에서 설치하므로 순서와 무관하게 Ready에서(이미 있으면 지금도) 연결한다.
             GameServices.Ready -= BindCodexNpcs;
             GameServices.Ready += BindCodexNpcs;

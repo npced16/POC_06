@@ -103,6 +103,7 @@ namespace IronRing.Hud.Codex
             if (closeLabel != null) closeLabel.text = Text("codex_close");
             _close.onClick.AddListener(Close);
             _codex.RecipeUnlocked += OnRecipeUnlocked;
+            _codex.TileUnlocked += OnTileUnlocked;
             if (_clusters != null) { _clusters.HabitatCompleted += OnClustersChanged; _clusters.HabitatBroken += OnClustersChanged; }
             if (_view != null) _view.InteriorChanged += OnInteriorChanged;
             ResolveNpcServices();
@@ -119,6 +120,7 @@ namespace IronRing.Hud.Codex
             if (open) Rebuild();
         }
 
+        /// <summary>typeId의 새 레시피를 source에 맞게 알리되 combo는 로직 토스트에 맡기고, 열린 도감은 갱신한다.</summary>
         private void OnRecipeUnlocked(string typeId, string source)
         {
             string npcId = _codex.UnlockNpcOf(typeId);
@@ -129,13 +131,16 @@ namespace IronRing.Hud.Codex
                 _toasts.Enqueue(toast);
                 UnityEngine.Debug.Log("CODEX TOAST: " + toast);
             }
-            else
+            else if (source != HabitatCodex.SOURCE_COMBO)
             {
                 string key = source == HabitatCodex.SOURCE_DISCOVER ? "codex_toast_discover" : "codex_toast_new";
                 _toasts.Enqueue(string.Format(Text(key), HabitatName(typeId)));
             }
             if (IsOpen) Rebuild();
         }
+
+        /// <summary>tileIds가 열리면 화면에 보이는 잠긴 카드의 재료 이름과 아이콘을 다시 그린다.</summary>
+        private void OnTileUnlocked(IReadOnlyList<string> tileIds, string byRecipeId) { if (IsOpen) Rebuild(); }
 
         private void OnClustersChanged(string hubId, string typeId) { if (IsOpen) Rebuild(); }
         private void OnInteriorChanged(bool open) { if (IsOpen) Rebuild(); }
@@ -184,6 +189,7 @@ namespace IronRing.Hud.Codex
 
         // ----- 그리기 -----
 
+        /// <summary>현재 거점의 완성 건물과 도감 해금 상태를 읽어 전체 카드 목록을 다시 그린다.</summary>
         private void Rebuild()
         {
             ResolveNpcServices();
@@ -192,7 +198,8 @@ namespace IronRing.Hud.Codex
             var completed = new HashSet<string>();
             if (_clusters != null && hub != null)
                 foreach (HabitatCluster cluster in _clusters.CompletedAt(hub)) completed.Add(cluster.TypeId);
-            _title.text = string.Format(Text("codex_title"), _codex.UnlockedTypeIds.Count, _catalog.Types.Count);
+            int total = _codex is HabitatCodex concrete ? concrete.TotalCount : _catalog.Types.Count;
+            _title.text = string.Format(Text("codex_title"), _codex.UnlockedTypeIds.Count, total);
             for (int i = _grid.childCount - 1; i >= 0; i--)
             {
                 GameObject child = _grid.GetChild(i).gameObject;
@@ -203,7 +210,12 @@ namespace IronRing.Hud.Codex
             {
                 CodexCardView card = Instantiate(_cardPrefab, _grid);
                 card.name = "Card_" + type.Id;
-                if (!_codex.IsUnlocked(type.Id)) { card.ShowLocked(Text("codex_locked")); continue; }
+                if (!_codex.IsUnlocked(type.Id))
+                {
+                    card.ShowLocked(Text("codex_locked"), LockedMaterials(type));
+                    FillDiagram(card, type);
+                    continue;
+                }
                 card.ShowUnlocked(HabitatName(type.Id),
                     KindName(type.Kind) + "  ·  " + string.Format(Text("codex_cells"), CellCount(type)),
                     string.Format(Text("codex_bonus"), type.ProsperityBonus.ToString("0")),
@@ -212,6 +224,15 @@ namespace IronRing.Hud.Codex
                     completed.Contains(type.Id));
                 FillDiagram(card, type);
             }
+        }
+
+        /// <summary>type의 재료 타일을 잠금 상태에 따라 이름 또는 ???로 바꿔 카드의 재료 줄로 반환한다.</summary>
+        private string LockedMaterials(HabitatType type)
+        {
+            var names = new List<string>();
+            foreach (string id in type.TileIds())
+                names.Add(_codex.IsTileUnlocked(id) ? (Lookup("item_" + id) ?? id) : Text("codex_locked"));
+            return string.Join(" · ", names);
         }
 
         /// <summary>
@@ -286,6 +307,11 @@ namespace IronRing.Hud.Codex
 
         private void Icon(CodexCardView card, string tileItemId)
         {
+            if (!_codex.IsTileUnlocked(tileItemId))
+            {
+                Tile(card).Show(null, Text("codex_locked"), false);
+                return;
+            }
             Sprite sprite = _sprites != null ? _sprites.Get(tileItemId) : null;
             string name = Lookup("item_" + tileItemId) ?? tileItemId;
             Tile(card).Show(sprite, name.Substring(0, 1), false);
@@ -319,6 +345,7 @@ namespace IronRing.Hud.Codex
             NpcHomesDemoDriver.StageReady -= OnNpcDemoReady;
             if (_recruiter != null) _recruiter.NpcJoined -= OnNpcJoined;
             if (_codex != null) _codex.RecipeUnlocked -= OnRecipeUnlocked;
+            if (_codex != null) _codex.TileUnlocked -= OnTileUnlocked;
             if (_clusters != null) { _clusters.HabitatCompleted -= OnClustersChanged; _clusters.HabitatBroken -= OnClustersChanged; }
             if (_view != null) _view.InteriorChanged -= OnInteriorChanged;
             _instance = null;

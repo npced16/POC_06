@@ -7,35 +7,63 @@ using IronRing.Contracts;
 
 namespace IronRing.Habitats
 {
-    /// <summary>스토리 021 해금 데이터(Resources/Habitats/CodexUnlocks.json): 시작 레시피, 해금 순서, 출처별 한 번에 여는 개수.</summary>
+    /// <summary>
+    /// 해금 데이터(Resources/Habitats/CodexUnlocks.json). 스토리 050(조합 해금): 시작 타일, 건물 첫 완성 → 여는 타일, 레시피 선행 건물.
+    /// 스토리 021의 시작 레시피·해금 순서·바퀴 개수(_starters/_unlockOrder/_perLap)는 읽기만 하고 HabitatCodex가 쓰지 않는다.
+    /// </summary>
     public sealed class CodexUnlockSettings
     {
-        /// <summary>런 시작 때 아는 레시피.</summary>
+        /// <summary>옛 데이터(스토리 021). 스토리 050부터 무시.</summary>
         public IReadOnlyList<string> Starters { get; }
-        /// <summary>바퀴·이벤트·승리가 차례로 여는 순서.</summary>
+        /// <summary>옛 데이터(스토리 021). 스토리 050부터 무시.</summary>
         public IReadOnlyList<string> UnlockOrder { get; }
-        /// <summary>바퀴 하나를 채울 때 여는 개수.</summary>
+        /// <summary>옛 데이터(스토리 021). 스토리 050부터 무시.</summary>
         public int PerLap { get; }
-        /// <summary>경유지 이벤트 하나를 해결할 때 여는 개수.</summary>
+        /// <summary>경유지 이벤트 하나를 해결할 때 여는 개수(스토리 039 떠돌이 상인 몫은 따로 더한다).</summary>
         public int PerEvent { get; }
-        /// <summary>전투 하나를 이길 때 여는 개수.</summary>
+        /// <summary>전투 하나를 이길 때 여는 개수(코드 경로 없음, 데이터 호환용).</summary>
         public int PerVictory { get; }
 
-        /// <summary>값으로 직접 만든다(테스트·데모용).</summary>
+        /// <summary>스토리 050. 처음부터 열린 타일(_starterTiles). 비어 있으면 타일 잠금을 쓰지 않는다(모든 타일 열림).</summary>
+        public IReadOnlyList<string> StarterTiles { get; }
+        /// <summary>스토리 050. 건물(레시피) id → 처음 완성하면 여는 타일(_tileUnlocks, 데이터 순서).</summary>
+        public IReadOnlyDictionary<string, IReadOnlyList<string>> TileUnlocks { get; }
+        /// <summary>스토리 050. 레시피 id → 알려지기 전에 먼저 지어야 하는 건물(_recipeRequires).</summary>
+        public IReadOnlyDictionary<string, string> RecipeRequires { get; }
+        /// <summary>스토리 050. 해금 토스트 표시 시간(초).</summary>
+        public float ToastSeconds { get; }
+
+        /// <summary>값으로 직접 만든다(옛 생성자, 타일 잠금 없음).</summary>
         public CodexUnlockSettings(IEnumerable<string> starters, IEnumerable<string> unlockOrder, int perLap, int perEvent, int perVictory)
+            : this(starters, unlockOrder, perLap, perEvent, perVictory, null, null, null, 4f) { }
+
+        /// <summary>스토리 050. 조합 해금 값까지 직접 만든다.</summary>
+        public CodexUnlockSettings(IEnumerable<string> starters, IEnumerable<string> unlockOrder, int perLap, int perEvent, int perVictory,
+            IEnumerable<string> starterTiles, IDictionary<string, IReadOnlyList<string>> tileUnlocks, IDictionary<string, string> recipeRequires, float toastSeconds)
         {
             Starters = new List<string>(starters ?? Array.Empty<string>());
             UnlockOrder = new List<string>(unlockOrder ?? Array.Empty<string>());
             PerLap = Math.Max(0, perLap);
             PerEvent = Math.Max(0, perEvent);
             PerVictory = Math.Max(0, perVictory);
+            StarterTiles = new List<string>(starterTiles ?? Array.Empty<string>());
+            TileUnlocks = tileUnlocks != null ? new Dictionary<string, IReadOnlyList<string>>(tileUnlocks) : new Dictionary<string, IReadOnlyList<string>>();
+            RecipeRequires = recipeRequires != null ? new Dictionary<string, string>(recipeRequires) : new Dictionary<string, string>();
+            ToastSeconds = Math.Max(0.5f, toastSeconds);
         }
 
         /// <summary>JSON 텍스트를 읽는다.</summary>
         public static CodexUnlockSettings Parse(string json)
         {
             Data data = JsonUtility.FromJson<Data>(json) ?? new Data();
-            return new CodexUnlockSettings(data._starters, data._unlockOrder, data._perLap, data._perEvent, data._perVictory);
+            var tiles = new Dictionary<string, IReadOnlyList<string>>();
+            foreach (TileUnlockData t in data._tileUnlocks ?? Array.Empty<TileUnlockData>())
+                if (t != null && !string.IsNullOrEmpty(t._recipe)) tiles[t._recipe] = new List<string>(t._tiles ?? Array.Empty<string>());
+            var requires = new Dictionary<string, string>();
+            foreach (RequireData r in data._recipeRequires ?? Array.Empty<RequireData>())
+                if (r != null && !string.IsNullOrEmpty(r._recipe) && !string.IsNullOrEmpty(r._requires)) requires[r._recipe] = r._requires;
+            return new CodexUnlockSettings(data._starters, data._unlockOrder, data._perLap, data._perEvent, data._perVictory,
+                data._starterTiles, tiles, requires, data._toastSeconds);
         }
 
 #pragma warning disable 0649
@@ -44,20 +72,39 @@ namespace IronRing.Habitats
         {
             public string[] _starters;
             public string[] _unlockOrder;
-            public int _perLap = 1;
-            public int _perEvent = 1;
-            public int _perVictory = 1;
+            public int _perLap;
+            public int _perEvent;
+            public int _perVictory;
+            public string[] _starterTiles;
+            public TileUnlockData[] _tileUnlocks;
+            public RequireData[] _recipeRequires;
+            public float _toastSeconds = 4f;
+        }
+
+        [Serializable]
+        private sealed class TileUnlockData
+        {
+            public string _recipe;
+            public string[] _tiles;
+        }
+
+        [Serializable]
+        private sealed class RequireData
+        {
+            public string _recipe;
+            public string _requires;
         }
 #pragma warning restore 0649
     }
 
     /// <summary>
-    /// 스토리 021. 레시피 도감(IHabitatCodex). 생성 때 시작 레시피를 조용히 해금하고(토스트 없음), ITrackRuntime.LapCompleted마다 PerLap개,
-    /// IWaypointResolver.EncounterEnded가 EventResolved면 PerEvent개, Victory면 PerVictory개를 순서 목록에서 차례로 연다(패배는 없음).
-    /// 순서 목록이 다 열렸는데 아직 모르는 카탈로그 종류가 있으면 카탈로그 순서로 연다. 모든 종류를 알면 더 열지 않는다.
-    /// IHabitatClusters.HabitatCompleted가 모르는 종류면 "discover"로 해금한다(완성 판정은 시스템이 이미 인정했다).
-    /// 스토리 030: 레시피는 NPC를 따라 열린다. IPassengers.Boarded → 그 승객이 원하는 종류("board"), INpcRecruiter.NpcJoined → 그 NPC가
-    /// 가르치는 종류("teach"). 바퀴·이벤트·승리 해금은 데이터 개수가 0이면 아무것도 하지 않는다(코드 경로는 유지).
+    /// 레시피 도감 + 타일 해금(IHabitatCodex). design/game-brief.md, 스토리 050 "조합 해금".
+    /// 타일: 시작 타일(_starterTiles)만 열려 있고, 건물을 (어느 마을에서든) 처음 완성하면(IHabitatClusters.HabitatCompleted) 그 건물의 _tileUnlocks 타일이
+    /// 열린다(TileUnlocked 1회). 같은 건물을 두 번째로 지으면 아무 일도 없다. 해금 데이터가 다루지 않는 아이템(장식 등)은 잠기지 않는다.
+    /// 레시피 "알려짐": 재료 타일이 모두 열리고 _recipeRequires의 선행 건물을 지었으면 자동으로 알려진다. 생성 때는 조용히("start", 이벤트 없음),
+    /// 그 뒤로는 그 순간 RecipeUnlocked(typeId, "combo")를 하나씩 낸 다음 RecipesLearned(묶음, 원인 건물)를 1회 낸다.
+    /// 그대로 남은 출처: 모르는 레시피를 완성하면 "discover", 승객 탑승 "board", NPC 합류 "teach", 경유지 이벤트(떠돌이 상인) "event".
+    /// 스토리 021의 시작 레시피·바퀴 해금과 스토리 042의 등급 해금은 더 쓰지 않는다(OnLapCompleted·BindTiers는 호환용으로 남음).
     /// </summary>
     public sealed class HabitatCodex : IHabitatCodex, IDisposable
     {
@@ -68,9 +115,10 @@ namespace IronRing.Habitats
         public const string SOURCE_DISCOVER = "discover";
         public const string SOURCE_BOARD = "board";
         public const string SOURCE_TEACH = "teach";
-        /// <summary>스토리 042. 마을 등급이 연 레시피.</summary>
+        /// <summary>스토리 042. 마을 등급이 연 레시피(스토리 050부터 쓰지 않음).</summary>
         public const string SOURCE_TIER = "tier";
-        private ITownTier _tiers;
+        /// <summary>스토리 050. 재료 타일이 모두 열려(선행 건물 포함) 자동으로 알려진 레시피.</summary>
+        public const string SOURCE_COMBO = "combo";
 
         private readonly HabitatCatalog _catalog;
         private readonly CodexUnlockSettings _settings;
@@ -81,6 +129,12 @@ namespace IronRing.Habitats
         private readonly HashSet<string> _known = new HashSet<string>();
         private readonly Dictionary<string, string> _sourceOf = new Dictionary<string, string>();
         private readonly Dictionary<string, string> _npcOf = new Dictionary<string, string>();
+        private readonly List<string> _managedTiles = new List<string>();
+        private readonly HashSet<string> _managedSet = new HashSet<string>();
+        private readonly List<string> _openTiles = new List<string>();
+        private readonly HashSet<string> _openSet = new HashSet<string>();
+        private readonly List<string> _builtOrder = new List<string>();
+        private readonly HashSet<string> _built = new HashSet<string>();
         private IPassengers _passengers;
         private INpcRecruiter _recruiter;
         private Func<string, string> _wantedOf;
@@ -90,10 +144,28 @@ namespace IronRing.Habitats
         public event Action<string, string> RecipeUnlocked;
 
         /// <inheritdoc />
+        public event Action<IReadOnlyList<string>, string> TileUnlocked;
+
+        /// <inheritdoc />
+        public event Action<IReadOnlyList<string>, string> RecipesLearned;
+
+        /// <inheritdoc />
         public IReadOnlyList<string> UnlockedTypeIds => _unlocked;
 
         /// <summary>카탈로그 종류 수(도감 분모).</summary>
         public int TotalCount => _catalog.Types.Count;
+
+        /// <inheritdoc />
+        public IReadOnlyList<string> UnlockedTileIds => _openTiles;
+
+        /// <inheritdoc />
+        public IReadOnlyList<string> ManagedTileIds => _managedTiles;
+
+        /// <summary>한 번이라도 완성한 건물 id(처음 완성 순서).</summary>
+        public IReadOnlyList<string> BuiltTypeIds => _builtOrder;
+
+        /// <summary>해금 데이터(토스트 시간 등).</summary>
+        public CodexUnlockSettings Settings => _settings;
 
         /// <summary>track·waypoints·clusters는 없으면 그 출처만 빠진다.</summary>
         public HabitatCodex(HabitatCatalog catalog, CodexUnlockSettings settings, ITrackRuntime track, IWaypointResolver waypoints, IHabitatClusters clusters)
@@ -103,18 +175,61 @@ namespace IronRing.Habitats
             _track = track;
             _waypoints = waypoints;
             _clusters = clusters;
-            var unknown = new List<string>();
-            foreach (string id in _settings.Starters) if (_catalog.Get(id) == null) unknown.Add(id);
-            foreach (string id in _settings.UnlockOrder) if (_catalog.Get(id) == null) unknown.Add(id);
-            if (unknown.Count > 0) Debug.LogWarning("HabitatCodex: 카탈로그에 없는 레시피 id: " + string.Join(", ", unknown));
-            foreach (string id in _settings.Starters) if (Add(id)) _sourceOf[id] = SOURCE_START;
+            BuildTileTable();
+            ValidateData();
+            foreach (string id in _settings.StarterTiles) OpenTile(id);
+            // 생성 때 이미 재료가 갖춰진 레시피는 조용히 안다(이벤트 없음).
+            foreach (HabitatType type in _catalog.Types) if (IsLearnable(type) && Add(type.Id)) _sourceOf[type.Id] = SOURCE_START;
             if (_track != null) _track.LapCompleted += OnLapCompleted;
             if (_waypoints != null) _waypoints.EncounterEnded += OnEncounterEnded;
             if (_clusters != null) _clusters.HabitatCompleted += OnHabitatCompleted;
         }
 
+        private void BuildTileTable()
+        {
+            foreach (string id in _settings.StarterTiles) AddManaged(id);
+            foreach (KeyValuePair<string, IReadOnlyList<string>> pair in _settings.TileUnlocks)
+                foreach (string id in pair.Value) AddManaged(id);
+        }
+
+        private void AddManaged(string itemId)
+        {
+            if (!string.IsNullOrEmpty(itemId) && _managedSet.Add(itemId)) _managedTiles.Add(itemId);
+        }
+
+        private void ValidateData()
+        {
+            var unknown = new List<string>();
+            foreach (string id in _settings.TileUnlocks.Keys) if (_catalog.Get(id) == null) unknown.Add(id);
+            foreach (KeyValuePair<string, string> pair in _settings.RecipeRequires)
+            {
+                if (_catalog.Get(pair.Key) == null) unknown.Add(pair.Key);
+                if (_catalog.Get(pair.Value) == null) unknown.Add(pair.Value);
+            }
+            if (unknown.Count > 0) UnityEngine.Debug.LogWarning("HabitatCodex: 카탈로그에 없는 레시피 id: " + string.Join(", ", unknown));
+            if (_managedTiles.Count == 0) return;
+            var unreachable = new List<string>();
+            foreach (HabitatType type in _catalog.Types)
+                foreach (string tile in type.TileIds())
+                    if (!_managedSet.Contains(tile) && !unreachable.Contains(tile)) unreachable.Add(tile);
+            if (unreachable.Count > 0) UnityEngine.Debug.LogWarning("HabitatCodex: 해금 데이터에 없는 레시피 타일(잠기지 않음): " + string.Join(", ", unreachable));
+        }
+
         /// <inheritdoc />
         public bool IsUnlocked(string typeId) => typeId != null && _known.Contains(typeId);
+
+        /// <inheritdoc />
+        public bool IsTileUnlocked(string itemId) => itemId != null && (!_managedSet.Contains(itemId) || _openSet.Contains(itemId));
+
+        /// <inheritdoc />
+        public bool HasBuilt(string typeId) => typeId != null && _built.Contains(typeId);
+
+        /// <inheritdoc />
+        public IReadOnlyList<string> TilesUnlockedBy(string typeId) =>
+            typeId != null && _settings.TileUnlocks.TryGetValue(typeId, out IReadOnlyList<string> tiles) ? tiles : Array.Empty<string>();
+
+        /// <inheritdoc />
+        public string RequiredRecipeOf(string typeId) => typeId != null && _settings.RecipeRequires.TryGetValue(typeId, out string r) ? r : null;
 
         /// <inheritdoc />
         public bool TryUnlock(string typeId, string source) => TryUnlock(typeId, source, null);
@@ -134,6 +249,39 @@ namespace IronRing.Habitats
 
         /// <inheritdoc />
         public string UnlockNpcOf(string typeId) => typeId != null && _npcOf.TryGetValue(typeId, out string n) ? n : null;
+
+        /// <summary>
+        /// 스토리 050. typeId 건물이 완성됐다고 기록한다(HabitatCompleted가 부르고, 데모도 같은 경로로 부른다). 처음이면 그 건물의 타일을 열고
+        /// (TileUnlocked), 새로 재료가 갖춰진 레시피를 "combo"로 알린 뒤(RecipeUnlocked 각각, RecipesLearned 묶음) true. 두 번째부터·모르는 id는 false.
+        /// </summary>
+        public bool MarkBuilt(string typeId)
+        {
+            if (typeId == null || _catalog.Get(typeId) == null || !_built.Add(typeId)) return false;
+            _builtOrder.Add(typeId);
+            var opened = new List<string>();
+            foreach (string tile in TilesUnlockedBy(typeId)) if (OpenTile(tile)) opened.Add(tile);
+            if (opened.Count > 0) TileUnlocked?.Invoke(opened, typeId);
+            var learned = new List<string>();
+            foreach (HabitatType type in _catalog.Types)
+                if (!_known.Contains(type.Id) && IsLearnable(type) && TryUnlock(type.Id, SOURCE_COMBO)) learned.Add(type.Id);
+            if (learned.Count > 0) RecipesLearned?.Invoke(learned, typeId);
+            return true;
+        }
+
+        /// <summary>재료 타일이 모두 열리고 선행 건물을 지었으면 true.</summary>
+        private bool IsLearnable(HabitatType type)
+        {
+            foreach (string tile in type.TileIds()) if (!IsTileUnlocked(tile)) return false;
+            string required = RequiredRecipeOf(type.Id);
+            return required == null || _built.Contains(required);
+        }
+
+        private bool OpenTile(string itemId)
+        {
+            if (string.IsNullOrEmpty(itemId) || !_managedSet.Contains(itemId) || !_openSet.Add(itemId)) return false;
+            _openTiles.Add(itemId);
+            return true;
+        }
 
         /// <summary>
         /// 스토리 030. NPC 해금 출처를 연결한다(다시 부르면 이전 연결을 푼다). wantedOf(npcId) = 원하는 서식지 종류, teachesOf(npcId) = 가르치는 종류.
@@ -172,10 +320,10 @@ namespace IronRing.Habitats
             if (typeId != null && !IsUnlocked(typeId)) TryUnlock(typeId, SOURCE_TEACH, npcId);
         }
 
-        /// <summary>바퀴 하나를 채웠을 때(ITrackRuntime.LapCompleted). 스토리 030: 데이터 개수가 0이면 아무것도 하지 않는다.</summary>
-        public void OnLapCompleted(int lap) { if (_settings.PerLap > 0) UnlockNext(_settings.PerLap, SOURCE_LAP); }
+        /// <summary>스토리 021 바퀴 해금. 스토리 050부터 아무것도 하지 않는다(호환용).</summary>
+        public void OnLapCompleted(int lap) { }
 
-        /// <summary>순서 목록에서 아직 모르는 다음 레시피 count개를 source로 연다. 연 개수를 돌려준다.</summary>
+        /// <summary>아직 모르는 다음 레시피 count개를 source로 연다(카탈로그 순). 연 개수를 돌려준다.</summary>
         public int UnlockNext(int count, string source)
         {
             int opened = 0;
@@ -189,10 +337,9 @@ namespace IronRing.Habitats
             return opened;
         }
 
-        /// <summary>다음에 열릴 레시피(순서 목록, 그다음 카탈로그 순). 다 알면 null.</summary>
+        /// <summary>다음에 열릴 레시피(스토리 050: 카탈로그 순, _unlockOrder 무시). 다 알면 null.</summary>
         public string NextLocked()
         {
-            foreach (string id in _settings.UnlockOrder) if (_catalog.Get(id) != null && !_known.Contains(id)) return id;
             foreach (HabitatType type in _catalog.Types) if (!_known.Contains(type.Id)) return type.Id;
             return null;
         }
@@ -214,37 +361,24 @@ namespace IronRing.Habitats
         private void OnHabitatCompleted(string hubId, string typeId)
         {
             if (!IsUnlocked(typeId)) TryUnlock(typeId, SOURCE_DISCOVER);
+            MarkBuilt(typeId);
         }
 
         /// <summary>
-        /// 스토리 042. 마을 등급 해금을 연결한다(다시 부르면 이전 연결을 푼다). 연결 즉시 지금까지의 누적 해금(등급 0 포함)을,
-        /// 그 뒤로는 TierChanged마다 ITownTier.UnlockedRecipeIds 중 잠긴 것을 "tier"로 연다.
+        /// 스토리 042 등급 해금 연결. 스토리 050: 등급은 레시피를 열지 않으므로 구독만 기록하고 아무것도 열지 않는다(호환용).
         /// </summary>
-        public void BindTiers(ITownTier tiers)
-        {
-            if (_tiers != null) _tiers.TierChanged -= OnTierChanged;
-            _tiers = tiers;
-            if (_tiers == null) return;
-            _tiers.TierChanged += OnTierChanged;
-            OnTierChanged(_tiers.Tier);
-        }
-
-        private void OnTierChanged(int tier)
-        {
-            if (_tiers == null) return;
-            foreach (string id in _tiers.UnlockedRecipeIds) if (!IsUnlocked(id)) TryUnlock(id, SOURCE_TIER);
-        }
+        public void BindTiers(ITownTier tiers) { }
 
         /// <summary>구독을 푼다.</summary>
         public void Dispose()
         {
-            if (_tiers != null) _tiers.TierChanged -= OnTierChanged;
-            _tiers = null;
             if (_track != null) _track.LapCompleted -= OnLapCompleted;
             if (_waypoints != null) _waypoints.EncounterEnded -= OnEncounterEnded;
             if (_clusters != null) _clusters.HabitatCompleted -= OnHabitatCompleted;
             UnbindNpcs();
             RecipeUnlocked = null;
+            TileUnlocked = null;
+            RecipesLearned = null;
         }
     }
 }

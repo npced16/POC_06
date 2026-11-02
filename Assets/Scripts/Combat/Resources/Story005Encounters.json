@@ -1,85 +1,85 @@
 {
-  "_comment": "Story 039. Combat removed: every rest-stop arrival resolves exactly one event, weighted per stop (_restStops). Effects: prosperity = next hub prosperity +/-_amount, codex = extra recipes unlocked, boarding = boarding chance +_amount at this stop, delay = extra hold seconds, resource = _resource +_delta.",
+  "_comment": "Story 051: auto effects disabled (_effect none) - rest stops now open a choice event from Track/Resources/Track/RestEvents.json (PhaseLoop). Story 039. Combat removed: every rest-stop arrival resolves exactly one event, weighted per stop (_restStops). Effects: prosperity = next hub prosperity +/-_amount, codex = extra recipes unlocked, boarding = boarding chance +_amount at this stop, delay = extra hold seconds, resource = _resource +_delta.",
   "_rewardItem": "",
   "_rewardItemAmount": 0,
   "_events": [
     {
       "_id": "abandoned_freight",
       "_title": "Abandoned freight",
-      "_effect": "prosperity",
-      "_amount": 5,
+      "_effect": "none",
+      "_amount": 0,
       "_resource": "",
       "_delta": 0
     },
     {
       "_id": "trackside_provisions",
       "_title": "Trackside provisions",
-      "_effect": "prosperity",
-      "_amount": 5,
+      "_effect": "none",
+      "_amount": 0,
       "_resource": "",
       "_delta": 0
     },
     {
       "_id": "coal_cache",
       "_title": "Coal cache",
-      "_effect": "prosperity",
-      "_amount": 5,
+      "_effect": "none",
+      "_amount": 0,
       "_resource": "",
       "_delta": 0
     },
     {
       "_id": "leaking_water_tank",
       "_title": "Leaking water tank",
-      "_effect": "prosperity",
-      "_amount": 5,
+      "_effect": "none",
+      "_amount": 0,
       "_resource": "",
       "_delta": 0
     },
     {
       "_id": "wandering_merchant",
       "_title": "Wandering merchant",
-      "_effect": "codex",
-      "_amount": 1,
+      "_effect": "none",
+      "_amount": 0,
       "_resource": "",
       "_delta": 0
     },
     {
       "_id": "hitchhikers",
       "_title": "Hitchhikers",
-      "_effect": "boarding",
-      "_amount": 0.3,
+      "_effect": "none",
+      "_amount": 0,
       "_resource": "",
       "_delta": 0
     },
     {
       "_id": "dust_storm",
       "_title": "Dust storm",
-      "_effect": "prosperity",
-      "_amount": -5,
+      "_effect": "none",
+      "_amount": 0,
       "_resource": "",
       "_delta": 0
     },
     {
       "_id": "abandoned_warehouse",
       "_title": "Abandoned warehouse",
-      "_effect": "prosperity",
-      "_amount": 4,
+      "_effect": "none",
+      "_amount": 0,
       "_resource": "",
       "_delta": 0
     },
     {
       "_id": "quiet_rest",
       "_title": "Quiet rest",
-      "_effect": "prosperity",
-      "_amount": 1,
+      "_effect": "none",
+      "_amount": 0,
       "_resource": "",
       "_delta": 0
     },
     {
       "_id": "track_repair",
       "_title": "Track repair",
-      "_effect": "delay",
-      "_amount": 3,
+      "_effect": "none",
+      "_amount": 0,
       "_resource": "",
       "_delta": 0
     }

@@ -1,24 +1,19 @@
 {
-  "_starters": ["lamp_street", "coal_yard", "boiler_room"],
-  "_unlockOrder": [
-    "telegraph_line",
-    "cistern",
-    "pipe_gallery",
-    "toolshop",
-    "cogworks",
-    "cobble_plaza",
-    "iron_depot",
-    "greenhouse",
-    "barracks",
-    "water_tower",
-    "lamp_road",
-    "engine_room",
-    "repair_bay",
-    "power_house",
-    "blast_furnace",
-    "grand_cogworks"
+  "_comment": "Story 050 조합 해금. _starterTiles = 처음부터 열린 타일. _tileUnlocks = 건물(레시피)을 처음 완성하면 여는 타일(전역, 1회). 재료 타일이 모두 열린 레시피는 자동으로 알려지고, _recipeRequires(레시피 ← 먼저 지어야 할 레시피)가 있으면 그 건물도 한 번 지어야 한다. 이 목록에 없는 아이템(장식 등)은 잠기지 않는다. _toastSeconds = 해금 토스트 시간. 옛 키(_starters/_unlockOrder/_perLap)는 무시된다.",
+  "_starterTiles": ["tile_boiler", "tile_coal", "tile_cobble", "tile_bunk", "tile_bench"],
+  "_tileUnlocks": [
+    {"_recipe": "boiler_room", "_tiles": ["tile_pipe", "tile_chimney"]},
+    {"_recipe": "coal_yard", "_tiles": ["tile_girder"]},
+    {"_recipe": "cobble_plaza", "_tiles": ["tile_gaslamp"]},
+    {"_recipe": "barracks", "_tiles": ["tile_tank"]},
+    {"_recipe": "iron_depot", "_tiles": ["tile_gear"]},
+    {"_recipe": "water_tower", "_tiles": ["tile_glass"]},
+    {"_recipe": "lamp_street", "_tiles": ["tile_wire"]}
   ],
-  "_perLap": 0,
-  "_perEvent": 0,
-  "_perVictory": 0
+  "_recipeRequires": [
+    {"_recipe": "power_house", "_requires": "engine_room"},
+    {"_recipe": "blast_furnace", "_requires": "iron_depot"}
+  ],
+  "_toastSeconds": 4.0,
+  "_perEvent": 0
 }

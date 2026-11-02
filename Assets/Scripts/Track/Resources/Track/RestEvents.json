@@ -1,0 +1,750 @@
+{
+  "_comment": "Story 051. Rest-stop choice events (PhaseLoop). Strings are ko.json keys. Effects: tiles(_items id/count, locked -> random unlocked or _lockedMoney; _randomUnlocked n; _loseRandom n) | passenger(_npc or random, _count) | money(_amount, _onReturn = paid at hub) | prosperity(_amount, base hub) | delay(_seconds) | nothing. _chance (0..1) on any effect: rolled once per choice, _resultFail shown on failure. Same event at most once per lap. _autoChooseSeconds 0 = wait for the player.",
+  "_seed": 5101,
+  "_autoChooseSeconds": 0,
+  "_autoContinueSeconds": 4,
+  "_disableAutoBoarding": true,
+  "_demoQueue": [
+    "coal_merchant",
+    "drifter_mechanic",
+    "overturned_wagon"
+  ],
+  "_demoBuild": "boiler_room",
+  "_demoPlaceItem": "tile_coal",
+  "_demoChooseSeconds": 1.2,
+  "_demoContinueSeconds": 1.5,
+  "_events": [
+    {
+      "_id": "coal_merchant",
+      "_title": "rest_ev_coal_merchant_title",
+      "_text": "rest_ev_coal_merchant_text",
+      "_weight": 10,
+      "_minLap": 0,
+      "_choices": [
+        {
+          "_label": "rest_ev_coal_merchant_c0",
+          "_result": "rest_ev_coal_merchant_r0",
+          "_resultFail": "",
+          "_effects": [
+            {
+              "_type": "money",
+              "_amount": -10,
+              "_items": [],
+              "_randomUnlocked": 0,
+              "_loseRandom": 0,
+              "_lockedMoney": 0,
+              "_npc": "",
+              "_count": 0,
+              "_seconds": 0,
+              "_onReturn": false,
+              "_chance": 0
+            },
+            {
+              "_type": "tiles",
+              "_items": [
+                {
+                  "_id": "tile_coal",
+                  "_count": 3
+                },
+                {
+                  "_id": "tile_boiler",
+                  "_count": 1
+                }
+              ],
+              "_randomUnlocked": 0,
+              "_loseRandom": 0,
+              "_lockedMoney": 0,
+              "_npc": "",
+              "_count": 0,
+              "_amount": 0,
+              "_seconds": 0,
+              "_onReturn": false,
+              "_chance": 0
+            }
+          ]
+        },
+        {
+          "_label": "rest_ev_coal_merchant_c1",
+          "_result": "rest_ev_coal_merchant_r1",
+          "_resultFail": "rest_ev_coal_merchant_f1",
+          "_effects": [
+            {
+              "_type": "tiles",
+              "_items": [
+                {
+                  "_id": "tile_coal",
+                  "_count": 2
+                }
+              ],
+              "_chance": 0.5,
+              "_randomUnlocked": 0,
+              "_loseRandom": 0,
+              "_lockedMoney": 0,
+              "_npc": "",
+              "_count": 0,
+              "_amount": 0,
+              "_seconds": 0,
+              "_onReturn": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "_id": "drifter_mechanic",
+      "_title": "rest_ev_drifter_mechanic_title",
+      "_text": "rest_ev_drifter_mechanic_text",
+      "_weight": 10,
+      "_minLap": 0,
+      "_choices": [
+        {
+          "_label": "rest_ev_drifter_mechanic_c0",
+          "_result": "rest_ev_drifter_mechanic_r0",
+          "_resultFail": "",
+          "_effects": [
+            {
+              "_type": "passenger",
+              "_count": 1,
+              "_npc": "",
+              "_items": [],
+              "_randomUnlocked": 0,
+              "_loseRandom": 0,
+              "_lockedMoney": 0,
+              "_amount": 0,
+              "_seconds": 0,
+              "_onReturn": false,
+              "_chance": 0
+            }
+          ]
+        },
+        {
+          "_label": "rest_ev_drifter_mechanic_c1",
+          "_result": "rest_ev_drifter_mechanic_r1",
+          "_resultFail": "",
+          "_effects": [
+            {
+              "_type": "money",
+              "_amount": -8,
+              "_items": [],
+              "_randomUnlocked": 0,
+              "_loseRandom": 0,
+              "_lockedMoney": 0,
+              "_npc": "",
+              "_count": 0,
+              "_seconds": 0,
+              "_onReturn": false,
+              "_chance": 0
+            },
+            {
+              "_type": "tiles",
+              "_items": [
+                {
+                  "_id": "tile_bench",
+                  "_count": 2
+                }
+              ],
+              "_randomUnlocked": 0,
+              "_loseRandom": 0,
+              "_lockedMoney": 0,
+              "_npc": "",
+              "_count": 0,
+              "_amount": 0,
+              "_seconds": 0,
+              "_onReturn": false,
+              "_chance": 0
+            }
+          ]
+        },
+        {
+          "_label": "rest_ev_drifter_mechanic_c2",
+          "_result": "rest_ev_drifter_mechanic_r2",
+          "_resultFail": "",
+          "_effects": [
+            {
+              "_type": "nothing",
+              "_items": [],
+              "_randomUnlocked": 0,
+              "_loseRandom": 0,
+              "_lockedMoney": 0,
+              "_npc": "",
+              "_count": 0,
+              "_amount": 0,
+              "_seconds": 0,
+              "_onReturn": false,
+              "_chance": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "_id": "overturned_wagon",
+      "_title": "rest_ev_overturned_wagon_title",
+      "_text": "rest_ev_overturned_wagon_text",
+      "_weight": 10,
+      "_minLap": 0,
+      "_choices": [
+        {
+          "_label": "rest_ev_overturned_wagon_c0",
+          "_result": "rest_ev_overturned_wagon_r0",
+          "_resultFail": "",
+          "_effects": [
+            {
+              "_type": "tiles",
+              "_randomUnlocked": 3,
+              "_items": [],
+              "_loseRandom": 0,
+              "_lockedMoney": 0,
+              "_npc": "",
+              "_count": 0,
+              "_amount": 0,
+              "_seconds": 0,
+              "_onReturn": false,
+              "_chance": 0
+            }
+          ]
+        },
+        {
+          "_label": "rest_ev_overturned_wagon_c1",
+          "_result": "rest_ev_overturned_wagon_r1",
+          "_resultFail": "",
+          "_effects": [
+            {
+              "_type": "tiles",
+              "_items": [
+                {
+                  "_id": "tile_girder",
+                  "_count": 1
+                }
+              ],
+              "_lockedMoney": 5,
+              "_randomUnlocked": 0,
+              "_loseRandom": 0,
+              "_npc": "",
+              "_count": 0,
+              "_amount": 0,
+              "_seconds": 0,
+              "_onReturn": false,
+              "_chance": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "_id": "refugee_family",
+      "_title": "rest_ev_refugee_family_title",
+      "_text": "rest_ev_refugee_family_text",
+      "_weight": 9,
+      "_minLap": 0,
+      "_choices": [
+        {
+          "_label": "rest_ev_refugee_family_c0",
+          "_result": "rest_ev_refugee_family_r0",
+          "_resultFail": "",
+          "_effects": [
+            {
+              "_type": "passenger",
+              "_count": 2,
+              "_npc": "",
+              "_items": [],
+              "_randomUnlocked": 0,
+              "_loseRandom": 0,
+              "_lockedMoney": 0,
+              "_amount": 0,
+              "_seconds": 0,
+              "_onReturn": false,
+              "_chance": 0
+            },
+            {
+              "_type": "prosperity",
+              "_amount": -2,
+              "_items": [],
+              "_randomUnlocked": 0,
+              "_loseRandom": 0,
+              "_lockedMoney": 0,
+              "_npc": "",
+              "_count": 0,
+              "_seconds": 0,
+              "_onReturn": false,
+              "_chance": 0
+            }
+          ]
+        },
+        {
+          "_label": "rest_ev_refugee_family_c1",
+          "_result": "rest_ev_refugee_family_r1",
+          "_resultFail": "",
+          "_effects": [
+            {
+              "_type": "prosperity",
+              "_amount": 3,
+              "_items": [],
+              "_randomUnlocked": 0,
+              "_loseRandom": 0,
+              "_lockedMoney": 0,
+              "_npc": "",
+              "_count": 0,
+              "_seconds": 0,
+              "_onReturn": false,
+              "_chance": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "_id": "sandstorm",
+      "_title": "rest_ev_sandstorm_title",
+      "_text": "rest_ev_sandstorm_text",
+      "_weight": 8,
+      "_minLap": 0,
+      "_choices": [
+        {
+          "_label": "rest_ev_sandstorm_c0",
+          "_result": "rest_ev_sandstorm_r0",
+          "_resultFail": "",
+          "_effects": [
+            {
+              "_type": "delay",
+              "_seconds": 4,
+              "_items": [],
+              "_randomUnlocked": 0,
+              "_loseRandom": 0,
+              "_lockedMoney": 0,
+              "_npc": "",
+              "_count": 0,
+              "_amount": 0,
+              "_onReturn": false,
+              "_chance": 0
+            }
+          ]
+        },
+        {
+          "_label": "rest_ev_sandstorm_c1",
+          "_result": "rest_ev_sandstorm_r1",
+          "_resultFail": "",
+          "_effects": [
+            {
+              "_type": "tiles",
+              "_loseRandom": 1,
+              "_items": [],
+              "_randomUnlocked": 0,
+              "_lockedMoney": 0,
+              "_npc": "",
+              "_count": 0,
+              "_amount": 0,
+              "_seconds": 0,
+              "_onReturn": false,
+              "_chance": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "_id": "water_keeper",
+      "_title": "rest_ev_water_keeper_title",
+      "_text": "rest_ev_water_keeper_text",
+      "_weight": 9,
+      "_minLap": 0,
+      "_choices": [
+        {
+          "_label": "rest_ev_water_keeper_c0",
+          "_result": "rest_ev_water_keeper_r0",
+          "_resultFail": "",
+          "_effects": [
+            {
+              "_type": "tiles",
+              "_items": [
+                {
+                  "_id": "tile_tank",
+                  "_count": 1
+                }
+              ],
+              "_randomUnlocked": 0,
+              "_loseRandom": 0,
+              "_lockedMoney": 0,
+              "_npc": "",
+              "_count": 0,
+              "_amount": 0,
+              "_seconds": 0,
+              "_onReturn": false,
+              "_chance": 0
+            }
+          ]
+        },
+        {
+          "_label": "rest_ev_water_keeper_c1",
+          "_result": "rest_ev_water_keeper_r1",
+          "_resultFail": "",
+          "_effects": [
+            {
+              "_type": "prosperity",
+              "_amount": 2,
+              "_items": [],
+              "_randomUnlocked": 0,
+              "_loseRandom": 0,
+              "_lockedMoney": 0,
+              "_npc": "",
+              "_count": 0,
+              "_seconds": 0,
+              "_onReturn": false,
+              "_chance": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "_id": "track_crew",
+      "_title": "rest_ev_track_crew_title",
+      "_text": "rest_ev_track_crew_text",
+      "_weight": 9,
+      "_minLap": 0,
+      "_choices": [
+        {
+          "_label": "rest_ev_track_crew_c0",
+          "_result": "rest_ev_track_crew_r0",
+          "_resultFail": "",
+          "_effects": [
+            {
+              "_type": "delay",
+              "_seconds": 3,
+              "_items": [],
+              "_randomUnlocked": 0,
+              "_loseRandom": 0,
+              "_lockedMoney": 0,
+              "_npc": "",
+              "_count": 0,
+              "_amount": 0,
+              "_onReturn": false,
+              "_chance": 0
+            },
+            {
+              "_type": "money",
+              "_amount": 6,
+              "_items": [],
+              "_randomUnlocked": 0,
+              "_loseRandom": 0,
+              "_lockedMoney": 0,
+              "_npc": "",
+              "_count": 0,
+              "_seconds": 0,
+              "_onReturn": false,
+              "_chance": 0
+            }
+          ]
+        },
+        {
+          "_label": "rest_ev_track_crew_c1",
+          "_result": "rest_ev_track_crew_r1",
+          "_resultFail": "",
+          "_effects": [
+            {
+              "_type": "nothing",
+              "_items": [],
+              "_randomUnlocked": 0,
+              "_loseRandom": 0,
+              "_lockedMoney": 0,
+              "_npc": "",
+              "_count": 0,
+              "_amount": 0,
+              "_seconds": 0,
+              "_onReturn": false,
+              "_chance": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "_id": "mail_sack",
+      "_title": "rest_ev_mail_sack_title",
+      "_text": "rest_ev_mail_sack_text",
+      "_weight": 8,
+      "_minLap": 0,
+      "_choices": [
+        {
+          "_label": "rest_ev_mail_sack_c0",
+          "_result": "rest_ev_mail_sack_r0",
+          "_resultFail": "",
+          "_effects": [
+            {
+              "_type": "money",
+              "_amount": 12,
+              "_onReturn": true,
+              "_items": [],
+              "_randomUnlocked": 0,
+              "_loseRandom": 0,
+              "_lockedMoney": 0,
+              "_npc": "",
+              "_count": 0,
+              "_seconds": 0,
+              "_chance": 0
+            }
+          ]
+        },
+        {
+          "_label": "rest_ev_mail_sack_c1",
+          "_result": "rest_ev_mail_sack_r1",
+          "_resultFail": "",
+          "_effects": [
+            {
+              "_type": "tiles",
+              "_randomUnlocked": 2,
+              "_items": [],
+              "_loseRandom": 0,
+              "_lockedMoney": 0,
+              "_npc": "",
+              "_count": 0,
+              "_amount": 0,
+              "_seconds": 0,
+              "_onReturn": false,
+              "_chance": 0
+            },
+            {
+              "_type": "prosperity",
+              "_amount": -3,
+              "_items": [],
+              "_randomUnlocked": 0,
+              "_loseRandom": 0,
+              "_lockedMoney": 0,
+              "_npc": "",
+              "_count": 0,
+              "_seconds": 0,
+              "_onReturn": false,
+              "_chance": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "_id": "broken_automaton",
+      "_title": "rest_ev_broken_automaton_title",
+      "_text": "rest_ev_broken_automaton_text",
+      "_weight": 7,
+      "_minLap": 0,
+      "_choices": [
+        {
+          "_label": "rest_ev_broken_automaton_c0",
+          "_result": "rest_ev_broken_automaton_r0",
+          "_resultFail": "",
+          "_effects": [
+            {
+              "_type": "tiles",
+              "_items": [
+                {
+                  "_id": "tile_gear",
+                  "_count": 1
+                }
+              ],
+              "_lockedMoney": 4,
+              "_randomUnlocked": 0,
+              "_loseRandom": 0,
+              "_npc": "",
+              "_count": 0,
+              "_amount": 0,
+              "_seconds": 0,
+              "_onReturn": false,
+              "_chance": 0
+            }
+          ]
+        },
+        {
+          "_label": "rest_ev_broken_automaton_c1",
+          "_result": "rest_ev_broken_automaton_r1",
+          "_resultFail": "",
+          "_effects": [
+            {
+              "_type": "tiles",
+              "_randomUnlocked": 1,
+              "_items": [],
+              "_loseRandom": 0,
+              "_lockedMoney": 0,
+              "_npc": "",
+              "_count": 0,
+              "_amount": 0,
+              "_seconds": 0,
+              "_onReturn": false,
+              "_chance": 0
+            },
+            {
+              "_type": "prosperity",
+              "_amount": -1,
+              "_items": [],
+              "_randomUnlocked": 0,
+              "_loseRandom": 0,
+              "_lockedMoney": 0,
+              "_npc": "",
+              "_count": 0,
+              "_seconds": 0,
+              "_onReturn": false,
+              "_chance": 0
+            }
+          ]
+        },
+        {
+          "_label": "rest_ev_broken_automaton_c2",
+          "_result": "rest_ev_broken_automaton_r2",
+          "_resultFail": "",
+          "_effects": [
+            {
+              "_type": "nothing",
+              "_items": [],
+              "_randomUnlocked": 0,
+              "_loseRandom": 0,
+              "_lockedMoney": 0,
+              "_npc": "",
+              "_count": 0,
+              "_amount": 0,
+              "_seconds": 0,
+              "_onReturn": false,
+              "_chance": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "_id": "lamp_keeper",
+      "_title": "rest_ev_lamp_keeper_title",
+      "_text": "rest_ev_lamp_keeper_text",
+      "_weight": 7,
+      "_minLap": 0,
+      "_choices": [
+        {
+          "_label": "rest_ev_lamp_keeper_c0",
+          "_result": "rest_ev_lamp_keeper_r0",
+          "_resultFail": "",
+          "_effects": [
+            {
+              "_type": "money",
+              "_amount": -4,
+              "_items": [],
+              "_randomUnlocked": 0,
+              "_loseRandom": 0,
+              "_lockedMoney": 0,
+              "_npc": "",
+              "_count": 0,
+              "_seconds": 0,
+              "_onReturn": false,
+              "_chance": 0
+            },
+            {
+              "_type": "tiles",
+              "_items": [
+                {
+                  "_id": "tile_gaslamp",
+                  "_count": 2
+                }
+              ],
+              "_randomUnlocked": 0,
+              "_loseRandom": 0,
+              "_lockedMoney": 0,
+              "_npc": "",
+              "_count": 0,
+              "_amount": 0,
+              "_seconds": 0,
+              "_onReturn": false,
+              "_chance": 0
+            }
+          ]
+        },
+        {
+          "_label": "rest_ev_lamp_keeper_c1",
+          "_result": "rest_ev_lamp_keeper_r1",
+          "_resultFail": "",
+          "_effects": [
+            {
+              "_type": "prosperity",
+              "_amount": 1,
+              "_items": [],
+              "_randomUnlocked": 0,
+              "_loseRandom": 0,
+              "_lockedMoney": 0,
+              "_npc": "",
+              "_count": 0,
+              "_seconds": 0,
+              "_onReturn": false,
+              "_chance": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "_id": "ruined_signal",
+      "_title": "rest_ev_ruined_signal_title",
+      "_text": "rest_ev_ruined_signal_text",
+      "_weight": 6,
+      "_minLap": 2,
+      "_choices": [
+        {
+          "_label": "rest_ev_ruined_signal_c0",
+          "_result": "rest_ev_ruined_signal_r0",
+          "_resultFail": "",
+          "_effects": [
+            {
+              "_type": "delay",
+              "_seconds": 3,
+              "_items": [],
+              "_randomUnlocked": 0,
+              "_loseRandom": 0,
+              "_lockedMoney": 0,
+              "_npc": "",
+              "_count": 0,
+              "_amount": 0,
+              "_onReturn": false,
+              "_chance": 0
+            },
+            {
+              "_type": "tiles",
+              "_items": [
+                {
+                  "_id": "tile_cobble",
+                  "_count": 3
+                }
+              ],
+              "_randomUnlocked": 0,
+              "_loseRandom": 0,
+              "_lockedMoney": 0,
+              "_npc": "",
+              "_count": 0,
+              "_amount": 0,
+              "_seconds": 0,
+              "_onReturn": false,
+              "_chance": 0
+            }
+          ]
+        },
+        {
+          "_label": "rest_ev_ruined_signal_c1",
+          "_result": "rest_ev_ruined_signal_r1",
+          "_resultFail": "",
+          "_effects": [
+            {
+              "_type": "tiles",
+              "_items": [
+                {
+                  "_id": "tile_wire",
+                  "_count": 1
+                }
+              ],
+              "_lockedMoney": 6,
+              "_randomUnlocked": 0,
+              "_loseRandom": 0,
+              "_npc": "",
+              "_count": 0,
+              "_amount": 0,
+              "_seconds": 0,
+              "_onReturn": false,
+              "_chance": 0
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

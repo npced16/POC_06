@@ -1,0 +1,9 @@
+{
+  "_comment": "Story 050 (2026-11-02): HabitatTypes.json에서 뺀 건물 4종 원본(겹침). 복구하려면 _types에 다시 넣는다.",
+  "_removed": [
+    {"_id": "grand_cogworks", "_name": "대공방", "_kind": "cluster", "_tileItemId": "tile_gear", "_requiredCount": 9, "_prosperityBonus": 10, "_npcTypeId": "chief_engineer", "_buildingStyle": "machine", "_signProp": "big_gear", "_income": 12, "_housing": 0, "_light": 0, "_decor": {"_roofTint": "base", "_windows": 2, "_props": ["cog_sign", "iron_frame"]}},
+    {"_id": "cistern", "_name": "저수조", "_kind": "set", "_tiles": [{"_tileItemId": "tile_tank", "_minCount": 2}, {"_tileItemId": "tile_pipe", "_minCount": 1}], "_requiredCount": 4, "_prosperityBonus": 5, "_npcTypeId": "water_keeper", "_buildingStyle": "storage", "_signProp": "tank", "_income": 3, "_housing": 0, "_light": 0, "_decor": {"_roofTint": "moss", "_windows": 1, "_props": ["water_tank", "steam_pipes"]}},
+    {"_id": "toolshop", "_name": "공구상", "_kind": "set", "_tiles": [{"_tileItemId": "tile_bench", "_minCount": 2}, {"_tileItemId": "tile_gear", "_minCount": 1}, {"_tileItemId": "tile_girder", "_minCount": 1}], "_requiredCount": 4, "_prosperityBonus": 5, "_npcTypeId": "tinker", "_buildingStyle": "housing", "_signProp": "bench_tools", "_income": 5, "_housing": 0, "_light": 0, "_decor": {"_roofTint": "copper", "_windows": 0, "_props": ["cog_sign", "steam_pipes"]}},
+    {"_id": "lamp_road", "_name": "가로등길", "_kind": "pattern", "_pattern": ["tile_gaslamp tile_cobble tile_gaslamp"], "_prosperityBonus": 6, "_npcTypeId": "patrol", "_buildingStyle": "housing", "_signProp": "twin_lamps", "_income": 2, "_housing": 0, "_light": 4, "_decor": {"_roofTint": "moss", "_windows": 2, "_props": ["tele_pole", "coal_pile"]}}
+  ]
+}

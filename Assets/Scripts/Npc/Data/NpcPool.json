@@ -14,7 +14,7 @@
     {
       "_id": "lamplighter",
       "_name": "점등부",
-      "_habitatTypeId": "lamp_street", "_teachesTypeId": "lamp_road",
+      "_habitatTypeId": "lamp_street", "_teachesTypeId": "telegraph_line",
       "_hubIds": [
         "hub-1"
       ],
@@ -90,51 +90,6 @@
       }
     },
     {
-      "_id": "water_keeper",
-      "_name": "급수원",
-      "_habitatTypeId": "cistern", "_teachesTypeId": "pipe_gallery",
-      "_hubIds": [
-        "hub-1"
-      ],
-      "_origin": "WEST PASS",
-      "_originName": "서쪽 고개",
-      "_chance": 0.45,
-      "_boardConditions": [],
-      "_conditions": [
-        {
-          "_type": "habitatComplete",
-          "_value": "greenhouse"
-        }
-      ],
-      "_proposal": "저수조를 마련해 주면 물을 지키겠소.",
-      "_hint": "온실이 있는 마을이면 좋겠어.",
-      "_quote": "물탱크 수위는 내가 매일 잽니다.",
-      "_lines": [
-        "물 한 통이 기관차 반 마일을 밀어 줍니다.",
-        "탱크에 녹물이 섞이면 보일러가 금방 병들어요."
-      ]
-    },
-    {
-      "_id": "tinker",
-      "_name": "수리공",
-      "_habitatTypeId": "toolshop", "_teachesTypeId": "cogworks",
-      "_hubIds": [
-        "hub-1"
-      ],
-      "_origin": "*",
-      "_originName": "떠돌이 선로",
-      "_chance": 0.5,
-      "_boardConditions": [],
-      "_conditions": [],
-      "_proposal": "공구점을 차려 주면 거기서 일하겠네.",
-      "_hint": "잡동사니 굴러다니는 곳이면 어디든 좋네.",
-      "_quote": "망가진 건 다 가져오시오. 고쳐 드리지.",
-      "_lines": [
-        "부서진 오르골도 톱니만 갈면 다시 노래하오.",
-        "버리는 나사 하나 없이 다 쓸모가 있는 법이지."
-      ]
-    },
-    {
       "_id": "peddler",
       "_name": "행상",
       "_habitatTypeId": "cobble_plaza", "_teachesTypeId": "barracks",
@@ -195,35 +150,6 @@
       }
     },
     {
-      "_id": "lamp_oiler",
-      "_name": "등유 배달부",
-      "_habitatTypeId": "lamp_road", "_teachesTypeId": "engine_room",
-      "_hubIds": [
-        "hub-1"
-      ],
-      "_origin": "EAST PASS",
-      "_originName": "동쪽 고개",
-      "_chance": 0.35,
-      "_boardConditions": [],
-      "_conditions": [
-        {
-          "_type": "habitatComplete",
-          "_value": "lamp_street"
-        }
-      ],
-      "_proposal": "가로등 길을 놓아 주면 기름을 대겠소.",
-      "_hint": "가스등 거리가 이미 있는 마을이라면 좋겠어.",
-      "_quote": "기름통이 무거워야 밤이 가벼운 법이오.",
-      "_lines": [
-        "등잔마다 기름이 찰랑하면 마음이 놓여요.",
-        "심지 그을음은 아침마다 내가 닦소."
-      ],
-      "_portrait": {
-        "_hat": "cap",
-        "_collar": "apron"
-      }
-    },
-    {
       "_id": "chimney_sweep",
       "_name": "굴뚝 청소부",
       "_habitatTypeId": "boiler_room", "_teachesTypeId": "iron_depot",
@@ -256,7 +182,7 @@
     {
       "_id": "clockmaker",
       "_name": "시계공",
-      "_habitatTypeId": "cogworks", "_teachesTypeId": "grand_cogworks",
+      "_habitatTypeId": "cogworks", "_teachesTypeId": "repair_bay",
       "_hubIds": [
         "hub-1"
       ],
@@ -313,7 +239,7 @@
     {
       "_id": "pipefitter",
       "_name": "배관공",
-      "_habitatTypeId": "pipe_gallery", "_teachesTypeId": "cistern",
+      "_habitatTypeId": "pipe_gallery", "_teachesTypeId": "water_tower",
       "_hubIds": [
         "hub-2"
       ],
@@ -456,60 +382,6 @@
       }
     },
     {
-      "_id": "brass_polisher",
-      "_name": "황동 연마공",
-      "_habitatTypeId": "toolshop", "_teachesTypeId": "cogworks",
-      "_hubIds": [
-        "hub-2"
-      ],
-      "_origin": "EAST PASS",
-      "_originName": "동쪽 고개",
-      "_chance": 0.4,
-      "_boardConditions": [],
-      "_conditions": [
-        {
-          "_type": "npcPresent",
-          "_value": "mechanic"
-        }
-      ],
-      "_proposal": "공구점을 내주면 황동을 반짝이게 닦겠소.",
-      "_hint": "기계공이 사는 마을이면 손이 잘 맞겠지.",
-      "_quote": "녹슨 황동도 사흘이면 거울이 되오.",
-      "_lines": [
-        "광택제는 아끼면 안 되지.",
-        "반짝이는 손잡이가 마을의 얼굴이오."
-      ]
-    },
-    {
-      "_id": "signal_keeper",
-      "_name": "신호수",
-      "_habitatTypeId": "lamp_road", "_teachesTypeId": "telegraph_line",
-      "_hubIds": [
-        "hub-2"
-      ],
-      "_origin": "*",
-      "_originName": "떠돌이 선로",
-      "_chance": 0.35,
-      "_boardConditions": [],
-      "_conditions": [
-        {
-          "_type": "phaseAtLeast",
-          "_value": "Recovering"
-        }
-      ],
-      "_proposal": "가로등 길을 놓아 주면 신호등을 지키겠소.",
-      "_hint": "다시 불이 들어오기 시작한 마을이면 좋겠어.",
-      "_quote": "붉은 등은 멈춤, 푸른 등은 출발이오.",
-      "_lines": [
-        "안개 낀 밤엔 내 깃발이 열차의 눈이오.",
-        "신호 하나 놓치면 철로가 울지."
-      ],
-      "_portrait": {
-        "_hat": "cap",
-        "_collar": "uniform"
-      }
-    },
-    {
       "_id": "dirigible_rigger",
       "_name": "비행선 삭구공",
       "_habitatTypeId": "repair_bay", "_teachesTypeId": "iron_depot",
@@ -576,7 +448,7 @@
     {
       "_id": "ironworker",
       "_name": "철공",
-      "_habitatTypeId": "iron_depot", "_teachesTypeId": "toolshop",
+      "_habitatTypeId": "iron_depot", "_teachesTypeId": "blast_furnace",
       "_hubIds": [
         "hub-3"
       ],
@@ -685,7 +557,7 @@
     {
       "_id": "foundry_hand",
       "_name": "주조공",
-      "_habitatTypeId": "blast_furnace", "_teachesTypeId": "grand_cogworks",
+      "_habitatTypeId": "blast_furnace", "_teachesTypeId": "cogworks",
       "_hubIds": [
         "hub-3"
       ],
@@ -709,47 +581,6 @@
       "_portrait": {
         "_hat": "mask",
         "_acc": "soot"
-      }
-    },
-    {
-      "_id": "chief_engineer",
-      "_name": "수석 기술자",
-      "_habitatTypeId": "grand_cogworks", "_teachesTypeId": "power_house",
-      "_hubIds": [
-        "hub-3"
-      ],
-      "_origin": "*",
-      "_originName": "떠돌이 선로",
-      "_chance": 0.25,
-      "_boardConditions": [
-        {
-          "_type": "lapAtLeast",
-          "_value": "2"
-        }
-      ],
-      "_conditions": [
-        {
-          "_type": "prosperityAtLeast",
-          "_value": "30"
-        },
-        {
-          "_type": "habitatComplete",
-          "_value": "cogworks"
-        }
-      ],
-      "_proposal": "대톱니 공장을 세워 주면 공장장을 맡겠소.",
-      "_hint": "톱니 공방이 있고 번영이 꽤 오른 마을이면 좋겠소.",
-      "_quote": "이 정도 공방이면 열차도 새로 짜겠군.",
-      "_lines": [
-        "설계도는 머릿속에 있소. 필요한 건 쇠와 시간뿐.",
-        "이 공방이면 장갑판 두께를 한 치는 더 올릴 수 있겠군."
-      ],
-      "_portrait": {
-        "_hat": "hat",
-        "_acc": "monocle",
-        "_collar": "coat",
-        "_beard": "beard",
-        "_hair": "grey"
       }
     },
     {
@@ -808,7 +639,7 @@
     {
       "_id": "tower_keeper",
       "_name": "급수탑지기",
-      "_habitatTypeId": "water_tower", "_teachesTypeId": "cistern",
+      "_habitatTypeId": "water_tower", "_teachesTypeId": "greenhouse",
       "_hubIds": [
         "hub-4"
       ],
@@ -816,14 +647,9 @@
       "_originName": "서쪽 고개",
       "_chance": 0.45,
       "_boardConditions": [],
-      "_conditions": [
-        {
-          "_type": "habitatComplete",
-          "_value": "cistern"
-        }
-      ],
+      "_conditions": [],
       "_proposal": "급수탑을 세워 주면 물을 대겠소.",
-      "_hint": "저수조가 있는 마을이면 좋겠어.",
+      "_hint": "물탱크가 넉넉한 마을이면 좋겠어.",
       "_quote": "열차가 목마르면 언제든 들르시오.",
       "_lines": [
         "급수탑 꼭대기에서 보면 철환이 한눈에 들어오지.",
@@ -831,33 +657,9 @@
       ]
     },
     {
-      "_id": "patrol",
-      "_name": "순찰대원",
-      "_habitatTypeId": "lamp_road", "_teachesTypeId": "barracks",
-      "_hubIds": [
-        "hub-4"
-      ],
-      "_origin": "*",
-      "_originName": "떠돌이 선로",
-      "_chance": 0.45,
-      "_boardConditions": [],
-      "_conditions": [],
-      "_proposal": "가로등 길을 놓아 주면 순찰을 돌겠소.",
-      "_hint": "밤길이 환하면 어디든 좋소.",
-      "_quote": "가로등길을 따라 한 바퀴 돌고 오겠습니다.",
-      "_lines": [
-        "가로등 아래로는 도적이 얼씬도 못 합니다.",
-        "순찰 일지에 오늘도 이상 없음이라고 적겠습니다."
-      ],
-      "_portrait": {
-        "_hat": "cap",
-        "_collar": "uniform"
-      }
-    },
-    {
       "_id": "repairer",
       "_name": "정비사",
-      "_habitatTypeId": "repair_bay", "_teachesTypeId": "toolshop",
+      "_habitatTypeId": "repair_bay", "_teachesTypeId": "cogworks",
       "_hubIds": [
         "hub-4"
       ],
@@ -936,29 +738,9 @@
       }
     },
     {
-      "_id": "pump_operator",
-      "_name": "양수기 기사",
-      "_habitatTypeId": "cistern", "_teachesTypeId": "water_tower",
-      "_hubIds": [
-        "hub-4"
-      ],
-      "_origin": "WEST PASS",
-      "_originName": "서쪽 고개",
-      "_chance": 0.4,
-      "_boardConditions": [],
-      "_conditions": [],
-      "_proposal": "저수조를 지어 주면 양수기를 돌리겠소.",
-      "_hint": "물만 고이면 어디든 좋소.",
-      "_quote": "피스톤 박자가 고르면 물도 고르게 오르지.",
-      "_lines": [
-        "가뭄엔 내 양수기가 마을의 심장이오.",
-        "물 새는 소리엔 잠이 안 와."
-      ]
-    },
-    {
       "_id": "valve_keeper",
       "_name": "밸브 관리인",
-      "_habitatTypeId": "pipe_gallery", "_teachesTypeId": "grand_cogworks",
+      "_habitatTypeId": "pipe_gallery", "_teachesTypeId": "engine_room",
       "_hubIds": [
         "hub-4"
       ],
