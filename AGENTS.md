@@ -154,6 +154,26 @@ using Game.System;
 
 ## 10. Spec-Driven Development (SDD)
 
-- 기능 구현 전에 `docs/README.md`를 먼저 읽고, 그 안의 규칙과 절차를 따른다.
-- 스펙 없이 기능 구현을 시작하지 않는다.
-- 커밋 메세지 제안 시 스펙 번호를 포함한다. (예: `feat(001): 이동 가속도 처리 추가`)
+- 기능 구현 전에 게임 컨셉 문서 `design/game-brief.md`를 먼저 읽고, 바뀌는 규칙은 그 문서부터 고친다.
+- 스펙 없이 기능 구현을 시작하지 않는다. 스펙은 `design/game-brief.md`의 해당 절이다(스토리 번호를 새로 만들지 않는다).
+- 커밋 메세지 제안 시 기능 영역을 범위로 쓴다. (예: `feat(loop): 휴식지 사건 가중치 조정`)
+
+## 11. 이 프로젝트 (황동골 철도 회사)
+
+- **게임 기준 문서**: `design/game-brief.md` (루프, 해금표, 사건, 수치 위치, 다음 할 일).
+- **엔진**: Unity 6000.3.27f1 (6.3 LTS). Unity 6 API는 `docs/engine-reference/unity/`를 먼저 확인한다.
+- **코드 위치**: `Assets/Scripts/<시스템>/` (네임스페이스 `IronRing.*`). 공유 계약은 `Assets/Scripts/Contracts/IronRingContracts.cs`(멤버는 끝에만 추가, 새 멤버는 기본 구현). 조립은 `Assets/Scripts/Bootstrap/`, 서비스는 각 `*Installer`가 `GameServices.Composing`에서 등록하고 `GameServices.Ready` 뒤에 `GameServices.Get<T>()`로 얻는다.
+- **데이터**: 게임 수치는 각 시스템 `Resources/**.json`. 한국어 문구는 `Assets/Scripts/Localization/Resources/ko.json`(끝에 추가, 편집 직전에 다시 읽기). 콘텐츠는 스팀펑크 마을 요소만.
+- **씬·프리팹**: 플레이 씬 `Assets/Scenes/Main.unity`. 편집기가 열려 있는 동안 `.unity`·`.prefab` YAML을 디스크에서 직접 고치지 않는다(편집기 Reload 창이 떠서 브리지가 멈춘다). 프리팹·씬 변경은 편집기 생성기로만 한다.
+  - UI 프리팹: `.bridge/rebuild/<화면Id>` 빈 파일을 만들고 `IronRing.Hud.Editor.BuildMainCanvas.Generate` 실행(그 화면만 GUID 유지하고 재생성).
+  - 그 밖 생성기: `IronRing.Bootstrap.Editor.BuildTopDownMain.Rebuild`(파괴적), `IronRing.Presentation.Interior.Editor.Story012Build.Generate`, `IronRing.Presentation.Interior.Editor.RuinBuild.Generate`/`GenerateMap`(멱등).
+- **UI**: UGUI. `MainCanvas` 프리팹 하나 아래에 화면마다 프리팹(`Assets/Prefabs/UI/Screens/`), 빌더는 `Assets/Scripts/Hud/Editor/Screens/<Id>ScreenBuilder.cs`, 색·글자는 `UiTheme.asset`. 런타임에 UI를 코드로 만들지 않는다.
+- **검증 (편집기는 사용자가 열어 둔다 — 닫거나 batchmode로 띄우지 않는다)**: `tools/bridge/bridge.py` (`python` 없으면 `py -3 -I`).
+  - 컴파일: `python -I tools/bridge/bridge.py refresh --timeout 300` → `failed:false`
+  - 씬 저장 상태: `python -I tools/bridge/bridge.py scene-status` → `isDirty:false`
+  - 생성기: `python -I tools/bridge/bridge.py execute-method --method <정규 이름>`
+  - 데모 + 캡처: `python -I tools/bridge/bridge.py play-capture --scene Assets/Scenes/Main.unity --seconds 5 --screenshot C:/abs/shot.png --extra-args="--loop-demo"` (인자가 `-`로 시작하면 `=`로 붙인다). 로그는 `%LOCALAPPDATA%/Unity/Editor/Editor.log`에서 `LOOP:`·`UNLOCK:`·`LINE:` 등으로 찾는다. `AiEditorToolsSdk` 예외는 Unity 내장 도구라 무시한다.
+  - 지금 쓸 수 있는 데모: `--loop-demo`, `--unlock-demo [--unlock-stage start|first|all]`, `--line-demo --line-stage locked|opened`, `--town-demo`, `--economy-demo ledger`.
+- **자동 테스트는 만들지 않는다.** 증거는 브리지 결과와 캡처. 캡처는 `production/qa/evidence/`에 둔다.
+- **보관**: 제거한 기능은 `archive/`(Assets 밖)로 옮긴다. 기록(옛 스토리·의뢰서·증거)은 `production/`에 있다 — 참고용이며 현재 규칙은 `design/game-brief.md`가 우선한다.
+
