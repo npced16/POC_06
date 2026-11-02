@@ -138,7 +138,12 @@ namespace IronRing.Hud.Editor.Screens
             TextMeshProUGUI price = UiKit.Label(frame.transform, "Price", "", UiTextSize.Small, theme);
             UiKit.Place(price.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 3), new Vector2(size.x - 6, 21));
             price.textWrappingMode = TextWrappingModes.NoWrap;
+            TextMeshProUGUI stockBadge = UiKit.Label(frame.transform, "StockBadge", "", UiTextSize.Small, theme);
+            UiKit.Place(stockBadge.rectTransform, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-4, -4), new Vector2(32, 20));
+            stockBadge.color = theme.Accent;
+            stockBadge.gameObject.SetActive(false);
             UiKit.Bind(view, "_price", price);
+            UiKit.Bind(view, "_stockBadge", stockBadge);
             UiKit.Bind(view, "_frame", frame);
             UiKit.Bind(view, "_icon", icon);
             UiKit.Bind(view, "_name", label);

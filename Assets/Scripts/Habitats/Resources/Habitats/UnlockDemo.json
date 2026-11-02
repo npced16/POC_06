@@ -1,0 +1,7 @@
+{
+  "_comment": "Story 050 --unlock-demo. _hubId 내부를 열고 _waitFrames 뒤 시작. 단계 --unlock-stage start(5종 그대로) | first(첫 건물만) | all(기본, _chain 전부 + 같은 건물 재완성 확인). 건물 완성은 HabitatCodex.MarkBuilt(HabitatCompleted와 같은 경로)로 흉내 낸다. _stepSeconds = 건물 사이 간격(실시간).",
+  "_hubId": "hub-1",
+  "_waitFrames": 30,
+  "_stepSeconds": 2.5,
+  "_chain": ["boiler_room", "coal_yard", "cobble_plaza", "barracks", "iron_depot", "water_tower", "lamp_street", "engine_room"]
+}

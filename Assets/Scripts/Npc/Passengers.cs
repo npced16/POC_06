@@ -64,6 +64,33 @@ namespace IronRing.Npc
             _recruiter.VisitHandler = OnHubVisited;
         }
 
+        /// <summary>
+        /// 스토리 051. false면 휴식지 이벤트 종료 때의 확률 탑승(RollBoarding)을 하지 않는다 — 탑승은 중간역 사건의 passenger 효과(TryBoardAny/TryBoard)로만.
+        /// 인내 바퀴가 지난 승객이 떠나는 규칙은 그대로. LoopInstaller가 RestEvents.json _disableAutoBoarding으로 끈다.
+        /// </summary>
+        public bool AutoBoarding { get; set; } = true;
+
+        /// <summary>
+        /// 스토리 051. 중간역 사건 "합류": 자리가 있으면 아직 합류·탑승하지 않은 NPC 하나를 태운다. 출신지·탑승 조건을 채우는 후보를 먼저,
+        /// 없으면 나머지에서(풀의 시드 난수로) 고른다. 태운 id, 자리나 후보가 없으면 null.
+        /// </summary>
+        public string TryBoardAny(string waypointId)
+        {
+            if (_disposed || _riders.Count >= _pool.MaxPassengers) return null;
+            var preferred = new List<NpcDefinition>();
+            var rest = new List<NpcDefinition>();
+            foreach (NpcDefinition npc in _pool.Definitions)
+            {
+                if (npc.Passenger == null || _recruiter.IsJoined(npc.Id) || Find(npc.Id) != null) continue;
+                (IsBoardCandidate(npc, waypointId) ? preferred : rest).Add(npc);
+            }
+            List<NpcDefinition> from = preferred.Count > 0 ? preferred : rest;
+            if (from.Count == 0) return null;
+            NpcDefinition pick = from[_random.Next(from.Count)];
+            Board(pick, waypointId);
+            return pick.Id;
+        }
+
         /// <summary>Pool settings and texts (toast formats).</summary>
         public NpcPoolData Pool => _pool;
 
@@ -152,7 +179,7 @@ namespace IronRing.Npc
         {
             if (_disposed || node == null) return;
             DropImpatient();
-            RollBoarding(node.Id);
+            if (AutoBoarding) RollBoarding(node.Id);
         }
 
         private void DropImpatient()

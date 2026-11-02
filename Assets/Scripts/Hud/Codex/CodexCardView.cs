@@ -36,6 +36,16 @@ namespace IronRing.Hud.Codex
             ClearDiagram();
         }
 
+        /// <summary>잠긴 카드에 lockedText와 열린 재료 이름 및 배열을 보이고, 나머지 보상 정보는 숨긴다.</summary>
+        public void ShowLocked(string lockedText, string materials)
+        {
+            ShowLocked(lockedText);
+            _meta.text = materials;
+            _meta.gameObject.SetActive(true);
+            _diagram.gameObject.SetActive(true);
+            if (_silhouette != null) _silhouette.transform.SetAsFirstSibling();
+        }
+
         /// <summary>해금 카드: 이름·종류 줄·보너스·NPC를 쓰고 완성 표시를 켜거나 끈다. 배열은 Diagram에 따로 채운다.</summary>
         public void ShowUnlocked(string name, string meta, string bonus, string npc, bool complete) => ShowUnlocked(name, meta, bonus, npc, null, complete);
 

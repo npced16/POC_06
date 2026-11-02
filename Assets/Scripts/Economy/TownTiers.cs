@@ -112,7 +112,7 @@ namespace IronRing.Economy
         public int Prosperity => _prosperity;
         /// <summary>사상되는 HubPhase(이름이 틀리면 Ruined).</summary>
         public HubPhase Phase => Enum.TryParse(_phase, out HubPhase p) ? p : HubPhase.Ruined;
-        /// <summary>이 등급이 여는 레시피.</summary>
+        /// <summary>옛 데이터(스토리 042). 스토리 050부터 TownTiers는 이 목록을 무시한다.</summary>
         public IReadOnlyList<string> UnlockRecipes => _unlockRecipes ?? Array.Empty<string>();
         /// <summary>이 등급이 여는 열차 업그레이드(043).</summary>
         public IReadOnlyList<string> UnlockUpgrades => _unlockUpgrades ?? Array.Empty<string>();
@@ -125,7 +125,7 @@ namespace IronRing.Economy
     /// <summary>
     /// 스토리 042·048. 마을 등급(ITownTier), 열린 마을마다 따로. 순수 C#. 정산마다 마을별 EvaluateAt(거점, 주민, 번영)을 부른다.
     /// 상승: 다음 등급의 주민·번영을 모두 채우면 한 단계씩 오른다(한 정산에 여러 단계 가능, 단계마다 HubTierChanged; 첫 마을은 TierChanged도). 내려가지 않는다.
-    /// 해금: 레시피·업그레이드·휴식지는 어느 마을이 올라도 전역으로 쌓인다(등급 0의 해금은 생성 때 열림). _unlockHubs는 첫 마을(_hubId) 등급에서만
+    /// 해금: 업그레이드·휴식지는 어느 마을이 올라도 전역으로 쌓인다(스토리 050: 레시피는 열지 않음)(등급 0의 해금은 생성 때 열림). _unlockHubs는 첫 마을(_hubId) 등급에서만
     /// HubUnlockRequested로 낸다(설치자가 ILineOpener.Open).
     /// 붕괴(마을마다): 등급이 CollapseMinTier 이상인데 주민 ≤ CollapseResidents이고 번영 ≤ CollapseProsperity인 정산이 CollapseLaps번 이어지면 그 마을 붕괴(끝).
     /// 첫 마을 붕괴만 Collapsing(RunState 패배), 모든 마을은 HubCollapsing.
@@ -163,7 +163,7 @@ namespace IronRing.Economy
         public int NextResidentsNeed => IsMax ? 0 : Data(Tier + 1).Residents;
         /// <inheritdoc />
         public int NextProsperityNeed => IsMax ? 0 : Data(Tier + 1).Prosperity;
-        /// <inheritdoc />
+        /// <summary>스토리 050: 등급은 레시피를 열지 않으므로 늘 비어 있다(계약 호환용).</summary>
         public IReadOnlyList<string> UnlockedRecipeIds => _recipes;
         /// <inheritdoc />
         public IReadOnlyList<string> UnlockedUpgradeIds => _upgrades;
@@ -260,7 +260,7 @@ namespace IronRing.Economy
 
         private void AddUnlocks(TownTierData data, bool primary)
         {
-            foreach (string id in data.UnlockRecipes) if (!_recipes.Contains(id)) _recipes.Add(id);
+            // 스토리 050: 등급은 레시피를 열지 않는다(_unlockRecipes는 무시, UnlockedRecipeIds는 늘 비어 있음). 레시피는 조합 해금(HabitatCodex).
             foreach (string id in data.UnlockUpgrades) if (!_upgrades.Contains(id)) _upgrades.Add(id);
             foreach (string id in data.UnlockStops) if (!_stops.Contains(id)) _stops.Add(id);
             if (!primary) return;

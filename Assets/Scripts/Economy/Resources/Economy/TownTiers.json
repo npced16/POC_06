@@ -5,6 +5,7 @@
   "_minResidents": 1,
   "_baseHousing": 3,
   "_hubName": "황동골",
+  "_recipeComment": "Story 050: 등급은 레시피를 열지 않는다(_unlockRecipes는 비워 두고 코드도 무시). 레시피는 조합 해금(Habitats/CodexUnlocks.json).",
   "_hubComment": "Story 048: 등급·주민은 열린 마을마다 따로(같은 표). _unlockHubs는 황동골(_hubId) 등급에서만 선로를 연다. 승리는 황동골 _victoryTier, 패배는 황동골 붕괴만(다른 마을 붕괴 = 토스트, 보너스 상실).",
   "_growPerLap": 1,
   "_growPerLapLit": 2,
@@ -23,7 +24,7 @@
       "_residents": 0,
       "_prosperity": 0,
       "_phase": "Ruined",
-      "_unlockRecipes": ["barracks", "greenhouse"],
+      "_unlockRecipes": [],
       "_unlockUpgrades": [],
       "_unlockStops": []
     },
@@ -33,7 +34,7 @@
       "_residents": 5,
       "_prosperity": 20,
       "_phase": "Recovering",
-      "_unlockRecipes": ["cobble_plaza", "water_tower", "iron_depot", "toolshop"],
+      "_unlockRecipes": [],
       "_unlockUpgrades": ["cargo_plus"],
       "_unlockStops": ["REST-2"],
       "_unlockHubs": ["hub-2"]
@@ -44,7 +45,7 @@
       "_residents": 12,
       "_prosperity": 50,
       "_phase": "Settled",
-      "_unlockRecipes": ["cogworks", "power_house", "telegraph_line", "lamp_road", "engine_room"],
+      "_unlockRecipes": [],
       "_unlockUpgrades": ["boiler_plus", "car_plus"],
       "_unlockStops": ["REST-3"]
     },
@@ -54,13 +55,13 @@
       "_residents": 25,
       "_prosperity": 100,
       "_phase": "Settled",
-      "_unlockRecipes": ["grand_cogworks", "blast_furnace", "repair_bay"],
+      "_unlockRecipes": [],
       "_unlockUpgrades": ["express"],
       "_unlockStops": []
     }
   ],
   "_demoSettles": 3,
-  "_demoGrowBuildings": ["barracks", "greenhouse", "lamp_road"],
+  "_demoGrowBuildings": ["barracks", "greenhouse", "lamp_street"],
   "_demoTierResidents": 5,
   "_demoTierProsperity": 20
 }

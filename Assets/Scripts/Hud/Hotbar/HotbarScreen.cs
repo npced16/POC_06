@@ -63,6 +63,9 @@ namespace IronRing.Hud.Hotbar
         [SerializeField] private Image _dragIcon;
         [Tooltip("드래그 칩을 포인터에서 띄우는 거리(캔버스 단위).")]
         [SerializeField] private Vector2 _dragChipOffset = new Vector2(34, 34);
+        [Header("해금 표시")]
+        [SerializeField] private float _unlockFlashSeconds = 1.5f;
+        [SerializeField] private float _unlockFlashInterval = 0.15f;
 
         private IMoney _money;
         private IPlacementCost _cost;
@@ -72,8 +75,11 @@ namespace IronRing.Hud.Hotbar
         private HotbarData _data;
         private ItemCatalog _items;
         private UiTheme _theme;
+        private IHabitatCodex _codex;
+        private ITileStock _stock;
 
         private readonly PlacementEntry[] _slots = new PlacementEntry[SLOT_COUNT];
+        private readonly float[] _unlockFlashUntil = new float[SLOT_COUNT];
         private readonly List<(PlacementEntry entry, HotbarCellView view)> _paletteViews = new List<(PlacementEntry, HotbarCellView)>();
         private int _selectedSlot = -1;
         private PlacementEntry _pendingAssign;
@@ -111,6 +117,8 @@ namespace IronRing.Hud.Hotbar
             _items = ItemsInstaller.Catalog;
             _money = GameServices.Get<IMoney>();
             _cost = GameServices.Get<IPlacementCost>();
+            _codex = GameServices.Get<IHabitatCodex>();
+            _stock = GameServices.Get<ITileStock>();
             if (_money != null) _money.Changed += Refresh;
             _data = HotbarData.Load();
 
@@ -140,6 +148,8 @@ namespace IronRing.Hud.Hotbar
             _ghost.Undone += OnUndone;
             _view.InteriorChanged += OnInteriorChanged;
             if (_clusters != null) _clusters.HabitatCompleted += OnHabitatCompleted;
+            if (_codex != null) _codex.TileUnlocked += OnTileUnlocked;
+            if (_stock != null) _stock.Changed += OnStockChanged;
             Refresh();
         }
 
@@ -151,28 +161,34 @@ namespace IronRing.Hud.Hotbar
 
         // ----- 데이터 배정 (HotbarHud와 같은 규칙) -----
 
+        /// <summary>HotbarData의 배정 중 열린 아이템을 앞부터 놓고, 남은 빈칸을 codex의 열린 타일로 채운다.</summary>
         private void AssignDefaults()
         {
             HotbarData.SlotData[] data = _data.Slots;
             var used = new HashSet<PlacementEntry>();
+            int filled = 0;
             for (int i = 0; i < SLOT_COUNT; i++)
             {
                 PlacementEntry entry = i < data.Length && data[i] != null ? data[i].ToEntry() : default;
-                _slots[i] = Exists(entry) ? entry : default;
-                if (_slots[i].IsValid) used.Add(_slots[i]);
+                if (!Exists(entry) || !IsAvailable(entry) || !used.Add(entry)) continue;
+                _slots[filled++] = entry;
             }
             if (!_data.FillMissingFromCatalog) return;
-            int next = 0;
-            for (int i = 0; i < SLOT_COUNT; i++)
+            if (_codex == null) return;
+            foreach (string id in _codex.UnlockedTileIds)
             {
-                if (_slots[i].IsValid) continue;
-                while (next < _items.Items.Count && used.Contains(new PlacementEntry(PlacementKind.Item, _items.Items[next].Id))) next++;
-                if (next >= _items.Items.Count) break;
-                _slots[i] = new PlacementEntry(PlacementKind.Item, _items.Items[next].Id);
-                used.Add(_slots[i]);
+                var entry = new PlacementEntry(PlacementKind.Item, id);
+                if (!Exists(entry) || used.Contains(entry)) continue;
+                if (filled >= SLOT_COUNT) break;
+                _slots[filled++] = entry;
+                used.Add(entry);
             }
         }
 
+        /// <summary>entry의 아이템 id를 도감 잠금 상태와 대조해 표시 가능 여부를 반환한다.</summary>
+        private bool IsAvailable(PlacementEntry entry) => entry.Kind != PlacementKind.Item || _codex == null || _codex.IsTileUnlocked(entry.Id);
+
+        /// <summary>entry가 현재 아이템 카탈로그에 있는지 반환한다.</summary>
         private bool Exists(PlacementEntry entry)
         {
             if (!entry.IsValid) return false;
@@ -185,11 +201,12 @@ namespace IronRing.Hud.Hotbar
             var list = new List<PlacementEntry>();
             string[] categories = PaletteCategories();
             foreach (ItemDefinition item in _items.Items)
-                if (categories.Length == 0 || Array.IndexOf(categories, item.Category) >= 0)
+                if ((categories.Length == 0 || Array.IndexOf(categories, item.Category) >= 0) && IsAvailable(new PlacementEntry(PlacementKind.Item, item.Id)))
                     list.Add(new PlacementEntry(PlacementKind.Item, item.Id));
             return list;
         }
 
+        /// <summary>Hotbar.json의 팔레트 분류를 읽고 없으면 타일 분류를 반환한다.</summary>
         private static string[] PaletteCategories()
         {
             TextAsset asset = UnityEngine.Resources.Load<TextAsset>("Hotbar/Hotbar");
@@ -248,8 +265,10 @@ namespace IronRing.Hud.Hotbar
                 HotbarCellView view = _slotViews[i];
                 if (view == null) continue;
                 view.Show(_slots[i].IsValid ? _ghost.IconFor(_slots[i]) : null, DisplayName(_slots[i]));
-                view.SetState(i == _selectedSlot, _pendingAssign.IsValid, _theme);
                 RefreshPrice(view, _slots[i]);
+                bool flash = Time.realtimeSinceStartup < _unlockFlashUntil[i]
+                    && Mathf.FloorToInt(Time.realtimeSinceStartup / Mathf.Max(0.05f, _unlockFlashInterval)) % 2 == 0;
+                view.SetState(i == _selectedSlot, _pendingAssign.IsValid || flash, _theme);
             }
             _palette.SetActive(open && _paletteOpen);
             foreach (var (entry, view) in _paletteViews)
@@ -263,9 +282,14 @@ namespace IronRing.Hud.Hotbar
         private void RefreshPrice(HotbarCellView view, PlacementEntry entry)
         {
             ItemDefinition item = entry.Kind == PlacementKind.Item ? _items.Get(entry.Id) : null;
-            bool affordable = item == null || _money == null || (_cost != null ? _cost.CanAfford(entry.Id) : _money.Balance >= item.Price);
+            int stockCount = item != null && _stock != null ? _stock.CountOf(entry.Id) : 0;
+            bool affordable = stockCount > 0 || item == null || _money == null || (_cost != null ? _cost.CanAfford(entry.Id) : _money.Balance >= item.Price);
             view.SetPrice(item != null ? (_cost != null ? _cost.PriceOf(entry.Id) : item.Price) : (int?)null, affordable);
+            view.SetStock(stockCount);
         }
+
+        /// <summary>itemId의 재고 수가 바뀌면 핫바와 열린 팔레트의 배지·가격 줄을 갱신한다.</summary>
+        private void OnStockChanged(string itemId, int count) { Refresh(); }
 
         /// <summary>entry에 해당하는 시설 또는 아이템의 표시 이름을 반환한다.</summary>
         private string DisplayName(PlacementEntry entry)
@@ -303,6 +327,22 @@ namespace IronRing.Hud.Hotbar
         private void OnPaletteClicked(PlacementEntry entry)
         {
             _pendingAssign = _pendingAssign.Equals(entry) ? default : entry;
+            Refresh();
+        }
+
+        /// <summary>새로 열린 tileIds를 빈 핫바 슬롯에 순서대로 배정하고 반짝임 시간을 시작하며 팔레트를 갱신한다.</summary>
+        private void OnTileUnlocked(IReadOnlyList<string> tileIds, string byRecipeId)
+        {
+            foreach (string id in tileIds)
+            {
+                var entry = new PlacementEntry(PlacementKind.Item, id);
+                if (!Exists(entry) || Array.Exists(_slots, slot => slot.Equals(entry))) continue;
+                int empty = Array.FindIndex(_slots, slot => !slot.IsValid);
+                if (empty < 0) break;
+                _slots[empty] = entry;
+                _unlockFlashUntil[empty] = Time.realtimeSinceStartup + Mathf.Max(0f, _unlockFlashSeconds);
+            }
+            BuildPalette();
             Refresh();
         }
 
@@ -363,6 +403,13 @@ namespace IronRing.Hud.Hotbar
             UpdateDragChip();
             bool notice = _view.InteriorOpen && Time.realtimeSinceStartup < _noticeUntil;
             if (_noticeBox.activeSelf != notice) _noticeBox.SetActive(notice);
+            for (int i = 0; i < SLOT_COUNT; i++)
+            {
+                if (_unlockFlashUntil[i] <= 0f) continue;
+                if (_unlockFlashUntil[i] <= Time.realtimeSinceStartup) _unlockFlashUntil[i] = 0f;
+                Refresh();
+                break;
+            }
         }
 
         /// <summary>키 1~9로 슬롯을 고른다(같은 키를 다시 누르면 해제).</summary>
@@ -490,6 +537,8 @@ namespace IronRing.Hud.Hotbar
             }
             if (_view != null) _view.InteriorChanged -= OnInteriorChanged;
             if (_clusters != null) _clusters.HabitatCompleted -= OnHabitatCompleted;
+            if (_codex != null) _codex.TileUnlocked -= OnTileUnlocked;
+            if (_stock != null) _stock.Changed -= OnStockChanged;
             if (_instance == this) _instance = null;
         }
     }

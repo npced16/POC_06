@@ -1,14 +1,10 @@
 {
   "_slots": [
-    { "_kind": "item", "_id": "tile_gaslamp" },
-    { "_kind": "item", "_id": "tile_coal" },
     { "_kind": "item", "_id": "tile_boiler" },
-    { "_kind": "item", "_id": "tile_pipe" },
-    { "_kind": "item", "_id": "tile_gear" },
-    { "_kind": "item", "_id": "tile_girder" },
+    { "_kind": "item", "_id": "tile_coal" },
     { "_kind": "item", "_id": "tile_cobble" },
-    { "_kind": "item", "_id": "tile_tank" },
-    { "_kind": "item", "_id": "tile_glass" }
+    { "_kind": "item", "_id": "tile_bunk" },
+    { "_kind": "item", "_id": "tile_bench" }
   ],
   "_fillMissingFromCatalog": true,
   "_paletteCategories": ["tile", "deco"],

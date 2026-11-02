@@ -32,6 +32,7 @@ namespace IronRing.Hud.HubPhase
         [SerializeField] private GameObject _tierBanner;
         [SerializeField] private TMP_Text _tierBannerText;
         [SerializeField] private float _tierBannerSeconds = 2f;
+        [SerializeField] private float _loopBannerSeconds = 2f;
         [Header("거점 상태")]
         [SerializeField] private TMP_Text _hubLabel;
         [Tooltip("정착 기한 상자(라벨의 부모). 기한이 없으면 끈다.")]
@@ -55,6 +56,7 @@ namespace IronRing.Hud.HubPhase
         private IHabitatClusters _clusters;
         private IViewMode _view;
         private ILineOpener _lineOpener;
+        private IPhaseLoop _loop;
         private string _lastHub;
         private string _bannerKey;
 
@@ -108,6 +110,12 @@ namespace IronRing.Hud.HubPhase
             _view = GameServices.Get<IViewMode>();
             _lineOpener = GameServices.Get<ILineOpener>();
             if (_lineOpener != null) _lineOpener.HubOpened += OnHubOpened;
+            _loop = GameServices.Get<IPhaseLoop>();
+            if (_loop != null)
+            {
+                _loop.PhaseChanged += OnLoopPhaseChanged;
+                OnLoopPhaseChanged(_loop.Phase, _loop.Lap);
+            }
             _lastHub = _hubs.HubIds.Count > 0 ? _hubs.HubIds[0] : null;
             Refresh(true);
         }
@@ -221,6 +229,15 @@ namespace IronRing.Hud.HubPhase
             _bannerMessages.Enqueue((string.Format(Strings.Get("ui_line_opened"), Strings.Get(hubId.Replace('-', '_'))), 2.5f));
         }
 
+        /// <summary>phase와 lap을 한국어 중앙 배너 문구로 바꾸고 2초 표시 큐에 넣는다.</summary>
+        private void OnLoopPhaseChanged(LoopPhase phase, int lap)
+        {
+            string text = phase == LoopPhase.Build
+                ? string.Format(Strings.Get("loop_phase_build"), lap)
+                : Strings.Get("loop_phase_circulate");
+            _bannerMessages.Enqueue((text, _loopBannerSeconds));
+        }
+
         void LateUpdate()
         {
             if (_instance != this || _development == null) return;
@@ -249,6 +266,7 @@ namespace IronRing.Hud.HubPhase
             GameServices.Ready -= Create;
             if (_town != null) _town.HubTierChanged -= OnHubTierChanged;
             if (_lineOpener != null) _lineOpener.HubOpened -= OnHubOpened;
+            if (_loop != null) _loop.PhaseChanged -= OnLoopPhaseChanged;
             if (_instance == this) _instance = null;
         }
     }

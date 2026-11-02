@@ -39,6 +39,20 @@ namespace IronRing.Items
         public Func<string, bool> CanAfford { get; set; }
         /// <summary>스토리 041. 회수 환급(아이템 id). null이면 환급 없음.</summary>
         public Action<string> Refund { get; set; }
+        /// <summary>스토리 050. 아이템이 해금됐는지(IHabitatCodex.IsTileUnlocked). null이면 모두 해금. 잠긴 타일은 놓을 수 없다(회수는 언제나 가능).</summary>
+        public Func<string, bool> IsUnlocked { get; set; }
+        /// <summary>
+        /// 스토리 051. 타일 재고(중간역 사건 보상). 놓을 때 재고가 있으면 재고 1을 쓰고 결제하지 않는다(잔고 검사도 건너뜀), 없으면 기존처럼 돈.
+        /// 회수: 재고로 놓은 칸은 재고로 1 되돌리고 환급 없음, 돈으로 놓은 칸은 기존 환급. null이면 재고 없음.
+        /// </summary>
+        public ITileStock Stock { get; set; }
+        private readonly HashSet<string> _stockPaid = new HashSet<string>(StringComparer.Ordinal);
+
+        /// <summary>스토리 051. 그 칸의 타일이 재고로 놓였는지.</summary>
+        public bool IsStockPaid(string hubId, int cellIndex) => _stockPaid.Contains(Key(hubId, cellIndex));
+
+        private bool HasStock(string itemId) => Stock != null && Stock.CountOf(itemId) > 0;
+        private static string Key(string hubId, int cellIndex) => hubId + "#" + cellIndex;
 
         /// <summary>canEdit가 null이면 언제나 편집 가능(테스트). 통합은 내부 화면이 그 거점일 때만 true를 준다.</summary>
         public ItemPlacement(IItemInventory inventory, IHubInterior interior, IInteriorItemSlots slots, Func<string, bool> canEdit = null)
@@ -49,12 +63,13 @@ namespace IronRing.Items
             _canEdit = canEdit;
         }
 
-        /// <summary>편집 가능하고 칸이 Empty이며 아이템을 1개 이상 가졌으면 true.</summary>
+        /// <summary>편집 가능하고 (스토리 050) 해금된 아이템이며 칸이 Empty이고 아이템을 1개 이상 가졌으면 true.</summary>
         public bool CanPlace(string hubId, int cellIndex, string itemId)
         {
             if (string.IsNullOrEmpty(itemId) || !CanEdit(hubId)) return false;
+            if (IsUnlocked != null && !IsUnlocked(itemId)) return false;
             IInteriorCell cell = Cell(hubId, cellIndex);
-            return cell != null && cell.State == InteriorCellState.Empty && _inventory.Count(itemId) > 0 && (CanAfford == null || CanAfford(itemId));
+            return cell != null && cell.State == InteriorCellState.Empty && _inventory.Count(itemId) > 0 && (HasStock(itemId) || CanAfford == null || CanAfford(itemId));
         }
 
         /// <summary>인벤토리에서 1개를 빼 칸에 놓는다. 칸 쓰기가 거부되면 되돌리고 false.</summary>
@@ -63,12 +78,15 @@ namespace IronRing.Items
             if (!CanPlace(hubId, cellIndex, itemId)) return false;
             if (!_inventory.TryRemove(itemId, 1)) return false;
             if (!_slots.TryPlaceItem(hubId, cellIndex, itemId)) { _inventory.Add(itemId, 1); return false; }
-            if (TryCharge != null && !TryCharge(itemId))
+            bool fromStock = Stock != null && Stock.TryTake(itemId, 1);
+            if (!fromStock && TryCharge != null && !TryCharge(itemId))
             {
                 _slots.TryRemoveItem(hubId, cellIndex);
                 _inventory.Add(itemId, 1);
                 return false;
             }
+            if (fromStock) _stockPaid.Add(Key(hubId, cellIndex));
+            else _stockPaid.Remove(Key(hubId, cellIndex));
             ItemPlaced?.Invoke(hubId, cellIndex, itemId);
             return true;
         }
@@ -82,7 +100,8 @@ namespace IronRing.Items
             string itemId = cell.ItemId;
             if (!_slots.TryRemoveItem(hubId, cellIndex)) return false;
             _inventory.Add(itemId, 1);
-            Refund?.Invoke(itemId);
+            if (_stockPaid.Remove(Key(hubId, cellIndex)) && Stock != null) Stock.Add(itemId, 1); // 스토리 051: 재고로 놓은 칸은 재고로
+            else Refund?.Invoke(itemId);
             ItemRemoved?.Invoke(hubId, cellIndex, itemId);
             return true;
         }
