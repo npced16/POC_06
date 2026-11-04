@@ -1,10 +1,10 @@
-{
+﻿{
   "_itemSortingOrder": 40,
   "_itemScale": 0.85,
-  "_bannerSeconds": 4.0,
+  "_bannerSeconds": 4,
   "_demoHubId": "hub-1",
   "_demoWaitFrames": 20,
-  "_demoCrafts": ["brazier", "steam_pipe"],
-  "_demoGrants": ["gear"],
-  "_demoPlacements": ["gear", "brazier", "steam_pipe"]
+  "_demoCrafts": [],
+  "_demoGrants": [],
+  "_demoPlacements": []
 }

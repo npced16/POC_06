@@ -64,6 +64,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 760425d7f6148ca41aecc070bc8f782e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IronRing.Hud.Interior.InteriorTitleScreen
+  _showTitle: 0
   _title: {fileID: 7387571047739571352}
   _catalogJson: {fileID: 4900000, guid: 4644950b98781e74186c1e0a0cc8878d, type: 3}
 --- !u!1 &5449709494353111620
@@ -133,8 +134,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\uD669\uB3D9\uACE8 \xB7 \uD3D0\uD5C8"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 285eac0e2e745804c8b2e663e3abe268, type: 2}
-  m_sharedMaterial: {fileID: 9221399089246882148, guid: 285eac0e2e745804c8b2e663e3abe268, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 5de940d1e89823a4e95fe735ab53008c, type: 2}
+  m_sharedMaterial: {fileID: -5600698932948656757, guid: 5de940d1e89823a4e95fe735ab53008c, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

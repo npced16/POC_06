@@ -138,7 +138,7 @@ namespace IronRing.Presentation.Interior
             {
                 case InteriorCellState.Rubble: return _rubbleSprite;
                 case InteriorCellState.FacilityPlot: return _plotSprite;
-                default: return _emptySprite;
+                default: return null;
             }
         }
 

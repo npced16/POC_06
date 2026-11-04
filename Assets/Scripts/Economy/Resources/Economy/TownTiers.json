@@ -1,4 +1,4 @@
-{
+﻿{
   "_comment": "Story 042/045 (가벼운 경제). 마을 거점 주민과 마을 등급. 정산: 주거>주민 → +_growPerLap(빛>=주민x_lightPerResident면 +_growPerLapLit, 주거 상한), 주거<주민 → -_shrinkPerLap(최소 _minResidents). 표: production/qa/evidence/story-045-light-economy/verification.md",
   "_hubId": "hub-1",
   "_startResidents": 3,
@@ -6,7 +6,7 @@
   "_baseHousing": 3,
   "_hubName": "황동골",
   "_recipeComment": "Story 050: 등급은 레시피를 열지 않는다(_unlockRecipes는 비워 두고 코드도 무시). 레시피는 조합 해금(Habitats/CodexUnlocks.json).",
-  "_hubComment": "Story 048: 등급·주민은 열린 마을마다 따로(같은 표). _unlockHubs는 황동골(_hubId) 등급에서만 선로를 연다. 승리는 황동골 _victoryTier, 패배는 황동골 붕괴만(다른 마을 붕괴 = 토스트, 보너스 상실).",
+  "_hubComment": "등급·주민은 열린 마을마다 따로 센다. 잿골 선로는 황동골 증기역을 완성할 때 열린다. 승리는 황동골 _victoryTier, 패배는 황동골 붕괴만 적용한다.",
   "_growPerLap": 1,
   "_growPerLapLit": 2,
   "_shrinkPerLap": 1,
@@ -35,9 +35,13 @@
       "_prosperity": 20,
       "_phase": "Recovering",
       "_unlockRecipes": [],
-      "_unlockUpgrades": ["cargo_plus"],
-      "_unlockStops": ["REST-2"],
-      "_unlockHubs": ["hub-2"]
+      "_unlockUpgrades": [
+        "cargo_plus"
+      ],
+      "_unlockStops": [
+        "REST-2"
+      ],
+      "_unlockHubs": []
     },
     {
       "_id": "village",
@@ -46,8 +50,13 @@
       "_prosperity": 50,
       "_phase": "Settled",
       "_unlockRecipes": [],
-      "_unlockUpgrades": ["boiler_plus", "car_plus"],
-      "_unlockStops": ["REST-3"]
+      "_unlockUpgrades": [
+        "boiler_plus",
+        "car_plus"
+      ],
+      "_unlockStops": [
+        "REST-3"
+      ]
     },
     {
       "_id": "city",
@@ -56,12 +65,14 @@
       "_prosperity": 100,
       "_phase": "Settled",
       "_unlockRecipes": [],
-      "_unlockUpgrades": ["express"],
+      "_unlockUpgrades": [
+        "express"
+      ],
       "_unlockStops": []
     }
   ],
   "_demoSettles": 3,
-  "_demoGrowBuildings": ["barracks", "greenhouse", "lamp_street"],
+  "_demoGrowBuildings": [],
   "_demoTierResidents": 5,
   "_demoTierProsperity": 20
 }

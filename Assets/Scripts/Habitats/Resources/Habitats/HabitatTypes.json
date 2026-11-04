@@ -1,20 +1,192 @@
-{
+﻿{
   "_lockCompleted": true,
   "_types": [
-    {"_id": "lamp_street", "_name": "가스등 거리", "_kind": "cluster", "_tileItemId": "tile_gaslamp", "_requiredCount": 3, "_prosperityBonus": 4, "_npcTypeId": "lamplighter", "_buildingStyle": "housing", "_signProp": "lamp_post", "_income": 2, "_housing": 0, "_light": 3, "_decor": {"_roofTint": "wine", "_windows": 1, "_props": ["laundry", "water_tank"]}},
-    {"_id": "coal_yard", "_name": "석탄 야적장", "_kind": "cluster", "_tileItemId": "tile_coal", "_requiredCount": 4, "_prosperityBonus": 5, "_npcTypeId": "coal_merchant", "_buildingStyle": "storage", "_signProp": "coal_heap", "_income": 4, "_housing": 0, "_light": 0, "_decor": {"_roofTint": "base", "_windows": 0, "_props": ["coal_pile", "gas_lamp"]}},
-    {"_id": "cobble_plaza", "_name": "벽돌 광장", "_kind": "cluster", "_tileItemId": "tile_cobble", "_requiredCount": 6, "_prosperityBonus": 7, "_npcTypeId": "peddler", "_buildingStyle": "housing", "_signProp": "cobble_arch", "_income": 1, "_housing": 2, "_light": 1, "_decor": {"_roofTint": "base", "_windows": 2, "_props": ["cog_sign", "water_tank"]}},
-    {"_id": "boiler_room", "_name": "보일러실", "_kind": "set", "_tiles": [{"_tileItemId": "tile_boiler", "_minCount": 2}, {"_tileItemId": "tile_coal", "_minCount": 1}], "_requiredCount": 4, "_prosperityBonus": 5, "_npcTypeId": "stoker", "_buildingStyle": "machine", "_signProp": "boiler_dome", "_income": 3, "_housing": 0, "_light": 0, "_decor": {"_roofTint": "copper", "_windows": 0, "_props": ["twin_chimney", "coal_pile"]}},
-    {"_id": "pipe_gallery", "_name": "배관 회랑", "_kind": "set", "_tiles": [{"_tileItemId": "tile_pipe", "_minCount": 3}, {"_tileItemId": "tile_gear", "_minCount": 1}], "_requiredCount": 4, "_prosperityBonus": 5, "_npcTypeId": "pipefitter", "_buildingStyle": "machine", "_signProp": "pipe_valve", "_income": 3, "_housing": 0, "_light": 0, "_decor": {"_roofTint": "moss", "_windows": 2, "_props": ["steam_pipes", "water_tank"]}},
-    {"_id": "cogworks", "_name": "톱니공방", "_kind": "set", "_tiles": [{"_tileItemId": "tile_gear", "_minCount": 2}, {"_tileItemId": "tile_bench", "_minCount": 2}], "_requiredCount": 5, "_prosperityBonus": 6, "_npcTypeId": "mechanic", "_buildingStyle": "machine", "_signProp": "small_gear", "_income": 6, "_housing": 0, "_light": 0, "_decor": {"_roofTint": "wine", "_windows": 1, "_props": ["cog_sign", "steam_pipes"]}},
-    {"_id": "iron_depot", "_name": "철골 창고", "_kind": "set", "_tiles": [{"_tileItemId": "tile_girder", "_minCount": 3}, {"_tileItemId": "tile_bench", "_minCount": 1}], "_requiredCount": 5, "_prosperityBonus": 6, "_npcTypeId": "ironworker", "_buildingStyle": "storage", "_signProp": "girder", "_income": 4, "_housing": 0, "_light": 0, "_decor": {"_roofTint": "copper", "_windows": 2, "_props": ["iron_frame", "cog_sign"]}},
-    {"_id": "greenhouse", "_name": "온실", "_kind": "set", "_tiles": [{"_tileItemId": "tile_glass", "_minCount": 3}, {"_tileItemId": "tile_tank", "_minCount": 1}], "_requiredCount": 5, "_prosperityBonus": 6, "_npcTypeId": "gardener", "_buildingStyle": "glass", "_signProp": "glass_roof", "_income": 4, "_housing": 0, "_light": 0, "_decor": {"_roofTint": "base", "_windows": 1, "_props": ["glass_cap", "water_tank"]}},
-    {"_id": "barracks", "_name": "막사촌", "_kind": "set", "_tiles": [{"_tileItemId": "tile_bunk", "_minCount": 3}, {"_tileItemId": "tile_bench", "_minCount": 1}], "_requiredCount": 5, "_prosperityBonus": 6, "_npcTypeId": "night_watch", "_buildingStyle": "housing", "_signProp": "bunk", "_income": 1, "_housing": 6, "_light": 0, "_decor": {"_roofTint": "moss", "_windows": 1, "_props": ["laundry", "twin_chimney"]}},
-    {"_id": "telegraph_line", "_name": "전신선", "_kind": "set", "_tiles": [{"_tileItemId": "tile_wire", "_minCount": 2}, {"_tileItemId": "tile_girder", "_minCount": 1}], "_requiredCount": 3, "_prosperityBonus": 4, "_npcTypeId": "telegrapher", "_buildingStyle": "housing", "_signProp": "wire_pole", "_income": 3, "_housing": 0, "_light": 2, "_decor": {"_roofTint": "base", "_windows": 0, "_props": ["iron_frame", "laundry"]}},
-    {"_id": "water_tower", "_name": "급수탑", "_kind": "pattern", "_pattern": ["tile_tank", "tile_girder"], "_prosperityBonus": 6, "_npcTypeId": "tower_keeper", "_buildingStyle": "storage", "_signProp": "water_tower", "_income": 3, "_housing": 0, "_light": 0, "_decor": {"_roofTint": "wine", "_windows": 2, "_props": ["steam_pipes", "gas_lamp"]}},
-    {"_id": "engine_room", "_name": "증기 기관실", "_kind": "pattern", "_pattern": ["tile_boiler tile_pipe tile_gear"], "_prosperityBonus": 7, "_npcTypeId": "engine_driver", "_buildingStyle": "machine", "_signProp": "engine", "_income": 6, "_housing": 0, "_light": 0, "_decor": {"_roofTint": "copper", "_windows": 2, "_props": ["steam_pipes", "coal_pile"]}},
-    {"_id": "power_house", "_name": "발전소", "_kind": "pattern", "_pattern": ["tile_boiler tile_gear tile_wire"], "_prosperityBonus": 9, "_npcTypeId": "electrician", "_buildingStyle": "machine", "_signProp": "dynamo", "_income": 7, "_housing": 0, "_light": 1, "_decor": {"_roofTint": "wine", "_windows": 0, "_props": ["tele_pole", "gas_lamp"]}},
-    {"_id": "repair_bay", "_name": "정비창", "_kind": "pattern", "_pattern": ["tile_girder tile_girder", "tile_bench tile_bench"], "_prosperityBonus": 7, "_npcTypeId": "repairer", "_buildingStyle": "storage", "_signProp": "crane", "_income": 8, "_housing": 0, "_light": 0, "_decor": {"_roofTint": "base", "_windows": 1, "_props": ["iron_frame", "laundry"]}},
-    {"_id": "blast_furnace", "_name": "용광로", "_kind": "pattern", "_pattern": ["tile_girder tile_girder tile_girder", "tile_girder tile_chimney tile_girder", "tile_girder tile_girder tile_girder"], "_prosperityBonus": 12, "_npcTypeId": "smelter", "_buildingStyle": "machine", "_signProp": "chimney_stack", "_income": 12, "_housing": 0, "_light": 0, "_decor": {"_roofTint": "base", "_windows": 1, "_props": ["coal_pile", "iron_frame"]}}
+    {
+      "_id": "cleared_lot",
+      "_name": "개간지",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "land_clearer",
+      "_buildingStyle": "yard",
+      "_signProp": "earth_marker",
+      "_income": 2,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "logging_site",
+      "_name": "벌목터",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "woodcutter",
+      "_buildingStyle": "yard",
+      "_signProp": "bench_tools",
+      "_income": 2,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "stone_well",
+      "_name": "돌우물",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "well_keeper",
+      "_buildingStyle": "yard",
+      "_signProp": "tank",
+      "_income": 1,
+      "_housing": 1,
+      "_light": 0
+    },
+    {
+      "_id": "temporary_shelter",
+      "_name": "임시 거처",
+      "_prosperityBonus": 4,
+      "_npcTypeId": "shelter_keeper",
+      "_buildingStyle": "housing",
+      "_signProp": "bunk",
+      "_income": 0,
+      "_housing": 5,
+      "_light": 0
+    },
+    {
+      "_id": "terrace_field",
+      "_name": "계단식 밭",
+      "_prosperityBonus": 4,
+      "_npcTypeId": "field_keeper",
+      "_buildingStyle": "yard",
+      "_signProp": "earth_marker",
+      "_income": 2,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "coal_shaft",
+      "_name": "석탄 갱도",
+      "_prosperityBonus": 5,
+      "_npcTypeId": "coal_miner",
+      "_buildingStyle": "storage",
+      "_signProp": "coal_heap",
+      "_income": 3,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "communal_kitchen",
+      "_name": "공동 취사장",
+      "_prosperityBonus": 5,
+      "_npcTypeId": "cook",
+      "_buildingStyle": "housing",
+      "_signProp": "bench_tools",
+      "_income": 1,
+      "_housing": 2,
+      "_light": 0
+    },
+    {
+      "_id": "iron_forge",
+      "_name": "철 대장간",
+      "_prosperityBonus": 6,
+      "_npcTypeId": "blacksmith",
+      "_buildingStyle": "machine",
+      "_signProp": "girder",
+      "_income": 4,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "copper_pit",
+      "_name": "구리 갱도",
+      "_prosperityBonus": 6,
+      "_npcTypeId": "copper_miner",
+      "_buildingStyle": "storage",
+      "_signProp": "girder",
+      "_income": 3,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "steam_boiler",
+      "_name": "보일러실",
+      "_prosperityBonus": 7,
+      "_npcTypeId": "stoker",
+      "_buildingStyle": "machine",
+      "_signProp": "boiler_dome",
+      "_income": 5,
+      "_housing": 0,
+      "_light": 1
+    },
+    {
+      "_id": "pump_station",
+      "_name": "급수장",
+      "_prosperityBonus": 6,
+      "_npcTypeId": "pump_keeper",
+      "_buildingStyle": "storage",
+      "_signProp": "pipe_valve",
+      "_income": 3,
+      "_housing": 1,
+      "_light": 0
+    },
+    {
+      "_id": "gear_workshop",
+      "_name": "기계 공방",
+      "_prosperityBonus": 7,
+      "_npcTypeId": "machinist",
+      "_buildingStyle": "machine",
+      "_signProp": "small_gear",
+      "_income": 5,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "steam_station",
+      "_name": "증기역",
+      "_prosperityBonus": 8,
+      "_npcTypeId": "station_master",
+      "_buildingStyle": "machine",
+      "_signProp": "engine",
+      "_income": 6,
+      "_housing": 0,
+      "_light": 1
+    },
+    {
+      "_id": "wire_workshop",
+      "_name": "전선 공방",
+      "_prosperityBonus": 7,
+      "_npcTypeId": "wire_drawer",
+      "_buildingStyle": "machine",
+      "_signProp": "wire_pole",
+      "_income": 5,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "electric_works",
+      "_name": "발전소",
+      "_prosperityBonus": 10,
+      "_npcTypeId": "electrician",
+      "_buildingStyle": "machine",
+      "_signProp": "dynamo",
+      "_income": 7,
+      "_housing": 0,
+      "_light": 5
+    },
+    {
+      "_id": "night_market",
+      "_name": "야시장",
+      "_prosperityBonus": 8,
+      "_npcTypeId": "night_vendor",
+      "_buildingStyle": "housing",
+      "_signProp": "twin_lamps",
+      "_income": 5,
+      "_housing": 1,
+      "_light": 2
+    },
+    {
+      "_id": "clock_tower",
+      "_name": "시계탑",
+      "_prosperityBonus": 9,
+      "_npcTypeId": "clock_keeper",
+      "_buildingStyle": "machine",
+      "_signProp": "big_gear",
+      "_income": 2,
+      "_housing": 0,
+      "_light": 3
+    }
   ]
 }

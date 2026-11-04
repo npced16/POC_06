@@ -30,10 +30,18 @@ namespace IronRing.Npc
         public NpcPassengerProfile Passenger { get; }
         /// <summary>Story 030: habitat type id this NPC teaches when it joins a hub (NpcPool.json `_teachesTypeId`); null = none.</summary>
         public string TeachesTypeId { get; }
+        /// <summary>Job effect applied in the NPC's home town: income, housing, or light.</summary>
+        public string WorkKind { get; }
+        /// <summary>Amount of the job effect applied while this NPC lives in a town.</summary>
+        public int WorkBonus { get; }
 
-        /// <summary>Validates and copies identity, display text and allowed hubs into an immutable definition.</summary>
+        /// <summary>
+        /// NPC의 신원, 대사, 방문 조건, 직무 종류와 효과를 검증해 불변 정의로 복사한다.
+        /// 반환값은 없으며 공개 프로퍼티에 검증된 NPC 데이터를 저장한다.
+        /// </summary>
         public NpcDefinition(string id, string name, string quote, IEnumerable<string> eligibleHubIds, bool requiresCompleteHabitat, string habitatTypeId = null,
-            IEnumerable<string> lines = null, NpcPassengerProfile passenger = null, string teachesTypeId = null)
+            IEnumerable<string> lines = null, NpcPassengerProfile passenger = null, string teachesTypeId = null,
+            string workKind = null, int workBonus = 0)
         {
             if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(quote))
                 throw new ArgumentException("NPC id, name and quote must be non-empty.");
@@ -53,6 +61,11 @@ namespace IronRing.Npc
             Lines = allLines.AsReadOnly();
             Passenger = passenger;
             TeachesTypeId = string.IsNullOrWhiteSpace(teachesTypeId) ? null : teachesTypeId;
+            if (workKind != null && workKind != "income" && workKind != "housing" && workKind != "light")
+                throw new ArgumentException("Unknown NPC work kind.", nameof(workKind));
+            if (workBonus < 0) throw new ArgumentOutOfRangeException(nameof(workBonus));
+            WorkKind = workKind;
+            WorkBonus = workBonus;
         }
 
         /// <summary>True when hubId is one of this NPC's hubs (an empty hub list means any hub).</summary>

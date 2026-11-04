@@ -5,6 +5,7 @@ using UnityEngine;
 
 using IronRing.Contracts;
 using IronRing.Contracts.Presentation;
+using IronRing.Hud.Npc;
 using IronRing.Hud.Ui;
 using IronRing.Localization;
 
@@ -76,10 +77,14 @@ namespace IronRing.Track
                 _demo = new IronRing.Track.Demo.LoopDemoDriver(Loop, Stock, GameServices.Get<ITrackRuntime>());
         }
 
+        /// <summary>
+        /// 프레임 시간으로 사건 루프와 데모를 갱신한다.
+        /// 승객 대화가 열려 있으면 사건 자동 진행 시간을 멈춘다.
+        /// </summary>
         private static void Tick()
         {
             float dt = UnityEngine.Time.deltaTime;
-            Loop?.Tick(dt);
+            Loop?.Tick(NpcDialogScreen.Instance?.IsOpen == true ? 0f : dt);
             _demo?.Tick(dt);
         }
 

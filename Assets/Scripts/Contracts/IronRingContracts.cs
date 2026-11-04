@@ -312,8 +312,8 @@ namespace IronRing.Contracts
     }
 
     /// <summary>
-    /// 스토리 021. 서식지 레시피(완성 조건) 도감. 런 시작 때 시작 레시피만 알고, 바퀴·경유지 이벤트·전투 승리·우연한 완성(발견)으로 하나씩 해금한다.
-    /// 해금 여부는 완성 판정을 막지 않는다(모르는 레시피도 완성되면 그대로 인정되고 "discover"로 해금된다).
+    /// 서식지 레시피 도감. 건물을 처음 직접 완성했을 때 등록한다.
+    /// 도감 등록 여부는 건물 완성 판정을 막지 않는다.
     /// </summary>
     public interface IHabitatCodex
     {
@@ -321,7 +321,7 @@ namespace IronRing.Contracts
         bool IsUnlocked(string typeId);
         /// <summary>해금된 종류 id들(해금 순서).</summary>
         IReadOnlyList<string> UnlockedTypeIds { get; }
-        /// <summary>typeId를 해금한다. 카탈로그에 없거나 이미 해금이면 false. source: "start" | "lap" | "event" | "victory" | "discover" | "board" | "teach".</summary>
+        /// <summary>typeId를 직접 완성해 발견했을 때 등록한다. source가 "discover"가 아니거나 이미 등록했으면 false.</summary>
         bool TryUnlock(string typeId, string source);
         /// <summary>스토리 030. typeId를 연 출처("start"·"board"·"teach"·"discover" 등). 모르면 null.</summary>
         string UnlockSourceOf(string typeId) => null;
@@ -342,11 +342,11 @@ namespace IronRing.Contracts
         bool HasBuilt(string typeId) => false;
         /// <summary>스토리 050. typeId 건물을 처음 완성하면 열리는 타일(데이터 _tileUnlocks). 없으면 빈 목록.</summary>
         IReadOnlyList<string> TilesUnlockedBy(string typeId) => Array.Empty<string>();
-        /// <summary>스토리 050. typeId가 알려지기 전에 먼저 지어야 하는 건물(데이터 _recipeRequires). 없으면 null.</summary>
+        /// <summary>옛 선행 건물 데이터 조회. 현재 발견 판정에는 사용하지 않는다.</summary>
         string RequiredRecipeOf(string typeId) => null;
-        /// <summary>스토리 050. (새로 열린 타일 id들, 원인 건물 id). 건물 첫 완성 때 1회, 새 타일이 있을 때만. RecipeUnlocked·RecipesLearned보다 먼저 온다.</summary>
+        /// <summary>건물 첫 완성으로 열린 타일 id들과 원인 건물 id. 새 타일이 있을 때만 발생한다.</summary>
         event Action<IReadOnlyList<string>, string> TileUnlocked { add { } remove { } }
-        /// <summary>스토리 050. (같은 순간 새로 알려진 레시피 id들, 원인 건물 id). 각 레시피의 RecipeUnlocked(source "combo")가 모두 난 뒤 묶어서 1회. 토스트 한 줄용.</summary>
+        /// <summary>옛 자동 레시피 등록 알림. 현재 발생하지 않는다.</summary>
         event Action<IReadOnlyList<string>, string> RecipesLearned { add { } remove { } }
     }
 

@@ -10,56 +10,56 @@ using IronRing.Localization;
 
 namespace IronRing.Hud.Editor.Screens
 {
-    /// <summary>스토리 022. 항상 켜진 화면 "TopBar"(위 띠: 현재 위치·바퀴·승객 수·도감 버튼, 왼쪽 아래: 다음 라운드·출발) 프리팹 내용을 만든다.</summary>
+    /// <summary>잔고와 오른쪽 설계·승객 아이콘, 오른쪽 아래 출발 버튼을 가진 TopBar 화면을 만든다.</summary>
     public static class TopBarScreenBuilder
     {
-        /// <summary>화면 루트(UiScreen "TopBar", 항상 켜짐) + TopBarScreen + 위 띠 패널과 아래 행동 버튼 줄.</summary>
+        /// <summary>theme과 아이콘 카탈로그로 최소 HUD를 구성하고 TopBarScreen 참조를 연결한다.</summary>
         public static GameObject Build(UiTheme theme)
         {
             GameObject root = UiKit.ScreenRoot("TopBar", true);
             TopBarScreen screen = root.AddComponent<TopBarScreen>();
 
-            Image bar = UiKit.Bar(root.transform, "Bar", theme);
-            UiKit.StretchTop(bar.rectTransform, 54, 12, 16, 16);
-            TextMeshProUGUI location = UiKit.Label(bar.transform, "Location", Strings.Get("hud_location") + "  " + Strings.Get("hub_1"), UiTextSize.Normal, theme, TextAlignmentOptions.MidlineLeft);
-            UiKit.Place(location.rectTransform, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(18, 0), new Vector2(300, 44));
-            TextMeshProUGUI lap = UiKit.Label(bar.transform, "Lap", Strings.Get("hud_turn") + "  3", UiTextSize.Normal, theme, TextAlignmentOptions.MidlineLeft);
-            UiKit.Place(lap.rectTransform, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(744, 0), new Vector2(140, 44));
-            lap.color = theme.Accent;
-            TextMeshProUGUI loopPhase = UiKit.Label(bar.transform, "LoopPhase", Strings.Get("loop_phase_short_build"), UiTextSize.Small, theme);
-            UiKit.Place(loopPhase.rectTransform, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(884, 0), new Vector2(76, 36));
-            loopPhase.color = theme.Accent;
+            RectTransform bar = UiKit.Node(root.transform, "Bar");
+            UiKit.StretchTop(bar, 54, 12, 16, 16);
             IconCatalog icons = AssetDatabase.LoadAssetAtPath<IconCatalog>("Assets/Prefabs/UI/IconCatalog.asset");
             var coin = UiKit.Image(bar.transform, "Coin", icons.Get("ui_coin"), Color.white, false);
-            UiKit.Place(coin.rectTransform, new Vector2(0, .5f), new Vector2(0, .5f), new Vector2(328, 0), new Vector2(28, 28));
-            var balance = UiKit.Label(bar.transform, "Balance", string.Format(Strings.Get("ui_topbar_balance"), 0), UiTextSize.Normal, theme, TextAlignmentOptions.MidlineLeft);
-            UiKit.Place(balance.rectTransform, new Vector2(0, .5f), new Vector2(0, .5f), new Vector2(364, 0), new Vector2(200, 44));
+            UiKit.Place(coin.rectTransform, new Vector2(1, .5f), new Vector2(.5f, .5f), new Vector2(-34, -12), new Vector2(42, 42));
+            var balance = UiKit.Label(bar.transform, "Balance", "84", UiTextSize.Normal, theme);
+            UiKit.Place(balance.rectTransform, new Vector2(1, .5f), new Vector2(.5f, .5f), new Vector2(-34, 22), new Vector2(80, 30));
+            balance.fontStyle = FontStyles.Bold;
+            balance.textWrappingMode = TextWrappingModes.NoWrap;
+            balance.enableAutoSizing = true;
+            balance.fontSize = 28;
+            balance.fontSizeMin = 24;
+            balance.fontSizeMax = 28;
+            balance.outlineColor = theme.Panel;
+            balance.outlineWidth = 0.2f;
             UiKit.Bind(screen, "_balance", balance); UiKit.Bind(screen, "_coin", coin); UiKit.Bind(screen, "_icons", icons);
-            var peopleIcon = UiKit.Image(bar.transform, "PeopleIcon", icons.Get("ui_people"), Color.white, false);
-            UiKit.Place(peopleIcon.rectTransform, new Vector2(0, .5f), new Vector2(0, .5f), new Vector2(574, 0), new Vector2(28, 28));
-            var people = UiKit.Label(bar.transform, "People", string.Format(Strings.Get("ui_topbar_people_at"), Strings.Get("hub_1"), 0), UiTextSize.Small, theme, TextAlignmentOptions.MidlineLeft);
-            UiKit.Place(people.rectTransform, new Vector2(0, .5f), new Vector2(0, .5f), new Vector2(610, 0), new Vector2(128, 44));
-            UiKit.Bind(screen, "_people", people); UiKit.Bind(screen, "_peopleIcon", peopleIcon);
-            Button codex = UiKit.Button(bar.transform, "Codex", Strings.Get("codex_open"), theme);
-            UiKit.Place((RectTransform)codex.transform, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-14, 0), new Vector2(132, theme.ButtonHeight));
-            // 스토리 025: 승객 수 버튼(도감 버튼 왼쪽)
-            Button passengers = UiKit.Button(bar.transform, "Passengers", string.Format(Strings.Get("hud_passengers"), 2, 3), theme);
-            UiKit.Place((RectTransform)passengers.transform, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-156, 0), new Vector2(160, theme.ButtonHeight));
+            Button codex = UiKit.Button(root.transform, "Codex", "", theme);
+            UiKit.Place((RectTransform)codex.transform, Vector2.one, Vector2.one, new Vector2(-20, -82), new Vector2(58, 58));
+            Image codexIcon = UiKit.Image(codex.transform, "Icon", icons.Get("ui_book"), Color.white);
+            UiKit.Place(codexIcon.rectTransform, new Vector2(.5f, .5f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(34, 34));
 
-            RectTransform actions = UiKit.Node(root.transform, "Actions");
-            UiKit.Place(actions, Vector2.zero, Vector2.zero, new Vector2(24, 24), new Vector2(320, theme.ButtonHeight));
-            HorizontalOrVerticalLayoutGroup row = UiKit.Row(actions, "Row", false, 6);
-            row.childAlignment = TextAnchor.MiddleLeft;
-            Button depart = UiKit.Button(row.transform, "Depart", Strings.Get("hud_depart"), theme);
-            ((RectTransform)depart.transform).sizeDelta = new Vector2(150, theme.ButtonHeight);
+            Button passengers = UiKit.Button(root.transform, "Passengers", "", theme);
+            UiKit.Place((RectTransform)passengers.transform, Vector2.one, Vector2.one, new Vector2(-20, -150), new Vector2(58, 58));
+            Image passengersIcon = UiKit.Image(passengers.transform, "Icon", icons.Get("ui_people"), Color.white);
+            UiKit.Place(passengersIcon.rectTransform, new Vector2(.5f, .5f), new Vector2(.5f, .5f), new Vector2(-3, 2), new Vector2(32, 32));
+            TextMeshProUGUI passengerCount = UiKit.Label(passengers.transform, "Count", "0", UiTextSize.Normal, theme);
+            UiKit.Place(passengerCount.rectTransform, Vector2.one, Vector2.one, new Vector2(3, 2), new Vector2(24, 22));
+            passengerCount.fontSize = 18;
 
-            UiKit.Bind(screen, "_location", location);
-            UiKit.Bind(screen, "_lap", lap);
-            UiKit.Bind(screen, "_loopPhase", loopPhase);
+            Button depart = UiKit.Button(root.transform, "Depart", Strings.Get("hud_depart"), theme);
+            UiKit.Place((RectTransform)depart.transform, new Vector2(1, 0), new Vector2(1, 0), new Vector2(-20, 166), new Vector2(76, 76));
+            TMP_Text departLabel = depart.GetComponentInChildren<TMP_Text>(true);
+            UiKit.Place((RectTransform)departLabel.transform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 4), new Vector2(68, 24));
+            departLabel.fontSize = 18;
+            Image departIcon = UiKit.Image(depart.transform, "Icon", icons.Get("ui_depart"), Color.white);
+            UiKit.Place(departIcon.rectTransform, new Vector2(.5f, 1), new Vector2(.5f, 1), new Vector2(0, -7), new Vector2(38, 38));
+
             UiKit.Bind(screen, "_depart", depart);
             UiKit.Bind(screen, "_codex", codex);
             UiKit.Bind(screen, "_passengers", passengers);
-            UiKit.Bind(screen, "_catalogJson", AssetDatabase.LoadAssetAtPath<TextAsset>(InteriorTitleScreenBuilder.CATALOG));
+            UiKit.Bind(screen, "_passengerCount", passengerCount);
             return root;
         }
     }

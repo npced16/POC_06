@@ -16,6 +16,8 @@ namespace IronRing.Items
         public string Id { get; }
         /// <summary>한국어 표시 이름(데이터).</summary>
         public string Name { get; }
+        /// <summary>배치할 때 보여주는 재료의 짧은 쓰임.</summary>
+        public string Description { get; }
         /// <summary>태그 id 목록. 중복은 가중치로 센다.</summary>
         public IReadOnlyList<string> Tags { get; }
         /// <summary>자원 id별 제작 비용(0인 항목은 뺀다).</summary>
@@ -30,7 +32,7 @@ namespace IronRing.Items
         public const string TileCategory = "tile";
 
         /// <summary>id, 이름, 태그, 비용을 검증해 불변 정의를 만든다.</summary>
-        public ItemDefinition(string id, string name, IEnumerable<string> tags, IReadOnlyDictionary<string, int> cost, string category = null)
+        public ItemDefinition(string id, string name, IEnumerable<string> tags, IReadOnlyDictionary<string, int> cost, string category = null, string description = null)
         {
             if (string.IsNullOrWhiteSpace(id)) throw new ArgumentException("Item id is required.", nameof(id));
             if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Item name is required: " + id, nameof(name));
@@ -51,6 +53,7 @@ namespace IronRing.Items
             }
             Id = id;
             Name = name;
+            Description = description ?? string.Empty;
             Tags = new ReadOnlyCollection<string>(tagList);
             Cost = new ReadOnlyDictionary<string, int>(costCopy);
             Category = string.IsNullOrWhiteSpace(category) ? "decor" : category;
@@ -133,7 +136,7 @@ namespace IronRing.Items
                     if (c == null || string.IsNullOrWhiteSpace(c._resource)) throw new ArgumentException("Invalid cost on " + item._id, nameof(json));
                     cost[c._resource] = (cost.TryGetValue(c._resource, out int v) ? v : 0) + c._amount;
                 }
-                items.Add(new ItemDefinition(item._id, item._name, item._tags ?? Array.Empty<string>(), cost, item._category) { Price = Math.Max(0, item._price) });
+                items.Add(new ItemDefinition(item._id, item._name, item._tags ?? Array.Empty<string>(), cost, item._category, item._description) { Price = Math.Max(0, item._price) });
             }
             if (data._unlimited && data._unlimitedCount < 1) throw new ArgumentException("_unlimitedCount must be positive in unlimited mode.", nameof(json));
             return new ItemCatalog(items, tags)
@@ -147,7 +150,7 @@ namespace IronRing.Items
 #pragma warning disable 0649
         [Serializable] private sealed class CatalogData { public bool _unlimited; public int _unlimitedCount; public bool _craftingDisabled; public TagData[] _tags; public ItemData[] _items; }
         [Serializable] private sealed class TagData { public string _id; public string _name; }
-        [Serializable] private sealed class ItemData { public string _id; public string _name; public string _category; public string[] _tags; public CostData[] _cost; public int _price; }
+        [Serializable] private sealed class ItemData { public string _id; public string _name; public string _description; public string _category; public string[] _tags; public CostData[] _cost; public int _price; }
         [Serializable] private sealed class CostData { public string _resource; public int _amount; }
 #pragma warning restore 0649
     }

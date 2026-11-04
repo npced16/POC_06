@@ -6,9 +6,9 @@ using UnityEngine.UI;
 
 using TMPro;
 
-using IronRing.Presentation.Interior;
 using IronRing.Hud.Ui;
 using IronRing.Localization;
+using IronRing.Presentation.Interior;
 
 namespace IronRing.Hud.Hotbar
 {
@@ -21,6 +21,7 @@ namespace IronRing.Hud.Hotbar
     {
         [Header("가격 표시")]
         [SerializeField] private TMP_Text _price;
+        [SerializeField] private Image _priceIcon;
         [SerializeField] private TMP_Text _stockBadge;
         [SerializeField] private Color _unaffordableTint = new Color(1f, 0.45f, 0.4f, 0.55f);
         [SerializeField] private Color _unaffordableText = new Color(1f, 0.5f, 0.45f, 1f);
@@ -34,15 +35,18 @@ namespace IronRing.Hud.Hotbar
         private HotbarScreen _owner;
         private Func<PlacementEntry> _entry;
         private Action _click;
+        private Action _rightClick;
         private Vector2 _pressPosition;
         private bool _dragStarted;
+        private bool _suppressClick;
 
-        /// <summary>이 칸이 나타내는 항목과 클릭 동작을 연결한다(런타임 초기화).</summary>
-        public void Bind(HotbarScreen owner, Func<PlacementEntry> entry, Action click)
+        /// <summary>이 칸의 항목과 좌클릭·우클릭 동작을 연결한다. 우클릭 동작이 없으면 무시한다.</summary>
+        public void Bind(HotbarScreen owner, Func<PlacementEntry> entry, Action click, Action rightClick = null)
         {
             _owner = owner;
             _entry = entry;
             _click = click;
+            _rightClick = rightClick;
         }
 
         /// <summary>아이콘(없으면 숨김)과 이름을 쓴다.</summary>
@@ -60,16 +64,18 @@ namespace IronRing.Hud.Hotbar
             if (_name != null) _name.color = affordable ? Color.white : _unaffordableText;
         }
 
-        /// <summary>price가 있으면 한국어 가격을 쓰고 affordable로 가격·아이콘·이름·테두리의 부족 표시를 변경한다.</summary>
+        /// <summary>price가 있으면 동전 아이콘과 숫자를 표시하고 affordable로 부족 상태를 변경한다.</summary>
         public void SetPrice(int? price, bool affordable)
         {
-            _price.text = price.HasValue ? string.Format(Strings.Get("ui_hotbar_price"), price.Value) : string.Empty;
+            _price.text = price.HasValue ? price.Value.ToString() : string.Empty;
+            if (_priceIcon != null) _priceIcon.gameObject.SetActive(price.HasValue);
             _price.color = affordable ? Color.white : _unaffordableText;
+            if (_priceIcon != null) _priceIcon.color = affordable ? Color.white : _unaffordableText;
             SetAffordable(affordable);
             if (!affordable) _frame.color = _unaffordableTint;
         }
 
-        /// <summary>count가 양수이면 ×N 배지와 재고 N 가격 줄을 표시하고, 없으면 배지를 숨긴다.</summary>
+        /// <summary>count가 양수이면 오른쪽 위 가격 대신 ×N 재고를 표시하고, 없으면 재고 배지를 숨긴다.</summary>
         public void SetStock(int count)
         {
             if (_stockBadge != null)
@@ -78,7 +84,8 @@ namespace IronRing.Hud.Hotbar
                 if (count > 0) _stockBadge.text = string.Format(Strings.Get("stock_badge"), count);
             }
             if (count <= 0) return;
-            _price.text = string.Format(Strings.Get("stock_price"), count);
+            _price.text = string.Empty;
+            if (_priceIcon != null) _priceIcon.gameObject.SetActive(false);
             _price.color = Color.white;
             SetAffordable(true);
         }
@@ -97,6 +104,7 @@ namespace IronRing.Hud.Hotbar
         /// <summary>왼쪽 누름 위치를 기억한다(드래그 판정 기준).</summary>
         public void OnPointerDown(PointerEventData eventData)
         {
+            _suppressClick = false;
             if (eventData.button != PointerEventData.InputButton.Left) return;
             _pressPosition = eventData.position;
             _dragStarted = false;
@@ -116,6 +124,7 @@ namespace IronRing.Hud.Hotbar
             PlacementEntry entry = _entry();
             if (!entry.IsValid) return;
             _dragStarted = true;
+            _suppressClick = true;
             _owner.BeginPointerDrag(entry);
         }
 
@@ -127,11 +136,12 @@ namespace IronRing.Hud.Hotbar
             if (_owner != null) _owner.EndPointerDrag();
         }
 
-        /// <summary>끌지 않은 왼쪽 클릭만 클릭으로 친다.</summary>
+        /// <summary>끌지 않은 좌클릭 또는 우클릭을 해당 슬롯 동작으로 전달한다.</summary>
         public void OnPointerClick(PointerEventData eventData)
         {
-            if (eventData.button != PointerEventData.InputButton.Left || _dragStarted) return;
-            _click?.Invoke();
+            if (_suppressClick) return;
+            if (eventData.button == PointerEventData.InputButton.Left) _click?.Invoke();
+            else if (eventData.button == PointerEventData.InputButton.Right) _rightClick?.Invoke();
         }
 
         void OnDisable() { _dragStarted = false; }

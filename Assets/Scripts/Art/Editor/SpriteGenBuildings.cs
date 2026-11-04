@@ -22,13 +22,13 @@ namespace IronRing.Art.Editor
         /// <summary>출력 폴더.</summary>
         public const string OUTPUT = "Assets/Art/Generated/buildings/";
         /// <summary>지붕 계열 id(HabitatTypes.json의 _buildingStyle).</summary>
-        public static readonly string[] STYLES = { "machine", "housing", "storage", "glass" };
+        public static readonly string[] STYLES = { "machine", "housing", "storage", "glass", "yard" };
         /// <summary>오목 모서리 덧조각 순서.</summary>
         public static readonly string[] CORNERS = { "ne", "se", "sw", "nw" };
         /// <summary>상징물 id(HabitatTypes.json의 _signProp).</summary>
         public static readonly string[] SIGNS =
         {
-            "lamp_post", "coal_heap", "cobble_arch", "big_gear", "boiler_dome", "pipe_valve", "small_gear", "girder", "tank", "glass_roof",
+            "lamp_post", "coal_heap", "cobble_arch", "earth_marker", "big_gear", "boiler_dome", "pipe_valve", "small_gear", "girder", "tank", "glass_roof",
             "bunk", "bench_tools", "wire_pole", "water_tower", "twin_lamps", "engine", "dynamo", "crane", "chimney_stack"
         };
 
@@ -104,6 +104,7 @@ namespace IronRing.Art.Editor
         /// <summary>mask(1=N,2=E,4=S,8=W 이웃 있음)에 맞는 지붕 한 칸. 남쪽이 닫히면 아래 16픽셀은 정면 벽.</summary>
         private static void DrawRoof(string style, int mask)
         {
+            if (style == "yard") { DrawYard(mask); return; }
             bool n = (mask & 1) != 0, e = (mask & 2) != 0, s = (mask & 4) != 0, w = (mask & 8) != 0;
             Swatch roof = RoofSwatch(style), cap = CapSwatch(style);
             int y0 = s ? 0 : 16;
@@ -122,6 +123,22 @@ namespace IronRing.Art.Editor
             if (!s && !w) CornerCap(1, y0);
             // 029: 북서 바깥 모서리 조각(굴뚝은 북동, 상징물은 가운데)에 지붕 장식 하나
             if (!n && !w && (e || s)) { Layer(); DrawOrnament(H(mask, System.Array.IndexOf(STYLES, style), 17) % 3); EndLayer(); }
+        }
+
+        /// <summary>mask의 열린 변은 이어지고 닫힌 변은 목재 울타리로 둘러싼 흙 마당을 그린다.</summary>
+        private static void DrawYard(int mask)
+        {
+            C.Rect(0, 0, SIZE, SIZE, Wd.S);
+            for (int i = 0; i < 90; i++) C.Disc(H(i, 1, 91) % SIZE, H(i, 2, 91) % SIZE, 1 + H(i, 3, 91) % 2, i % 5 == 0 ? Sa.L : Wd.B);
+            if ((mask & 1) == 0) { C.Rect(0, 58, SIZE, 4, Wd.B); C.Rect(0, 61, SIZE, 1, Wd.L); }
+            if ((mask & 2) == 0) { C.Rect(59, 0, 4, SIZE, Wd.B); C.Rect(59, 0, 1, SIZE, Wd.L); }
+            if ((mask & 4) == 0) { C.Rect(0, 2, SIZE, 4, Wd.B); C.Rect(0, 5, SIZE, 1, Wd.L); }
+            if ((mask & 8) == 0) { C.Rect(1, 0, 4, SIZE, Wd.B); C.Rect(4, 0, 1, SIZE, Wd.L); }
+            foreach (int x in new[] { 6, 29, 53 })
+            {
+                if ((mask & 1) == 0) Box(x, 55, 5, 8, Wd);
+                if ((mask & 4) == 0) Box(x, 1, 5, 8, Wd);
+            }
         }
 
         /// <summary>029: 6×6 황동 모서리 덮개와 리벳.</summary>
@@ -277,6 +294,13 @@ namespace IronRing.Art.Editor
                     for (int i = 0; i < 14; i++) C.Disc(16 + H(i, 1, 5) % 32, 16 + H(i, 2, 5) % 14, 3, i % 3 == 0 ? Fe.B : O.S);
                     break;
                 case "cobble_arch": Box(12, 10, 10, 30, Sa); Box(42, 10, 10, 30, Sa); Box(10, 38, 44, 10, Sa); C.Rect(22, 10, 20, 2, Mo.S); break;
+                case "earth_marker":
+                    C.Ellipse(32, 14, 23, 8, Wd.S);
+                    for (int i = 0; i < 10; i++) C.Disc(15 + H(i, 2, 41) % 34, 13 + H(i, 3, 41) % 9, 2, Sa.B);
+                    C.Rect(29, 17, 5, 34, Wd.B); C.Rect(29, 17, 1, 34, Wd.L);
+                    C.Rect(34, 36, 16, 12, Fa.B); C.Rect(34, 46, 16, 2, Fa.L);
+                    C.Disc(20, 27, 5, Bs.B); C.Line(20, 27, 28, 39, Wd.L, 2);
+                    break;
                 case "big_gear": Gear(32, 32, 22, 12, Bs); break;
                 case "small_gear": Gear(25, 28, 13, 9, Fe); Gear(43, 41, 9, 7, Bs); break;
                 case "boiler_dome": Dome(32, 26, 17, Cu); RivetRing(32, 26, 12, 10, Bs.S); break;

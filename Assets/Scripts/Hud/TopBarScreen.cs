@@ -29,17 +29,13 @@ namespace IronRing.Hud
         [SerializeField] private TMP_Text _balance;
         [SerializeField] private UnityEngine.UI.Image _coin;
         [SerializeField] private IconCatalog _icons;
-        [SerializeField] private TMP_Text _location;
-        [SerializeField] private TMP_Text _lap;
-        [SerializeField] private TMP_Text _loopPhase;
         [SerializeField] private Button _depart;
         [SerializeField] private Button _codex;
         [Tooltip("스토리 025: 승객 수 버튼(누르면 승객 화면).")]
         [SerializeField] private Button _passengers;
+        [SerializeField] private TMP_Text _passengerCount;
         [Tooltip("스토리 039: 휴식지 이벤트 토스트 표시 시간(초).")]
         [SerializeField] private float _eventToastSeconds = 2.5f;
-        [Tooltip("노드 id → 문자열 키 표(HudCatalog.json).")]
-        [SerializeField] private TextAsset _catalogJson;
 
         private IPopulation _population;
         private IViewMode _view;
@@ -49,7 +45,6 @@ namespace IronRing.Hud
         private IWaypointResolver _waypoints;
         private IEncounterPresentationSource _encounter;
         private IPassengers _riders;
-        private HudCatalog _catalog;
         private UiTheme _theme;
         private IPhaseLoop _loop;
         private IRestEvents _restEvents;
@@ -66,8 +61,7 @@ namespace IronRing.Hud
             if (_instance != null || !KoreanHudServices.Ready()) return;
             UiScreens screens = UiScreens.Instance;
             TopBarScreen placed = screens != null ? screens.Find<TopBarScreen>() : null;
-            if (placed == null || !placed.enabled || placed._location == null || placed._lap == null
-                || placed._depart == null || placed._catalogJson == null) return;
+            if (placed == null || !placed.enabled || placed._balance == null || placed._depart == null) return;
             _instance = placed;
             placed.Initialize(screens);
         }
@@ -103,7 +97,6 @@ namespace IronRing.Hud
                 _restEvents.EventStarted += Refresh;
                 _restEvents.EventClosed += Refresh;
             }
-            _catalog = JsonUtility.FromJson<HudCatalog>(_catalogJson.text);
             _depart.onClick.AddListener(Depart);
             // 스토리 021: 도감 버튼(C 키는 CodexScreen이 읽는다).
             if (_codex != null) _codex.onClick.AddListener(IronRing.Hud.Codex.CodexScreen.Toggle);
@@ -116,17 +109,10 @@ namespace IronRing.Hud
             Refresh();
         }
 
-        /// <summary>위치·바퀴 수와 출발·다음 라운드 버튼의 표시·사용 가능 여부를 서비스 스냅샷으로 갱신한다.</summary>
+        /// <summary>현재 진행 상태에서 출발 버튼과 주민·승객 표시를 갱신한다.</summary>
         private void Refresh()
         {
             if (_track == null) return;
-            _location.text = Strings.Get("hud_location") + "  " + Strings.Get(_catalog.NodeKey(_track.CurrentNode?.Id));
-            _lap.text = Strings.Get("hud_turn") + "  " + _track.Lap;
-            if (_loopPhase != null)
-            {
-                _loopPhase.gameObject.SetActive(_loop != null);
-                if (_loop != null) _loopPhase.text = Strings.Get(_loop.Phase == LoopPhase.Build ? "loop_phase_short_build" : "loop_phase_short_circulate");
-            }
             bool canDepart = _loop != null ? _loop.CanDepart : _track.IsHeld && _track.CurrentNode?.Kind == TrackNodeKind.Hub && !_waypoints.IsEncounterActive;
             _depart.gameObject.SetActive(!_hubs.IsRunLost && canDepart);
             SetInteractable(_depart, !_hubs.IsRunLost && canDepart);
@@ -143,7 +129,7 @@ namespace IronRing.Hud
             _riders.Boarded += OnBoarded; _riders.Disembarked += OnDisembarked; _riders.Left += OnLeft;
         }
 
-        /// <summary>"승객 N/정원" 라벨. 승객 서비스가 없는 데모 씬에서는 버튼을 숨긴다.</summary>
+        /// <summary>승객 아이콘의 숫자를 현재 탑승 인원으로 갱신한다. 승객 서비스가 없으면 버튼을 숨긴다.</summary>
         private void RefreshPassengers()
         {
             if (_passengers == null) return;
@@ -151,8 +137,12 @@ namespace IronRing.Hud
             bool on = _riders != null;
             if (_passengers.gameObject.activeSelf != on) _passengers.gameObject.SetActive(on);
             if (!on) return;
-            TMP_Text label = _passengers.GetComponentInChildren<TMP_Text>(true);
-            if (label != null) label.text = string.Format(Strings.Get("hud_passengers"), _riders.PassengerIds.Count, PassengersScreen.Capacity);
+            if (_passengerCount != null) _passengerCount.text = _riders.PassengerIds.Count.ToString();
+            else
+            {
+                TMP_Text label = _passengers.GetComponentInChildren<TMP_Text>(true);
+                if (label != null) label.text = string.Format(Strings.Get("hud_passengers"), _riders.PassengerIds.Count, PassengersScreen.Capacity);
+            }
         }
 
         /// <summary>버튼을 켜고 끄며, 꺼진 버튼의 글자는 테마의 흐린 색으로 바꾼다.</summary>
@@ -177,6 +167,7 @@ namespace IronRing.Hud
         /// <summary>현재 일반 주민 수를 읽어 상단 주민 라벨을 갱신한다.</summary>
         private void RefreshPeople()
         {
+            if (_people == null || _population == null) return;
             string hubId = _population.CurrentHubId;
             string town = Strings.Get(hubId.Replace('-', '_'));
             _people.text = string.Format(Strings.Get("ui_topbar_people_at"), town, _population.ResidentsAt(hubId));
@@ -188,7 +179,7 @@ namespace IronRing.Hud
         /// <summary>현재 잔고를 읽어 상단 라벨을 갱신하고 음수 잔고를 테마 강조색으로 표시한다.</summary>
         private void RefreshBalance()
         {
-            _balance.text = string.Format(Strings.Get("ui_topbar_balance"), _money.Balance);
+            _balance.text = _money.Balance.ToString();
             if (_theme != null) _balance.color = _money.Balance < 0 ? _theme.Accent : _theme.Text;
         }
 

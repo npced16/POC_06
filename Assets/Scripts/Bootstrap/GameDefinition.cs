@@ -38,16 +38,17 @@ namespace IronRing.Bootstrap
         public IReadOnlyList<string> OpenHubIds { get; private set; }
 
         /// <summary>Parses the authored JSON inputs (interior optional) and rejects cross-system identity mismatches before constructing a run.</summary>
-        public static GameDefinition Parse(string track, string habitats, string npcs, string hubs, string combat, string settings, string interior = null)
+        public static GameDefinition Parse(string track, string npcs, string hubs, string combat, string settings, string interior = null)
         {
             var result = new GameDefinition
             {
-                Track = TrackData.Parse(track), Habitats = HabitatConfiguration.Parse(habitats),
+                Track = TrackData.Parse(track),
                 Npcs = NpcPoolData.FromJson(npcs), HubDefinitions = HubData.Parse(hubs),
                 Encounters = JsonUtility.FromJson<EncounterData>(combat),
                 Settings = JsonUtility.FromJson<MainSettings>(settings),
                 Interior = interior == null ? null : InteriorData.Parse(interior)
             };
+            result.Habitats = HabitatConfiguration.CreateBootstrap(result.Track.Nodes.Where(node => node.IsStation).Select(node => node.Id));
             result.Recipes = result.Habitats.CreateDefinitions();
             result.Encounters.Validate();
             result.Settings.Validate();

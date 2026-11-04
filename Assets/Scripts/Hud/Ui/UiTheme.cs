@@ -80,7 +80,7 @@ namespace IronRing.Hud.Ui
         public Color Text => _text;
         /// <summary>흐린 글자색(힌트·보조 문구).</summary>
         public Color Muted => _muted;
-        /// <summary>한국어 TMP 폰트 에셋(NotoSansKR SDF).</summary>
+        /// <summary>화면에 사용하는 한국어 TMP 폰트 에셋.</summary>
         public TMP_FontAsset Font => _font;
         /// <summary>9분할 패널 스프라이트.</summary>
         public Sprite PanelSprite => _panelSprite;

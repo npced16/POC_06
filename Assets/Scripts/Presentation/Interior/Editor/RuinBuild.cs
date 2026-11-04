@@ -17,10 +17,8 @@ using IronRing.Presentation.Map;
 namespace IronRing.Presentation.Interior.Editor
 {
     /// <summary>
-    /// 스토리 036 제작 도구(멱등, 모달 없음). (1) Assets/Prefabs/Interior/RuinProp.prefab(SpriteRenderer + SpriteFrameLoop, 콜라이더 없음)이 없으면 만든다.
-    /// (2) RuinCatalog.asset을 보장하고 ruin 스프라이트를 이름으로 넣는다(SpriteGenRuin.Generate가 먼저). (3) Main 씬의 HubInteriorRoot마다
-    /// RuinDressingView가 없으면 붙이고 카탈로그를 연결한다. (4) GenerateMap: 씬 루트 RuinProps 아래 거점(HubTarget)마다 RuinProps_{id} 묶음이 없을 때만
-    /// RuinProp 인스턴스(RuinDressing.json _map)와 MapRuinProps를 놓는다. 바뀐 것이 있을 때만 씬을 저장한다.
+    /// 선로 지도에만 폐허 소품을 놓는 제작 도구. RuinProp 프리팹과 RuinCatalog를 보장한 뒤
+    /// 씬의 RuinProps 아래 거점마다 소품이 없을 때 배치한다. 마을의 설치 가능한 칸에는 소품을 붙이지 않는다.
     /// </summary>
     public static class RuinBuild
     {
@@ -45,23 +43,6 @@ namespace IronRing.Presentation.Interior.Editor
             (RuinCatalog.Campfire, new[] { "ruin_campfire_0", "ruin_campfire_1" }),
             ("tent", new[] { "ruin_tent_0" }),
         };
-
-        /// <summary>프리팹·카탈로그를 보장하고 Main 씬의 거점 내부에 RuinDressingView를, 선로 화면에 거점 둘레 소품을 없을 때만 놓는다.</summary>
-        [MenuItem("IronRing/Interior/Generate Ruin Dressing")]
-        public static void Generate()
-        {
-            RuinCatalog catalog = EnsureCatalog();
-            Scene scene = OpenMain();
-            int attached = AttachViews(scene, catalog);
-            int placed = PlaceMap(scene, catalog);
-            if (attached > 0 || placed > 0)
-            {
-                EditorSceneManager.MarkSceneDirty(scene);
-                EditorSceneManager.SaveScene(scene);
-            }
-            AssetDatabase.SaveAssets();
-            Debug.Log("RuinBuild: views attached/updated " + attached + ", map groups placed " + placed);
-        }
 
         /// <summary>선로 화면 거점 둘레 폐허 소품만 없을 때 놓는다.</summary>
         [MenuItem("IronRing/Map/Place Ruin Props")]
@@ -115,22 +96,6 @@ namespace IronRing.Presentation.Interior.Editor
             catalog.Configure(variants, prop, AssetDatabase.LoadAssetAtPath<GameObject>(SMOKE));
             EditorUtility.SetDirty(catalog);
             return catalog;
-        }
-
-        /// <summary>씬의 HubInteriorRoot마다 RuinDressingView가 없으면 붙이고 카탈로그가 다르면 연결한다. 바꾼 수.</summary>
-        private static int AttachViews(Scene scene, RuinCatalog catalog)
-        {
-            int changed = 0;
-            foreach (HubInteriorRoot root in scene.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<HubInteriorRoot>(true)))
-            {
-                RuinDressingView view = root.GetComponent<RuinDressingView>();
-                if (view == null) { view = root.gameObject.AddComponent<RuinDressingView>(); changed++; }
-                if (view.Catalog == catalog) continue;
-                view.Configure(catalog);
-                EditorUtility.SetDirty(view);
-                changed++;
-            }
-            return changed;
         }
 
         /// <summary>씬 루트 RuinProps 아래 거점마다 묶음이 없을 때만 소품을 놓는다. 놓은 묶음 수.</summary>

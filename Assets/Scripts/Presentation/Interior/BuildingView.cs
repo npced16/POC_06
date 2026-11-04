@@ -4,6 +4,8 @@ using System.Linq;
 
 using UnityEngine;
 
+using TMPro;
+
 using IronRing.Contracts;
 using IronRing.Contracts.Presentation;
 using IronRing.Habitats;
@@ -23,6 +25,8 @@ namespace IronRing.Presentation.Interior
     /// </summary>
     public sealed class BuildingView : MonoBehaviour
     {
+        private const string CLEARED_LOT_ID = "cleared_lot";
+
         private static readonly Vector2Int[] Diagonals = { new Vector2Int(1, 1), new Vector2Int(1, -1), new Vector2Int(-1, -1), new Vector2Int(-1, 1) };
         private static BuildingView _instance;
         private IHabitatClusters _clusters;
@@ -36,6 +40,7 @@ namespace IronRing.Presentation.Interior
         private bool _warned;
         private readonly Dictionary<string, Building> _buildings = new Dictionary<string, Building>(StringComparer.Ordinal);
         private readonly List<SpriteRenderer> _hidden = new List<SpriteRenderer>();
+        private readonly List<TextMeshPro> _hiddenLabels = new List<TextMeshPro>();
         private readonly List<Collapse> _collapsing = new List<Collapse>();
 
         /// <summary>스토리 031. 무너지는 중인 건물(내려앉기·투명해지기).</summary>
@@ -201,7 +206,8 @@ namespace IronRing.Presentation.Interior
                     Building building = Build(pair.Value);
                     if (building != null) _buildings[pair.Key] = building;
                 }
-            foreach (Building building in _buildings.Values) HideTiles(building.Cells);
+            foreach (Building building in _buildings.Values)
+                if (building.TypeId != CLEARED_LOT_ID) HideTiles(building.Cells);
         }
 
         private static string Key(HabitatCluster cluster) => cluster.TypeId + ":" + string.Join(",", cluster.Cells.OrderBy(c => c));
@@ -234,6 +240,15 @@ namespace IronRing.Presentation.Interior
             container.transform.position = root.transform.position;
             var building = new Building { TypeId = cluster.TypeId, Cells = cluster.Cells.ToList(), Root = container, RestPosition = container.transform.position };
             List<int> cells = building.Cells;
+            if (cluster.TypeId == CLEARED_LOT_ID)
+            {
+                Vector3 center = positions.Values.Aggregate(Vector3.zero, (sum, position) => sum + position) / positions.Count;
+                GameObject marker = Prop(container, center + Vector3.up * (_catalog.SignLift * tile), _catalog.BuildingSign(type?.SignProp), _catalog.BuildingSignOrder, "ClearedLotMarker");
+                marker.transform.localScale *= _catalog.BuildingSignScale;
+                building.Door = marker.transform;
+                HideBuildingVisuals(container);
+                return building;
+            }
             foreach (KeyValuePair<Vector2Int, int> pair in grid)
             {
                 Vector2Int g = pair.Key;
@@ -258,12 +273,12 @@ namespace IronRing.Presentation.Interior
             Vector2Int doorCell = grid.Keys.Where(g => g.y == bottom && !grid.ContainsKey(g + Vector2Int.down))
                 .OrderBy(g => Mathf.Abs(g.x - centerX)).ThenBy(g => g.x).First();
             int variant = (cluster.TypeId ?? "").Sum(ch => ch);
-            building.Door = Prop(container, positions[grid[doorCell]], _catalog.BuildingDoor(variant), _catalog.BuildingDoorOrder, "Door").transform;
+            building.Door = Prop(container, positions[grid[doorCell]], style == "yard" ? null : _catalog.BuildingDoor(variant), _catalog.BuildingDoorOrder, "Door").transform;
             int top = grid.Keys.Max(g => g.y);
             Vector2Int chimneyCell = grid.Keys.Where(g => g.y == top).OrderByDescending(g => g.x).First();
             Vector3 chimneyAt = positions[grid[chimneyCell]] + (Vector3)(_catalog.ChimneyOffset * tile);
-            GameObject chimney = Prop(container, chimneyAt, _catalog.BuildingChimney, _catalog.BuildingSignOrder, "Chimney");
-            if (_catalog.BuildingSmokePrefab != null)
+            GameObject chimney = style == "yard" ? null : Prop(container, chimneyAt, _catalog.BuildingChimney, _catalog.BuildingSignOrder, "Chimney");
+            if (chimney != null && _catalog.BuildingSmokePrefab != null)
             {
                 GameObject smoke = Instantiate(_catalog.BuildingSmokePrefab, chimney.transform);
                 smoke.transform.localPosition = _catalog.SmokeOffset;
@@ -279,8 +294,18 @@ namespace IronRing.Presentation.Interior
                 building.Age = 0f;
                 container.transform.position = building.RestPosition + Vector3.down * _catalog.BuildingRiseDistance;
             }
+            HideBuildingVisuals(container);
             UnityEngine.Debug.Log($"BUILDING: {_hub} {cluster.TypeId} 칸 {string.Join(",", cells)} 지붕 {style ?? "?"}/{tint ?? "base"} 창 {decor?.WindowPattern ?? 0} 소품 {(decor != null ? string.Join(",", decor.Props) : "-")} 상징물 {type?.SignProp ?? "?"} 문 칸 {grid[doorCell]}");
             return building;
+        }
+
+        /// <summary>
+        /// container 안의 지붕과 장식 렌더러를 숨겨 완성 묶음의 외곽선과 이름만 보이게 한다.
+        /// BuildingPiece 충돌체와 문 Transform은 그대로 유지한다.
+        /// </summary>
+        private static void HideBuildingVisuals(GameObject container)
+        {
+            foreach (SpriteRenderer renderer in container.GetComponentsInChildren<SpriteRenderer>(true)) renderer.enabled = false;
         }
 
         /// <summary>QA 후속(건물 장식). 창 무늬 덧조각(문 칸을 뺀 아래 가장자리 칸)과 지붕 덧소품(굴뚝·상징물 칸을 피한 빈 칸)을 놓는다.</summary>
@@ -331,6 +356,8 @@ namespace IronRing.Presentation.Interior
                 if (view == null || view.ItemSlot == view.transform) continue;
                 foreach (SpriteRenderer renderer in view.ItemSlot.GetComponentsInChildren<SpriteRenderer>(true))
                     if (renderer.enabled) { renderer.enabled = false; _hidden.Add(renderer); }
+                foreach (TextMeshPro label in view.ItemSlot.GetComponentsInChildren<TextMeshPro>(true))
+                    if (label.enabled) { label.enabled = false; _hiddenLabels.Add(label); }
             }
         }
 
@@ -338,6 +365,8 @@ namespace IronRing.Presentation.Interior
         {
             foreach (SpriteRenderer renderer in _hidden) if (renderer != null) renderer.enabled = true;
             _hidden.Clear();
+            foreach (TextMeshPro label in _hiddenLabels) if (label != null) label.enabled = true;
+            _hiddenLabels.Clear();
         }
 
         private void Clear()

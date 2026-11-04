@@ -1,45 +1,134 @@
-{
+﻿{
   "_unlimited": true,
   "_unlimitedCount": 999,
   "_craftingDisabled": true,
   "_tags": [
-    { "_id": "tile", "_name": "타일" },
-    { "_id": "light", "_name": "빛" },
-    { "_id": "heat", "_name": "열" },
-    { "_id": "water", "_name": "물" },
-    { "_id": "plant", "_name": "식물" },
-    { "_id": "shelter", "_name": "쉼터" },
-    { "_id": "industry", "_name": "산업" },
-    { "_id": "deco", "_name": "장식" }
+    {
+      "_id": "tile",
+      "_name": "재료"
+    }
   ],
   "_items": [
-    { "_id": "tile_boiler", "_name": "보일러", "_category": "tile", "_tags": ["tile", "heat"], "_cost": [], "_price": 10 },
-    { "_id": "tile_pipe", "_name": "증기관", "_category": "tile", "_tags": ["tile", "heat", "industry"], "_cost": [], "_price": 6 },
-    { "_id": "tile_gear", "_name": "톱니장치", "_category": "tile", "_tags": ["tile", "industry"], "_cost": [], "_price": 8 },
-    { "_id": "tile_gaslamp", "_name": "가스등", "_category": "tile", "_tags": ["tile", "light"], "_cost": [], "_price": 5 },
-    { "_id": "tile_coal", "_name": "석탄더미", "_category": "tile", "_tags": ["tile", "heat"], "_cost": [], "_price": 4 },
-    { "_id": "tile_girder", "_name": "철골", "_category": "tile", "_tags": ["tile", "industry"], "_cost": [], "_price": 6 },
-    { "_id": "tile_cobble", "_name": "벽돌길", "_category": "tile", "_tags": ["tile", "shelter"], "_cost": [], "_price": 4 },
-    { "_id": "tile_tank", "_name": "물탱크", "_category": "tile", "_tags": ["tile", "water"], "_cost": [], "_price": 7 },
-    { "_id": "tile_glass", "_name": "온실유리", "_category": "tile", "_tags": ["tile", "plant"], "_cost": [], "_price": 8 },
-    { "_id": "tile_bunk", "_name": "침상", "_category": "tile", "_tags": ["tile", "shelter"], "_cost": [], "_price": 5 },
-    { "_id": "tile_bench", "_name": "작업대", "_category": "tile", "_tags": ["tile", "industry"], "_cost": [], "_price": 5 },
-    { "_id": "tile_wire", "_name": "전신주", "_category": "tile", "_tags": ["tile", "light"], "_cost": [], "_price": 6 },
-    { "_id": "tile_chimney", "_name": "굴뚝", "_category": "tile", "_tags": ["tile", "heat"], "_cost": [], "_price": 12 },
-    { "_id": "lantern", "_name": "가로등", "_category": "decor", "_tags": ["light"], "_cost": [], "_price": 1 },
-    { "_id": "brazier", "_name": "화로", "_category": "decor", "_tags": ["heat"], "_cost": [], "_price": 1 },
-    { "_id": "water_barrel", "_name": "물통", "_category": "decor", "_tags": ["water"], "_cost": [], "_price": 1 },
-    { "_id": "well", "_name": "우물", "_category": "decor", "_tags": ["water", "shelter"], "_cost": [], "_price": 1 },
-    { "_id": "seedling", "_name": "화분", "_category": "decor", "_tags": ["plant"], "_cost": [], "_price": 1 },
-    { "_id": "vegetable_patch", "_name": "텃밭", "_category": "decor", "_tags": ["plant", "water"], "_cost": [], "_price": 1 },
-    { "_id": "bench", "_name": "벤치", "_category": "decor", "_tags": ["shelter"], "_cost": [], "_price": 1 },
-    { "_id": "tent", "_name": "천막", "_category": "decor", "_tags": ["shelter"], "_cost": [], "_price": 1 },
-    { "_id": "storage_crate", "_name": "창고 상자", "_category": "decor", "_tags": ["industry"], "_cost": [], "_price": 1 },
-    { "_id": "gear", "_name": "톱니 장식", "_category": "decor", "_tags": ["industry"], "_cost": [], "_price": 1 },
-    { "_id": "flag", "_name": "깃발", "_category": "decor", "_tags": ["light"], "_cost": [], "_price": 1 },
-    { "_id": "steam_pipe", "_name": "증기관", "_category": "decor", "_tags": ["heat", "industry"], "_cost": [], "_price": 1 },
-    { "_id": "deco_campfire", "_name": "모닥불", "_category": "deco", "_tags": ["deco"], "_cost": [], "_price": 1 },
-    { "_id": "deco_puddle", "_name": "웅덩이", "_category": "deco", "_tags": ["deco"], "_cost": [], "_price": 1 },
-    { "_id": "deco_weeds", "_name": "잡초", "_category": "deco", "_tags": ["deco"], "_cost": [], "_price": 1 }
+    {
+      "_id": "tile_cobble",
+      "_name": "땅",
+      "_description": "시설을 세울 터를 닦는다",
+      "_category": "tile",
+      "_tags": [
+        "tile"
+      ],
+      "_cost": [],
+      "_price": 4
+    },
+    {
+      "_id": "tile_timber",
+      "_name": "목재",
+      "_description": "지지대와 거처의 골조를 만든다",
+      "_category": "tile",
+      "_tags": [
+        "tile"
+      ],
+      "_cost": [],
+      "_price": 5
+    },
+    {
+      "_id": "tile_stone",
+      "_name": "돌",
+      "_description": "우물과 튼튼한 바닥을 쌓는다",
+      "_category": "tile",
+      "_tags": [
+        "tile"
+      ],
+      "_cost": [],
+      "_price": 5
+    },
+    {
+      "_id": "tile_water_can",
+      "_name": "물통",
+      "_description": "마실 물과 보일러에 쓸 물을 담는다",
+      "_category": "tile",
+      "_tags": [
+        "tile"
+      ],
+      "_cost": [],
+      "_price": 6
+    },
+    {
+      "_id": "tile_grain",
+      "_name": "곡식",
+      "_description": "주민의 식량을 마련한다",
+      "_category": "tile",
+      "_tags": [
+        "tile"
+      ],
+      "_cost": [],
+      "_price": 6
+    },
+    {
+      "_id": "tile_coal",
+      "_name": "석탄",
+      "_description": "쇠를 녹이고 증기를 낼 연료다",
+      "_category": "tile",
+      "_tags": [
+        "tile"
+      ],
+      "_cost": [],
+      "_price": 7
+    },
+    {
+      "_id": "tile_iron_stock",
+      "_name": "철재",
+      "_description": "기계와 선로의 몸체를 만든다",
+      "_category": "tile",
+      "_tags": [
+        "tile"
+      ],
+      "_cost": [],
+      "_price": 8
+    },
+    {
+      "_id": "tile_copper",
+      "_name": "구리",
+      "_description": "전선을 만들 금속이다",
+      "_category": "tile",
+      "_tags": [
+        "tile"
+      ],
+      "_cost": [],
+      "_price": 8
+    },
+    {
+      "_id": "tile_steam_pipe",
+      "_name": "증기관",
+      "_description": "보일러의 증기를 다른 시설로 보낸다",
+      "_category": "tile",
+      "_tags": [
+        "tile"
+      ],
+      "_cost": [],
+      "_price": 9
+    },
+    {
+      "_id": "tile_gear",
+      "_name": "톱니",
+      "_description": "기계의 회전력을 전달한다",
+      "_category": "tile",
+      "_tags": [
+        "tile"
+      ],
+      "_cost": [],
+      "_price": 10
+    },
+    {
+      "_id": "tile_wire",
+      "_name": "전선",
+      "_description": "발전소의 전기를 마을에 보낸다",
+      "_category": "tile",
+      "_tags": [
+        "tile"
+      ],
+      "_cost": [],
+      "_price": 10
+    }
   ]
 }

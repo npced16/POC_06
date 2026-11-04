@@ -36,17 +36,23 @@ namespace IronRing.Habitats
     }
 
     /// <summary>
-    /// 스토리 016 (design/game-brief.md MVP 3). 서식지 종류 하나. 모든 값은 Resources/Habitats/HabitatTypes.json에서 온다.
+    /// 서식지 종류 하나. 조합 조건은 HabitatRecipes.json, 이름·경제·외관은 HabitatTypes.json에서 온다.
     /// </summary>
     public sealed class HabitatType
     {
         /// <summary>패턴 템플릿에서 "어떤 칸이든 상관없음"을 뜻하는 토큰.</summary>
         public const string DontCare = ".";
+        /// <summary>완성된 시설 조합이 차지할 수 있는 최대 재료 칸 수.</summary>
+        public const int MAX_RECIPE_CELLS = 9;
 
         /// <summary>고정 id(카탈로그 안에서 유일).</summary>
         public string Id { get; }
         /// <summary>한국어 표시 이름.</summary>
         public string Name { get; }
+        /// <summary>이 시설이 마을에서 해결하는 일.</summary>
+        public string VillageWork { get; private set; }
+        /// <summary>핵심 재료가 그 일을 돕는 이유.</summary>
+        public string MaterialRole { get; private set; }
         /// <summary>정의 방식.</summary>
         public HabitatKind Kind { get; }
         /// <summary>Cluster일 때 타일 아이템 id, Pattern이면 null.</summary>
@@ -79,6 +85,13 @@ namespace IronRing.Habitats
         /// <summary>QA 후속(건물 장식). 카탈로그 파서가 꾸밈을 붙인다.</summary>
         internal void SetDecor(HabitatDecor decor) => Decor = decor;
 
+        /// <summary>recipe의 마을 일과 재료 역할을 도감에 표시할 설명으로 저장한다.</summary>
+        internal void SetPurpose(string villageWork, string materialRole)
+        {
+            VillageWork = villageWork ?? string.Empty;
+            MaterialRole = materialRole ?? string.Empty;
+        }
+
         /// <summary>스토리 045. 카탈로그 파서가 수입·주거·빛을 붙인다.</summary>
         internal void SetEconomy(int income, int housing, int light)
         {
@@ -93,11 +106,15 @@ namespace IronRing.Habitats
             SignProp = string.IsNullOrWhiteSpace(signProp) ? null : signProp.Trim();
         }
 
-        /// <summary>Cluster 종류를 만든다.</summary>
+        /// <summary>
+        /// id와 tileItemId를 포함한 묶음 설정을 받아 최대 9칸의 동일 재료 시설을 만든다.
+        /// 검증된 HabitatType을 반환한다.
+        /// </summary>
         public static HabitatType CreateCluster(string id, string name, string tileItemId, int requiredCount, float prosperityBonus, string npcTypeId)
         {
             if (string.IsNullOrWhiteSpace(tileItemId)) throw new ArgumentException("Cluster habitat needs a tile item id: " + id);
             if (requiredCount < 1) throw new ArgumentException("Cluster habitat needs requiredCount >= 1: " + id);
+            if (requiredCount > MAX_RECIPE_CELLS) throw new ArgumentException("Cluster habitat exceeds 9 cells: " + id);
             var type = new HabitatType(id, name, HabitatKind.Cluster, tileItemId, requiredCount, Array.Empty<IReadOnlyList<string>>(), prosperityBonus, npcTypeId);
             type.SetTiles = Array.AsReadOnly(new[] { new HabitatTileRequirement(tileItemId, requiredCount) });
             return type;
@@ -105,7 +122,7 @@ namespace IronRing.Habitats
 
         /// <summary>
         /// 스토리 020. Set(혼합 묶음) 종류를 만든다. tiles는 서로 다른 타일 id여야 하며, requiredCount(총 칸 수)는 1 이상이고
-        /// 타일별 최소 수의 합보다 작을 수 없다.
+        /// 타일별 최소 수의 합보다 작을 수 없고 최대 9칸이다. 검증된 HabitatType을 반환한다.
         /// </summary>
         public static HabitatType CreateSet(string id, string name, IEnumerable<HabitatTileRequirement> tiles, int requiredCount, float prosperityBonus, string npcTypeId)
         {
@@ -122,6 +139,7 @@ namespace IronRing.Habitats
             if (list.Count == 0) throw new ArgumentException("Set habitat needs at least one tile: " + id);
             if (requiredCount < 1 || requiredCount < minimumSum)
                 throw new ArgumentException("Set habitat requiredCount must be >= 1 and >= the sum of minCounts: " + id);
+            if (requiredCount > MAX_RECIPE_CELLS) throw new ArgumentException("Set habitat exceeds 9 cells: " + id);
             var type = new HabitatType(id, name, HabitatKind.Set, null, requiredCount, Array.Empty<IReadOnlyList<string>>(), prosperityBonus, npcTypeId);
             type.SetTiles = list.AsReadOnly();
             return type;
@@ -135,7 +153,10 @@ namespace IronRing.Habitats
             return false;
         }
 
-        /// <summary>Pattern 종류를 만든다. rows는 줄마다 공백으로 구분한 토큰 문자열이며 모든 줄의 토큰 수가 같아야 한다.</summary>
+        /// <summary>
+        /// rows의 공백 구분 타일을 격자로 읽고 최대 9개 재료 칸의 패턴 시설을 만든다.
+        /// 검증된 HabitatType을 반환한다.
+        /// </summary>
         public static HabitatType CreatePattern(string id, string name, IEnumerable<string> rows, float prosperityBonus, string npcTypeId)
         {
             if (rows == null) throw new ArgumentException("Pattern habitat needs rows: " + id);
@@ -151,6 +172,7 @@ namespace IronRing.Habitats
                 grid.Add(Array.AsReadOnly(tokens));
             }
             if (grid.Count == 0 || required == 0) throw new ArgumentException("Pattern needs at least one tile: " + id);
+            if (required > MAX_RECIPE_CELLS) throw new ArgumentException("Pattern habitat exceeds 9 cells: " + id);
             var type = new HabitatType(id, name, HabitatKind.Pattern, null, required, grid.AsReadOnly(), prosperityBonus, npcTypeId);
             type.SetTiles = Array.Empty<HabitatTileRequirement>();
             return type;
@@ -184,7 +206,7 @@ namespace IronRing.Habitats
         }
     }
 
-    /// <summary>스토리 016. 서식지 종류 카탈로그(데이터 순서 유지). 순수 C#이며 Parse만 JsonUtility를 쓴다.</summary>
+    /// <summary>서식지 종류 카탈로그(레시피 JSON의 데이터 순서 유지). Parse가 두 JSON을 id로 결합한다.</summary>
     public sealed class HabitatCatalog
     {
         private readonly List<HabitatType> _types = new List<HabitatType>();
@@ -197,7 +219,10 @@ namespace IronRing.Habitats
         /// <summary>스토리 035. true(기본)면 한 번 완성된 서식지는 칸이 고정되어 더 커지지 않는다. false면 매번 전체 재판정(예전 규칙).</summary>
         public bool LockCompleted { get; set; } = true;
 
-        /// <summary>종류 목록을 검증한다(id 중복·빈 목록 거부).</summary>
+        /// <summary>
+        /// types 목록을 읽어 시설 ID 중복을 검증하고 카탈로그에 등록한다.
+        /// 반환값은 없으며 콘텐츠 리셋 중에는 빈 목록을 그대로 유지한다.
+        /// </summary>
         public HabitatCatalog(IEnumerable<HabitatType> types)
         {
             if (types == null) throw new ArgumentNullException(nameof(types));
@@ -210,7 +235,6 @@ namespace IronRing.Habitats
                 _types.Add(type);
                 ids.Add(type.Id);
             }
-            if (_types.Count == 0) throw new ArgumentException("Habitat catalog needs at least one type.", nameof(types));
             TypeIds = new ReadOnlyCollection<string>(ids);
         }
 
@@ -228,30 +252,49 @@ namespace IronRing.Habitats
             return unknown;
         }
 
-        /// <summary>HabitatTypes.json 형식을 읽는다.</summary>
+        /// <summary>건물 설정과 별도 레시피 리소스를 읽어 카탈로그를 만든다.</summary>
         public static HabitatCatalog Parse(string json)
         {
+            TextAsset recipes = Resources.Load<TextAsset>("Habitats/HabitatRecipes");
+            if (recipes == null) throw new InvalidOperationException("Missing habitat recipes resource: Habitats/HabitatRecipes");
+            return Parse(json, recipes.text);
+        }
+
+        /// <summary>건물 설정 json과 recipeJson을 id로 결합해 카탈로그를 만든다.</summary>
+        public static HabitatCatalog Parse(string json, string recipeJson)
+        {
             if (string.IsNullOrWhiteSpace(json)) throw new ArgumentException("Habitat catalog json is required.", nameof(json));
+            if (string.IsNullOrWhiteSpace(recipeJson)) throw new ArgumentException("Habitat recipes json is required.", nameof(recipeJson));
             var data = JsonUtility.FromJson<CatalogData>(json);
             if (data == null || data._types == null) throw new ArgumentException("Invalid habitat catalog json.", nameof(json));
-            var types = new List<HabitatType>();
-            foreach (TypeData t in data._types)
+            var recipeData = JsonUtility.FromJson<RecipeCatalogData>(recipeJson);
+            if (recipeData == null || recipeData._recipes == null) throw new ArgumentException("Invalid habitat recipes json.", nameof(recipeJson));
+            var metadata = new Dictionary<string, TypeData>(StringComparer.Ordinal);
+            foreach (TypeData type in data._types)
             {
-                if (t == null) throw new ArgumentException("Null habitat entry.", nameof(json));
-                string kind = string.IsNullOrWhiteSpace(t._kind) ? "cluster" : t._kind.Trim().ToLowerInvariant();
-                if (kind == "cluster") types.Add(HabitatType.CreateCluster(t._id, t._name, t._tileItemId, t._requiredCount, t._prosperityBonus, t._npcTypeId));
-                else if (kind == "pattern") types.Add(HabitatType.CreatePattern(t._id, t._name, t._pattern, t._prosperityBonus, t._npcTypeId));
+                if (type == null || string.IsNullOrWhiteSpace(type._id) || !metadata.TryAdd(type._id, type))
+                    throw new ArgumentException("Invalid or duplicate habitat metadata id.", nameof(json));
+            }
+            var types = new List<HabitatType>();
+            foreach (RecipeData recipe in recipeData._recipes)
+            {
+                if (recipe == null || !metadata.TryGetValue(recipe._id, out TypeData t))
+                    throw new ArgumentException("Recipe has no matching habitat metadata: " + recipe?._id, nameof(recipeJson));
+                string kind = string.IsNullOrWhiteSpace(recipe._kind) ? "cluster" : recipe._kind.Trim().ToLowerInvariant();
+                if (kind == "cluster") types.Add(HabitatType.CreateCluster(recipe._id, t._name, recipe._tileItemId, recipe._requiredCount, t._prosperityBonus, t._npcTypeId));
+                else if (kind == "pattern") types.Add(HabitatType.CreatePattern(recipe._id, t._name, recipe._pattern, t._prosperityBonus, t._npcTypeId));
                 else if (kind == "set")
                 {
                     var tiles = new List<HabitatTileRequirement>();
-                    foreach (TileData tile in t._tiles ?? Array.Empty<TileData>())
+                    foreach (TileData tile in recipe._tiles ?? Array.Empty<TileData>())
                     {
-                        if (tile == null) throw new ArgumentException("Null set tile on " + t._id, nameof(json));
+                        if (tile == null) throw new ArgumentException("Null set tile on " + recipe._id, nameof(recipeJson));
                         tiles.Add(new HabitatTileRequirement(tile._tileItemId, tile._minCount));
                     }
-                    types.Add(HabitatType.CreateSet(t._id, t._name, tiles, t._requiredCount, t._prosperityBonus, t._npcTypeId));
+                    types.Add(HabitatType.CreateSet(recipe._id, t._name, tiles, recipe._requiredCount, t._prosperityBonus, t._npcTypeId));
                 }
-                else throw new ArgumentException("Unknown habitat kind " + t._kind + " on " + t._id, nameof(json));
+                else throw new ArgumentException("Unknown recipe kind " + recipe._kind + " on " + recipe._id, nameof(recipeJson));
+                types[types.Count - 1].SetPurpose(recipe._villageWork, recipe._machineRole);
                 types[types.Count - 1].SetBuilding(t._buildingStyle, t._signProp);
                 types[types.Count - 1].SetEconomy(t._income, t._housing, t._light);
                 bool hasDecor = t._decor != null && (!string.IsNullOrWhiteSpace(t._decor._roofTint) || t._decor._windows > 0 || (t._decor._props != null && t._decor._props.Length > 0));
@@ -265,11 +308,17 @@ namespace IronRing.Habitats
         [Serializable]
         private sealed class TypeData
         {
-            public string _id; public string _name; public string _kind; public string _tileItemId; public int _requiredCount;
-            public string[] _pattern; public TileData[] _tiles; public float _prosperityBonus; public string _npcTypeId;
+            public string _id; public string _name; public float _prosperityBonus; public string _npcTypeId;
             public string _buildingStyle; public string _signProp;
             public int _income; public int _housing; public int _light;
             public DecorData _decor;
+        }
+        [Serializable] private sealed class RecipeCatalogData { public RecipeData[] _recipes; }
+        [Serializable] private sealed class RecipeData
+        {
+            public string _id; public string _kind; public string _tileItemId; public int _requiredCount;
+            public string _villageWork; public string _machineRole;
+            public string[] _pattern; public TileData[] _tiles;
         }
         [Serializable] private sealed class DecorData { public string _roofTint; public int _windows; public string[] _props; }
         [Serializable] private sealed class TileData { public string _tileItemId; public int _minCount; }

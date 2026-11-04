@@ -46,6 +46,12 @@ namespace IronRing.Hud.Codex
             if (_silhouette != null) _silhouette.transform.SetAsFirstSibling();
         }
 
+        /// <summary>선로에서 얻은 설계 단서로 이름·제작법·마을 일은 보이고 방문자는 감춘다.</summary>
+        public void ShowHint(string name, string meta, string work, string role, string unknownVisitor)
+        {
+            ShowUnlocked(name, meta, work, unknownVisitor, role, false);
+        }
+
         /// <summary>해금 카드: 이름·종류 줄·보너스·NPC를 쓰고 완성 표시를 켜거나 끈다. 배열은 Diagram에 따로 채운다.</summary>
         public void ShowUnlocked(string name, string meta, string bonus, string npc, bool complete) => ShowUnlocked(name, meta, bonus, npc, null, complete);
 

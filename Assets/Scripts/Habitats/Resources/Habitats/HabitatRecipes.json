@@ -1,0 +1,344 @@
+{
+  "_recipes": [
+    {
+      "_id": "cleared_lot",
+      "_kind": "cluster",
+      "_tileItemId": "tile_cobble",
+      "_requiredCount": 3,
+      "_villageWork": "폐허 빈터의 잔해를 걷어내고 건축에 쓸 돌을 모은다",
+      "_machineRole": "땅 세 칸을 연결해 개간할 터를 정한다"
+    },
+    {
+      "_id": "logging_site",
+      "_kind": "set",
+      "_requiredCount": 3,
+      "_tiles": [
+        {
+          "_tileItemId": "tile_cobble",
+          "_minCount": 2
+        },
+        {
+          "_tileItemId": "tile_stone",
+          "_minCount": 1
+        }
+      ],
+      "_villageWork": "개간지 주변의 나무를 베어 거처와 작업장에 쓸 목재를 마련한다",
+      "_machineRole": "돌로 작업대를 받치고 땅 두 칸에 벌목 작업터를 만든다"
+    },
+    {
+      "_id": "stone_well",
+      "_kind": "set",
+      "_requiredCount": 3,
+      "_tiles": [
+        {
+          "_tileItemId": "tile_cobble",
+          "_minCount": 1
+        },
+        {
+          "_tileItemId": "tile_stone",
+          "_minCount": 2
+        }
+      ],
+      "_villageWork": "마을에 마실 물을 공급한다",
+      "_machineRole": "땅에 돌 둘을 둘러 우물을 만든다"
+    },
+    {
+      "_id": "temporary_shelter",
+      "_kind": "set",
+      "_requiredCount": 4,
+      "_tiles": [
+        {
+          "_tileItemId": "tile_cobble",
+          "_minCount": 1
+        },
+        {
+          "_tileItemId": "tile_timber",
+          "_minCount": 2
+        },
+        {
+          "_tileItemId": "tile_stone",
+          "_minCount": 1
+        }
+      ],
+      "_villageWork": "이주민이 밤을 보낼 주거를 마련한다",
+      "_machineRole": "돌 기초에 목재 골조를 세운다"
+    },
+    {
+      "_id": "terrace_field",
+      "_kind": "set",
+      "_requiredCount": 4,
+      "_tiles": [
+        {
+          "_tileItemId": "tile_cobble",
+          "_minCount": 1
+        },
+        {
+          "_tileItemId": "tile_timber",
+          "_minCount": 1
+        },
+        {
+          "_tileItemId": "tile_water_can",
+          "_minCount": 2
+        }
+      ],
+      "_villageWork": "정착민의 먹을 곡식을 기른다",
+      "_machineRole": "목재로 밭을 나누고 물통 둘로 물을 댄다"
+    },
+    {
+      "_id": "coal_shaft",
+      "_kind": "set",
+      "_requiredCount": 4,
+      "_tiles": [
+        {
+          "_tileItemId": "tile_cobble",
+          "_minCount": 1
+        },
+        {
+          "_tileItemId": "tile_timber",
+          "_minCount": 2
+        },
+        {
+          "_tileItemId": "tile_water_can",
+          "_minCount": 1
+        }
+      ],
+      "_villageWork": "증기기관을 돌릴 석탄을 캔다",
+      "_machineRole": "목재 지지대로 갱도를 세우고 물을 퍼낸다"
+    },
+    {
+      "_id": "communal_kitchen",
+      "_kind": "set",
+      "_requiredCount": 5,
+      "_tiles": [
+        {
+          "_tileItemId": "tile_timber",
+          "_minCount": 1
+        },
+        {
+          "_tileItemId": "tile_stone",
+          "_minCount": 2
+        },
+        {
+          "_tileItemId": "tile_water_can",
+          "_minCount": 1
+        },
+        {
+          "_tileItemId": "tile_grain",
+          "_minCount": 1
+        }
+      ],
+      "_villageWork": "주민에게 따뜻한 식사를 제공한다",
+      "_machineRole": "돌 화덕과 물, 곡식을 목재 작업면에 모은다"
+    },
+    {
+      "_id": "iron_forge",
+      "_kind": "set",
+      "_requiredCount": 4,
+      "_tiles": [
+        {
+          "_tileItemId": "tile_timber",
+          "_minCount": 1
+        },
+        {
+          "_tileItemId": "tile_stone",
+          "_minCount": 2
+        },
+        {
+          "_tileItemId": "tile_coal",
+          "_minCount": 1
+        }
+      ],
+      "_villageWork": "기계와 선로에 쓸 철재를 만든다",
+      "_machineRole": "돌 화덕에 석탄 불을 피우고 목재 작업대를 둔다"
+    },
+    {
+      "_id": "copper_pit",
+      "_kind": "set",
+      "_requiredCount": 4,
+      "_tiles": [
+        {
+          "_tileItemId": "tile_cobble",
+          "_minCount": 1
+        },
+        {
+          "_tileItemId": "tile_stone",
+          "_minCount": 1
+        },
+        {
+          "_tileItemId": "tile_coal",
+          "_minCount": 2
+        }
+      ],
+      "_villageWork": "전선의 원료가 될 구리를 캔다",
+      "_machineRole": "돌층을 따라 갱도를 넓히고 석탄불로 광석을 가린다"
+    },
+    {
+      "_id": "steam_boiler",
+      "_kind": "set",
+      "_requiredCount": 6,
+      "_tiles": [
+        {
+          "_tileItemId": "tile_stone",
+          "_minCount": 1
+        },
+        {
+          "_tileItemId": "tile_water_can",
+          "_minCount": 1
+        },
+        {
+          "_tileItemId": "tile_coal",
+          "_minCount": 2
+        },
+        {
+          "_tileItemId": "tile_iron_stock",
+          "_minCount": 2
+        }
+      ],
+      "_villageWork": "증기 동력을 만들고 다른 시설로 보낸다",
+      "_machineRole": "돌 기초 위에서 물·석탄·철재를 보일러에 모은다"
+    },
+    {
+      "_id": "pump_station",
+      "_kind": "set",
+      "_requiredCount": 6,
+      "_tiles": [
+        {
+          "_tileItemId": "tile_stone",
+          "_minCount": 1
+        },
+        {
+          "_tileItemId": "tile_water_can",
+          "_minCount": 2
+        },
+        {
+          "_tileItemId": "tile_iron_stock",
+          "_minCount": 1
+        },
+        {
+          "_tileItemId": "tile_steam_pipe",
+          "_minCount": 2
+        }
+      ],
+      "_villageWork": "보일러와 주민 시설에 물을 보낸다",
+      "_machineRole": "돌 기초 위 철재 펌프에 물통 둘과 증기관 둘을 잇는다"
+    },
+    {
+      "_id": "gear_workshop",
+      "_kind": "set",
+      "_requiredCount": 4,
+      "_tiles": [
+        {
+          "_tileItemId": "tile_coal",
+          "_minCount": 1
+        },
+        {
+          "_tileItemId": "tile_iron_stock",
+          "_minCount": 2
+        },
+        {
+          "_tileItemId": "tile_steam_pipe",
+          "_minCount": 1
+        }
+      ],
+      "_villageWork": "증기 기계에 들어갈 톱니를 깎는다",
+      "_machineRole": "철재 둘을 석탄 열과 증기 동력으로 가공한다"
+    },
+    {
+      "_id": "steam_station",
+      "_kind": "set",
+      "_requiredCount": 7,
+      "_tiles": [
+        {
+          "_tileItemId": "tile_timber",
+          "_minCount": 1
+        },
+        {
+          "_tileItemId": "tile_stone",
+          "_minCount": 2
+        },
+        {
+          "_tileItemId": "tile_iron_stock",
+          "_minCount": 2
+        },
+        {
+          "_tileItemId": "tile_steam_pipe",
+          "_minCount": 1
+        },
+        {
+          "_tileItemId": "tile_gear",
+          "_minCount": 1
+        }
+      ],
+      "_villageWork": "열차와 승객이 드나드는 역을 운영한다",
+      "_machineRole": "목재·돌·철재로 역을 세우고 증기와 톱니를 잇는다"
+    },
+    {
+      "_id": "wire_workshop",
+      "_kind": "set",
+      "_requiredCount": 4,
+      "_tiles": [
+        {
+          "_tileItemId": "tile_copper",
+          "_minCount": 2
+        },
+        {
+          "_tileItemId": "tile_iron_stock",
+          "_minCount": 1
+        },
+        {
+          "_tileItemId": "tile_gear",
+          "_minCount": 1
+        }
+      ],
+      "_villageWork": "전기를 보낼 전선을 만든다",
+      "_machineRole": "톱니 기계로 구리 둘을 가늘게 뽑고 철재로 받친다"
+    },
+    {
+      "_id": "electric_works",
+      "_kind": "pattern",
+      "_pattern": [
+        "tile_iron_stock tile_gear tile_steam_pipe",
+        "tile_water_can tile_coal tile_gear",
+        "tile_steam_pipe tile_water_can tile_wire"
+      ],
+      "_villageWork": "증기 동력을 전기로 바꿔 도시를 밝힌다",
+      "_machineRole": "물·석탄·증기관의 힘을 톱니와 전선에 연결한다"
+    },
+    {
+      "_id": "night_market",
+      "_kind": "set",
+      "_requiredCount": 6,
+      "_tiles": [
+        {
+          "_tileItemId": "tile_timber",
+          "_minCount": 2
+        },
+        {
+          "_tileItemId": "tile_stone",
+          "_minCount": 2
+        },
+        {
+          "_tileItemId": "tile_grain",
+          "_minCount": 1
+        },
+        {
+          "_tileItemId": "tile_wire",
+          "_minCount": 1
+        }
+      ],
+      "_villageWork": "밤에도 식량과 물건이 오가는 생활 거리를 만든다",
+      "_machineRole": "목재 좌판과 돌길에 곡식과 전깃불을 더한다"
+    },
+    {
+      "_id": "clock_tower",
+      "_kind": "pattern",
+      "_pattern": [
+        "tile_stone tile_gear tile_stone",
+        "tile_iron_stock . tile_iron_stock",
+        "tile_gear tile_wire ."
+      ],
+      "_villageWork": "도시의 시간과 신호를 맞춘다",
+      "_machineRole": "돌·철재의 탑에서 톱니와 전선을 움직인다"
+    }
+  ]
+}

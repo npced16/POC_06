@@ -12,7 +12,7 @@ namespace IronRing.Habitats
     ///  1) Pattern 종류를 먼저(타일 칸 수가 많은 것부터, 같으면 카탈로그 순서) 판정한다. 템플릿의 8변형(회전 4 × 거울)을 구역 위에서
     ///     줄 우선으로 밀어 보며, 아직 쓰이지 않은 칸만으로 들어맞으면 그 칸들을 차지한다(겹치는 매칭은 먼저 찾은 하나만).
     ///  2) 스토리 020. 남은 칸에서 묶음형(Cluster·Set)을 RequiredCount가 큰 것부터(같으면 카탈로그 순서) 판정한다. 종류마다 그 종류가
-    ///     받는 타일(Cluster는 한 타일, Set은 집합)이 놓인 아직 안 쓰인 칸의 상하좌우 묶음을 flood fill로 찾고, 총 칸 수 ≥ RequiredCount이며
+    ///     받는 타일(Cluster는 한 타일, Set은 집합)이 놓인 아직 안 쓰인 칸의 상하좌우 묶음을 flood fill로 찾고, 총 칸 수가 RequiredCount 이상 9 이하이며
     ///     타일별 최소 수를 모두 채우면 그 묶음 전체를 차지한다. Cluster만 보면 016 규칙과 같다(같은 타일 묶음은 들어맞는 가장 큰
     ///     종류 하나로 센다. 예: 톱니장치 9칸 묶음은 대공방 하나이고 작은 종류로 중복 계산되지 않는다).
     /// </summary>
@@ -99,10 +99,13 @@ namespace IronRing.Habitats
             return cells;
         }
 
-        /// <summary>묶음 크기와 타일별 개수가 type의 총 칸 수·타일별 최소 수를 모두 채우는지.</summary>
+        /// <summary>
+        /// type의 최소 재료 수와 counts를 검사하고 완성 묶음이 최대 9칸인지 판단한다.
+        /// 조건을 모두 만족하면 true를 반환한다.
+        /// </summary>
         private static bool Satisfies(HabitatType type, int size, Dictionary<string, int> counts)
         {
-            if (size < type.RequiredCount) return false;
+            if (size < type.RequiredCount || size > HabitatType.MAX_RECIPE_CELLS) return false;
             foreach (HabitatTileRequirement tile in type.SetTiles)
                 if ((counts.TryGetValue(tile.TileItemId, out int n) ? n : 0) < tile.MinCount) return false;
             return true;

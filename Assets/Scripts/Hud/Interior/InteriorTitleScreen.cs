@@ -18,6 +18,8 @@ namespace IronRing.Hud.Interior
     {
         private static InteriorTitleScreen _instance;
 
+        [Tooltip("거점 내부의 위치 제목을 표시할지. 간결한 POC 화면에서는 끈다.")]
+        [SerializeField] private bool _showTitle;
         [SerializeField] private TMP_Text _title;
         [Tooltip("노드 id → 문자열 키 표(HudCatalog.json).")]
         [SerializeField] private TextAsset _catalogJson;
@@ -61,7 +63,7 @@ namespace IronRing.Hud.Interior
         private void Refresh()
         {
             if (_screens == null) return;
-            bool open = _viewMode.InteriorOpen;
+            bool open = _showTitle && _viewMode.InteriorOpen;
             if (open)
             {
                 string name = Strings.Get(_catalog.NodeKey(_viewMode.InteriorHubId));

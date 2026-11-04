@@ -168,12 +168,13 @@ using Game.System;
   - UI 프리팹: `.bridge/rebuild/<화면Id>` 빈 파일을 만들고 `IronRing.Hud.Editor.BuildMainCanvas.Generate` 실행(그 화면만 GUID 유지하고 재생성).
   - 그 밖 생성기: `IronRing.Bootstrap.Editor.BuildTopDownMain.Rebuild`(파괴적), `IronRing.Presentation.Interior.Editor.Story012Build.Generate`, `IronRing.Presentation.Interior.Editor.RuinBuild.Generate`/`GenerateMap`(멱등).
 - **UI**: UGUI. `MainCanvas` 프리팹 하나 아래에 화면마다 프리팹(`Assets/Prefabs/UI/Screens/`), 빌더는 `Assets/Scripts/Hud/Editor/Screens/<Id>ScreenBuilder.cs`, 색·글자는 `UiTheme.asset`. 런타임에 UI를 코드로 만들지 않는다.
-- **검증 (편집기는 사용자가 열어 둔다 — 닫거나 batchmode로 띄우지 않는다)**: `tools/bridge/bridge.py` (`python` 없으면 `py -3 -I`).
-  - 컴파일: `python -I tools/bridge/bridge.py refresh --timeout 300` → `failed:false`
-  - 씬 저장 상태: `python -I tools/bridge/bridge.py scene-status` → `isDirty:false`
-  - 생성기: `python -I tools/bridge/bridge.py execute-method --method <정규 이름>`
-  - 데모 + 캡처: `python -I tools/bridge/bridge.py play-capture --scene Assets/Scenes/Main.unity --seconds 5 --screenshot C:/abs/shot.png --extra-args="--loop-demo"` (인자가 `-`로 시작하면 `=`로 붙인다). 로그는 `%LOCALAPPDATA%/Unity/Editor/Editor.log`에서 `LOOP:`·`UNLOCK:`·`LINE:` 등으로 찾는다. `AiEditorToolsSdk` 예외는 Unity 내장 도구라 무시한다.
-  - 지금 쓸 수 있는 데모: `--loop-demo`, `--unlock-demo [--unlock-stage start|first|all]`, `--line-demo --line-stage locked|opened`, `--town-demo`, `--economy-demo ledger`.
-- **자동 테스트는 만들지 않는다.** 증거는 브리지 결과와 캡처. 캡처는 `production/qa/evidence/`에 둔다.
+- **편집기 제어와 검증은 Unity Pipeline CLI(`unity`)만 사용한다. Python 스크립트와 옛 파일 큐 브리지는 사용하거나 다시 만들지 않는다.** 편집기는 사용자가 열어 둔다. 닫거나 batchmode로 띄우지 않는다. 여러 편집기가 열려 있으므로 `--project-path C:/Users/JUNGLE/Documents/GitHub/POC_06`을 지정한다.
+  - 연결 확인: `unity status --format json`
+  - 컴파일: `unity command script recompile --project-path C:/Users/JUNGLE/Documents/GitHub/POC_06 --format json` 후 `unity command script recompile_status --project-path C:/Users/JUNGLE/Documents/GitHub/POC_06 --format json`에서 완료·오류 여부 확인.
+  - 씬 저장 상태: `unity command scene list_open --project-path C:/Users/JUNGLE/Documents/GitHub/POC_06 --format json`에서 `Main.unity`의 `isDirty:false` 확인.
+  - 생성기: `unity command script eval`에서 편집기 정적 메서드를 호출한다. 실행 전에 Play Mode 여부와 대상 메서드의 파괴적 동작을 확인한다.
+  - Play Mode·캡처: `unity command editor.playmode start|stop`, `unity command capture game_view`를 사용한다. 데모 상태와 실제 입력 검증은 별도로 기록한다. 로그는 `%LOCALAPPDATA%/Unity/Editor/Editor.log`에서 `LOOP:`·`UNLOCK:`·`LINE:` 등으로 찾는다.
+  - 지금 쓸 수 있는 데모 인자: `--loop-demo`, `--unlock-demo [--unlock-stage start|first|all]`, `--line-demo --line-stage locked|opened`, `--town-demo`, `--economy-demo ledger`.
+- **자동 테스트는 만들지 않는다.** 증거는 Pipeline 결과와 캡처. 캡처는 `production/qa/evidence/`에 둔다.
 - **보관**: 제거한 기능은 `archive/`(Assets 밖)로 옮긴다. 기록(옛 스토리·의뢰서·증거)은 `production/`에 있다 — 참고용이며 현재 규칙은 `design/game-brief.md`가 우선한다.
 

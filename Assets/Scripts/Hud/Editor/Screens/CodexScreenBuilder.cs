@@ -54,13 +54,14 @@ namespace IronRing.Hud.Editor.Screens
             // 미리보기 카드(런타임에 지운다)
             ItemSpriteSet sprites = ItemSpriteSet.Load();
             var sample = ((GameObject)PrefabUtility.InstantiatePrefab(cardPart, grid)).GetComponent<CodexCardView>();
-            sample.ShowUnlocked(Strings.Get("ui_sample_codex_name"),
-                Strings.Get("codex_kind_cluster") + "  ·  " + string.Format(Strings.Get("codex_cells"), 4),
-                string.Format(Strings.Get("codex_bonus"), "10"), string.Format(Strings.Get("codex_npc"), Strings.Get("ui_sample_codex_visitors")), true);
+            sample.ShowHint(Strings.Get("habitat_type_cobble_plaza"),
+                Strings.Get("codex_kind_cluster") + "  ·  " + string.Format(Strings.Get("codex_cells"), 3),
+                "폐허에 사람들이 모일 터를 닦는다", "땅 세 칸을 붙인다",
+                string.Format(Strings.Get("codex_npc"), Strings.Get("codex_visitor_unknown")));
             sample.SetColumns(0);
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < 3; i++)
                 ((GameObject)PrefabUtility.InstantiatePrefab(tilePart, sample.Diagram)).GetComponent<CodexTileView>()
-                    .Show(sprites != null ? sprites.Get("tile_boiler") : null, Strings.Get("ui_sample_codex_name").Substring(0, 1), false);
+                    .Show(sprites != null ? sprites.Get("tile_cobble") : null, "땅", false);
             var locked = ((GameObject)PrefabUtility.InstantiatePrefab(cardPart, grid)).GetComponent<CodexCardView>();
             locked.ShowLocked(Strings.Get("codex_locked"));
 
@@ -116,6 +117,11 @@ namespace IronRing.Hud.Editor.Screens
 
             TextMeshProUGUI bonus = UiKit.Label(frame.transform, "Bonus", "", UiTextSize.Small, theme, TextAlignmentOptions.MidlineLeft);
             UiKit.StretchTop(bonus.rectTransform, 20, 148, 12, 12);
+            bonus.textWrappingMode = TextWrappingModes.NoWrap;
+            bonus.overflowMode = TextOverflowModes.Ellipsis;
+            bonus.enableAutoSizing = true;
+            bonus.fontSizeMax = theme.Size(UiTextSize.Small);
+            bonus.fontSizeMin = theme.Size(UiTextSize.Small) * 0.7f;
             TextMeshProUGUI npc = UiKit.Label(frame.transform, "Npc", "", UiTextSize.Small, theme, TextAlignmentOptions.MidlineLeft);
             UiKit.StretchTop(npc.rectTransform, 20, 170, 12, 12);
             npc.color = theme.Muted;
@@ -131,6 +137,9 @@ namespace IronRing.Hud.Editor.Screens
             teacher.color = theme.Accent;
             teacher.textWrappingMode = TextWrappingModes.NoWrap;
             teacher.overflowMode = TextOverflowModes.Ellipsis;
+            teacher.enableAutoSizing = true;
+            teacher.fontSizeMax = theme.Size(UiTextSize.Small);
+            teacher.fontSizeMin = theme.Size(UiTextSize.Small) * 0.7f;
             teacher.gameObject.SetActive(false);
 
             Image silhouette = UiKit.Sliced(frame.transform, "Silhouette", theme.SlotSprite, theme, false);

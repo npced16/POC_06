@@ -1,29 +1,16 @@
-{
+﻿{
   "_slots": [
-    { "_kind": "item", "_id": "tile_boiler" },
-    { "_kind": "item", "_id": "tile_coal" },
-    { "_kind": "item", "_id": "tile_cobble" },
-    { "_kind": "item", "_id": "tile_bunk" },
-    { "_kind": "item", "_id": "tile_bench" }
+    {
+      "_kind": "item",
+      "_id": "tile_cobble"
+    }
   ],
-  "_fillMissingFromCatalog": true,
-  "_paletteCategories": ["tile", "deco"],
+  "_fillMissingFromCatalog": false,
+  "_paletteCategories": [
+    "tile"
+  ],
   "_dragThresholdPixels": 8,
   "_toastSeconds": 2.5,
   "_noticeSeconds": 1.8,
-  "_sortingOrder": 120,
-  "_demo": {
-    "_waitFrames": 20,
-    "_ghostCell": { "_upper": false, "_row": 0, "_column": 4 },
-    "_blockedCell": { "_upper": false, "_row": 0, "_column": 4 },
-    "_dragCell": { "_upper": false, "_row": 1, "_column": 2 },
-    "_dragSlot": 1,
-    "_lCells": [
-      { "_upper": false, "_row": 0, "_column": 1 },
-      { "_upper": false, "_row": 0, "_column": 2 },
-      { "_upper": false, "_row": 0, "_column": 3 },
-      { "_upper": false, "_row": 1, "_column": 1 }
-    ],
-    "_demolishDelayFrames": 40
-  }
+  "_sortingOrder": 120
 }

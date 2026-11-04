@@ -39,7 +39,7 @@ namespace IronRing.Hud.Editor
         /// <summary>캔버스 프리팹.</summary>
         public const string PREFAB = FOLDER + "/MainCanvas.prefab";
         private const string ROOT_NAME = "MainCanvas";
-        private const string FONT = "Assets/Fonts/NotoSansKR SDF.asset";
+        private const string FONT = "Assets/Fonts/Mulmaru SDF.asset";
         private const string SCENE = "Assets/Scenes/Main.unity";
         private const string EVIDENCE = "production/qa/evidence/story-022-ugui-screens";
         private const string CAPTURE_NAME = "022-editmode-gameview";
@@ -98,6 +98,70 @@ namespace IronRing.Hud.Editor
             bool sceneChanged = EnsureScene();
             AssetDatabase.SaveAssets();
             Debug.Log("MAINCANVAS GENERATE: canvasChanged=" + canvasChanged + " sceneChanged=" + sceneChanged);
+        }
+
+        /// <summary>
+        /// Main 씬의 TopBar 출발 버튼을 TopBar 프리팹의 위치와 크기로 맞춘다.
+        /// 대상 씬 인스턴스의 RectTransform을 저장하고 다른 화면 설정은 변경하지 않는다.
+        /// </summary>
+        public static void AlignDepartButton()
+        {
+            if (EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play mode before editing MainCanvas.");
+            Scene scene = SceneManager.GetActiveScene();
+            if (scene.path != SCENE) throw new InvalidOperationException("Main scene must be active.");
+            IronRing.Hud.TopBarScreen screen = scene.GetRootGameObjects()
+                .SelectMany(root => root.GetComponentsInChildren<IronRing.Hud.TopBarScreen>(true)).FirstOrDefault();
+            GameObject source = AssetDatabase.LoadAssetAtPath<GameObject>(SCREENS_FOLDER + "/TopBar.prefab");
+            RectTransform target = screen != null ? screen.transform.Find("Depart") as RectTransform : null;
+            RectTransform authored = source != null ? source.transform.Find("Depart") as RectTransform : null;
+            if (target == null || authored == null) throw new InvalidOperationException("TopBar Depart button is missing.");
+            target.anchorMin = authored.anchorMin;
+            target.anchorMax = authored.anchorMax;
+            target.pivot = authored.pivot;
+            target.anchoredPosition = authored.anchoredPosition;
+            target.sizeDelta = authored.sizeDelta;
+            PrefabUtility.RecordPrefabInstancePropertyModifications(target);
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
+        }
+
+        /// <summary>
+        /// Main 씬 상단 잔고의 동전과 숫자를 TopBar 프리팹 배치로 맞춘다.
+        /// 기존 씬 인스턴스의 RectTransform과 잔고 글자 크기를 갱신해 저장한다.
+        /// </summary>
+        public static void AlignCurrencyDisplay()
+        {
+            if (EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play mode before editing MainCanvas.");
+            Scene scene = SceneManager.GetActiveScene();
+            if (scene.path != SCENE) throw new InvalidOperationException("Main scene must be active.");
+            IronRing.Hud.TopBarScreen screen = scene.GetRootGameObjects()
+                .SelectMany(root => root.GetComponentsInChildren<IronRing.Hud.TopBarScreen>(true)).FirstOrDefault();
+            GameObject source = AssetDatabase.LoadAssetAtPath<GameObject>(SCREENS_FOLDER + "/TopBar.prefab");
+            Transform sceneBar = screen != null ? screen.transform.Find("Bar") : null;
+            Transform sourceBar = source != null ? source.transform.Find("Bar") : null;
+            if (sceneBar == null || sourceBar == null) throw new InvalidOperationException("TopBar balance row is missing.");
+            foreach (string name in new[] { "Coin", "Balance" })
+            {
+                RectTransform target = sceneBar.Find(name) as RectTransform;
+                RectTransform authored = sourceBar.Find(name) as RectTransform;
+                if (target == null || authored == null) throw new InvalidOperationException("TopBar currency element is missing: " + name);
+                target.anchorMin = authored.anchorMin;
+                target.anchorMax = authored.anchorMax;
+                target.pivot = authored.pivot;
+                target.anchoredPosition = authored.anchoredPosition;
+                target.sizeDelta = authored.sizeDelta;
+                PrefabUtility.RecordPrefabInstancePropertyModifications(target);
+                TMP_Text targetText = target.GetComponent<TMP_Text>();
+                TMP_Text sourceText = authored.GetComponent<TMP_Text>();
+                if (targetText == null || sourceText == null) continue;
+                targetText.fontSize = sourceText.fontSize;
+                targetText.enableAutoSizing = sourceText.enableAutoSizing;
+                targetText.fontSizeMin = sourceText.fontSizeMin;
+                targetText.fontSizeMax = sourceText.fontSizeMax;
+                PrefabUtility.RecordPrefabInstancePropertyModifications(targetText);
+            }
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
         }
 
         private static void EnsureFolder(string path)

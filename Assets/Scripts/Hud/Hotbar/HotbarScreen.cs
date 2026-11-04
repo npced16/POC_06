@@ -40,12 +40,16 @@ namespace IronRing.Hud.Hotbar
     {
         /// <summary>슬롯 수.</summary>
         public const int SLOT_COUNT = 9;
+        public const float SLOT_WIDTH = 122f;
+        public const float SLOT_SPACING = 6f;
+        public const float BAR_HORIZONTAL_PADDING = 20f;
         private static HotbarScreen _instance;
         /// <summary>현재 핫바 화면(데모 드라이버용). 초기화 전·캔버스가 없으면 null.</summary>
         public static HotbarScreen Instance => _instance;
 
         [Tooltip("거점 내부에서만 켜는 모든 내용(핫바·팔레트·알림·드래그 칩).")]
         [SerializeField] private GameObject _content;
+        [SerializeField] private RectTransform _bar;
         [SerializeField] private HotbarCellView[] _slotViews = new HotbarCellView[SLOT_COUNT];
         [SerializeField] private TMP_Text _hint;
         [SerializeField] private GameObject _noticeBox;
@@ -122,10 +126,9 @@ namespace IronRing.Hud.Hotbar
             if (_money != null) _money.Changed += Refresh;
             _data = HotbarData.Load();
 
-            _hint.text = Strings.Get("hotbar_hint");
+            _hint.text = "";
             _paletteTitle.text = Strings.Get("hotbar_palette_title");
             _paletteHint.text = Strings.Get("hotbar_palette_hint");
-            SetButtonText(_paletteToggle, Strings.Get("hotbar_palette"));
             SetButtonText(_paletteClose, Strings.Get("inv_close"));
             _paletteToggle.onClick.AddListener(() => SetPaletteOpen(!_paletteOpen));
             _paletteClose.onClick.AddListener(() => SetPaletteOpen(false));
@@ -138,7 +141,7 @@ namespace IronRing.Hud.Hotbar
                 int slot = i;
                 if (_slotViews[i] == null) continue;
                 _slotViews[i].SetKey((i + 1).ToString());
-                _slotViews[i].Bind(this, () => _slots[slot], () => OnSlotClicked(slot));
+                _slotViews[i].Bind(this, () => _slots[slot], () => OnSlotClicked(slot), () => ClearSlot(slot));
             }
             BuildPalette();
 
@@ -264,12 +267,15 @@ namespace IronRing.Hud.Hotbar
             {
                 HotbarCellView view = _slotViews[i];
                 if (view == null) continue;
+                view.gameObject.SetActive(true);
                 view.Show(_slots[i].IsValid ? _ghost.IconFor(_slots[i]) : null, DisplayName(_slots[i]));
                 RefreshPrice(view, _slots[i]);
                 bool flash = Time.realtimeSinceStartup < _unlockFlashUntil[i]
                     && Mathf.FloorToInt(Time.realtimeSinceStartup / Mathf.Max(0.05f, _unlockFlashInterval)) % 2 == 0;
                 view.SetState(i == _selectedSlot, _pendingAssign.IsValid || flash, _theme);
             }
+            if (_bar != null) _bar.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal,
+                SLOT_COUNT * SLOT_WIDTH + (SLOT_COUNT - 1) * SLOT_SPACING + BAR_HORIZONTAL_PADDING);
             _palette.SetActive(open && _paletteOpen);
             foreach (var (entry, view) in _paletteViews)
             {
@@ -324,6 +330,15 @@ namespace IronRing.Hud.Hotbar
             SelectSlot(slot == _selectedSlot ? -1 : slot);
         }
 
+        /// <summary>slot의 빠른 칸 배정을 지우고 선택 중이었다면 고스트 선택도 해제한다.</summary>
+        private void ClearSlot(int slot)
+        {
+            if (slot < 0 || slot >= SLOT_COUNT || !_slots[slot].IsValid) return;
+            if (_selectedSlot == slot) SelectSlot(-1);
+            _slots[slot] = default;
+            Refresh();
+        }
+
         private void OnPaletteClicked(PlacementEntry entry)
         {
             _pendingAssign = _pendingAssign.Equals(entry) ? default : entry;
@@ -360,6 +375,17 @@ namespace IronRing.Hud.Hotbar
                 _ghost.Select(_slots[slot]);
             }
             Refresh();
+            UpdateMaterialHint();
+        }
+
+        /// <summary>선택한 재료의 이름과 짧은 쓰임을 배치 안내 줄에 표시한다.</summary>
+        private void UpdateMaterialHint()
+        {
+            PlacementEntry entry = _ghost.Selected;
+            ItemDefinition item = entry.Kind == PlacementKind.Item ? _items.Get(entry.Id) : null;
+            _hint.text = item != null && !string.IsNullOrEmpty(item.Description)
+                ? DisplayName(entry) + " · " + item.Description
+                : "";
         }
 
         /// <summary>slot의 배정(데모·검증용).</summary>
@@ -394,6 +420,7 @@ namespace IronRing.Hud.Hotbar
         {
             if (!entry.IsValid) _selectedSlot = -1;
             Refresh();
+            UpdateMaterialHint();
         }
 
         void Update()

@@ -18,9 +18,8 @@ namespace IronRing.Bootstrap
     /// <summary>Scene-owned composition and presentation driver for the real playable MVP.</summary>
     public sealed class MainRoot : MonoBehaviour
     {
-        [Header("Production data: track, habitat, NPC, hub, combat, settings")]
+        [Header("Production data: track, NPC, hub, combat, settings")]
         [SerializeField] private TextAsset _trackData;
-        [SerializeField] private TextAsset _habitatData;
         [SerializeField] private TextAsset _npcData;
         [SerializeField] private TextAsset _hubData;
         [SerializeField] private TextAsset _combatData;
@@ -47,11 +46,10 @@ namespace IronRing.Bootstrap
         public GameSession Session => _game;
 
         /// <summary>Stores authored data and view references once during Main scene creation.</summary>
-        public void Configure(TextAsset trackData, TextAsset habitatData, TextAsset npcData, TextAsset hubData,
+        public void Configure(TextAsset trackData, TextAsset npcData, TextAsset hubData,
             TextAsset combatData, TextAsset settingsData, TrainController train, MapView map)
         {
             _trackData = trackData;
-            _habitatData = habitatData;
             _npcData = npcData;
             _hubData = hubData;
             _combatData = combatData;
@@ -64,7 +62,7 @@ namespace IronRing.Bootstrap
         {
             TextAsset interiorData = _interiorData != null ? _interiorData : UnityEngine.Resources.Load<TextAsset>("Interior/HubInterior");
             if (interiorData == null) throw new InvalidOperationException("Missing Story 012 interior data: Resources/Interior/HubInterior.json");
-            _definition = GameDefinition.Parse(_trackData.text, _habitatData.text, _npcData.text,
+            _definition = GameDefinition.Parse(_trackData.text, _npcData.text,
                 _hubData.text, _combatData.text, _settingsData.text, interiorData.text);
             _demo = Arguments().Contains("--integration-demo");
             _interiorDemo = Arguments().Contains("--interior-demo");

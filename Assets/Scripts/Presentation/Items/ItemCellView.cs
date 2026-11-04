@@ -2,8 +2,11 @@ using System.Collections.Generic;
 
 using UnityEngine;
 
+using TMPro;
+
 using IronRing.Contracts;
 using IronRing.Contracts.Presentation;
+using IronRing.Items;
 using IronRing.Presentation.Interior;
 
 namespace IronRing.Presentation.Items
@@ -63,9 +66,21 @@ namespace IronRing.Presentation.Items
             GameObject piece = Instantiate(prefab, slot, false);
             piece.name = "ItemPiece_" + itemId;
             SpriteRenderer renderer = piece.GetComponentInChildren<SpriteRenderer>(true);
+            ItemDefinition definition = ItemsInstaller.Catalog?.Get(itemId);
+            bool textTile = definition != null && definition.IsTile;
+            TextMeshPro label = piece.GetComponentInChildren<TextMeshPro>(true);
+            if (label != null)
+            {
+                label.gameObject.SetActive(textTile);
+                if (textTile)
+                {
+                    label.text = definition.Name;
+                    label.ForceMeshUpdate();
+                }
+            }
             Sprite sprite = _sprites != null ? _sprites.Get(itemId) : null;
-            if (renderer != null && sprite != null) renderer.sprite = sprite;
-            else Warn($"ItemCellView: {itemId} 조각에 스프라이트를 넣지 못했습니다.");
+            if (renderer != null) { renderer.sprite = sprite; renderer.enabled = !textTile && sprite != null; }
+            if (!textTile && sprite == null) Warn($"ItemCellView: {itemId} 조각에 스프라이트를 넣지 못했습니다.");
             _shown[(hubId, cellIndex)] = piece;
         }
 

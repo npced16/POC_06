@@ -87,6 +87,7 @@ namespace IronRing.Hud.Npc
         private readonly Vector3[] _corners = new Vector3[4];
         private string _hub;
         private string _npc;
+        private bool _boarding;
         private readonly List<string> _sequence = new List<string>();
         private int _index;
         private bool _choosing;
@@ -182,6 +183,7 @@ namespace IronRing.Hud.Npc
                 return;
             }
             if (string.IsNullOrEmpty(hubId) || string.IsNullOrEmpty(npcId)) return;
+            _boarding = false;
             if (_npc != null && _npc != npcId) InteriorNpcWalker.SetTalking(_npc, false);
             _hub = hubId;
             _npc = npcId;
@@ -199,10 +201,42 @@ namespace IronRing.Hud.Npc
             HotbarScreen.Instance?.SetSuppressed(true);
         }
 
+        /// <summary>
+        /// 중간역에서 탑승한 npcId의 이름, 출신, 대사를 기존 초상 대화 화면에 표시한다.
+        /// 열린 휴식지 사건 화면을 잠시 숨기며, 닫을 때 사건 화면을 다시 표시한다.
+        /// </summary>
+        public bool OpenBoarding(string npcId, string name, string origin, string dialogue)
+        {
+            if (_npc != null || string.IsNullOrEmpty(npcId) || _screens == null) return false;
+            _boarding = true;
+            _hub = null;
+            _npc = npcId;
+            _sequence.Clear();
+            _sequence.Add(dialogue ?? string.Empty);
+            _index = 0;
+            _choosing = false;
+            _typedLine = null;
+            SetPortrait(npcId);
+            _screens.Hide("RestEvent");
+            _screens.Show(_screen.Id);
+            _title.text = name ?? npcId;
+            if (_meta != null)
+            {
+                _meta.text = origin ?? string.Empty;
+                _meta.color = _theme.Muted;
+            }
+            LayoutText();
+            ShowStep();
+            return true;
+        }
+
+        /// <summary>현재 대화가 열려 있으면 true를 반환해 다음 승객 대화가 겹치지 않게 한다.</summary>
+        public bool IsOpen => _npc != null;
+
         /// <summary>대화를 닫는다(닫기 버튼·Esc·그늘 클릭).</summary>
         public void Close() => Hide();
 
-        /// <summary>[계속하기]: 타자기 중이면 지금 쪽을 즉시 완성, 남은 쪽이 있으면 다음 쪽, 아니면 다음 줄, 마지막 줄 뒤에는 선택 단계로.</summary>
+        /// <summary>[계속하기]: 현재 대사나 쪽을 진행한다. 탑승 대사의 마지막 쪽이면 닫고, 일반 대화면 선택 단계로 바꾼다.</summary>
         public void Continue()
         {
             if (_npc == null) return;
@@ -210,23 +244,29 @@ namespace IronRing.Hud.Npc
             if (HasMorePages()) { ShowPage(_page + 1); return; }
             if (_choosing) return;
             if (_index < _sequence.Count - 1) { _index++; ShowStep(); return; }
+            if (_boarding) { Hide(); return; }
             _choosing = true;
             ShowStep();
         }
 
+        /// <summary>현재 대화를 숨기고 탑승 대화였다면 아직 활성인 휴식지 사건 화면을 다시 표시한다.</summary>
         private void Hide()
         {
             string was = _npc;
+            bool boarding = _boarding;
+            _boarding = false;
             _hub = null;
             _npc = null;
             _choosing = false;
             if (_screens != null) _screens.Hide(_screen.Id);
-            if (was != null) { InteriorNpcWalker.SetHighlighted(null); InteriorNpcWalker.SetTalking(was, false); HotbarScreen.Instance?.SetSuppressed(false); }
+            if (boarding && GameServices.Get<IRestEvents>()?.IsActive == true) _screens?.Show("RestEvent");
+            if (was != null && !boarding) { InteriorNpcWalker.SetHighlighted(null); InteriorNpcWalker.SetTalking(was, false); HotbarScreen.Instance?.SetSuppressed(false); }
         }
 
+        /// <summary>일반 대화 중 내부 화면이 닫히거나 거점이 바뀌면 현재 대화를 숨긴다.</summary>
         private void OnInteriorChanged(bool open)
         {
-            if (!open || _view.InteriorHubId != _hub) Hide();
+            if (!_boarding && (!open || _view.InteriorHubId != _hub)) Hide();
         }
 
         private void OnInteracted(string npcId, string optionId) { if (npcId == _npc && _choosing) BuildOptions(); }
@@ -266,7 +306,7 @@ namespace IronRing.Hud.Npc
         private void ShowStep()
         {
             _options.gameObject.SetActive(_choosing);
-            _close.gameObject.SetActive(_choosing);
+            _close.gameObject.SetActive(_choosing || _boarding);
             if (_choosing) BuildOptions();
             else
             {
@@ -361,7 +401,7 @@ namespace IronRing.Hud.Npc
         {
             if (_clicks == null || _interaction == null || _homes == null) ResolveServices();
             if (_npc == null) return;
-            if (!_view.InteriorOpen || _view.InteriorHubId != _hub) { Hide(); return; }
+            if (!_boarding && (!_view.InteriorOpen || _view.InteriorHubId != _hub)) { Hide(); return; }
             Keyboard keyboard = Keyboard.current;
             if (keyboard != null && keyboard.escapeKey.wasPressedThisFrame) { Hide(); return; }
             LayoutText();

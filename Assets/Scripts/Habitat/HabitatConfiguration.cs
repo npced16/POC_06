@@ -9,8 +9,29 @@ namespace IronRing.Habitat
     [Serializable]
     public sealed class HabitatConfiguration
     {
+        private const string GROUND_ID = "tile_cobble";
+
         [SerializeField] private ResourceEntry[] _resources;
         [SerializeField] private HubEntry[] _hubs;
+
+        /// <summary>
+        /// stationIds의 정차역마다 내부 호환용 한 칸 서식지를 만든다.
+        /// 시작 재고는 0으로 두고 새 조합 시스템이 실제 건물 완성을 맡게 한다.
+        /// </summary>
+        public static HabitatConfiguration CreateBootstrap(IEnumerable<string> stationIds)
+        {
+            if (stationIds == null) throw new ArgumentNullException(nameof(stationIds));
+            var hubs = new List<HubEntry>();
+            foreach (string stationId in stationIds)
+                hubs.Add(new HubEntry(stationId, GROUND_ID));
+            var configuration = new HabitatConfiguration
+            {
+                _resources = new[] { new ResourceEntry(GROUND_ID, 0) },
+                _hubs = hubs.ToArray()
+            };
+            configuration.CreateDefinitions();
+            return configuration;
+        }
 
         /// <summary>Deserializes json, validates all definitions and stock, and returns a usable data adapter.</summary>
         public static HabitatConfiguration Parse(string json)
@@ -61,6 +82,9 @@ namespace IronRing.Habitat
             [SerializeField] private string _id;
             [SerializeField] private int _startingStock;
 
+            /// <summary>id와 startingStock을 내부 호환 재고 설정에 저장한다.</summary>
+            public ResourceEntry(string id, int startingStock) { _id = id; _startingStock = startingStock; }
+
             public string Id => _id;
             public int StartingStock => _startingStock;
         }
@@ -73,6 +97,16 @@ namespace IronRing.Habitat
             [SerializeField] private string[] _allowedResources;
             [SerializeField] private string[] _pattern;
             [SerializeField] private bool _flagSticky;
+
+            /// <summary>hubId의 내부 호환 슬롯 하나에 groundId를 요구하도록 설정한다.</summary>
+            public HubEntry(string hubId, string groundId)
+            {
+                _hubId = hubId;
+                _slotCount = 1;
+                _allowedResources = new[] { groundId };
+                _pattern = new[] { groundId };
+                _flagSticky = true;
+            }
 
             /// <summary>Copies this JSON hub's settings into a validated pure C# definition.</summary>
             public HabitatDefinition CreateDefinition()

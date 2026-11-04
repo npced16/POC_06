@@ -22,7 +22,7 @@ namespace IronRing.Hud.Editor.Screens
             PhaseBannerScreen screen = root.AddComponent<PhaseBannerScreen>();
 
             RectTransform strip = UiKit.Node(root.transform, "Strip");
-            UiKit.StretchTop(strip, BOX_HEIGHT, 74);
+            UiKit.StretchTop(strip, BOX_HEIGHT, 69);
             HorizontalOrVerticalLayoutGroup row = UiKit.Row(strip, "Row", false, 8);
             row.childControlWidth = true; row.childControlHeight = true; row.childForceExpandHeight = true;
 
@@ -41,12 +41,10 @@ namespace IronRing.Hud.Editor.Screens
             loss.gameObject.SetActive(false);
 
             Image progressPanel = UiKit.Bar(root.transform, "ProgressPanel", theme, false);
-            UiKit.Place(progressPanel.rectTransform, new Vector2(.5f, 1), new Vector2(.5f, 1), new Vector2(0, -116), new Vector2(840, 68));
-            TextMeshProUGUI nextTier = UiKit.Label(progressPanel.transform, "NextTier", string.Format(Strings.Get("ui_tier_next"), Strings.Get("ui_tier_name_1"), 3, 5, 12, 20), UiTextSize.Normal, theme);
-            UiKit.Place(nextTier.rectTransform, new Vector2(.5f, 1), new Vector2(.5f, 1), new Vector2(0, -5), new Vector2(800, 30));
-            // 스토리 045: 목표 줄(다음 등급 줄 아래). 승리 등급까지의 조건과 기한 바퀴.
+            UiKit.Place(progressPanel.rectTransform, new Vector2(.5f, 1), new Vector2(.5f, 1), new Vector2(0, -111), new Vector2(840, 24));
+            // 스토리 045: 승리 등급까지의 조건과 기한 바퀴를 한 줄로 표시한다.
             TextMeshProUGUI goal = UiKit.Label(progressPanel.transform, "Goal", string.Format(Strings.Get("ui_goal_line"), Strings.Get("ui_tier_name_3"), 3, 25, 12, 100) + string.Format(Strings.Get("ui_goal_laps"), 3, 20), UiTextSize.Small, theme);
-            UiKit.Place(goal.rectTransform, new Vector2(.5f, 1), new Vector2(.5f, 1), new Vector2(0, -38), new Vector2(800, 24));
+            UiKit.Place(goal.rectTransform, new Vector2(.5f, 1), new Vector2(.5f, 1), new Vector2(0, -3), new Vector2(800, 18));
             goal.color = theme.Muted;
             UiKit.Bind(screen, "_progressPanel", progressPanel.gameObject);
             UiKit.Bind(screen, "_goal", goal);
@@ -56,7 +54,7 @@ namespace IronRing.Hud.Editor.Screens
             UiKit.Stretch(tierBannerText.rectTransform, 24, 12, 24, 12);
             tierBannerText.color = theme.Accent;
             tierBanner.gameObject.SetActive(false);
-            UiKit.Bind(screen, "_nextTier", nextTier); UiKit.Bind(screen, "_tierBanner", tierBanner.gameObject); UiKit.Bind(screen, "_tierBannerText", tierBannerText);
+            UiKit.Bind(screen, "_tierBanner", tierBanner.gameObject); UiKit.Bind(screen, "_tierBannerText", tierBannerText);
             UiKit.Bind(screen, "_hubLabel", hub);
             UiKit.Bind(screen, "_deadlineBox", deadline.transform.parent.gameObject);
             UiKit.Bind(screen, "_deadline", deadline);

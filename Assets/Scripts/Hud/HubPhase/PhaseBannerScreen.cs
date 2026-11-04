@@ -23,8 +23,9 @@ namespace IronRing.Hud.HubPhase
         private static PhaseBannerScreen _instance;
 
         [Header("마을 등급")]
+        [Tooltip("평소 거점·목표·기한 패널을 보여줄지. POC 기본값은 숨김.")]
+        [SerializeField] private bool _showPersistentStatus;
         [SerializeField] private GameObject _progressPanel;
-        [SerializeField] private TMP_Text _nextTier;
         [Tooltip("스토리 045: 목표 줄 \"목표: 도시 (주민 a/b · 번영 c/d) · 바퀴 e/f\".")]
         [SerializeField] private TMP_Text _goal;
         [Tooltip("스토리 045: 배너와 겹치는 로직 등급 토스트(town_tier_up)를 삼키는 시간(초, 실시간).")]
@@ -32,7 +33,6 @@ namespace IronRing.Hud.HubPhase
         [SerializeField] private GameObject _tierBanner;
         [SerializeField] private TMP_Text _tierBannerText;
         [SerializeField] private float _tierBannerSeconds = 2f;
-        [SerializeField] private float _loopBannerSeconds = 2f;
         [Header("거점 상태")]
         [SerializeField] private TMP_Text _hubLabel;
         [Tooltip("정착 기한 상자(라벨의 부모). 기한이 없으면 끈다.")]
@@ -56,7 +56,6 @@ namespace IronRing.Hud.HubPhase
         private IHabitatClusters _clusters;
         private IViewMode _view;
         private ILineOpener _lineOpener;
-        private IPhaseLoop _loop;
         private string _lastHub;
         private string _bannerKey;
 
@@ -90,7 +89,6 @@ namespace IronRing.Hud.HubPhase
             if (_instance == this) return;
             if (_tierBanner != null) _tierBanner.SetActive(false);
             if (_progressPanel != null) _progressPanel.SetActive(false);
-            if (_nextTier != null) _nextTier.gameObject.SetActive(false);
             if (_goal != null) _goal.gameObject.SetActive(false);
             if (_hubLabel != null) _hubLabel.transform.parent.gameObject.SetActive(false);
             if (_deadlineBox != null) _deadlineBox.SetActive(false);
@@ -110,12 +108,6 @@ namespace IronRing.Hud.HubPhase
             _view = GameServices.Get<IViewMode>();
             _lineOpener = GameServices.Get<ILineOpener>();
             if (_lineOpener != null) _lineOpener.HubOpened += OnHubOpened;
-            _loop = GameServices.Get<IPhaseLoop>();
-            if (_loop != null)
-            {
-                _loop.PhaseChanged += OnLoopPhaseChanged;
-                OnLoopPhaseChanged(_loop.Phase, _loop.Lap);
-            }
             _lastHub = _hubs.HubIds.Count > 0 ? _hubs.HubIds[0] : null;
             Refresh(true);
         }
@@ -159,13 +151,12 @@ namespace IronRing.Hud.HubPhase
             int next = forecast != null ? Mathf.RoundToInt(forecast.NextLapDelta(hub)) : 0;
             string townHub = TownUiText.DEFAULT_HUB;
             int townProsperity = _town != null ? Mathf.RoundToInt(_hubs.GetProsperity(townHub)) : 0;
-            int currentResidents = _population != null ? _population.ResidentsAt(hub) : 0;
             int townResidents = _population != null ? _population.ResidentsAt(townHub) : 0;
             int lap = _track.Lap;
-            string key = (_town != null ? _town.TierAt(hub).ToString() : "") + "|" + currentResidents + "|" + townProsperity + "|" + lap + "|" + hub + "|" + phase + "|" + prosperity + "|" + laps + "|" + anySettled + "|" + _hubs.IsRunLost + "|" + habitats + "|" + threshold + "|" + next;
+            string key = (_town != null ? _town.TierAt(hub).ToString() : "") + "|" + townResidents + "|" + townProsperity + "|" + lap + "|" + hub + "|" + phase + "|" + prosperity + "|" + laps + "|" + anySettled + "|" + _hubs.IsRunLost + "|" + habitats + "|" + threshold + "|" + next;
             if (!force && key == _bannerKey) return;
             _bannerKey = key;
-            _hubLabel.transform.parent.gameObject.SetActive(true);
+            _hubLabel.transform.parent.gameObject.SetActive(_showPersistentStatus);
             string prosperityText = Strings.Get("phase_prosperity") + " " + prosperity + (forecast != null ? "/" + threshold : "");
             if (forecast != null) prosperityText += "  ·  " + Strings.Get("phase_next_lap") + " " + next.ToString("+0;-0;+0");
             _hubLabel.text = Strings.Get(hub.Replace('-', '_')) + "  ·  " + PhaseText(phase) + "  ·  " + prosperityText
@@ -173,23 +164,18 @@ namespace IronRing.Hud.HubPhase
             // 스토리 045: 등급 거점(hub-1)은 단계 대신 등급 이름(붕괴만 기존 문구). 다른 거점은 기존 띠 그대로.
             if (_town != null && phase != DevPhase.Collapsed)
                 _hubLabel.text = Strings.Get(hub.Replace('-', '_')) + "  ·  " + _town.TierNameAt(hub) + "  ·  " + Strings.Get("phase_prosperity") + " " + prosperity;
-            if (_nextTier != null)
-            {
-                if (_town != null) _nextTier.text = TownUiText.NextAt(_town, hub, currentResidents, prosperity);
-                _nextTier.gameObject.SetActive(_town != null);
-            }
-            if (_progressPanel != null) _progressPanel.SetActive(_town != null);
             string goal = _town != null && !_hubs.IsRunLost ? TownUiText.Goal(_town, townResidents, townProsperity, lap, laps != int.MaxValue ? lap + laps : 0) : null;
+            if (_progressPanel != null) _progressPanel.SetActive(_showPersistentStatus && goal != null);
             if (_goal != null)
             {
-                _goal.gameObject.SetActive(goal != null);
+                _goal.gameObject.SetActive(_showPersistentStatus && goal != null);
                 if (goal != null) _goal.text = goal;
             }
             int index = (int)phase;
             if (index >= 0 && index < _phaseColors.Length) _hubLabel.color = _phaseColors[index];
             // 스토리 028: 기한은 정착해도 꺼지지 않고 런을 끝낸다(IRunResult가 없으면 옛 규칙: 첫 정착까지만).
             bool runEnds = GameServices.Get<IRunResult>() != null;
-            bool showDeadline = (runEnds || !anySettled) && laps != int.MaxValue && !_hubs.IsRunLost;
+            bool showDeadline = _showPersistentStatus && (runEnds || !anySettled) && laps != int.MaxValue && !_hubs.IsRunLost;
             if (_deadlineBox != null) _deadlineBox.SetActive(showDeadline);
             if (showDeadline && _deadline != null)
                 _deadline.text = Strings.Get(runEnds ? "phase_run_deadline" : "phase_deadline") + ": " + laps + Strings.Get("phase_laps_left");
@@ -229,15 +215,6 @@ namespace IronRing.Hud.HubPhase
             _bannerMessages.Enqueue((string.Format(Strings.Get("ui_line_opened"), Strings.Get(hubId.Replace('-', '_'))), 2.5f));
         }
 
-        /// <summary>phase와 lap을 한국어 중앙 배너 문구로 바꾸고 2초 표시 큐에 넣는다.</summary>
-        private void OnLoopPhaseChanged(LoopPhase phase, int lap)
-        {
-            string text = phase == LoopPhase.Build
-                ? string.Format(Strings.Get("loop_phase_build"), lap)
-                : Strings.Get("loop_phase_circulate");
-            _bannerMessages.Enqueue((text, _loopBannerSeconds));
-        }
-
         void LateUpdate()
         {
             if (_instance != this || _development == null) return;
@@ -266,7 +243,6 @@ namespace IronRing.Hud.HubPhase
             GameServices.Ready -= Create;
             if (_town != null) _town.HubTierChanged -= OnHubTierChanged;
             if (_lineOpener != null) _lineOpener.HubOpened -= OnHubOpened;
-            if (_loop != null) _loop.PhaseChanged -= OnLoopPhaseChanged;
             if (_instance == this) _instance = null;
         }
     }

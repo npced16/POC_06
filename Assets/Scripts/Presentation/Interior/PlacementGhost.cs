@@ -15,7 +15,7 @@ namespace IronRing.Presentation.Interior
     /// <summary>
     /// 스토리 015. 거점 내부 화면의 배치 고스트와 마우스 배치 입력. 핫바가 고른 대상(Select) 또는 드래그 중인 대상(BeginDrag)의
     /// 반투명 GhostPiece 프리팹(InteriorCatalog)을 마우스 아래 가장 가까운 칸 앵커(IInteriorAnchors)에 스냅해 보이고, 놓을 수 있으면 초록·없으면 붉게 칠한다.
-    /// 좌클릭 = 배치, 우클릭·Esc = 선택/드래그 취소, 선택이 없을 때 우클릭 = 놓인 아이템 회수(완성된 건물 칸이면 그 건물 전체 철거, 스토리 031),
+    /// 좌클릭 = 배치, 칸 우클릭 = 선택 재료와 관계없이 회수(완성 건물은 전체 철거), 빈 곳 우클릭·Esc = 선택 취소,
     /// Ctrl+Z = 최근 배치·회수·철거 되돌리기(PlacementHistory, 스토리 031). UI 위의 클릭과 닫힌 내부 화면에서는 아무것도 하지 않는다.
     /// 게임 상태는 IItemPlacement가 소유하며 이 뷰는 명령만 보낸다.
     /// </summary>
@@ -300,7 +300,7 @@ namespace IronRing.Presentation.Interior
             if (!parked) HandleInput(hub, active, cell, overUi);
         }
 
-        /// <summary>마우스·키보드 입력: Esc/우클릭 취소, 선택 없는 우클릭 회수, 좌클릭 배치, 드래그 놓기(UI 밖에서 버튼을 뗐을 때).</summary>
+        /// <summary>마우스·키보드 입력: Esc는 선택 취소, 칸 우클릭은 회수, 좌클릭은 배치한다.</summary>
         private void HandleInput(string hub, PlacementEntry active, int cell, bool overUi)
         {
             Mouse mouse = Mouse.current;
@@ -317,9 +317,13 @@ namespace IronRing.Presentation.Interior
             if (keyboard != null && keyboard.zKey.wasPressedThisFrame && keyboard.ctrlKey.isPressed) { if (_surface != null) _surface.TryUndo(); else TryUndo(); return; }
             if (right)
             {
-                if (_selected.IsValid) ClearSelection();
-                else if (!overUi && cell >= 0 && _surface != null) _surface.TryRemove(cell);
-                else if (!overUi && cell >= 0 && !TryDemolish(hub, cell)) TryPickUp(hub, cell);
+                if (overUi) return;
+                if (cell >= 0)
+                {
+                    if (_surface != null) _surface.TryRemove(cell);
+                    else if (!TryDemolish(hub, cell)) TryPickUp(hub, cell);
+                }
+                else if (_selected.IsValid) ClearSelection();
                 return;
             }
             if (mouse != null && mouse.leftButton.wasPressedThisFrame && active.IsValid && !overUi && cell >= 0) TryPlace(hub, cell, active);

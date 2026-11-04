@@ -135,7 +135,6 @@ namespace IronRing.Bootstrap.Editor
             train.ConfigurePresentation(false, true);
             rootObject.AddComponent<MainRoot>().Configure(
                 track,
-                Load<TextAsset>("Assets/Scripts/Habitat/Resources/Story002/habitats.json"),
                 Load<TextAsset>("Assets/Scripts/Npc/Data/NpcPool.json"),
                 Load<TextAsset>("Assets/Scripts/Hub/Data/HubProfiles.json"),
                 Load<TextAsset>("Assets/Scripts/Combat/Resources/Story005Encounters.json"),

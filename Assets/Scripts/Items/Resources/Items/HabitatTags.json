@@ -1,8 +1,0 @@
-{
-  "_hubs": [
-    { "_hubId": "hub-1", "_requires": [ { "_tag": "heat", "_count": 2 }, { "_tag": "industry", "_count": 1 } ] },
-    { "_hubId": "hub-2", "_requires": [ { "_tag": "plant", "_count": 2 }, { "_tag": "water", "_count": 1 } ] },
-    { "_hubId": "hub-3", "_requires": [ { "_tag": "water", "_count": 2 }, { "_tag": "industry", "_count": 1 } ] },
-    { "_hubId": "hub-4", "_requires": [ { "_tag": "shelter", "_count": 2 }, { "_tag": "light", "_count": 1 } ] }
-  ]
-}

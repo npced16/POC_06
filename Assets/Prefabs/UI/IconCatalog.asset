@@ -33,3 +33,5 @@ MonoBehaviour:
     _sprite: {fileID: 21300000, guid: 834d47b1579dcea4996ca03a7945fcff, type: 3}
   - _id: ui_people
     _sprite: {fileID: 21300000, guid: 42552a39b7be7d247b738f42462e2269, type: 3}
+  - _id: ui_book
+    _sprite: {fileID: 21300000, guid: 01283400d9541d64791883c9cf2c741a, type: 3}

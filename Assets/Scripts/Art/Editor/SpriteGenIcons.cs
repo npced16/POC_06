@@ -83,11 +83,46 @@ namespace IronRing.Art.Editor
             Debug.Log("UI045 ICONS: 1 sprites, catalog and contact sheet saved.");
         }
 
+        /// <summary>ui_book 한 장을 그려 PNG로 저장하고 해당 스프라이트를 UI 아이콘 카탈로그에 등록한다.</summary>
+        public static void GenerateBook()
+        {
+            const string BOOK_ID = "ui_book";
+            Load(); Directory.CreateDirectory(OUTPUT);
+            Begin(); Layer(); Draw(BOOK_ID); EndLayer();
+            string path = OUTPUT + BOOK_ID + ".png";
+            C.Save(path);
+            AssetDatabase.Refresh();
+            ConfigureImporter(path);
+            IconCatalog catalog = AssetDatabase.LoadAssetAtPath<IconCatalog>(CATALOG);
+            if (catalog == null) { catalog = ScriptableObject.CreateInstance<IconCatalog>(); AssetDatabase.CreateAsset(catalog, CATALOG); }
+            var serialized = new SerializedObject(catalog);
+            SerializedProperty entries = serialized.FindProperty("_entries");
+            int index = -1;
+            for (int i = 0; i < entries.arraySize; i++)
+                if (entries.GetArrayElementAtIndex(i).FindPropertyRelative("_id").stringValue == BOOK_ID) index = i;
+            if (index < 0) { index = entries.arraySize; entries.InsertArrayElementAtIndex(index); }
+            SerializedProperty entry = entries.GetArrayElementAtIndex(index);
+            entry.FindPropertyRelative("_id").stringValue = BOOK_ID;
+            entry.FindPropertyRelative("_sprite").objectReferenceValue = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+            serialized.ApplyModifiedPropertiesWithoutUndo(); AssetDatabase.SaveAssets();
+            Debug.Log("UI BOOK ICON: sprite and catalog saved.");
+        }
+
         /// <summary>id 품목 또는 UI 기호를 현재 64픽셀 캔버스에 팔레트 명암으로 그린다.</summary>
         private static void Draw(string id)
         {
             switch (id)
             {
+                case "ui_book":
+                    C.Rect(7, 11, 50, 42, Wd.S);
+                    C.Rect(10, 14, 21, 36, Fa.B); C.Rect(33, 14, 21, 36, Fa.B);
+                    C.Line(32, 14, 32, 50, Bs.S, 3);
+                    C.Line(14, 44, 27, 44, Bs.B, 2); C.Line(37, 44, 50, 44, Bs.B, 2);
+                    C.Line(14, 37, 27, 37, Wd.B, 2); C.Line(37, 37, 50, 37, Wd.B, 2);
+                    C.Line(14, 30, 27, 30, Wd.B, 2); C.Line(37, 30, 50, 30, Wd.B, 2);
+                    C.Line(14, 23, 27, 23, Wd.B, 2); C.Line(37, 23, 50, 23, Wd.B, 2);
+                    C.Rect(5, 12, 4, 39, Bs.B); C.Rect(55, 12, 4, 39, Bs.B);
+                    C.Line(9, 10, 30, 10, Bs.L, 2); C.Line(34, 10, 55, 10, Bs.L, 2); break;
                 case "ui_people":
                     C.Disc(18, 39, 8, Cu.B); C.Ellipse(18, 21, 12, 13, Cu.B);
                     C.Disc(46, 39, 8, Cu.B); C.Ellipse(46, 21, 12, 13, Cu.B);

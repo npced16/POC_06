@@ -40,16 +40,29 @@ namespace IronRing.Presentation.Map.Editor
             Debug.Log("MAP LABELS: hubChanged=" + hub + " waypointChanged=" + waypoint);
         }
 
+        /// <summary>
+        /// theme의 TMP 폰트 아틀라스로 지도 라벨 외곽선 머티리얼을 만들거나 갱신한다.
+        /// 갱신된 공용 머티리얼을 반환한다.
+        /// </summary>
         private static Material EnsureOutline(UiTheme theme)
         {
             Material existing = AssetDatabase.LoadAssetAtPath<Material>(OUTLINE_MATERIAL);
-            if (existing != null) return existing;
-            var material = new Material(theme.Font.material) { name = "MapLabelOutline" };
+            Material material = existing;
+            if (material == null)
+            {
+                material = new Material(theme.Font.material) { name = "MapLabelOutline" };
+                AssetDatabase.CreateAsset(material, OUTLINE_MATERIAL);
+            }
+            else if (material.mainTexture != theme.Font.atlasTexture)
+            {
+                material.CopyPropertiesFromMaterial(theme.Font.material);
+                EditorUtility.SetDirty(material);
+            }
             material.EnableKeyword(ShaderUtilities.Keyword_Outline);
             material.SetFloat(ShaderUtilities.ID_OutlineWidth, 0.22f);
             material.SetColor(ShaderUtilities.ID_OutlineColor, theme.Panel);
             material.SetFloat(ShaderUtilities.ID_FaceDilate, 0.1f);
-            AssetDatabase.CreateAsset(material, OUTLINE_MATERIAL);
+            EditorUtility.SetDirty(material);
             return material;
         }
 

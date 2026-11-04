@@ -8,6 +8,8 @@ using UnityEngine.SceneManagement;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 
+using TMPro;
+
 using IronRing.Interior;
 using IronRing.Track;
 
@@ -146,6 +148,7 @@ namespace IronRing.Presentation.Interior.Editor
             GameObject track = EnsureSpritePrefab(TRACK_PREFAB, "TrackTile", catalog.TrackSprite, material, catalog.TrackOrder, Vector3.one * catalog.TileSize, Quaternion.identity);
             GameObject car = EnsureSpritePrefab(CAR_PREFAB, "TrainCar", catalog.TrainSprite, material, catalog.TrainOrder, Vector3.one * catalog.TrainScale, Quaternion.Euler(0, 0, -catalog.TrainForwardAngle));
             GameObject item = EnsureSpritePrefab(ITEM_PREFAB, "ItemPiece", null, material, catalog.PieceOrder, Vector3.one, Quaternion.identity);
+            EnsureItemLabel(item, catalog.PieceOrder);
             GameObject cell = EnsureCellPrefab(catalog, material);
             EnsureHubPrefab(catalog, data, floor, track, car, cell);
             serialized.Update();
@@ -184,11 +187,9 @@ namespace IronRing.Presentation.Interior.Editor
             EditorUtility.SetDirty(catalog);
         }
 
-        /// <summary>ClusterFrame.png(32×32, 3픽셀 흰 테두리 + 옅은 바닥)를 없을 때만 써서 32 PPU 점 필터 스프라이트로 가져온다.</summary>
+        /// <summary>ClusterFrame.png를 투명한 중심과 3픽셀 흰 테두리로 갱신하고 32 PPU 점 필터 스프라이트로 가져온다.</summary>
         private static Sprite EnsureFrameSprite()
         {
-            Sprite existing = AssetDatabase.LoadAssetAtPath<Sprite>(FRAME_SPRITE);
-            if (existing != null) return existing;
             const int size = 32, border = 3;
             var texture = new Texture2D(size, size, TextureFormat.RGBA32, false);
             var pixels = new Color32[size * size];
@@ -196,7 +197,7 @@ namespace IronRing.Presentation.Interior.Editor
                 for (int x = 0; x < size; x++)
                 {
                     bool edge = x < border || y < border || x >= size - border || y >= size - border;
-                    pixels[y * size + x] = edge ? new Color32(255, 255, 255, 255) : new Color32(255, 255, 255, 46);
+                    pixels[y * size + x] = edge ? new Color32(255, 255, 255, 255) : new Color32(255, 255, 255, 0);
                 }
             texture.SetPixels32(pixels);
             texture.Apply();
@@ -213,6 +214,16 @@ namespace IronRing.Presentation.Interior.Editor
             importer.mipmapEnabled = false;
             importer.SaveAndReimport();
             return AssetDatabase.LoadAssetAtPath<Sprite>(FRAME_SPRITE);
+        }
+
+        /// <summary>
+        /// 완성 영역 프레임 스프라이트의 내부를 투명하게 다시 생성한다.
+        /// FRAME_SPRITE 경로를 사용하며, 갱신된 스프라이트 애셋을 저장한다.
+        /// </summary>
+        public static void RefreshClusterFrameSprite()
+        {
+            EnsureFrameSprite();
+            AssetDatabase.SaveAssets();
         }
 
         /// <summary>scene의 HubInteriors 아래에 선로 데이터의 거점마다 HubInterior 인스턴스를 거점 id로 찾아 없는 것만 놓고 추가 수를 돌려준다.</summary>
@@ -344,6 +355,68 @@ namespace IronRing.Presentation.Interior.Editor
             return asset;
         }
 
+        /// <summary>
+        /// item 프리팹과 렌더 순서 order를 받아 투명 배경의 월드 글자 Label을 처음 한 번 만든다.
+        /// 반환값은 없으며 기존 Label의 수동 편집값은 보존한다.
+        /// </summary>
+        private static void EnsureItemLabel(GameObject item, int order)
+        {
+            if (item == null || item.transform.Find("Label") != null) return;
+            GameObject contents = PrefabUtility.LoadPrefabContents(ITEM_PREFAB);
+            try
+            {
+                GameObject label = new GameObject("Label");
+                label.transform.SetParent(contents.transform, false);
+                label.transform.localPosition = new Vector3(0f, 0f, -0.02f);
+                TextMeshPro text = label.AddComponent<TextMeshPro>();
+                text.text = "땅";
+                ConfigureItemLabel(label.transform, order);
+                PrefabUtility.SaveAsPrefabAsset(contents, ITEM_PREFAB);
+            }
+            finally { PrefabUtility.UnloadPrefabContents(contents); }
+        }
+
+        /// <summary>
+        /// 기존 ItemPiece 프리팹의 Label을 PrefabUtility로 열어 큰 물마루 글자로 갱신한다.
+        /// ITEM_PREFAB의 Label과 InteriorCatalog.PieceOrder를 사용하며 프리팹 애셋을 저장한다.
+        /// </summary>
+        public static void UpdateExistingItemLabel()
+        {
+            Load<GameObject>(ITEM_PREFAB);
+            InteriorCatalog catalog = Load<InteriorCatalog>(CATALOG);
+            GameObject contents = PrefabUtility.LoadPrefabContents(ITEM_PREFAB);
+            try
+            {
+                Transform label = contents.transform.Find("Label");
+                if (label == null) throw new InvalidOperationException("ItemPiece.prefab에 Label이 없습니다.");
+                ConfigureItemLabel(label, catalog.PieceOrder);
+                PrefabUtility.SaveAsPrefabAsset(contents, ITEM_PREFAB);
+                AssetDatabase.SaveAssets();
+            }
+            finally { PrefabUtility.UnloadPrefabContents(contents); }
+        }
+
+        /// <summary>
+        /// label과 order를 사용해 월드 글자 크기, 글꼴, 정렬과 렌더 순서를 설정하며 Label 컴포넌트 상태를 변경한다.
+        /// </summary>
+        private static void ConfigureItemLabel(Transform label, int order)
+        {
+            label.localScale = Vector3.one * 0.05f;
+            TextMeshPro text = label.GetComponent<TextMeshPro>();
+            text.font = Load<TMP_FontAsset>("Assets/Fonts/Mulmaru SDF.asset");
+            text.fontSize = 34f;
+            text.enableAutoSizing = false;
+            text.fontSizeMin = 28f;
+            text.fontSizeMax = 34f;
+            text.alignment = TextAlignmentOptions.Center;
+            text.textWrappingMode = TextWrappingModes.NoWrap;
+            text.overflowMode = TextOverflowModes.Overflow;
+            text.rectTransform.sizeDelta = new Vector2(90f, 44f);
+            text.color = new Color32(255, 232, 182, 255);
+            MeshRenderer renderer = label.GetComponent<MeshRenderer>();
+            renderer.sortingOrder = order + 1;
+        }
+
         /// <summary>InteriorCell.prefab이 없으면 타일 렌더러, 1×1 Collider2D, InteriorCellView, ItemSlot·FacilitySlot 자식으로 만든다.</summary>
         private static GameObject EnsureCellPrefab(InteriorCatalog catalog, Material material)
         {
@@ -351,7 +424,7 @@ namespace IronRing.Presentation.Interior.Editor
             if (existing != null) return existing;
             var temp = new GameObject("InteriorCell");
             var renderer = temp.AddComponent<SpriteRenderer>();
-            renderer.sprite = catalog.RubbleSprite;
+            renderer.sprite = null;
             renderer.sharedMaterial = material;
             renderer.sortingOrder = catalog.CellOrder;
             var collider = temp.AddComponent<BoxCollider2D>();
@@ -379,9 +452,14 @@ namespace IronRing.Presentation.Interior.Editor
             Transform floorGroup = Group(temp.transform, "Floor");
             Transform trackGroup = Group(temp.transform, "Track");
             Transform trainAnchor = Group(temp.transform, "TrainAnchor");
+            Transform cameraAnchor = Group(temp.transform, "CameraAnchor");
             Transform upper = Group(temp.transform, "UpperGrid");
             Transform lower = Group(temp.transform, "LowerGrid");
             int rows = data.Rows, columns = data.Columns;
+            float trackY = -rows * catalog.TileSize;
+            trackGroup.localPosition = new Vector3(0, trackY, 0);
+            trainAnchor.localPosition = new Vector3(0, trackY, 0);
+            cameraAnchor.localPosition = new Vector3(0, -(rows - 1) * 0.5f * catalog.TileSize, 0);
             for (int column = -catalog.FloorMarginColumns; column < columns + catalog.FloorMarginColumns; column++)
             {
                 float x = X(column, columns, catalog.TileSize);
@@ -404,7 +482,7 @@ namespace IronRing.Presentation.Interior.Editor
                 instance.name = "Cell " + index;
                 instance.GetComponent<InteriorCellView>().Configure(index, row, column, isUpper);
             }
-            root.Configure(catalog, catalog.DefaultCameraSize, trainAnchor);
+            root.Configure(catalog, catalog.DefaultCameraSize, trainAnchor, cameraAnchor);
             PrefabUtility.SaveAsPrefabAsset(temp, HUB_PREFAB);
             UnityEngine.Object.DestroyImmediate(temp);
         }
@@ -412,8 +490,58 @@ namespace IronRing.Presentation.Interior.Editor
         /// <summary>column(음수·초과 허용)의 구역 중심 기준 로컬 x.</summary>
         private static float X(int column, int columns, float tile) => (column - (columns - 1) * 0.5f) * tile;
 
-        /// <summary>row의 로컬 y. 위 구역은 선로 위로 rows-row 칸, 아래 구역은 선로 아래로 row+1 칸.</summary>
-        private static float Y(int row, bool upper, int rows, float tile) => (upper ? rows - row : -(row + 1)) * tile;
+        /// <summary>row와 구역을 사용해 위쪽은 rows-row, 아래쪽은 -row의 로컬 y를 반환한다.</summary>
+        private static float Y(int row, bool upper, int rows, float tile) => (upper ? rows - row : -row) * tile;
+
+        /// <summary>
+        /// 현재 허브 프리팹과 열린 Main 씬의 아래쪽 격자를 위쪽 격자에 붙인다.
+        /// 카탈로그의 타일 크기와 행 수를 사용하며, 변경된 프리팹과 씬을 저장한다.
+        /// </summary>
+        public static void AlignExistingGrid()
+        {
+            if (EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play mode before editing town prefabs.");
+            Scene scene = SceneManager.GetActiveScene();
+            if (scene.path != SCENE) throw new InvalidOperationException("Main scene must be active.");
+            InteriorCatalog catalog = Load<InteriorCatalog>(CATALOG);
+            InteriorData data = InteriorData.Parse(File.ReadAllText(DATA));
+            GameObject contents = PrefabUtility.LoadPrefabContents(HUB_PREFAB);
+            try
+            {
+                AlignGrid(contents.GetComponent<HubInteriorRoot>(), data.Rows, catalog.TileSize);
+                PrefabUtility.SaveAsPrefabAsset(contents, HUB_PREFAB);
+            }
+            finally { PrefabUtility.UnloadPrefabContents(contents); }
+            foreach (HubInteriorRoot root in UnityEngine.Object.FindObjectsByType<HubInteriorRoot>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                if (root.gameObject.scene != scene) continue;
+                AlignGrid(root, data.Rows, catalog.TileSize);
+            }
+            EditorSceneManager.SaveScene(scene);
+        }
+
+        /// <summary>
+        /// root의 아래쪽 셀과 선로를 rows와 tile에 맞춰 한 칸 위로 배치한다.
+        /// 이동한 Transform의 프리팹 인스턴스 설정도 기록한다.
+        /// </summary>
+        private static void AlignGrid(HubInteriorRoot root, int rows, float tile)
+        {
+            foreach (InteriorCellView cell in root.Cells())
+            {
+                if (cell.IsUpper) continue;
+                Vector3 position = cell.transform.localPosition;
+                position.y = -cell.Row * tile;
+                cell.transform.localPosition = position;
+                PrefabUtility.RecordPrefabInstancePropertyModifications(cell.transform);
+            }
+            foreach (string name in new[] { "Track", "TrainAnchor" })
+            {
+                Transform anchor = root.transform.Find(name);
+                Vector3 position = anchor.localPosition;
+                position.y = -rows * tile;
+                anchor.localPosition = position;
+                PrefabUtility.RecordPrefabInstancePropertyModifications(anchor);
+            }
+        }
 
         /// <summary>parent 아래 name 빈 자식을 만들어 돌려준다.</summary>
         private static Transform Group(Transform parent, string name)

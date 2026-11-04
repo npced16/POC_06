@@ -35,6 +35,8 @@ MonoBehaviour:
     _sprite: {fileID: 21300000, guid: 158dd3f1a758dc347989ccfb79923926, type: 3}
   - _id: tile_bench
     _sprite: {fileID: 21300000, guid: bcbc467052c8c7e4eabfe3da4b25ae91, type: 3}
+  - _id: tile_seedling
+    _sprite: {fileID: 21300000, guid: 312f189c91e743a4bb40021fb5294f80, type: 3}
   - _id: tile_wire
     _sprite: {fileID: 21300000, guid: 31fad14cb24c22f4da1d5101da823536, type: 3}
   - _id: tile_chimney

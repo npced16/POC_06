@@ -5,10 +5,10 @@ using UnityEditor;
 
 using TMPro;
 
-using IronRing.Presentation.Interior;
 using IronRing.Hud.Hotbar;
 using IronRing.Hud.Ui;
 using IronRing.Localization;
+using IronRing.Presentation.Interior;
 using IronRing.Presentation.Items;
 
 namespace IronRing.Hud.Editor.Screens
@@ -24,10 +24,13 @@ namespace IronRing.Hud.Editor.Screens
         /// <summary>팔레트 항목 부품 경로.</summary>
         public const string PALETTE_PART = BuildMainCanvas.PARTS_FOLDER + "/PaletteItem.prefab";
 
-        private static readonly Vector2 SlotSize = new Vector2(66, 98);
+        private static readonly Vector2 SlotSize = new Vector2(HotbarScreen.SLOT_WIDTH, 124);
         private static readonly Vector2 EntrySize = new Vector2(78, 98);
 
-        /// <summary>화면 루트(UiScreen "Hotbar", 항상 켜짐) + HotbarScreen + 내용.</summary>
+        /// <summary>
+        /// theme과 저장된 핫바 데이터를 사용해 화면 루트와 재료 슬롯, 팔레트 프리팹을 만든다.
+        /// 편집 가능한 Hotbar 화면 GameObject를 반환한다.
+        /// </summary>
         public static GameObject Build(UiTheme theme)
         {
             GameObject slotPart = UiKit.SavePrefab(SLOT_PART, () => Cell(theme, "HotbarSlot", SlotSize, true), UiKit.ConsumeMarker("HotbarSlot"));
@@ -39,9 +42,9 @@ namespace IronRing.Hud.Editor.Screens
             HotbarScreen screen = root.AddComponent<HotbarScreen>();
             RectTransform content = UiKit.Stretch(UiKit.Node(root.transform, "Content"));
 
-            // 팔레트(기본 꺼짐: 토글 버튼으로 연다)
+            // 인벤토리는 오른쪽 위 버튼 아래에서 펼친다.
             Image palette = UiKit.Panel(content, "Palette", theme);
-            UiKit.Place(palette.rectTransform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 178), new Vector2(760, 330));
+            UiKit.Place(palette.rectTransform, Vector2.one, Vector2.one, new Vector2(-20, -282), new Vector2(760, 330));
             TextMeshProUGUI paletteTitle = UiKit.Label(palette.transform, "Title", Strings.Get("hotbar_palette_title"), UiTextSize.Title, theme, TextAlignmentOptions.MidlineLeft);
             UiKit.StretchTop(paletteTitle.rectTransform, 34, 8, 16, 100);
             paletteTitle.color = theme.Accent;
@@ -62,12 +65,14 @@ namespace IronRing.Hud.Editor.Screens
             }
             palette.gameObject.SetActive(false);
 
-            // 하단 막대: 9칸 + 팔레트 버튼
+            // 하단 막대는 빈 칸까지 포함해 아홉 칸을 항상 그린다.
             Image bar = UiKit.Bar(content, "Bar", theme);
-            UiKit.Place(bar.rectTransform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 14), new Vector2(758, 114));
-            HorizontalOrVerticalLayoutGroup row = UiKit.Row(bar.transform, "Slots", false, 6);
+            float barWidth = HotbarScreen.SLOT_COUNT * HotbarScreen.SLOT_WIDTH
+                + (HotbarScreen.SLOT_COUNT - 1) * HotbarScreen.SLOT_SPACING + HotbarScreen.BAR_HORIZONTAL_PADDING;
+            UiKit.Place(bar.rectTransform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 14), new Vector2(barWidth, 140));
+            HorizontalOrVerticalLayoutGroup row = UiKit.Row(bar.transform, "Slots", false, HotbarScreen.SLOT_SPACING);
             row.childAlignment = TextAnchor.MiddleLeft;
-            UiKit.Stretch((RectTransform)row.transform, 10, 8, 104, 8);
+            UiKit.Stretch((RectTransform)row.transform, 10, 8, 10, 8);
             var views = new HotbarCellView[HotbarScreen.SLOT_COUNT];
             for (int i = 0; i < views.Length; i++)
             {
@@ -78,17 +83,21 @@ namespace IronRing.Hud.Editor.Screens
                 Preview(views[i], slot != null ? slot.ToEntry() : default, sprites, (i + 1).ToString());
                 if (i == 0) views[i].SetState(true, false, theme);
             }
-            Button toggle = UiKit.Button(bar.transform, "PaletteToggle", Strings.Get("hotbar_palette"), theme);
-            UiKit.Place((RectTransform)toggle.transform, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-10, 0), new Vector2(86, theme.ButtonHeight));
+            Button toggle = UiKit.Button(content, "PaletteToggle", "", theme);
+            UiKit.Place((RectTransform)toggle.transform, Vector2.one, Vector2.one, new Vector2(-20, -218), new Vector2(58, 58));
+            IconCatalog icons = AssetDatabase.LoadAssetAtPath<IconCatalog>("Assets/Prefabs/UI/IconCatalog.asset");
+            Image inventoryIcon = UiKit.Image(toggle.transform, "Icon", icons.Get("ui_cargo"), Color.white);
+            UiKit.Place(inventoryIcon.rectTransform, new Vector2(.5f, .5f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(34, 34));
 
             // 안내 줄과 알림
             Image hintBox = UiKit.Sliced(content, "HintBox", theme.ToastSprite, theme, false);
-            UiKit.Place(hintBox.rectTransform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 132), new Vector2(520, 26));
-            TextMeshProUGUI hint = UiKit.Label(hintBox.transform, "Hint", Strings.Get("hotbar_hint"), UiTextSize.Small, theme);
+            hintBox.color = Color.clear;
+            UiKit.Place(hintBox.rectTransform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 166), new Vector2(520, 26));
+            TextMeshProUGUI hint = UiKit.Label(hintBox.transform, "Hint", "", UiTextSize.Small, theme);
             UiKit.Stretch(hint.rectTransform, 8, 1, 8, 1);
             hint.color = theme.Muted;
             Image noticeBox = UiKit.Sliced(content, "Notice", theme.ToastSprite, theme, false);
-            UiKit.Place(noticeBox.rectTransform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 162), new Vector2(460, 32));
+            UiKit.Place(noticeBox.rectTransform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 200), new Vector2(460, 32));
             TextMeshProUGUI notice = UiKit.Label(noticeBox.transform, "Text", Strings.Get("ui_sample_notice"), UiTextSize.Normal, theme);
             UiKit.Stretch(notice.rectTransform, 10, 2, 10, 2);
             notice.color = theme.Accent;
@@ -101,6 +110,7 @@ namespace IronRing.Hud.Editor.Screens
             chip.gameObject.SetActive(false);
 
             UiKit.Bind(screen, "_content", content.gameObject);
+            UiKit.Bind(screen, "_bar", bar.rectTransform);
             BindArray(screen, "_slotViews", views);
             UiKit.Bind(screen, "_hint", hint);
             UiKit.Bind(screen, "_noticeBox", noticeBox.gameObject);
@@ -124,25 +134,40 @@ namespace IronRing.Hud.Editor.Screens
             frame.rectTransform.sizeDelta = size;
             HotbarCellView view = frame.gameObject.AddComponent<HotbarCellView>();
             Image icon = UiKit.Image(frame.transform, "Icon", null, Color.white);
-            UiKit.Place(icon.rectTransform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -8), new Vector2(40, 40));
+            UiKit.Place(icon.rectTransform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -9), new Vector2(40, 40));
             icon.enabled = false;
-            TextMeshProUGUI label = UiKit.Label(frame.transform, "Name", "", UiTextSize.Small, theme);
+            TextMeshProUGUI label = UiKit.Label(frame.transform, "Name", "", withKey ? UiTextSize.Title : UiTextSize.Small, theme);
             RectTransform labelRect = label.rectTransform;
             labelRect.anchorMin = Vector2.zero; labelRect.anchorMax = new Vector2(1, 0); labelRect.pivot = new Vector2(0.5f, 0);
-            labelRect.offsetMin = new Vector2(3, 26); labelRect.offsetMax = new Vector2(-3, 47);
+            labelRect.offsetMin = new Vector2(3, withKey ? 32 : 26);
+            labelRect.offsetMax = new Vector2(-3, withKey ? 74 : 47);
             label.textWrappingMode = TextWrappingModes.NoWrap;
             label.overflowMode = TextOverflowModes.Ellipsis;
-            label.enableAutoSizing = true;
-            label.fontSizeMax = theme.Size(UiTextSize.Small);
-            label.fontSizeMin = theme.Size(UiTextSize.Small) * 0.6f;
-            TextMeshProUGUI price = UiKit.Label(frame.transform, "Price", "", UiTextSize.Small, theme);
-            UiKit.Place(price.rectTransform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 3), new Vector2(size.x - 6, 21));
+            label.enableAutoSizing = !withKey;
+            if (withKey) label.fontSize = Mathf.Clamp(theme.Size(UiTextSize.Title), 28f, 34f);
+            else
+            {
+                label.fontSizeMax = theme.Size(UiTextSize.Small);
+                label.fontSizeMin = theme.Size(UiTextSize.Small) * 0.6f;
+            }
+            IconCatalog priceIcons = AssetDatabase.LoadAssetAtPath<IconCatalog>("Assets/Prefabs/UI/IconCatalog.asset");
+            Image priceIcon = UiKit.Image(frame.transform, "PriceCoin", priceIcons != null ? priceIcons.Get("ui_coin") : null, Color.white, false);
+            UiKit.Place(priceIcon.rectTransform, Vector2.one, Vector2.one,
+                new Vector2(withKey ? -51 : -43, -6), new Vector2(withKey ? 18 : 14, withKey ? 18 : 14));
+            priceIcon.gameObject.SetActive(false);
+            TextMeshProUGUI price = UiKit.Label(frame.transform, "Price", "", UiTextSize.Small, theme, TextAlignmentOptions.TopRight);
+            UiKit.Place(price.rectTransform, Vector2.one, Vector2.one,
+                new Vector2(-5, -3), new Vector2(withKey ? 40 : 32, withKey ? 23 : 19));
+            price.fontSize = withKey ? 20f : 16f;
             price.textWrappingMode = TextWrappingModes.NoWrap;
             TextMeshProUGUI stockBadge = UiKit.Label(frame.transform, "StockBadge", "", UiTextSize.Small, theme);
-            UiKit.Place(stockBadge.rectTransform, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-4, -4), new Vector2(32, 20));
+            UiKit.Place(stockBadge.rectTransform, Vector2.one, Vector2.one,
+                new Vector2(-5, -3), new Vector2(withKey ? 40 : 32, withKey ? 23 : 19));
+            stockBadge.alignment = TextAlignmentOptions.TopRight;
             stockBadge.color = theme.Accent;
             stockBadge.gameObject.SetActive(false);
             UiKit.Bind(view, "_price", price);
+            UiKit.Bind(view, "_priceIcon", priceIcon);
             UiKit.Bind(view, "_stockBadge", stockBadge);
             UiKit.Bind(view, "_frame", frame);
             UiKit.Bind(view, "_icon", icon);
@@ -153,6 +178,9 @@ namespace IronRing.Hud.Editor.Screens
                 UiKit.Place(key.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(5, -3), new Vector2(22, 20));
                 key.color = theme.Accent;
                 UiKit.Bind(view, "_key", key);
+                HotbarData starter = HotbarData.Load();
+                PlacementEntry first = starter.Slots.Length > 0 && starter.Slots[0] != null ? starter.Slots[0].ToEntry() : default;
+                Preview(view, first, ItemSpriteSet.Load(), "1");
             }
             return frame.gameObject;
         }
@@ -162,7 +190,7 @@ namespace IronRing.Hud.Editor.Screens
         {
             if (view == null) return;
             if (key != null) view.SetKey(key);
-            if (!entry.IsValid) { view.Show(null, ""); return; }
+            if (!entry.IsValid) { view.Show(null, ""); view.SetPrice(null, true); return; }
             string name = Lookup("item_" + entry.Id) ?? entry.Id;
             Sprite sprite = entry.Kind == PlacementKind.Item && sprites != null ? sprites.Get(entry.Id) : null;
             view.Show(sprite, name);

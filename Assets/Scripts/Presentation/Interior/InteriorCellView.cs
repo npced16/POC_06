@@ -19,6 +19,10 @@ namespace IronRing.Presentation.Interior
         [SerializeField] private SpriteRenderer _renderer;
         [SerializeField] private Transform _itemSlot;
         [SerializeField] private Transform _facilitySlot;
+        [Header("그리드 선")]
+        [SerializeField] private SpriteRenderer _buildableMarker;
+        [SerializeField] private Color _placeableLineColor = new Color32(236, 231, 203, 245);
+        [SerializeField] private Color _usedLineColor = new Color32(123, 129, 131, 180);
         private string _resolvedHubId;
 
         /// <summary>이 칸이 속한 거점 id. 직접 값이 없으면 부모 HubInteriorRoot에서 읽는다.</summary>
@@ -56,6 +60,17 @@ namespace IronRing.Presentation.Interior
             _renderer = renderer;
             _itemSlot = itemSlot;
             _facilitySlot = facilitySlot;
+        }
+
+        /// <summary>marker를 칸 그리드 렌더러로 저장해 SetBuildable에서 선 색을 바꿀 수 있게 한다.</summary>
+        public void BindBuildableMarker(SpriteRenderer marker) => _buildableMarker = marker;
+
+        /// <summary>buildable 상태에 따라 _buildableMarker의 선 색을 밝은 설치 가능 색 또는 흐린 사용 중 색으로 바꾸고 그리드를 표시한다.</summary>
+        public void SetBuildable(bool buildable)
+        {
+            if (_buildableMarker == null) return;
+            _buildableMarker.color = buildable ? _placeableLineColor : _usedLineColor;
+            _buildableMarker.enabled = true;
         }
 
         /// <summary>씬 인스턴스마다 거점 id를 덮어쓴다.</summary>

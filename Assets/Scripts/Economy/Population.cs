@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 using IronRing.Contracts;
 using IronRing.Habitats;
+using IronRing.Npc;
 
 namespace IronRing.Economy
 {
@@ -22,6 +23,8 @@ namespace IronRing.Economy
         private readonly TownSettings _settings;
         private readonly HabitatCatalog _catalog;
         private readonly IHabitatClusters _clusters;
+        private readonly INpcRecruiter _npcs;
+        private readonly NpcPoolData _npcPool;
         private readonly Dictionary<string, Town> _towns = new Dictionary<string, Town>(StringComparer.Ordinal);
         private readonly List<string> _order = new List<string>();
 
@@ -46,14 +49,21 @@ namespace IronRing.Economy
         /// <inheritdoc />
         public event Action Changed;
 
-        /// <summary>수치·카탈로그·완성 서식지를 주입하고 첫 마을(_hubId)을 연다.</summary>
-        public Population(TownSettings settings, HabitatCatalog catalog, IHabitatClusters clusters)
+        /// <summary>
+        /// 마을 수치, 시설, 완성 묶음과 NPC 데이터 및 합류 상태를 받아 첫 마을을 연다.
+        /// 반환값은 없으며 시설과 직무가 반영된 마을 수치를 유지하고 합류 이벤트를 구독한다.
+        /// </summary>
+        public Population(TownSettings settings, HabitatCatalog catalog, IHabitatClusters clusters,
+            INpcRecruiter npcs = null, NpcPoolData npcPool = null)
         {
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _catalog = catalog ?? throw new ArgumentNullException(nameof(catalog));
             _clusters = clusters ?? throw new ArgumentNullException(nameof(clusters));
+            _npcs = npcs;
+            _npcPool = npcPool;
             _clusters.HabitatCompleted += OnClusterChanged;
             _clusters.HabitatBroken += OnClusterChanged;
+            if (_npcs != null) _npcs.NpcJoined += OnNpcJoined;
             AddHub(settings.HubId);
         }
 
@@ -79,6 +89,8 @@ namespace IronRing.Economy
         public int IncomeAt(string hubId) => hubId != null && _towns.TryGetValue(hubId, out Town t) ? t.Income : 0;
 
         private void OnClusterChanged(string hubId, string typeId) { if (Tracks(hubId)) Refresh(); }
+
+        private void OnNpcJoined(string hubId, string npcId) { if (Tracks(hubId)) Refresh(); }
 
         /// <summary>모든 마을의 주거·빛·수입을 다시 세고 Changed.</summary>
         public void Refresh()
@@ -120,6 +132,10 @@ namespace IronRing.Economy
             Changed?.Invoke();
         }
 
+        /// <summary>
+        /// hubId의 완성 시설과 합류 NPC 직무를 읽어 주거, 빛, 바퀴 수입을 다시 계산한다.
+        /// 반환값은 없으며 해당 마을의 집계 상태를 갱신한다.
+        /// </summary>
         private void Recompute(string hubId)
         {
             Town t = _towns[hubId];
@@ -135,6 +151,18 @@ namespace IronRing.Economy
                 light += type.Light;
                 income += type.Income;
             }
+            if (_npcs != null && _npcPool != null)
+                foreach (string npcId in _npcs.NpcsAt(hubId))
+                {
+                    NpcDefinition npc = _npcPool.Find(npcId);
+                    if (npc == null) continue;
+                    switch (npc.WorkKind)
+                    {
+                        case "income": income += npc.WorkBonus; break;
+                        case "housing": housing += npc.WorkBonus; break;
+                        case "light": light += npc.WorkBonus; break;
+                    }
+                }
             t.Housing = housing; t.Light = light; t.Income = income;
         }
 
@@ -143,6 +171,7 @@ namespace IronRing.Economy
         {
             _clusters.HabitatCompleted -= OnClusterChanged;
             _clusters.HabitatBroken -= OnClusterChanged;
+            if (_npcs != null) _npcs.NpcJoined -= OnNpcJoined;
             Changed = null;
             CurrentHub = null;
         }

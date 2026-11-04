@@ -19,12 +19,15 @@ namespace IronRing.Economy
     ///   Settlement.Income = 완성 건물 _income 합, AfterSettle = 마을 등급 판정(주민·번영) → 주민 증감 → RunState.RefreshPhase.
     /// RunState에 TownLink(등급 → HubPhase 사상, 등급, 주민)를 붙이고, 레시피 도감에 등급 해금을 연결한다.
     /// 스토리 048: Composing에서 ILineOpener(LineOpener, 잠긴 역)를 등록하고 RunState에 잠긴 역을 닫아 둔다. 주민·등급은 열린 마을마다:
-    ///   AfterSettle = 열린 마을마다 등급 판정 → 주민 증감 → RefreshPhase. 황동골 등급의 _unlockHubs → ILineOpener.Open → 다음 정산부터 그 마을도 센다.
+    ///   AfterSettle = 열린 마을마다 등급 판정 → 주민 증감 → RefreshPhase. 황동골 증기역 완성 → ILineOpener.Open → 다음 정산부터 잿골도 센다.
     ///   유지비 0이면 토스트·장부에서 빠진다(Settlement.PartFormats).
     /// ITrackRuntime이 없는 씬(다른 스토리의 독립 데모)에서는 아무것도 하지 않는다. 정적 상태는 SubsystemRegistration에서 지운다.
     /// </summary>
     public static class EconomyInstaller
     {
+        private const string STEAM_STATION_ID = "steam_station";
+        private const string SECOND_HUB_ID = "hub-2";
+
         /// <summary>경제 수치 리소스 경로.</summary>
         public const string SettingsPath = "Economy/Economy";
         /// <summary>마을 등급 리소스 경로.</summary>
@@ -54,6 +57,7 @@ namespace IronRing.Economy
         private static EconomyDemoDriver _demo;
         private static TownDemoDriver _townDemo;
         private static IronRing.Items.ItemPlacement _paidPlacement;
+        private static IHabitatClusters _lineUnlockClusters;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStatics()
@@ -72,9 +76,15 @@ namespace IronRing.Economy
             GameServices.Ready += OnReady;
         }
 
+        /// <summary>
+        /// 설치된 경제 서비스와 이벤트 구독을 해제한다.
+        /// 현재 설치 상태를 사용하며 정적 서비스 참조를 비운다.
+        /// </summary>
         private static void Teardown()
         {
             ScreenTicker.Remove(Tick);
+            if (_lineUnlockClusters != null) _lineUnlockClusters.HabitatCompleted -= OnHabitatCompleted;
+            _lineUnlockClusters = null;
             _demo = null;
             _townDemo = null;
             _lineDemo = null;
@@ -128,6 +138,27 @@ namespace IronRing.Economy
             Settlement.BindPassengers(GameServices.Get<IPassengers>());
             BindPlacement();
             BindTown();
+            BindLineUnlock();
+        }
+
+        /// <summary>
+        /// 서식지 완료 신호를 구독하여 황동골 증기역 완성 시 잿골 선로를 열 수 있게 한다.
+        /// IHabitatClusters를 사용하며 구독 대상을 _lineUnlockClusters에 저장한다.
+        /// </summary>
+        private static void BindLineUnlock()
+        {
+            if (_lineUnlockClusters != null || Line == null) return;
+            _lineUnlockClusters = GameServices.Get<IHabitatClusters>();
+            if (_lineUnlockClusters != null) _lineUnlockClusters.HabitatCompleted += OnHabitatCompleted;
+        }
+
+        /// <summary>
+        /// 완성된 서식지의 hubId와 typeId를 확인해 황동골 증기역이면 잿골 선로를 연다.
+        /// LineOpener.Open의 중복 방지를 사용하며 선로와 마을의 열린 상태를 변경한다.
+        /// </summary>
+        private static void OnHabitatCompleted(string hubId, string typeId)
+        {
+            if (hubId == Town?.HubId && typeId == STEAM_STATION_ID) Line?.Open(SECOND_HUB_ID);
         }
 
         /// <summary>스토리 041. ItemPlacement에 결제·환급을 건다.</summary>
@@ -149,7 +180,8 @@ namespace IronRing.Economy
             IronRing.Habitats.HabitatCatalog catalog = IronRing.Habitats.HabitatsInstaller.Catalog;
             if (clusters == null || catalog == null) { Debug.LogWarning("TOWN: 서식지가 없어 주민·등급을 건너뜁니다."); return; }
             Town = TownSettings.Parse(Load(TownPath));
-            Population = new Population(Town, catalog, clusters) { CurrentHub = CurrentHub };
+            Population = new Population(Town, catalog, clusters, GameServices.Get<INpcRecruiter>(), IronRing.Npc.NpcInstaller.Pool)
+                { CurrentHub = CurrentHub };
             Tiers = new TownTiers(Town) { CurrentHub = CurrentHub };
             RunState run = GameServices.Get<IHubStateSystem>() as RunState;
             string hub = Town.HubId;

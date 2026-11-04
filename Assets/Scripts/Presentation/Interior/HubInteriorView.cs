@@ -98,8 +98,9 @@ namespace IronRing.Presentation.Interior
                     return null;
                 }
                 views[index].SetSprite(root.Catalog.CellSprite(cells[index].State));
+                views[index].SetBuildable(cells[index].State == InteriorCellState.Empty);
             }
-            return new HubArea { Root = root, Cells = views };
+            return new HubArea { Root = root, Cells = views, CameraSize = root.CameraSize };
         }
 
         /// <summary>hubId의 cellIndex 칸 앵커(씬 칸 오브젝트). 내부 맵이나 칸이 없으면 null.</summary>
@@ -119,7 +120,9 @@ namespace IronRing.Presentation.Interior
         private void OnCellChanged(string hubId, int cellIndex)
         {
             if (!_areas.TryGetValue(hubId, out HubArea area) || cellIndex < 0 || cellIndex >= area.Cells.Length) return;
-            area.Cells[cellIndex].SetSprite(area.Root.Catalog.CellSprite(_interior.Cells(hubId)[cellIndex].State));
+            InteriorCellState state = _interior.Cells(hubId)[cellIndex].State;
+            area.Cells[cellIndex].SetSprite(area.Root.Catalog.CellSprite(state));
+            area.Cells[cellIndex].SetBuildable(state == InteriorCellState.Empty);
         }
 
         /// <summary>open이면 선로 화면 카메라 위치를 저장하고 열린 거점 인스턴스로 카메라를 옮기며, 닫히면 저장한 위치로 되돌린다.</summary>
@@ -136,9 +139,9 @@ namespace IronRing.Presentation.Interior
                     _mapCameraSize = camera.orthographicSize;
                     _cameraMoved = true;
                 }
-                Vector3 center = area.Root.transform.position;
+                Vector3 center = area.Root.CameraAnchor.position;
                 camera.transform.position = new Vector3(center.x, center.y, _mapCameraPosition.z);
-                camera.orthographicSize = area.Root.CameraSize;
+                camera.orthographicSize = area.CameraSize;
             }
             else if (_cameraMoved)
             {
@@ -150,9 +153,11 @@ namespace IronRing.Presentation.Interior
 
         void Update()
         {
-            if (!_viewMode.InteriorOpen || Mouse.current == null || !Mouse.current.leftButton.wasPressedThisFrame) return;
+            if (!_viewMode.InteriorOpen || Mouse.current == null) return;
             Vector2 pointer = Mouse.current.position.ReadValue();
             if (IsPointerOverUi(pointer)) return;
+            ProcessCameraZoom(Mouse.current.scroll.ReadValue().y);
+            if (!Mouse.current.leftButton.wasPressedThisFrame) return;
             Camera camera = _anchors.MapCamera;
             if (camera == null) return;
             Ray ray = camera.ScreenPointToRay(pointer);
@@ -160,6 +165,18 @@ namespace IronRing.Presentation.Interior
             if (hit.collider == null || !hit.collider.TryGetComponent(out InteriorCellView cell)) return;
             if (cell.HubId != _viewMode.InteriorHubId) return;
             CellClicked?.Invoke(cell.HubId, cell.Index);
+        }
+
+        /// <summary>활성 마을의 루트에서 정한 휠 간격과 범위로 카메라 크기를 바꾸고 마을별 마지막 크기를 저장한다. scrollY가 0이면 상태를 변경하지 않는다.</summary>
+        private void ProcessCameraZoom(float scrollY)
+        {
+            string hubId = _viewMode.InteriorHubId;
+            if (Mathf.Approximately(scrollY, 0f) || hubId == null || !_areas.TryGetValue(hubId, out HubArea area)) return;
+            Camera camera = _anchors.MapCamera;
+            if (camera == null) return;
+            area.CameraSize = Mathf.Clamp(area.CameraSize - Mathf.Sign(scrollY) * area.Root.CameraZoomStep,
+                area.Root.CameraMinSize, area.Root.CameraMaxSize);
+            camera.orthographicSize = area.CameraSize;
         }
 
         /// <summary>pointer가 HUD 위인지 EventSystem 레이캐스트로 검사한다(MapView와 같은 규칙).</summary>
@@ -186,6 +203,7 @@ namespace IronRing.Presentation.Interior
         {
             public HubInteriorRoot Root { get; set; }
             public InteriorCellView[] Cells { get; set; }
+            public float CameraSize { get; set; }
         }
     }
 }

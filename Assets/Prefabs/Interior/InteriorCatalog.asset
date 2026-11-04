@@ -407,6 +407,98 @@ MonoBehaviour:
     - {fileID: 21300000, guid: 1df37017a4ca7414ea541d2357c7b35d, type: 3}
     - {fileID: 21300000, guid: 1bf67233d0000ca47b29f70d08c371b9, type: 3}
     - {fileID: 21300000, guid: a777df3a498f94643b72cc05e1fce4c8, type: 3}
+  - _id: yard
+    _pieces:
+    - {fileID: 21300000, guid: 68a04c36e88332d4785a7ade39293e6e, type: 3}
+    - {fileID: 21300000, guid: 813133dd666222d4ca8f280e3d089cbb, type: 3}
+    - {fileID: 21300000, guid: 71bc2e032a7c98c45a59a0997585170b, type: 3}
+    - {fileID: 21300000, guid: 1bad24e308f5c3746b3bc7ccf01b21e0, type: 3}
+    - {fileID: 21300000, guid: 9cda11c330f413c428b9f5ebe4cde413, type: 3}
+    - {fileID: 21300000, guid: c294f3a971a71d54da5f2a0fa407a08d, type: 3}
+    - {fileID: 21300000, guid: 65226cf8bd6843947a2226e287e6a08d, type: 3}
+    - {fileID: 21300000, guid: d230754cbde6e644b8dc5fa644b6540a, type: 3}
+    - {fileID: 21300000, guid: bdbffc2f66e5c5d46b93d9d9bb8847bb, type: 3}
+    - {fileID: 21300000, guid: 64831e16281e383458e1b5c68aed2f96, type: 3}
+    - {fileID: 21300000, guid: 77e72437e6908094184825e197e43033, type: 3}
+    - {fileID: 21300000, guid: bee41f898c01f1a4cb7ff6f3edb3d051, type: 3}
+    - {fileID: 21300000, guid: 8a3aad0eef2f8424ea741dfa3bd46309, type: 3}
+    - {fileID: 21300000, guid: 09085e2d62736694db863c45889135fc, type: 3}
+    - {fileID: 21300000, guid: 9c62fb5a6ee9dda4280ff612b8ee9dba, type: 3}
+    - {fileID: 21300000, guid: c548a93fb4b25504896429b9859df51b, type: 3}
+    _innerCorners:
+    - {fileID: 21300000, guid: ab52748fcf3559441b36efb689ed43db, type: 3}
+    - {fileID: 21300000, guid: 1df3f311af5b76543814a2a9caa8c641, type: 3}
+    - {fileID: 21300000, guid: 92b79f1e330f1ec48b0b96b84c199358, type: 3}
+    - {fileID: 21300000, guid: 0c508af563815da4cbf94a100c413394, type: 3}
+  - _id: yard@copper
+    _pieces:
+    - {fileID: 21300000, guid: 07bee26f49986a94888c3508362bd528, type: 3}
+    - {fileID: 21300000, guid: da85edaf569fe1c4c9bd4557da3ec67f, type: 3}
+    - {fileID: 21300000, guid: 89f2bc3b497ae0143b12f54376c7958a, type: 3}
+    - {fileID: 21300000, guid: e887761b3194eb747b01604f3ea3d66c, type: 3}
+    - {fileID: 21300000, guid: 021e09dba9de4bb498e3a71441cbbaad, type: 3}
+    - {fileID: 21300000, guid: 0a83e7ef642f9ce4699c6fd6ce1957c0, type: 3}
+    - {fileID: 21300000, guid: 18b42779a3ee32942bb947f292fd7775, type: 3}
+    - {fileID: 21300000, guid: a91b3950497e62840a57094245ca33dd, type: 3}
+    - {fileID: 21300000, guid: ca115d5ac18c5c14d9cfc7826369aa29, type: 3}
+    - {fileID: 21300000, guid: 6f5d5a0a57c3eb6429ea21951d8cc958, type: 3}
+    - {fileID: 21300000, guid: 83951e6b37141a449b49298845754bb0, type: 3}
+    - {fileID: 21300000, guid: d0bf77b67f16a2a4982a9eb2ae40a234, type: 3}
+    - {fileID: 21300000, guid: c3b6781cb6cbab84e83b01122a69c1a5, type: 3}
+    - {fileID: 21300000, guid: c7d805252db60354387dba696a0ab5f5, type: 3}
+    - {fileID: 21300000, guid: b36fa8e2fc7955a4e93f3e031bad415f, type: 3}
+    - {fileID: 21300000, guid: e674beae82e69b94ba8780c01359aa94, type: 3}
+    _innerCorners:
+    - {fileID: 21300000, guid: fb3adffb4e3325145934db0f300c7500, type: 3}
+    - {fileID: 21300000, guid: 8938ed24d3e49a649980a720cb482879, type: 3}
+    - {fileID: 21300000, guid: ba9378ac193000a41adf20ee6be31be7, type: 3}
+    - {fileID: 21300000, guid: e18279476c96ee740bdf536c8261045f, type: 3}
+  - _id: yard@wine
+    _pieces:
+    - {fileID: 21300000, guid: c2a2c608fb266714791ac23c61253ff5, type: 3}
+    - {fileID: 21300000, guid: 80bfe30745641b84babe18c16313a82b, type: 3}
+    - {fileID: 21300000, guid: a889a677f0fa4484588a08483c6c7894, type: 3}
+    - {fileID: 21300000, guid: 11b9a9f067bae1045b0fec2ada7cb294, type: 3}
+    - {fileID: 21300000, guid: d4f1ed348852a644a809a606c2ecadff, type: 3}
+    - {fileID: 21300000, guid: aae749fd4280d0c4d81b5b67479938d9, type: 3}
+    - {fileID: 21300000, guid: 86fc7536e226eb94cb8ece95919ad3f2, type: 3}
+    - {fileID: 21300000, guid: 25a7804c5938621489556d605edc9609, type: 3}
+    - {fileID: 21300000, guid: bdddb3321fc43b1468622281d97e53cd, type: 3}
+    - {fileID: 21300000, guid: 7d47c9a88f11e9546b347bcb35a7f597, type: 3}
+    - {fileID: 21300000, guid: 51418987b9ec88f4797ba4e0877aaa65, type: 3}
+    - {fileID: 21300000, guid: b328e4cbe5786984ebf96865014f87fb, type: 3}
+    - {fileID: 21300000, guid: 2bdf68f490aa63d40b12e5ce48e0ff9f, type: 3}
+    - {fileID: 21300000, guid: 99e6baeac8be39c43a0f2717b6bd6a28, type: 3}
+    - {fileID: 21300000, guid: fd41ed8288643664d9b1123a5b67a3e0, type: 3}
+    - {fileID: 21300000, guid: d90f88669449fd647bcf7c87817846cb, type: 3}
+    _innerCorners:
+    - {fileID: 21300000, guid: e2c7422e85385674f840ac50daab965f, type: 3}
+    - {fileID: 21300000, guid: f8a3997469a09f54d853fe3a34d41ced, type: 3}
+    - {fileID: 21300000, guid: 55fd154fa1d0abf42a0a9a8a320117ca, type: 3}
+    - {fileID: 21300000, guid: 3d1ae2039cc7e83409d6bed87050676e, type: 3}
+  - _id: yard@moss
+    _pieces:
+    - {fileID: 21300000, guid: 32705fea8b53a454b9d00b76a35d6aa3, type: 3}
+    - {fileID: 21300000, guid: 068512ba904f6fc4890b2662071455be, type: 3}
+    - {fileID: 21300000, guid: faf33458cdbbbf74ab867a3f67ac3315, type: 3}
+    - {fileID: 21300000, guid: 6c800383ffe4dd847850c65d1695a8fd, type: 3}
+    - {fileID: 21300000, guid: 1ef0d1a99f44f964488f0136d132b41d, type: 3}
+    - {fileID: 21300000, guid: 7ba73efc03bd6b242bf04b20bdeeab37, type: 3}
+    - {fileID: 21300000, guid: 33856c6d6a07b6245ae36efe0d3a3898, type: 3}
+    - {fileID: 21300000, guid: 45e9c91f55c6d054c87d25ea2c7e450b, type: 3}
+    - {fileID: 21300000, guid: c8d2036cc9639d54f91efe0dbcbb8412, type: 3}
+    - {fileID: 21300000, guid: dcbecf217cc007147b5d9387b51cf5d6, type: 3}
+    - {fileID: 21300000, guid: d2ece6da14a77544d84cb552585d94a7, type: 3}
+    - {fileID: 21300000, guid: 785e7a431ad4f8740ba2ab5ae06de966, type: 3}
+    - {fileID: 21300000, guid: 9601e1f5c5d26e44eafb2048cdf51b70, type: 3}
+    - {fileID: 21300000, guid: a08e26926a96eaf4c8c61bc27a1d1d38, type: 3}
+    - {fileID: 21300000, guid: 92908a7af126d864a97af2714d15019a, type: 3}
+    - {fileID: 21300000, guid: ac51853bd4b5c054690e6fd915ca513a, type: 3}
+    _innerCorners:
+    - {fileID: 21300000, guid: 06a3f35e5cbc8c640a4881bf41c2c55d, type: 3}
+    - {fileID: 21300000, guid: cdcb3e9849d348445b50d3eea0040226, type: 3}
+    - {fileID: 21300000, guid: 32f9750499089ac45a4fccb9f34edcd9, type: 3}
+    - {fileID: 21300000, guid: 6818d4ff07295364482518d1d0102653, type: 3}
   _buildingDoors:
   - {fileID: 21300000, guid: 60c4ca15d8ad7d646bbf06a30f387651, type: 3}
   - {fileID: 21300000, guid: 6e1619b5002e7964f8f059122ffbdaa0, type: 3}
@@ -418,6 +510,8 @@ MonoBehaviour:
     _sprite: {fileID: 21300000, guid: b842ca9624f7c304685ed6b11106be4f, type: 3}
   - _id: cobble_arch
     _sprite: {fileID: 21300000, guid: 9ad54be8f85366344a37082e85b259cd, type: 3}
+  - _id: earth_marker
+    _sprite: {fileID: 21300000, guid: 9df8d0e4f9f9b154ba3ec50a66e520bd, type: 3}
   - _id: big_gear
     _sprite: {fileID: 21300000, guid: a468db8f51c7121499c748adf0b4012c, type: 3}
   - _id: boiler_dome

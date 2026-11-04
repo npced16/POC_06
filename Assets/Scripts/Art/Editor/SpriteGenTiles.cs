@@ -38,7 +38,12 @@ namespace IronRing.Art.Editor
             foreach (string id in tiles)
             {
                 Begin();
-                Cobble(0, 0, SIZE, SIZE, G, 7);
+                if (id == "tile_cobble")
+                {
+                    C.Rect(0, 0, SIZE, SIZE, Wd.S);
+                    for (int i = 0; i < 36; i++) C.Disc(5 + H(i, 1, 23) % 54, 5 + H(i, 2, 23) % 54, 1 + H(i, 3, 23) % 3, i % 3 == 0 ? Sa.B : Wd.B);
+                }
+                else Cobble(0, 0, SIZE, SIZE, G, 7);
                 C.Rect(0, 0, SIZE, 1, Mo.S); C.Rect(0, 0, 1, SIZE, Mo.S);
                 Layer();
                 bool known = Draw(id);
@@ -124,8 +129,9 @@ namespace IronRing.Art.Editor
                     C.Line(6, 19, 26, 44, Fe.B, 3); C.Line(58, 19, 38, 44, Fe.B, 3); C.Line(6, 20, 26, 45, Fe.L);
                     return true;
                 case "tile_cobble":
-                    Cobble(0, 0, SIZE, SIZE, Sa, 33);
-                    C.Rect(0, 31, SIZE, 2, Bs.S);
+                    C.Rect(4, 4, 56, 4, Wd.B); C.Rect(4, 56, 56, 4, Wd.B);
+                    C.Rect(4, 4, 4, 56, Wd.B); C.Rect(56, 4, 4, 56, Wd.B);
+                    for (int i = 0; i < 9; i++) C.Disc(10 + H(i, 5, 23) % 44, 10 + H(i, 6, 23) % 44, 1.5f, Sa.L);
                     return true;
                 case "tile_tank":
                     Box(9, 6, 46, 52, Fe);
@@ -151,13 +157,22 @@ namespace IronRing.Art.Editor
                     foreach (int x in new[] { 10, 53 }) foreach (int y in new[] { 5, 58 }) C.Set(x, y, Bs.L);
                     return true;
                 case "tile_bench":
-                    Box(5, 12, 54, 40, Wd);
-                    for (int y = 21; y < 51; y += 9) C.Rect(6, y, 52, 1, Wd.S);
-                    Box(8, 46, 10, 8, Fe); C.Rect(10, 52, 6, 2, Fe.L);
-                    C.Rect(22, 30, 16, 3, Wd.L); C.Rect(22, 30, 16, 1, Wd.S); Box(36, 27, 7, 9, Fe);
-                    C.Line(42, 18, 54, 30, Fe.B, 2); C.Disc(54, 31, 3, Fe.B); C.Disc(54, 31, 1.2f, Wd.B);
-                    Gear(16, 22, 5, 8, Bs);
-                    C.Set(48, 44, Bs.L); C.Set(50, 42, Bs.L); C.Set(28, 44, Cu.L);
+                    for (int y = 12; y <= 44; y += 11)
+                    {
+                        Box(8, y, 48, 8, Wd);
+                        C.Rect(11, y + 5, 42, 1, Wd.L);
+                        C.Rect(14, y + 2, 35, 1, Wd.S);
+                    }
+                    C.Rect(18, 10, 4, 43, Bs.B); C.Rect(42, 10, 4, 43, Bs.B);
+                    return true;
+                case "tile_seedling":
+                    Box(12, 9, 40, 46, Wd);
+                    C.Rect(16, 13, 32, 37, Sa.B);
+                    foreach (int x in new[] { 23, 32, 41 })
+                    {
+                        C.Ellipse(x, 31, 4, 7, Gl.B);
+                        C.Ellipse(x - 1, 34, 2, 3, Gl.L);
+                    }
                     return true;
                 case "tile_wire":
                     C.Line(0, 40, 64, 40, O.B); C.Line(0, 30, 64, 30, O.B);
