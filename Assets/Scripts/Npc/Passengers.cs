@@ -280,9 +280,11 @@ namespace IronRing.Npc
             return ids[0];
         }
 
+        /// <summary>npc를 waypointId에서 탑승시키고 도감 발견 기록에 남긴 뒤 탑승 사건을 알린다.</summary>
         private void Board(NpcDefinition npc, string waypointId)
         {
             _riders.Add(new Rider { Id = npc.Id, WaypointId = waypointId, BoardLap = Lap });
+            PassengerDiscovery.Remember(npc.Id);
             UnityEngine.Debug.Log($"PASSENGER: board {npc.Id} at {waypointId} \"{npc.Passenger.Proposal}\" {npc.Passenger.Hint}");
             Boarded?.Invoke(npc.Id, waypointId);
         }

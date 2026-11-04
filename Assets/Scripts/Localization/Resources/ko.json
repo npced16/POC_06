@@ -774,7 +774,7 @@
     },
     {
       "_key": "hud_passengers",
-      "_value": "승객 {0}/{1} (P)"
+      "_value": "승객 {0}/{1}"
     },
     {
       "_key": "passengers_title",
@@ -882,7 +882,7 @@
     },
     {
       "_key": "passengers_wants",
-      "_value": "원하는 것: {0}"
+      "_value": "{0} 완성 → {1} 합류"
     },
     {
       "_key": "waypoint_terminal",

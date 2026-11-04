@@ -46,6 +46,14 @@ namespace IronRing.Hud.Codex
             if (_silhouette != null) _silhouette.transform.SetAsFirstSibling();
         }
 
+        /// <summary>name과 knownVisitor만 공개하고 잠긴 건물의 재료 배열은 숨긴다.</summary>
+        public void ShowKnownVisitor(string name, string knownVisitor)
+        {
+            ShowLocked(name);
+            _npc.text = knownVisitor;
+            _npc.gameObject.SetActive(true);
+        }
+
         /// <summary>선로에서 얻은 설계 단서로 이름·제작법·마을 일은 보이고 방문자는 감춘다.</summary>
         public void ShowHint(string name, string meta, string work, string role, string unknownVisitor)
         {

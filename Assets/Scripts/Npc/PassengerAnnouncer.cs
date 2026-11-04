@@ -38,7 +38,9 @@ namespace IronRing.Npc
                 _boardingQueue.Enqueue(id);
                 return;
             }
-            Enqueue(string.Format(_passengers.Pool.BoardToastFormat, Subject(Name(id)), _passengers.OriginName(id), _passengers.Proposal(id), _passengers.Hint(id)));
+            NpcDefinition npc = _passengers.Pool.Find(id);
+            Enqueue(string.Format(_passengers.Pool.BoardToastFormat, Subject(Name(id)), _passengers.OriginName(id),
+                PassengerRequest.Label(npc) ?? _passengers.Proposal(id)));
         }
 
         /// <summary>id가 hub에 내리면 이름과 직무 보너스를 토스트 대기열에 추가한다.</summary>
@@ -92,7 +94,7 @@ namespace IronRing.Npc
                 {
                     string id = _boardingQueue.Peek();
                     NpcDefinition npc = _passengers.Pool.Find(id);
-                    string line = _passengers.Proposal(id);
+                    string line = PassengerRequest.Label(npc) ?? _passengers.Proposal(id);
                     if (string.IsNullOrEmpty(line)) line = npc?.Quote ?? string.Empty;
                     if (dialog.OpenBoarding(id, Name(id), _passengers.OriginName(id), line)) _boardingQueue.Dequeue();
                 }

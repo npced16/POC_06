@@ -21,7 +21,7 @@ namespace IronRing.Npc
         [SerializeField] private int _maxDisembarkPerVisit;
         [SerializeField] private int _passengerSeed = 2311;
         [SerializeField] private float _toastSeconds = 4f;
-        [SerializeField] private string _boardToastFormat = "{0} {1}에서 탔다: \"{2}\" {3}";
+        [SerializeField] private string _boardToastFormat = "{0} {1}에서 탔다 · {2}";
         [SerializeField] private string _disembarkToastFormat = "열차에서 {0} 내렸다 · {1} 출신";
         [SerializeField] private string _leaveToastFormat = "{0} 열차에서 내려 떠났다";
         [Header("POC single station (Story 032)")]
@@ -44,7 +44,7 @@ namespace IronRing.Npc
         public int PassengerSeed => _passengerSeed;
         /// <summary>Seconds each passenger toast stays up.</summary>
         public float ToastSeconds => _toastSeconds > 0f ? _toastSeconds : 4f;
-        /// <summary>{0} job name, {1} origin name, {2} proposal, {3} hint.</summary>
+        /// <summary>{0} 승객 이름, {1} 출신지, {2} 완성할 건물과 합류 인물.</summary>
         public string BoardToastFormat => _boardToastFormat;
         /// <summary>{0} job name, {1} origin name.</summary>
         public string DisembarkToastFormat => _disembarkToastFormat;

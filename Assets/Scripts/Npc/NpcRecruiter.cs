@@ -82,10 +82,12 @@ namespace IronRing.Npc
             return true;
         }
 
+        /// <summary>npcId를 hubId에 합류시키고 도감 발견 기록을 저장한 뒤 합류 사건을 알린다.</summary>
         private void Commit(string npcId, string hubId)
         {
             _joined.Add(npcId);
             _joinOrder.Add(npcId);
+            PassengerDiscovery.Remember(npcId);
             if (!_members.TryGetValue(hubId, out var members))
             {
                 members = new List<string>();

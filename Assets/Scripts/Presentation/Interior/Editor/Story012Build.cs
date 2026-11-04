@@ -483,6 +483,7 @@ namespace IronRing.Presentation.Interior.Editor
                 instance.GetComponent<InteriorCellView>().Configure(index, row, column, isUpper);
             }
             root.Configure(catalog, catalog.DefaultCameraSize, trainAnchor, cameraAnchor);
+            TrainCarRoleBuild.ApplyToHub(temp, catalog, Load<TMP_FontAsset>("Assets/Fonts/Mulmaru SDF.asset"));
             PrefabUtility.SaveAsPrefabAsset(temp, HUB_PREFAB);
             UnityEngine.Object.DestroyImmediate(temp);
         }

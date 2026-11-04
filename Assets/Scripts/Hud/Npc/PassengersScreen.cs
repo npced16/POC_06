@@ -16,9 +16,9 @@ using IronRing.Npc.Demo;
 namespace IronRing.Hud.Npc
 {
     /// <summary>
-    /// 스토리 025. 상황 화면 "Passengers": 지금 열차에 탄 승객마다 한 줄(부품 PassengerRow) — 직업명·출신지·탄 지 몇 바퀴·제안·힌트.
+    /// 상황 화면 "Passengers": 지금 열차에 탄 승객마다 이름과 건물 완성 후 합류 관계를 한 줄에 보여 준다.
     /// 비어 있으면 "승객이 없다". 상단 바 승객 버튼(Toggle)·P 키로 열고 닫고, 닫기 버튼·Esc로 닫는다. 탑승·하차·이탈 때 다시 그린다.
-    /// 숨은 조건은 보이지 않는다(IPassengers.Hint 문장만). 게임 상태는 읽기만 한다. 키는 화면이 꺼져 있어도 ScreenTicker로 읽는다.
+    /// 숨은 조건과 조합법은 보이지 않는다. 게임 상태는 읽기만 한다. 키는 화면이 꺼져 있어도 ScreenTicker로 읽는다.
     /// </summary>
     [RequireComponent(typeof(UiScreen))]
     public sealed class PassengersScreen : MonoBehaviour
@@ -30,7 +30,6 @@ namespace IronRing.Hud.Npc
         public static PassengersScreen Instance => _instance;
 
         [SerializeField] private TMP_Text _title;
-        [SerializeField] private TMP_Text _hint;
         [SerializeField] private TMP_Text _empty;
         [SerializeField] private Button _close;
         [SerializeField] private RectTransform _list;
@@ -80,7 +79,6 @@ namespace IronRing.Hud.Npc
             _screen = GetComponent<UiScreen>();
             _passengers = GameServices.Get<IPassengers>();
             _interaction = GameServices.Get<INpcInteraction>();
-            _hint.text = Strings.Get("passengers_hint");
             _empty.text = Strings.Get("passengers_empty");
             TMP_Text closeLabel = _close.GetComponentInChildren<TMP_Text>(true);
             if (closeLabel != null) closeLabel.text = Strings.Get("passengers_close");
@@ -127,28 +125,11 @@ namespace IronRing.Hud.Npc
             {
                 PassengerRowView row = Instantiate(_rowPrefab, _list);
                 row.name = "Row_" + id;
-                string origin = _passengers.OriginName(id);
                 row.Show(_interaction != null ? _interaction.DisplayName(id) : id,
-                    string.IsNullOrEmpty(origin) ? null : string.Format(Strings.Get("passengers_origin"), origin),
-                    string.Format(Strings.Get("passengers_laps"), _passengers.LapsAboard(id)),
-                    Quote(_passengers.Proposal(id)),
-                    _passengers.Hint(id),
-                    Wants(id));
+                    PassengerRequest.Label(NpcInstaller.Pool?.Find(id)));
             }
             _empty.gameObject.SetActive(ids.Count == 0);
         }
-
-        /// <summary>스토리 030. "원하는 것: 서식지 이름"(NPC 풀의 _habitatTypeId). 없으면 null.</summary>
-        private static string Wants(string npcId)
-        {
-            string typeId = NpcInstaller.Pool?.Find(npcId)?.HabitatTypeId;
-            if (typeId == null) return null;
-            string name;
-            try { name = Strings.Get("habitat_type_" + typeId); } catch (KeyNotFoundException) { name = typeId; }
-            return string.Format(Strings.Get("passengers_wants"), name);
-        }
-
-        private static string Quote(string text) => string.IsNullOrEmpty(text) ? null : "“" + text + "”";
 
         private void ClearRows()
         {
