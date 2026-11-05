@@ -1554,11 +1554,11 @@
     },
     {
       "_key": "rest_boarding_text",
-      "_value": "열차 문 앞에 누군가 서 있다. 태울지 결정하자."
+      "_value": "열차 문 앞에 서 있는 사람: {0}\n{1}\n탄 승객 {2}/{3}명 · 태울지 결정하자."
     },
     {
       "_key": "rest_boarding_choice",
-      "_value": "이야기를 듣는다"
+      "_value": "태운다"
     },
     {
       "_key": "rest_boarding_result",
@@ -1571,6 +1571,9 @@
     { "_key": "codex_turret_unlock", "_value": "해금 조건: {0} 건설" },
     { "_key": "codex_turret_start", "_value": "기본 포탑" },
     { "_key": "unlock_by_building", "_value": "{0} 건설로 {1} 해금!" },
-    { "_key": "unlock_turret", "_value": "{0} 건설로 {1} 포탑 기능 해금!" }
+    { "_key": "unlock_turret", "_value": "{0} 건설로 {1} 포탑 기능 해금!" },
+    { "_key": "rest_boarding_refuse", "_value": "돌려보낸다" },
+    { "_key": "rest_boarding_refuse_result", "_value": "승객은 다음 열차를 기다리기로 했다." },
+    { "_key": "rest_boarding_swap", "_value": "{0} 내리고 태운다" }
   ]
 }

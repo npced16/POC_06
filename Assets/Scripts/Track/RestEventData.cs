@@ -73,6 +73,8 @@ namespace IronRing.Track
         public int _weight = 1;
         public int _minLap;
         public RestChoice[] _choices;
+        /// <summary>true면 창을 열 때 승객 후보 하나를 정해 _text의 {0}(이름)·{1}(요청)·{2}(탄 승객 수)·{3}(최대 승객 수)에 넣는다. 후보가 없으면 뽑히지 않는다.</summary>
+        public bool _passengerCandidate;
     }
 
     /// <summary>스토리 051. 선택지 하나. _resultFail은 확률 효과(_chance)가 실패했을 때의 결과 문구.</summary>
@@ -105,6 +107,8 @@ namespace IronRing.Track
         public float _seconds;
         public bool _onReturn;
         public float _chance;
+        /// <summary>passenger 효과에서 true면 사건 창에 보여 준 후보를 태운다(만석이면 고른 승객과 교체). _npc·_count는 무시한다.</summary>
+        public bool _candidate;
     }
 
     /// <summary>스토리 051. 타일 id와 수.</summary>

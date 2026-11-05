@@ -21,8 +21,8 @@ namespace IronRing.Hud.Npc
     /// <summary>
     /// 스토리 029: 옛 온라인 게임식 대화 장면(상황 화면 "NpcDialog"). 화면 전체를 반투명 그늘(_dim, 클릭 = 닫기)로 덮고, 왼쪽 아래에 큰 상반신 초상
     /// (NpcPortraitCatalog, 없으면 몸체 스프라이트 ×_fallbackPortraitScale), 아래 가운데에 이중 테두리 대화 상자(이름·집/출신·대사·버튼 줄)를 둔다.
-    /// 상태: 닫힘 → 읽기(대사 순서 = NPC의 _quote + _lines, [계속하기]: 타자기 중이면 즉시 완성, 아니면 다음 줄) → 선택(마지막 줄 뒤
-    /// [계속하기] 대신 INpcInteraction.Options 버튼 + [닫기]; 결과 문장은 대사 칸에 타자기로). Esc·그늘 클릭·닫기·내부 화면 닫힘·다른 거점이면 닫는다.
+    /// 상태: 닫힘 → 읽기(NPC의 첫 대사 _quote 한 줄, [계속하기]: 타자기 중이면 즉시 완성, 아니면 선택으로) → 선택([계속하기] 대신
+    /// INpcInteraction.Options 버튼 + [닫기]; [대화]를 누르면 다음 대사(_lines 순환), 결과 문장은 대사 칸에 타자기로). Esc·그늘 클릭·닫기·내부 화면 닫힘·다른 거점이면 닫는다.
     /// 긴 대사(QA 2026-11-01 "4줄 초과 대사"): 대사 칸은 TMP Overflow=Page. 한 대사가 칸(빌더 BODY_LINES줄)을 넘으면 쪽으로 나뉘어
     /// 타자기가 1쪽부터 치고, [계속하기] 자리에 "▼ 계속"(ui_npcdialog_more)이 떠 다음 쪽으로 넘긴다. 마지막 쪽에서만 다음 대사·선택지로 간다.
     /// 선택 단계의 결과 문장이 넘쳐도 같은 버튼이 잠시 떠 쪽을 넘긴다. 말줄임(…)·잘림은 쓰지 않는다.
@@ -275,18 +275,15 @@ namespace IronRing.Hud.Npc
         private void OnInteracted(string npcId, string optionId) { if (npcId == _npc && _choosing) BuildOptions(); }
         private void OnHomeChanged(string npcId) { if (npcId == _npc) RefreshHeader(); }
 
-        /// <summary>대사 순서 = 풀 정의의 _quote(있으면) + _lines. 정의가 없으면 INpcInteraction.CurrentLine 한 줄.</summary>
+        /// <summary>
+        /// npcId의 읽기 단계 대사를 _sequence에 채운다. 풀 정의의 첫 대사(_quote) 한 줄만 넣고, 정의가 없으면 INpcInteraction.CurrentLine 한 줄을 넣는다.
+        /// 다음 대사(_lines)는 선택 단계의 [대화]를 눌렀을 때 INpcInteraction.NextLine으로만 나온다.
+        /// </summary>
         private void BuildSequence(string npcId)
         {
             _sequence.Clear();
             NpcDefinition definition = NpcInstaller.Pool?.Find(npcId);
-            if (definition != null)
-            {
-                if (!string.IsNullOrEmpty(definition.Quote)) _sequence.Add(definition.Quote);
-                if (definition.Lines != null)
-                    foreach (string line in definition.Lines)
-                        if (!string.IsNullOrEmpty(line)) _sequence.Add(line);
-            }
+            if (definition != null && !string.IsNullOrEmpty(definition.Quote)) _sequence.Add(definition.Quote);
             if (_sequence.Count == 0) _sequence.Add(_interaction.CurrentLine(npcId) ?? string.Empty);
         }
 

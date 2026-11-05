@@ -14,13 +14,12 @@
     {
       "_id": "land_clearer",
       "_name": "개간공",
-      "_quote": "빈터의 잔해부터 치워 사람들이 지낼 자리를 만들겠습니다.",
+      "_quote": "이 돌무더기 밑에 뭐가 묻혀 있을지 누가 알아요?",
       "_habitatTypeId": "cleared_lot",
       "_hubIds": [],
       "_requiresCompleteHabitat": true,
       "_lines": [
-        "오늘도 제 작업장을 살피겠습니다.",
-        "이 마을이 커지면 제 일도 더 바빠지겠군요."
+        "땅만 고르면 사람은 알아서 모여요. 두고 봐요."
       ],
       "_origin": "*",
       "_originName": "선로 너머",
@@ -40,13 +39,12 @@
     {
       "_id": "woodcutter",
       "_name": "벌목공",
-      "_quote": "거처와 작업장에 쓸 목재를 마련하겠습니다.",
+      "_quote": "나무 냄새 좋지? 난 이게 제일 좋더라.",
       "_habitatTypeId": "logging_site",
       "_hubIds": [],
       "_requiresCompleteHabitat": true,
       "_lines": [
-        "오늘도 제 작업장을 살피겠습니다.",
-        "이 마을이 커지면 제 일도 더 바빠지겠군요."
+        "많이 베면 그만큼 심어야지. 그게 순리야."
       ],
       "_origin": "*",
       "_originName": "선로 너머",
@@ -66,13 +64,12 @@
     {
       "_id": "well_keeper",
       "_name": "우물지기",
-      "_quote": "마실 물이 끊기지 않게 우물을 살피겠습니다.",
+      "_quote": "물 한 모금 드실래요? 오늘 물이 유난히 맑네요.",
       "_habitatTypeId": "stone_well",
       "_hubIds": [],
       "_requiresCompleteHabitat": true,
       "_lines": [
-        "오늘도 제 작업장을 살피겠습니다.",
-        "이 마을이 커지면 제 일도 더 바빠지겠군요."
+        "우물이 마르면… 아, 그런 생각은 안 하기로 했어요."
       ],
       "_origin": "*",
       "_originName": "선로 너머",
@@ -92,13 +89,12 @@
     {
       "_id": "shelter_keeper",
       "_name": "거처 관리인",
-      "_quote": "처음 온 사람도 잠잘 곳이 있어야 남습니다.",
+      "_quote": "피곤해 보이네요. 빈 침상 하나쯤은 늘 있어요.",
       "_habitatTypeId": "temporary_shelter",
       "_hubIds": [],
       "_requiresCompleteHabitat": true,
       "_lines": [
-        "오늘도 제 작업장을 살피겠습니다.",
-        "이 마을이 커지면 제 일도 더 바빠지겠군요."
+        "지붕이 있으면 사람이 떠나질 않아요. 신기하죠."
       ],
       "_origin": "*",
       "_originName": "선로 너머",
@@ -118,13 +114,12 @@
     {
       "_id": "field_keeper",
       "_name": "밭지기",
-      "_quote": "물을 아껴 곡식을 키워 보겠습니다.",
+      "_quote": "싹이 났어요! 아주 조그맣지만요.",
       "_habitatTypeId": "terrace_field",
       "_hubIds": [],
       "_requiresCompleteHabitat": true,
       "_lines": [
-        "오늘도 제 작업장을 살피겠습니다.",
-        "이 마을이 커지면 제 일도 더 바빠지겠군요."
+        "밥은 서두른다고 빨리 익지 않잖아요. 곡식도 그래요."
       ],
       "_origin": "*",
       "_originName": "선로 너머",
@@ -144,13 +139,12 @@
     {
       "_id": "coal_miner",
       "_name": "갱도 광부",
-      "_quote": "석탄이 있어야 증기기관이 움직입니다.",
+      "_quote": "얼굴에 검댕 묻었다고? 하하, 이게 훈장이지.",
       "_habitatTypeId": "coal_shaft",
       "_hubIds": [],
       "_requiresCompleteHabitat": true,
       "_lines": [
-        "오늘도 제 작업장을 살피겠습니다.",
-        "이 마을이 커지면 제 일도 더 바빠지겠군요."
+        "갱도 안은 조용해. 너무 조용해서 탈이지."
       ],
       "_origin": "*",
       "_originName": "선로 너머",
@@ -170,13 +164,12 @@
     {
       "_id": "cook",
       "_name": "공동 주방장",
-      "_quote": "따뜻한 한 끼가 사람을 붙잡습니다.",
+      "_quote": "배고프죠? 표정에 다 써 있어요. 앉아요, 앉아.",
       "_habitatTypeId": "communal_kitchen",
       "_hubIds": [],
       "_requiresCompleteHabitat": true,
       "_lines": [
-        "오늘도 제 작업장을 살피겠습니다.",
-        "이 마을이 커지면 제 일도 더 바빠지겠군요."
+        "같이 밥 먹은 사람끼리는 쉽게 안 싸워요. 진짜예요."
       ],
       "_origin": "*",
       "_originName": "선로 너머",
@@ -196,13 +189,12 @@
     {
       "_id": "blacksmith",
       "_name": "대장장이",
-      "_quote": "철재를 곧게 펴서 기계에 쓰겠습니다.",
+      "_quote": "쇠는 거짓말을 안 해. 두드린 만큼 단단해지지.",
       "_habitatTypeId": "iron_forge",
       "_hubIds": [],
       "_requiresCompleteHabitat": true,
       "_lines": [
-        "오늘도 제 작업장을 살피겠습니다.",
-        "이 마을이 커지면 제 일도 더 바빠지겠군요."
+        "녹슨 선로 못이라도 가져와. 내가 살려 줄 테니."
       ],
       "_origin": "*",
       "_originName": "선로 너머",
@@ -222,13 +214,12 @@
     {
       "_id": "copper_miner",
       "_name": "구리 광부",
-      "_quote": "구리 광맥을 찾아 전선의 바탕을 마련하겠습니다.",
+      "_quote": "이 초록 돌 좀 봐요! 구리 냄새가 나요, 구리 냄새!",
       "_habitatTypeId": "copper_pit",
       "_hubIds": [],
       "_requiresCompleteHabitat": true,
       "_lines": [
-        "오늘도 제 작업장을 살피겠습니다.",
-        "이 마을이 커지면 제 일도 더 바빠지겠군요."
+        "언젠가 이 구리로 마을 끝까지 불이 켜질 거예요."
       ],
       "_origin": "*",
       "_originName": "선로 너머",
@@ -248,13 +239,12 @@
     {
       "_id": "stoker",
       "_name": "보일러 화부",
-      "_quote": "압력계가 흔들리지 않게 불을 맡겠습니다.",
+      "_quote": "쉿, 들려요? 보일러가 기분이 좋을 때 내는 소리예요.",
       "_habitatTypeId": "steam_boiler",
       "_hubIds": [],
       "_requiresCompleteHabitat": true,
       "_lines": [
-        "오늘도 제 작업장을 살피겠습니다.",
-        "이 마을이 커지면 제 일도 더 바빠지겠군요."
+        "불은 너무 세도, 너무 약해도 토라져요. 사람 같죠."
       ],
       "_origin": "*",
       "_originName": "선로 너머",
@@ -274,13 +264,12 @@
     {
       "_id": "pump_keeper",
       "_name": "급수 기술자",
-      "_quote": "물길이 막히면 마을 전체가 멈춥니다.",
+      "_quote": "어디서 물 새는 소리 안 났어요? 아, 아니면 됐어요.",
       "_habitatTypeId": "pump_station",
       "_hubIds": [],
       "_requiresCompleteHabitat": true,
       "_lines": [
-        "오늘도 제 작업장을 살피겠습니다.",
-        "이 마을이 커지면 제 일도 더 바빠지겠군요."
+        "물이 끊기면 열차도 못 떠나요. 그래서 잠이 안 와요."
       ],
       "_origin": "*",
       "_originName": "선로 너머",
@@ -300,13 +289,12 @@
     {
       "_id": "machinist",
       "_name": "기계공",
-      "_quote": "톱니가 맞물리면 증기의 힘을 쓸 수 있죠.",
+      "_quote": "톱니 소리가 딱딱 맞을 때 그 기분, 알아요?",
       "_habitatTypeId": "gear_workshop",
       "_hubIds": [],
       "_requiresCompleteHabitat": true,
       "_lines": [
-        "오늘도 제 작업장을 살피겠습니다.",
-        "이 마을이 커지면 제 일도 더 바빠지겠군요."
+        "남은 부품으로 뭘 만들고 있는데… 아직 비밀이에요."
       ],
       "_origin": "*",
       "_originName": "선로 너머",
@@ -326,13 +314,12 @@
     {
       "_id": "station_master",
       "_name": "역무원",
-      "_quote": "열차와 마을의 시간을 맞추겠습니다.",
+      "_quote": "열차는 제시간에 와야 합니다. 그게 약속이니까요.",
       "_habitatTypeId": "steam_station",
       "_hubIds": [],
       "_requiresCompleteHabitat": true,
       "_lines": [
-        "오늘도 제 작업장을 살피겠습니다.",
-        "이 마을이 커지면 제 일도 더 바빠지겠군요."
+        "승강장에 사람이 늘었어요. 예전엔 저 혼자였는데."
       ],
       "_origin": "*",
       "_originName": "선로 너머",
@@ -352,13 +339,12 @@
     {
       "_id": "wire_drawer",
       "_name": "전선공",
-      "_quote": "구리를 뽑아 밤거리까지 전기를 잇겠습니다.",
+      "_quote": "전선은 천천히 뽑아야 해요. 급하면 끊어지거든요.",
       "_habitatTypeId": "wire_workshop",
       "_hubIds": [],
       "_requiresCompleteHabitat": true,
       "_lines": [
-        "오늘도 제 작업장을 살피겠습니다.",
-        "이 마을이 커지면 제 일도 더 바빠지겠군요."
+        "이 선 끝에 불이 켜지는 걸 보면, 그날은 잠이 잘 와요."
       ],
       "_origin": "*",
       "_originName": "선로 너머",
@@ -378,13 +364,12 @@
     {
       "_id": "electrician",
       "_name": "발전 기술자",
-      "_quote": "증기의 힘으로 도시의 밤을 밝히겠습니다.",
+      "_quote": "바늘 떨리는 거 보여요? 지금 이 마을의 심장 소리예요.",
       "_habitatTypeId": "electric_works",
       "_hubIds": [],
       "_requiresCompleteHabitat": true,
       "_lines": [
-        "오늘도 제 작업장을 살피겠습니다.",
-        "이 마을이 커지면 제 일도 더 바빠지겠군요."
+        "밤이 무섭지 않은 마을. 제가 만들어 볼게요."
       ],
       "_origin": "*",
       "_originName": "선로 너머",
@@ -404,13 +389,12 @@
     {
       "_id": "night_vendor",
       "_name": "야시장 상인",
-      "_quote": "불이 켜지면 가게도 늦게까지 열 수 있죠.",
+      "_quote": "구경만 해도 돈 안 받아요. 오늘만요.",
       "_habitatTypeId": "night_market",
       "_hubIds": [],
       "_requiresCompleteHabitat": true,
       "_lines": [
-        "오늘도 제 작업장을 살피겠습니다.",
-        "이 마을이 커지면 제 일도 더 바빠지겠군요."
+        "열차 손님들 짐이 제일 재밌어요. 별걸 다 가지고 다니거든요."
       ],
       "_origin": "*",
       "_originName": "선로 너머",
@@ -430,13 +414,12 @@
     {
       "_id": "clock_keeper",
       "_name": "시계탑지기",
-      "_quote": "탑의 신호등과 시계를 함께 돌보겠습니다.",
+      "_quote": "일 분 늦는 건 괜찮아. 매일 늦는 게 문제지.",
       "_habitatTypeId": "clock_tower",
       "_hubIds": [],
       "_requiresCompleteHabitat": true,
       "_lines": [
-        "오늘도 제 작업장을 살피겠습니다.",
-        "이 마을이 커지면 제 일도 더 바빠지겠군요."
+        "종소리가 울리면 다들 고개를 들어. 그 순간이 좋아."
       ],
       "_origin": "*",
       "_originName": "선로 너머",
