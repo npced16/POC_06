@@ -32,7 +32,6 @@ namespace IronRing.Hud.Npc
     public sealed class NpcDialogScreen : MonoBehaviour
     {
         private const string DEMO_HUB = "hub-1";
-        private const string ENCOURAGE_OPTION = "encourage";
         private const string PORTRAIT_CATALOG = "Npc/NpcPortraits";
         private static NpcDialogScreen _instance;
         private static bool _loggedMissing;
@@ -366,12 +365,12 @@ namespace IronRing.Hud.Npc
 
         /// <summary>
         /// 데모 단계(스토리 017·029 캡처). "panel": hub-1의 npcId(없으면 첫 합류 NPC) 대화를 연다. "panel-end": 열고 [계속하기]를 끝까지 눌러
-        /// 선택지 줄을 보인다. "encouraged": panel-end 뒤 격려가 가능하면 버튼과 같은 경로로 누른다(이미 했으면 이유를 대사 칸에). 그 밖의 단계는 닫는다.
+        /// 선택지 줄을 보인다. 그 밖의 단계는 닫는다.
         /// </summary>
         public static void HandleDemoStage(string stage, string npcId = null)
         {
             if (_instance == null) return;
-            if (stage != "panel" && stage != "panel-end" && stage != "encouraged") { _instance.Hide(); return; }
+            if (stage != "panel" && stage != "panel-end") { _instance.Hide(); return; }
             if (string.IsNullOrEmpty(npcId))
             {
                 IReadOnlyList<string> npcs = GameServices.Get<INpcRecruiter>()?.NpcsAt(DEMO_HUB);
@@ -387,13 +386,6 @@ namespace IronRing.Hud.Npc
             for (int guard = 0; guard < 64 && !_instance._choosing; guard++) _instance.Continue();
             _instance.FinishTyping();
             Debug.Log($"NpcDialogScreen: 데모 {stage} - 대사 {_instance._sequence.Count}줄 끝, 선택지 줄 표시");
-            if (stage != "encouraged") return;
-            NpcInteractionOption encourage = null;
-            foreach (NpcInteractionOption option in _instance._interaction.Options(_instance._npc))
-                if (option != null && option.Id == ENCOURAGE_OPTION) encourage = option;
-            if (encourage == null) return;
-            if (encourage.Enabled) _instance.Press(ENCOURAGE_OPTION);
-            else _instance.SetLine(encourage.Reason, false);
         }
 
         /// <summary>화면이 꺼져 있어도 도는 일(ScreenTicker): 늦은 서비스 연결, 열린 동안 Esc·거점 이탈로 닫기, 타자기.</summary>

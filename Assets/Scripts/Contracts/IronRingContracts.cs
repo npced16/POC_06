@@ -385,7 +385,7 @@ namespace IronRing.Contracts
         public string Reason;
     }
 
-    /// <summary>스토리 017. NPC 대화와 상호작용. 상태(정차당 1회 같은 제한)는 이 시스템이 소유한다.</summary>
+    /// <summary>스토리 017. NPC 대화와 상호작용. 대사 진행 상태는 이 시스템이 소유한다.</summary>
     public interface INpcInteraction
     {
         /// <summary>표시 이름(직업명).</summary>
@@ -402,6 +402,8 @@ namespace IronRing.Contracts
         event Action<string, string> Interacted;
         /// <summary>스토리 023. npcId의 출신지 이름(한국어, 예: "북쪽 고개"). 모르면 null. 대화 패널의 "&lt;출신지&gt; 출신" 줄에 쓴다.</summary>
         string Origin(string npcId) => null;
+        /// <summary>npcId가 말풍선으로 띄우는 혼잣말 목록을 반환한다. 없으면 빈 목록이다.</summary>
+        IReadOnlyList<string> MutterLines(string npcId) => Array.Empty<string>();
     }
 
     /// <summary>런이 끝난 이유.</summary>

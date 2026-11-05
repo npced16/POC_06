@@ -54,7 +54,7 @@ namespace IronRing.Hud.Editor
         /// </summary>
         public static readonly string[] SCREEN_IDS =
         {
-            "TopBar", "Passengers", "HubPanel", "Defeat", "RunResult", "PhaseBanner", "InteriorTitle", "Hotbar", "Toast", "NpcDialog", "Codex", "RestEvent",
+            "NpcBubble", "TopBar", "Passengers", "HubPanel", "Defeat", "RunResult", "PhaseBanner", "InteriorTitle", "Hotbar", "Toast", "NpcDialog", "Codex", "RestEvent",
         };
 
         /// <summary>스토리 039: 보관함으로 옮긴 화면 id. MainCanvas에 인스턴스가 남아 있으면 지운다.</summary>

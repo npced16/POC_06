@@ -44,6 +44,7 @@ namespace IronRing.Presentation.HubPhase
         private readonly List<RaycastResult> _uiHits = new List<RaycastResult>();
         private string _highlighted;
         private string _talking;
+        private string _hovered;
         private readonly List<string> _arriving = new List<string>();
 
         /// <summary>Story 023 demo override of the arrival walk speed (0 = data value). Cleared on play start.</summary>
@@ -53,6 +54,7 @@ namespace IronRing.Presentation.HubPhase
         {
             public string NpcId;
             public SpriteRenderer Renderer;
+            public NpcHoverOutline Outline;
             public Color BaseColor;
             public Transform Target;
             public float Pause;
@@ -113,6 +115,31 @@ namespace IronRing.Presentation.HubPhase
             if (_instance == null) return;
             if (talking) _instance._talking = npcId;
             else if (_instance._talking == npcId) _instance._talking = null;
+        }
+
+        /// <summary>현재 내부 화면에 보이는 NPC의 id를 ids에 추가한다. 내부 화면이 닫혀 있으면 추가하지 않는다.</summary>
+        public static void CollectVisibleNpcs(List<string> ids)
+        {
+            if (_instance == null) return;
+            foreach (Walker walker in _instance._walkers)
+                if (walker.Renderer != null) ids.Add(walker.NpcId);
+        }
+
+        /// <summary>npcId 스프라이트 머리의 화면 좌표를 point에 담는다. 보이는 NPC가 아니거나 카메라가 없으면 false를 반환한다.</summary>
+        public static bool TryGetHeadScreenPoint(string npcId, out Vector2 point)
+        {
+            point = Vector2.zero;
+            if (_instance == null) return false;
+            Camera camera = _instance._map != null && _instance._map.MapCamera != null ? _instance._map.MapCamera : Camera.main;
+            if (camera == null) return false;
+            foreach (Walker walker in _instance._walkers)
+            {
+                if (walker.NpcId != npcId || walker.Renderer == null) continue;
+                Bounds bounds = walker.Renderer.bounds;
+                point = camera.WorldToScreenPoint(new Vector3(bounds.center.x, bounds.max.y, bounds.center.z));
+                return true;
+            }
+            return false;
         }
 
         /// <summary>Stores injected systems, subscribes to changes and draws the current state.</summary>
@@ -204,6 +231,7 @@ namespace IronRing.Presentation.HubPhase
         {
             foreach (Walker walker in _walkers) if (walker.Renderer != null) Destroy(walker.Renderer.gameObject);
             _walkers.Clear();
+            _hovered = null;
             string previous = _hub;
             _hub = _view.InteriorOpen ? _view.InteriorHubId : null;
             if (_hub != previous) _arriving.Clear();
@@ -226,6 +254,8 @@ namespace IronRing.Presentation.HubPhase
                 if (renderer == null) { _walkers.RemoveAt(i); continue; }
                 HubPhaseSprites.FitWidth(renderer, width);
                 renderer.gameObject.AddComponent<NpcBody>().Bind(_hub, walker.NpcId);
+                walker.Outline = renderer.gameObject.AddComponent<NpcHoverOutline>();
+                walker.Outline.Bind(_settings.NpcHoverOutlineColor, _settings.NpcHoverOutlinePixels);
                 walker.Renderer = renderer;
                 walker.BaseColor = renderer.color;
                 walker.Target = RandomTarget(walker);
@@ -314,9 +344,39 @@ namespace IronRing.Presentation.HubPhase
                     walker.Renderer.color = walker.NpcId == _highlighted ? _settings.NpcHighlightColor : walker.BaseColor;
         }
 
+        /// <summary>마우스 아래 NPC가 바뀌면 _hovered를 갱신하고 그 NPC의 윤곽선만 켠다.</summary>
+        private void UpdateHover()
+        {
+            string hovered = HoveredNpc();
+            if (hovered == _hovered) return;
+            _hovered = hovered;
+            foreach (Walker walker in _walkers)
+                if (walker.Outline != null) walker.Outline.SetVisible(walker.NpcId == hovered);
+        }
+
+        /// <summary>
+        /// 클릭과 같은 조건에서 마우스 아래 NPC의 id를 반환한다. 내부 화면이 열려 있고 빈손이며 UI 위가 아니어야 한다.
+        /// 조건이 맞지 않거나 NPC가 없으면 null을 반환한다.
+        /// </summary>
+        private string HoveredNpc()
+        {
+            Mouse mouse = Mouse.current;
+            if (_hub == null || _walkers.Count == 0 || mouse == null || !_view.InteriorOpen) return null;
+            PlacementGhost ghost = PlacementGhost.Instance;
+            if (ghost != null && (ghost.Selected.IsValid || ghost.DragEntry.IsValid)) return null;
+            Vector2 pointer = mouse.position.ReadValue();
+            if (IsPointerOverUi(pointer)) return null;
+            Camera camera = _map != null && _map.MapCamera != null ? _map.MapCamera : Camera.main;
+            if (camera == null) return null;
+            foreach (RaycastHit2D hit in Physics2D.GetRayIntersectionAll(camera.ScreenPointToRay(pointer), Mathf.Infinity))
+                if (hit.collider != null && hit.collider.TryGetComponent(out NpcBody npc) && npc.HubId == _hub) return npc.NpcId;
+            return null;
+        }
+
         void Update()
         {
             HandleClick();
+            UpdateHover();
             if (_walkers.Count == 0) return;
             if (_targetsDirty) RefreshTargets();
             if (_targets.Count == 0) return;

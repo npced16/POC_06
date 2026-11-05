@@ -15,7 +15,8 @@ namespace IronRing.Presentation.HubPhase
     /// _mapLabelOffsetY: fallback ring-map label offset below the hub anchor (world units) when the hub has no name label;
     /// _mapLabelGapPixels: panel-pixel gap between a hub's name label and its phase label; 
     /// _effectsSettings: Resources name of the sprite set;
-    /// _npcHighlightColor: Story 017 sprite tint of the NPC whose dialog panel is open.
+    /// _npcHighlightColor: Story 017 sprite tint of the NPC whose dialog panel is open;
+    /// _npcHoverOutlineColor, _npcHoverOutlinePixels: outline colour and thickness (sprite pixels) of the NPC under the mouse.
     /// </summary>
     [Serializable]
     public sealed class HubPhaseViewSettings
@@ -50,6 +51,26 @@ namespace IronRing.Presentation.HubPhase
         [SerializeField] private int _npcPostsPerRow = 3;
         [Tooltip("스토리 029: 뒤 줄이 앞 줄보다 위(뒤)로 물러나는 거리(칸 간격의 비율).")]
         [SerializeField] private float _npcRowOffset = 0.3f;
+        [Tooltip("마우스가 올라간 NPC의 윤곽선 색.")]
+        [SerializeField] private Color _npcHoverOutlineColor = new Color(0.25f, 1f, 0.35f, 1f);
+        [Tooltip("마우스가 올라간 NPC의 윤곽선 두께(스프라이트 픽셀).")]
+        [SerializeField] private float _npcHoverOutlinePixels = 2f;
+        [Tooltip("혼잣말 사이 최소 간격(초).")]
+        [SerializeField] private float _npcMutterIntervalMin = 20f;
+        [Tooltip("혼잣말 사이 최대 간격(초).")]
+        [SerializeField] private float _npcMutterIntervalMax = 40f;
+        [Tooltip("말풍선 표시 시간(초).")]
+        [SerializeField] private float _npcMutterSeconds = 3.5f;
+        [Tooltip("동시에 띄우는 말풍선 최대 개수.")]
+        [SerializeField] private int _npcMutterMaxVisible = 3;
+        [Tooltip("말풍선끼리 겹치지 않게 두는 NPC 머리 사이 최소 거리(캔버스 단위).")]
+        [SerializeField] private float _npcMutterMinSpacing = 170f;
+        [Tooltip("머리에서 말풍선까지의 가로 거리(캔버스 단위).")]
+        [SerializeField] private float _npcMutterOffsetX = 6f;
+        [Tooltip("머리에서 말풍선까지의 세로 거리(캔버스 단위).")]
+        [SerializeField] private float _npcMutterOffsetY = 6f;
+        [Tooltip("말풍선과 화면 끝 사이 여백(캔버스 단위).")]
+        [SerializeField] private float _npcMutterEdgeMargin = 8f;
 
         public float NpcSpeed => _npcSpeed;
         public float NpcPauseMin => _npcPauseMin;
@@ -86,6 +107,26 @@ namespace IronRing.Presentation.HubPhase
         public float BreatheSpeed => _breatheSpeed;
         /// <summary>스토리 027: 빈 건물 안내 토스트 시간(초).</summary>
         public float EmptyBuildingToastSeconds => Mathf.Max(0.5f, _emptyBuildingToastSeconds);
+        /// <summary>마우스가 올라간 NPC의 윤곽선 색.</summary>
+        public Color NpcHoverOutlineColor => _npcHoverOutlineColor;
+        /// <summary>마우스가 올라간 NPC의 윤곽선 두께(스프라이트 픽셀).</summary>
+        public float NpcHoverOutlinePixels => Mathf.Max(0f, _npcHoverOutlinePixels);
+        /// <summary>혼잣말 사이 최소 간격(초).</summary>
+        public float NpcMutterIntervalMin => Mathf.Max(1f, _npcMutterIntervalMin);
+        /// <summary>혼잣말 사이 최대 간격(초).</summary>
+        public float NpcMutterIntervalMax => Mathf.Max(NpcMutterIntervalMin, _npcMutterIntervalMax);
+        /// <summary>말풍선 표시 시간(초).</summary>
+        public float NpcMutterSeconds => Mathf.Max(0.5f, _npcMutterSeconds);
+        /// <summary>동시에 띄우는 말풍선 최대 개수.</summary>
+        public int NpcMutterMaxVisible => Mathf.Max(1, _npcMutterMaxVisible);
+        /// <summary>말풍선끼리 겹치지 않게 두는 NPC 머리 사이 최소 거리(캔버스 단위).</summary>
+        public float NpcMutterMinSpacing => Mathf.Max(0f, _npcMutterMinSpacing);
+        /// <summary>머리에서 말풍선까지의 가로 거리(캔버스 단위).</summary>
+        public float NpcMutterOffsetX => _npcMutterOffsetX;
+        /// <summary>머리에서 말풍선까지의 세로 거리(캔버스 단위).</summary>
+        public float NpcMutterOffsetY => _npcMutterOffsetY;
+        /// <summary>말풍선과 화면 끝 사이 여백(캔버스 단위).</summary>
+        public float NpcMutterEdgeMargin => Mathf.Max(0f, _npcMutterEdgeMargin);
 
         /// <summary>Loads the JSON tuning; logs and falls back to the serialized defaults when missing.</summary>
         public static HubPhaseViewSettings Load()
