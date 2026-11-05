@@ -65,6 +65,10 @@ namespace IronRing.Presentation.Interior
         /// <summary>marker를 칸 그리드 렌더러로 저장해 SetBuildable에서 선 색을 바꿀 수 있게 한다.</summary>
         public void BindBuildableMarker(SpriteRenderer marker) => _buildableMarker = marker;
 
+        // 스펙 001: 온보딩 칸 강조·흐림이 색을 바꿀 수 있도록 타일·그리드 선 렌더러를 읽기 전용으로 공개.
+        public SpriteRenderer TileRenderer => _renderer;
+        public SpriteRenderer BuildableMarker => _buildableMarker;
+
         /// <summary>buildable 상태에 따라 _buildableMarker의 선 색을 밝은 설치 가능 색 또는 흐린 사용 중 색으로 바꾸고 그리드를 표시한다.</summary>
         public void SetBuildable(bool buildable)
         {

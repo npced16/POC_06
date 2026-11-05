@@ -36,7 +36,8 @@ namespace IronRing.Hud.Hotbar
     /// 게임 상태는 바꾸지 않고 고스트에 명령만 보낸다. 참조는 인스펙터로 꽂는다.
     /// </summary>
     [RequireComponent(typeof(UiScreen))]
-    public sealed class HotbarScreen : MonoBehaviour, IHotbarDemoTarget
+    // 스펙 003: 저장 슬롯 참여 계약 ISaveParticipant 구현 추가(FR-020)
+    public sealed class HotbarScreen : MonoBehaviour, IHotbarDemoTarget, ISaveParticipant
     {
         /// <summary>슬롯 수.</summary>
         public const int SLOT_COUNT = 9;
@@ -46,6 +47,18 @@ namespace IronRing.Hud.Hotbar
         private static HotbarScreen _instance;
         /// <summary>현재 핫바 화면(데모 드라이버용). 초기화 전·캔버스가 없으면 null.</summary>
         public static HotbarScreen Instance => _instance;
+
+        // 스펙 001: 배정 칸 수를 읽기 전용 프로퍼티로 추가(온보딩이 퀵슬롯 가득 참을 판정).
+        /// <summary>재료가 배정된 퀵슬롯 칸 수(0~9).</summary>
+        public int FilledSlotCount
+        {
+            get
+            {
+                int count = 0;
+                foreach (PlacementEntry entry in _slots) if (entry.IsValid) count++;
+                return count;
+            }
+        }
 
         [Tooltip("거점 내부에서만 켜는 모든 내용(핫바·팔레트·알림·드래그 칩).")]
         [SerializeField] private GameObject _content;
@@ -442,6 +455,7 @@ namespace IronRing.Hud.Hotbar
         /// <summary>키 1~9로 슬롯을 고른다(같은 키를 다시 누르면 해제).</summary>
         private void ReadDigitKeys()
         {
+            if (IronRing.Hud.Onboarding.DevSituationsScreen.IsOpen) return; // 스펙 001: F9 개발자 메뉴가 열려 있으면 숫자키 퀵슬롯 선택 막음
             Keyboard keyboard = Keyboard.current;
             if (keyboard == null) return;
             KeyControl[] keys = { keyboard.digit1Key, keyboard.digit2Key, keyboard.digit3Key, keyboard.digit4Key, keyboard.digit5Key,
@@ -567,6 +581,59 @@ namespace IronRing.Hud.Hotbar
             if (_codex != null) _codex.TileUnlocked -= OnTileUnlocked;
             if (_stock != null) _stock.Changed -= OnStockChanged;
             if (_instance == this) _instance = null;
+        }
+
+        // 스펙 003: 저장 슬롯용 퀵슬롯 9칸 배정 꺼내기·되돌리기 추가(FR-020)
+        /// <summary>스펙 003. 슬롯 파일 안의 키.</summary>
+        public string SaveKey => "hotbar";
+
+        /// <summary>스펙 003. 복원 순서(도감 복원 다음).</summary>
+        public int Order => 55; // 스펙 003: 도감(50) 복원 뒤에 팔레트를 만들도록 복원 순서를 뒤로 옮김
+
+        /// <summary>퀵슬롯 9칸 배정 _slots를 칸 순서대로(빈 칸은 빈 id) JSON으로 돌려준다. 상태를 바꾸지 않는다.</summary>
+        public string Capture()
+        {
+            HotbarSave state = new HotbarSave { Kinds = new int[SLOT_COUNT], Ids = new string[SLOT_COUNT] };
+            for (int i = 0; i < SLOT_COUNT; i++)
+            {
+                state.Kinds[i] = (int)_slots[i].Kind;
+                state.Ids[i] = _slots[i].IsValid ? _slots[i].Id : string.Empty;
+            }
+            return JsonUtility.ToJson(state);
+        }
+
+        /// <summary>
+        /// Capture가 만든 json으로 _slots를 바꾼다. 카탈로그에 없는 항목은 빈 칸으로 둔다.
+        /// 선택·배정 대기·해금 반짝임을 지우고 팔레트와 칸을 다시 그린다.
+        /// </summary>
+        public void Restore(string json)
+        {
+            HotbarSave state = JsonUtility.FromJson<HotbarSave>(json);
+            if (_items == null)
+            {
+                Debug.LogWarning("SAVE: 퀵슬롯 복원 건너뜀 (아이템 서비스 연결 전)"); // 스펙 003: 퀵슬롯 복원 실패를 로그로 남김
+                return;
+            }
+            if (_selectedSlot >= 0) SelectSlot(-1);
+            _pendingAssign = default;
+            for (int i = 0; i < SLOT_COUNT; i++)
+            {
+                string id = i < state.Ids.Length ? state.Ids[i] : null;
+                PlacementKind kind = i < state.Kinds.Length ? (PlacementKind)state.Kinds[i] : PlacementKind.Item;
+                PlacementEntry entry = string.IsNullOrEmpty(id) ? default : new PlacementEntry(kind, id);
+                _slots[i] = Exists(entry) ? entry : default;
+                _unlockFlashUntil[i] = 0f;
+            }
+            BuildPalette();
+            Refresh();
+        }
+
+        /// <summary>스펙 003. 저장 형식: 칸 순서의 항목 종류(정수)와 id.</summary>
+        [Serializable]
+        private sealed class HotbarSave
+        {
+            public int[] Kinds = Array.Empty<int>();
+            public string[] Ids = Array.Empty<string>();
         }
     }
 }
