@@ -11,9 +11,9 @@ using IronRing.Presentation.HubPhase;
 namespace IronRing.Npc.Demo
 {
     /// <summary>
-    /// 스토리 017·023 캡처용 스크립트 데모: `--npc-demo [--npc-stage homes|panel|panel-end|encouraged|crowd|board|arrival|hub2|passengers|codex]`. 실행 인자 또는 진행 중인
+    /// 스토리 017·023 캡처용 스크립트 데모: `--npc-demo [--npc-stage homes|panel|panel-end|crowd|board|arrival|hub2|passengers|codex]`. 실행 인자 또는 진행 중인
     /// 브리지 캡처의 extraArgs(SessionState "IronRing.Bridge.Capture.ExtraArgs")에서 읽는다. 설정은 Resources/Npc/NpcHomesDemo.json.
-    /// homes|panel|encouraged: 데모 거점 내부를 열고 데이터 배치를 놓은 뒤, 대상 NPC를 승객으로 태우고(IPassengers.TryBoard force)
+    /// homes|panel: 데모 거점 내부를 열고 데이터 배치를 놓은 뒤, 대상 NPC를 승객으로 태우고(IPassengers.TryBoard force)
     /// INpcRecruiter.OnHubVisited로 정차를 일으켜 내리게 한다(합류는 승객 하차로만). 승객 시스템이 없으면 예전처럼 방문을 반복한다.
     /// board: 열차를 출발시켜 경유지 조우를 WaypointResolver.Advance로 끝내고, 승객이 타면(안 타면 강제 탑승 + 로그) StageReady.
     /// arrival: hub-1에 서식지를 완성하고 `_arrivalNpcId`를 태워 내리게 한다. 걸음은 `_arrivalSpeed`로 느리게(InteriorNpcWalker.DemoArrivalSpeed).
@@ -38,7 +38,7 @@ namespace IronRing.Npc.Demo
         private bool _departed;
         private int _boardFrames;
 
-        /// <summary>데모 단계(homes|panel|encouraged|board|arrival|hub2|passengers|codex). --npc-demo가 없으면 null, 단계 인자가 없으면 "homes".</summary>
+        /// <summary>데모 단계(homes|panel|board|arrival|hub2|passengers|codex). --npc-demo가 없으면 null, 단계 인자가 없으면 "homes".</summary>
         public static string Stage { get; private set; }
 
         /// <summary>단계 준비가 끝나 StageReady를 낸 뒤 true.</summary>
@@ -213,15 +213,6 @@ namespace IronRing.Npc.Demo
             if (FirstNpcId != null)
                 UnityEngine.Debug.Log($"NPC DEMO: 첫 NPC {FirstNpcId} '{interaction.DisplayName(FirstNpcId)}' 대사 \"{interaction.CurrentLine(FirstNpcId)}\" 출신 {interaction.Origin(FirstNpcId)}");
 
-            if (Stage == "encouraged" && FirstNpcId != null && _settings._driverEncourages)
-            {
-                IHubStateSystem hubs = GameServices.Get<IHubStateSystem>();
-                float before = hubs?.GetProsperity(hubId) ?? 0f;
-                bool ok = interaction.TryInteract(FirstNpcId, _settings._encourageOptionId, out string result);
-                NpcInteractionOption option = interaction.Options(FirstNpcId).FirstOrDefault(o => o.Id == _settings._encourageOptionId);
-                UnityEngine.Debug.Log($"NPC DEMO: 격려 {FirstNpcId} = {ok} \"{result}\" 번영 {before} → {hubs?.GetProsperity(hubId)}, " +
-                                      $"버튼 활성={option?.Enabled} 이유=\"{option?.Reason}\"");
-            }
             Ready();
         }
 
@@ -338,9 +329,6 @@ namespace IronRing.Npc.Demo
             public int _waitFrames = 20;
             public int _maxVisits = 24;
             public string[] _targetNpcIds;
-            public string _encourageOptionId = "encourage";
-            /// <summary>true면 드라이버가 격려를 직접 실행한다(기본 false: HUD가 누른다).</summary>
-            public bool _driverEncourages = false;
             public Placement[] _placements;
             /// <summary>arrival·hub2: 캡처용 느린 도착 걸음 속도(월드 단위/초).</summary>
             public float _arrivalSpeed = 0.25f;

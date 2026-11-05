@@ -385,7 +385,7 @@ namespace IronRing.Contracts
         public string Reason;
     }
 
-    /// <summary>스토리 017. NPC 대화와 상호작용. 상태(정차당 1회 같은 제한)는 이 시스템이 소유한다.</summary>
+    /// <summary>스토리 017. NPC 대화와 상호작용. 대사 진행 상태는 이 시스템이 소유한다.</summary>
     public interface INpcInteraction
     {
         /// <summary>표시 이름(직업명).</summary>

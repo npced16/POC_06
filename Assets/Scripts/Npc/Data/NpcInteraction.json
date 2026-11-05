@@ -1,9 +1,5 @@
 {
   "_options": [
-    {"_id": "talk", "_label": "대화"},
-    {"_id": "encourage", "_label": "격려", "_prosperityDelta": 3, "_oncePerDocking": true}
-  ],
-  "_encourageResultFormat": "격려했다. 번영 +{0}",
-  "_usedReason": "이번 정차에는 이미 격려했다",
-  "_noHubReason": "거점에 머무는 주민이 아니다"
+    {"_id": "talk", "_label": "대화"}
+  ]
 }
