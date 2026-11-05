@@ -117,6 +117,31 @@ namespace IronRing.Presentation.HubPhase
             else if (_instance._talking == npcId) _instance._talking = null;
         }
 
+        /// <summary>현재 내부 화면에 보이는 NPC의 id를 ids에 추가한다. 내부 화면이 닫혀 있으면 추가하지 않는다.</summary>
+        public static void CollectVisibleNpcs(List<string> ids)
+        {
+            if (_instance == null) return;
+            foreach (Walker walker in _instance._walkers)
+                if (walker.Renderer != null) ids.Add(walker.NpcId);
+        }
+
+        /// <summary>npcId 스프라이트 머리의 화면 좌표를 point에 담는다. 보이는 NPC가 아니거나 카메라가 없으면 false를 반환한다.</summary>
+        public static bool TryGetHeadScreenPoint(string npcId, out Vector2 point)
+        {
+            point = Vector2.zero;
+            if (_instance == null) return false;
+            Camera camera = _instance._map != null && _instance._map.MapCamera != null ? _instance._map.MapCamera : Camera.main;
+            if (camera == null) return false;
+            foreach (Walker walker in _instance._walkers)
+            {
+                if (walker.NpcId != npcId || walker.Renderer == null) continue;
+                Bounds bounds = walker.Renderer.bounds;
+                point = camera.WorldToScreenPoint(new Vector3(bounds.center.x, bounds.max.y, bounds.center.z));
+                return true;
+            }
+            return false;
+        }
+
         /// <summary>Stores injected systems, subscribes to changes and draws the current state.</summary>
         private void Initialize(INpcRecruiter npcs, IViewMode view, IInteriorAnchors anchors, IHubInterior interior)
         {

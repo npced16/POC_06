@@ -402,6 +402,8 @@ namespace IronRing.Contracts
         event Action<string, string> Interacted;
         /// <summary>스토리 023. npcId의 출신지 이름(한국어, 예: "북쪽 고개"). 모르면 null. 대화 패널의 "&lt;출신지&gt; 출신" 줄에 쓴다.</summary>
         string Origin(string npcId) => null;
+        /// <summary>npcId가 말풍선으로 띄우는 혼잣말 목록을 반환한다. 없으면 빈 목록이다.</summary>
+        IReadOnlyList<string> MutterLines(string npcId) => Array.Empty<string>();
     }
 
     /// <summary>런이 끝난 이유.</summary>

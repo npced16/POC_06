@@ -33,6 +33,9 @@ namespace IronRing.Npc
         /// <summary>스토리 023: 출신지 이름(NpcPool.json `_originName`). 모르면 null.</summary>
         public string Origin(string npcId) => _pool.Find(npcId)?.Passenger?.OriginName;
 
+        /// <summary>NpcPool.json의 npcId 혼잣말 목록을 반환한다. 모르는 id면 빈 목록이다.</summary>
+        public IReadOnlyList<string> MutterLines(string npcId) => _pool.Find(npcId)?.MutterLines ?? Array.Empty<string>();
+
         /// <summary>현재 대사. NextLine을 부르기 전에는 첫 줄(_quote).</summary>
         public string CurrentLine(string npcId)
         {

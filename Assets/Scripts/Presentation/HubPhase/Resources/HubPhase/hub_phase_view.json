@@ -22,5 +22,13 @@
   "_npcPostsPerRow": 3,
   "_npcRowOffset": 0.3,
   "_npcHoverOutlineColor": { "r": 0.25, "g": 1.0, "b": 0.35, "a": 1.0 },
-  "_npcHoverOutlinePixels": 2.0
+  "_npcHoverOutlinePixels": 2.0,
+  "_npcMutterIntervalMin": 20.0,
+  "_npcMutterIntervalMax": 40.0,
+  "_npcMutterSeconds": 3.5,
+  "_npcMutterMaxVisible": 3,
+  "_npcMutterMinSpacing": 170.0,
+  "_npcMutterOffsetX": 6.0,
+  "_npcMutterOffsetY": 6.0,
+  "_npcMutterEdgeMargin": 8.0
 }
