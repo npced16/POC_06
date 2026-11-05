@@ -10,6 +10,7 @@
       "_text": "rest_boarding_text",
       "_weight": 1,
       "_minLap": 0,
+      "_passengerCandidate": true,
       "_choices": [
         {
           "_label": "rest_boarding_choice",
@@ -17,7 +18,17 @@
           "_effects": [
             {
               "_type": "passenger",
-              "_count": 1
+              "_count": 1,
+              "_candidate": true
+            }
+          ]
+        },
+        {
+          "_label": "rest_boarding_refuse",
+          "_result": "rest_boarding_refuse_result",
+          "_effects": [
+            {
+              "_type": "nothing"
             }
           ]
         }

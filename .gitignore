@@ -174,3 +174,4 @@ $RECYCLE.BIN/
 # === Orca/codex tool mirrors (auto-generated, not source) ===
 .codex/
 .agents/
+.obsidian/

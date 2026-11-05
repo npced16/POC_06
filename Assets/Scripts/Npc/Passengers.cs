@@ -77,6 +77,19 @@ namespace IronRing.Npc
         public string TryBoardAny(string waypointId)
         {
             if (_disposed || _riders.Count >= _pool.MaxPassengers) return null;
+            NpcDefinition pick = _pool.Find(PickCandidate(waypointId));
+            if (pick == null) return null;
+            Board(pick, waypointId);
+            return pick.Id;
+        }
+
+        /// <summary>
+        /// 중간역 승객 사건 후보를 waypointId 기준으로 고른다. 출신지·탑승 조건을 채우는 NPC를 먼저, 없으면 나머지에서 시드 난수로 고른다.
+        /// 좌석 수는 보지 않으며 태우지도 않는다. 고른 id, 후보가 없으면 null을 반환한다.
+        /// </summary>
+        public string PickCandidate(string waypointId)
+        {
+            if (_disposed) return null;
             var preferred = new List<NpcDefinition>();
             var rest = new List<NpcDefinition>();
             foreach (NpcDefinition npc in _pool.Definitions)
@@ -86,10 +99,41 @@ namespace IronRing.Npc
             }
             List<NpcDefinition> from = preferred.Count > 0 ? preferred : rest;
             if (from.Count == 0) return null;
-            NpcDefinition pick = from[_random.Next(from.Count)];
-            Board(pick, waypointId);
-            return pick.Id;
+            return from[_random.Next(from.Count)].Id;
         }
+
+        /// <summary>좌석(NpcPoolData.MaxPassengers)이 모두 찼으면 true.</summary>
+        public bool IsFull => _riders.Count >= _pool.MaxPassengers;
+
+        /// <summary>열차 최대 승객 수(NpcPoolData.MaxPassengers)를 반환한다.</summary>
+        public int MaxPassengers => _pool.MaxPassengers;
+
+        /// <summary>
+        /// 플레이어가 고른 승객 boardId를 waypointId에서 태운다. leaveId가 있으면 그 승객을 먼저 떠나게 하고(Left), 없으면 빈 좌석을 쓴다.
+        /// 탑승 조건은 보지 않는다. 대상이 없거나 이미 합류·탑승했거나 자리가 없으면 false를 반환하고 아무것도 바꾸지 않는다.
+        /// </summary>
+        public bool TrySwap(string leaveId, string boardId, string waypointId)
+        {
+            NpcDefinition npc = _pool.Find(boardId);
+            if (_disposed || npc?.Passenger == null || _recruiter.IsJoined(boardId) || Find(boardId) != null) return false;
+            Rider leaving = leaveId != null ? Find(leaveId) : null;
+            if (leaveId != null && leaving == null) return false;
+            if (leaving == null && IsFull) return false;
+            if (leaving != null)
+            {
+                _riders.Remove(leaving);
+                UnityEngine.Debug.Log($"PASSENGER: leave {leaving.Id} (교체: {boardId})");
+                Left?.Invoke(leaving.Id);
+            }
+            Board(npc, waypointId);
+            return true;
+        }
+
+        /// <summary>npcId의 표시 이름(직업명)을 반환한다. 모르면 id를 반환한다.</summary>
+        public string Name(string npcId) => _pool.Find(npcId)?.Name ?? npcId;
+
+        /// <summary>npcId의 「건물 완성 → 인물 합류 · 직무 +값」 안내를 반환한다. 모르면 빈 문자열.</summary>
+        public string RequestLabel(string npcId) => PassengerRequest.LabelWithWork(_pool.Find(npcId));
 
         /// <summary>Pool settings and texts (toast formats).</summary>
         public NpcPoolData Pool => _pool;
