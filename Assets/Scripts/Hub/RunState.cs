@@ -42,7 +42,8 @@ namespace IronRing.Hub
     /// (victory tier = Victory, partial tier = Partial, below = Defeat), reaching the victory tier ends it early as Victory (_earlyWin),
     /// and the town collapsing is Defeat. Other hubs keep the threshold rules but no longer decide the outcome. Prosperity adds _perResident x residents.
     /// </summary>
-    public sealed class RunState : IHubStateSystem, IHubDevelopment, IRunLossInfo, IRunResult, IProsperityForecast
+    // 스펙 003: 저장 슬롯 참여 계약 ISaveParticipant 구현 추가
+    public sealed class RunState : IHubStateSystem, IHubDevelopment, IRunLossInfo, IRunResult, IProsperityForecast, ISaveParticipant
     {
         private static readonly IReadOnlyList<RunHubSummary> NoSummary = Array.Empty<RunHubSummary>();
 
@@ -105,7 +106,7 @@ namespace IronRing.Hub
             }
             if (ids.Count == 0) throw new ArgumentException("A run requires at least one hub.", nameof(definitions));
             HubIds = ids.AsReadOnly();
-            LapsUntilDeadline = _rules?.DeadlineLaps ?? int.MaxValue;
+            LapsUntilDeadline = _rules == null || _rules.UsesProsperityClear ? int.MaxValue : _rules.DeadlineLaps; // 스펙 004: 클리어 규칙이면 기한 없음 추가
         }
 
         /// <summary>Story 042: attached town link (null until EconomyInstaller attaches it). Story 048: the first attached link (hub-1) decides the run.</summary>
@@ -193,6 +194,12 @@ namespace IronRing.Hub
                 if (IsRunLost) return;
             }
             if (_rules == null) return;
+            // 스펙 004: 번영도 클리어 규칙이 켜지면 모든 마을 판정 후 기한 판정 없이 반환
+            if (_rules.UsesProsperityClear)
+            {
+                if (AllHubsAtClearRatio()) End(RunOutcome.Victory, RunLossReason.None, true);
+                return;
+            }
             if (LapsUntilDeadline > 0) LapsUntilDeadline--;
             if (LapsUntilDeadline > 0) return;
             if (TownActive)
@@ -264,14 +271,30 @@ namespace IronRing.Hub
             {
                 // Story 042: the town collapsing is Defeat; reaching the victory tier is an early Victory (with _earlyWin).
                 if (collapsed && !IsRunLost) End(RunOutcome.Defeat, RunLossReason.AllSettledCollapsed);
-                if (!IsRunLost && _rules.EarlyWin && Town.Tier() >= Town.VictoryTier) End(RunOutcome.Victory, RunLossReason.None, true);
+                if (!IsRunLost && _rules.EarlyWin && !_rules.UsesProsperityClear && Town.Tier() >= Town.VictoryTier) End(RunOutcome.Victory, RunLossReason.None, true); // 스펙 004: 클리어 규칙이면 등급 조기 승리 끔
                 return;
             }
             if (TownActive) return; // Story 048: other town hubs (잿골) follow their own tier but never decide the run.
             if (collapsed && !IsRunLost && AllSettledCollapsed()) End(RunOutcome.Defeat, RunLossReason.AllSettledCollapsed);
             // Story 030: early win the moment the last hub enters Settled.
-            if (!IsRunLost && _rules != null && _rules.EarlyWin && transitions.Contains(HubPhase.Settled) && CountSettled() >= HubCount)
+            if (!IsRunLost && _rules != null && _rules.EarlyWin && !_rules.UsesProsperityClear && transitions.Contains(HubPhase.Settled) && CountSettled() >= HubCount) // 스펙 004: 클리어 규칙이면 정착 조기 승리 끔
                 End(RunOutcome.Victory, RunLossReason.None, true);
+        }
+
+        // 스펙 004: 모든 마을 번영도 클리어 판정 추가
+        /// <summary>
+        /// 스펙 004 FR-003: 데이터의 모든 마을(잠긴 마을 포함)이 번영도/최대치 ≥ _rules.ClearProsperityRatio인지 돌려준다.
+        /// _states의 Prosperity와 Definition.Maximum을 읽기만 한다.
+        /// </summary>
+        private bool AllHubsAtClearRatio()
+        {
+            foreach (string id in HubIds)
+            {
+                HubState state = _states[id];
+                // float 변화가 쌓여 80이 79.9999로 남는 경우를 클리어로 보도록 작은 허용 오차를 둔다.
+                if (state.Prosperity + 0.0001f < _rules.ClearProsperityRatio * state.Definition.Maximum) return false;
+            }
+            return true;
         }
 
         /// <summary>True when at least one hub ever settled and every such hub is Collapsed.</summary>
@@ -314,6 +337,72 @@ namespace IronRing.Hub
             UnityEngine.Debug.Log($"RUN END: outcome={outcome}, settled={_endSettled}/{HubCount}, laps={_lastLap}, reason={reason}, early={early}");
             RunLost?.Invoke();
             RunEnded?.Invoke();
+        }
+
+        // 스펙 003: 저장 슬롯용 거점 상태·닫힌 거점·바퀴·기한 꺼내기·되돌리기 추가
+        /// <summary>스펙 003. 슬롯 파일 안의 키.</summary>
+        public string SaveKey => "runState";
+
+        /// <summary>스펙 003. 복원 순서.</summary>
+        public int Order => 70;
+
+        /// <summary>
+        /// 거점마다(데이터 순서) 번영·단계·정착 이력과 닫힌 거점(정렬), 적용한 바퀴 _lastLap, 기한 LapsUntilDeadline을 JSON으로 돌려준다.
+        /// 마을 연결 _towns는 경제 설치기가 다시 붙이는 함수 묶음이라 저장하지 않는다. 런 종료 결과는 저장하지 않는다.
+        /// </summary>
+        public string Capture()
+        {
+            RunSave state = new RunSave { LastLap = _lastLap, LapsUntilDeadline = LapsUntilDeadline };
+            foreach (string id in HubIds)
+            {
+                HubState hub = _states[id];
+                state.Hubs.Add(new HubSave { HubId = id, Prosperity = hub.Prosperity, Phase = (int)hub.Phase, EverSettled = hub.HasEverSettled });
+            }
+            List<string> closed = new List<string>(_closed);
+            closed.Sort(StringComparer.Ordinal);
+            state.Closed = closed.ToArray();
+            return UnityEngine.JsonUtility.ToJson(state);
+        }
+
+        /// <summary>
+        /// Capture가 만든 json으로 거점 상태·닫힌 거점·바퀴·기한을 바꾼다. 거점마다 ProsperityChanged를,
+        /// 단계가 달라진 거점은 PhaseChanged를 낸다.
+        /// </summary>
+        public void Restore(string json)
+        {
+            RunSave state = UnityEngine.JsonUtility.FromJson<RunSave>(json);
+            _lastLap = state.LastLap;
+            LapsUntilDeadline = state.LapsUntilDeadline;
+            _closed.Clear();
+            foreach (string id in state.Closed) if (_states.ContainsKey(id)) _closed.Add(id);
+            foreach (HubSave saved in state.Hubs)
+            {
+                if (saved == null || saved.HubId == null || !_states.TryGetValue(saved.HubId, out HubState hub)) continue;
+                HubPhase before = hub.Phase;
+                hub.Restore(saved.Prosperity, (HubPhase)saved.Phase, saved.EverSettled);
+                ProsperityChanged?.Invoke(saved.HubId, hub.Prosperity);
+                if (hub.Phase != before) PhaseChanged?.Invoke(saved.HubId, hub.Phase);
+            }
+        }
+
+        /// <summary>스펙 003. 저장 형식: 거점 목록, 닫힌 거점, 바퀴, 기한.</summary>
+        [Serializable]
+        private sealed class RunSave
+        {
+            public List<HubSave> Hubs = new List<HubSave>();
+            public string[] Closed = Array.Empty<string>();
+            public int LastLap;
+            public int LapsUntilDeadline;
+        }
+
+        /// <summary>스펙 003. 저장 형식: 거점 하나의 번영·단계(정수)·정착 이력.</summary>
+        [Serializable]
+        private sealed class HubSave
+        {
+            public string HubId;
+            public float Prosperity;
+            public int Phase;
+            public bool EverSettled;
         }
     }
 }
