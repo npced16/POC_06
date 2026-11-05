@@ -62,6 +62,21 @@ namespace IronRing.Hud.Editor.Screens
             dimButton.transition = Selectable.Transition.None;
             dimButton.navigation = new Navigation { mode = Navigation.Mode.None };
 
+            RectTransform boardingBackdropRect = UiKit.Node(root.transform, "BoardingBackdrop");
+            UiKit.Stretch(boardingBackdropRect);
+            GameObject boardingBackdrop = boardingBackdropRect.gameObject;
+            Image boardingNight = UiKit.Image(boardingBackdrop.transform, "NightStation", null, new Color(0.06f, 0.11f, 0.15f, 1f), true);
+            UiKit.Stretch(boardingNight.rectTransform);
+            Image stationWall = UiKit.Image(boardingBackdrop.transform, "StationWall", null, new Color(0.16f, 0.21f, 0.23f, 1f), false);
+            UiKit.Place(stationWall.rectTransform, new Vector2(0.5f, 0.43f), new Vector2(0.5f, 0.43f), Vector2.zero, new Vector2(1280f, 280f));
+            Image platform = UiKit.Image(boardingBackdrop.transform, "Platform", null, new Color(0.37f, 0.3f, 0.25f, 1f), false);
+            UiKit.Place(platform.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 80f), new Vector2(1280f, 175f));
+            Image track = UiKit.Image(boardingBackdrop.transform, "Track", null, new Color(0.63f, 0.43f, 0.25f, 1f), false);
+            UiKit.Place(track.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 17f), new Vector2(1280f, 11f));
+            Image lampGlow = UiKit.Image(boardingBackdrop.transform, "StationLight", null, new Color(0.9f, 0.61f, 0.27f, 1f), false);
+            UiKit.Place(lampGlow.rectTransform, new Vector2(0.83f, 0.68f), new Vector2(0.83f, 0.68f), Vector2.zero, new Vector2(32f, 32f));
+            boardingBackdrop.SetActive(false);
+
             // 2) 아래 가운데 대화 상자
             RectOffset pad = UiKit.FramePad(theme);
             float heading = theme.LineHeight(UiTextSize.Heading);
@@ -136,6 +151,7 @@ namespace IronRing.Hud.Editor.Screens
             UiKit.Bind(screen, "_dim", dim);
             UiKit.Bind(screen, "_panel", panel.rectTransform);
             UiKit.Bind(screen, "_portrait", portrait);
+            UiKit.Bind(screen, "_boardingBackdrop", boardingBackdrop);
             return root;
         }
 

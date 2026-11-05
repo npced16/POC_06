@@ -6,6 +6,7 @@ using UnityEditor;
 using TMPro;
 
 using IronRing.Hud.Hotbar;
+using IronRing.Combat;
 using IronRing.Hud.Ui;
 using IronRing.Localization;
 using IronRing.Presentation.Interior;
@@ -124,7 +125,65 @@ namespace IronRing.Hud.Editor.Screens
             UiKit.Bind(screen, "_paletteItemPrefab", entryPart.GetComponent<HotbarCellView>());
             UiKit.Bind(screen, "_dragChip", chip.rectTransform);
             UiKit.Bind(screen, "_dragIcon", chipIcon);
+            BuildArmament(content, theme);
             return root;
+        }
+
+        /// <summary>거점 핫바 content에 공용 theme을 사용한 열차 정비 패널과 거치대 버튼을 만든다.</summary>
+        private static void BuildArmament(Transform content, UiTheme theme)
+        {
+            TrainArmamentScreen controller = content.gameObject.AddComponent<TrainArmamentScreen>();
+            Button open = UiKit.Button(content, "ArmamentOpen", "열차 정비", theme);
+            UiKit.Place((RectTransform)open.transform, Vector2.one, Vector2.one, new Vector2(-95, -218), new Vector2(130, 58));
+            Image panel = UiKit.Panel(content, "ArmamentPanel", theme);
+            UiKit.Place(panel.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(850, 460));
+            TMP_Text title = UiKit.Label(panel.transform, "Title", "열차 정비", UiTextSize.Title, theme);
+            UiKit.Place(title.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, -18), new Vector2(380, 40));
+            Button close = UiKit.Button(panel.transform, "Close", "닫기", theme);
+            UiKit.Place((RectTransform)close.transform, Vector2.one, Vector2.one, new Vector2(-20, -18), new Vector2(90, 44));
+            Button[] slots = new Button[TrainArmament.SLOT_COUNT];
+            TMP_Text[] slotTexts = new TMP_Text[TrainArmament.SLOT_COUNT];
+            Image[] slotIcons = new Image[TrainArmament.SLOT_COUNT];
+            Sprite trainSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Generated/Battle/side_train.png");
+            Sprite turretSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Generated/Battle/side_turret.png");
+            Image train = UiKit.Image(panel.transform, "TrainPreview", trainSprite, Color.white, false);
+            UiKit.Place(train.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 45), new Vector2(760, 235));
+            train.preserveAspect = true;
+            train.rectTransform.localScale = new Vector3(-1f, 1f, 1f);
+            for (int i = 0; i < slots.Length; i++)
+            {
+                slots[i] = UiKit.Button(panel.transform, "Mount" + (i + 1), "빈 칸", theme);
+                UiKit.Place((RectTransform)slots[i].transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-270 + i * 125, 100), new Vector2(115, 62));
+                slotTexts[i] = slots[i].GetComponentInChildren<TMP_Text>(true);
+                slotTexts[i].fontSize = 14;
+                slotIcons[i] = UiKit.Image(slots[i].transform, "Turret", turretSprite, Color.white, false);
+                UiKit.Place(slotIcons[i].rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0, 25), new Vector2(42, 28));
+                slotIcons[i].preserveAspect = true;
+                slotIcons[i].enabled = false;
+            }
+            TMP_Text selection = UiKit.Label(panel.transform, "Selection", "포탑", UiTextSize.Normal, theme);
+            UiKit.Place(selection.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, -70), new Vector2(550, 100));
+            Button previous = UiKit.Button(panel.transform, "Previous", "◀", theme);
+            UiKit.Place((RectTransform)previous.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-340, -70), new Vector2(70, 60));
+            Button next = UiKit.Button(panel.transform, "Next", "▶", theme);
+            UiKit.Place((RectTransform)next.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(340, -70), new Vector2(70, 60));
+            Button apply = UiKit.Button(panel.transform, "Apply", "설치 / 강화", theme);
+            UiKit.Place((RectTransform)apply.transform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 25), new Vector2(220, 54));
+            apply.gameObject.SetActive(false);
+            TMP_Text notice = UiKit.Label(panel.transform, "Notice", "", UiTextSize.Small, theme);
+            UiKit.Place(notice.rectTransform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 90), new Vector2(600, 30));
+            UiKit.Bind(controller, "_open", open);
+            UiKit.Bind(controller, "_panel", panel.gameObject);
+            UiKit.Bind(controller, "_close", close);
+            UiKit.Bind(controller, "_previous", previous);
+            UiKit.Bind(controller, "_next", next);
+            UiKit.Bind(controller, "_apply", apply);
+            UiKit.Bind(controller, "_selection", selection);
+            UiKit.Bind(controller, "_notice", notice);
+            BindArray(controller, "_slots", slots);
+            BindArray(controller, "_slotTexts", slotTexts);
+            BindArray(controller, "_slotIcons", slotIcons);
+            panel.gameObject.SetActive(false);
         }
 
         /// <summary>슬롯·팔레트 항목 부품: 슬롯 틀(클릭 받음) + 아이콘 + 이름(자동 축소) + 키 번호(withKey).</summary>

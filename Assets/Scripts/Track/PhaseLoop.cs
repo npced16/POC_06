@@ -32,6 +32,7 @@ namespace IronRing.Track
         private readonly HashSet<string> _usedThisLap = new HashSet<string>(StringComparer.Ordinal);
         private readonly Queue<string> _forced = new Queue<string>();
         private readonly List<string> _choices = new List<string>();
+        private readonly HashSet<string> _battleWaypointIds = new HashSet<string>(StringComparer.Ordinal);
         private RestEvent _event;
         private float _sinceStart;
         private float _sinceResolved;
@@ -81,6 +82,15 @@ namespace IronRing.Track
         public string BaseHubId => _track.Nodes[0].HubId;
         /// <summary>다음 거점 도착 때 받을 마르크(우편 행낭 등).</summary>
         public int PendingMoney => _pendingMoney;
+
+        /// <summary>전투가 담당할 경유지 id를 받아 해당 지점의 사건 추첨을 건너뛰도록 저장한다.</summary>
+        public void SetBattleWaypoints(IEnumerable<string> waypointIds)
+        {
+            _battleWaypointIds.Clear();
+            if (waypointIds == null) return;
+            foreach (string waypointId in waypointIds)
+                if (!string.IsNullOrWhiteSpace(waypointId)) _battleWaypointIds.Add(waypointId);
+        }
 
         /// <summary>text: ko.json 키 → 한국어, itemName: 아이템 id → 이름. 나머지는 지연 조회(null 반환 허용).</summary>
         public PhaseLoop(RestEventData data, ITrackRuntime track, ITileStock stock, Func<string, string> text, Func<string, string> itemName,
@@ -227,7 +237,7 @@ namespace IronRing.Track
                 return;
             }
             if (Phase == LoopPhase.Build) SetPhase(LoopPhase.Circulate, Lap);
-            if (node.Kind == TrackNodeKind.Waypoint) StartEvent(node);
+            if (node.Kind == TrackNodeKind.Waypoint && !_battleWaypointIds.Contains(node.Id)) StartEvent(node);
         }
 
         private void SetPhase(LoopPhase phase, int lap)

@@ -1,0 +1,57 @@
+{
+  "_targetDurationSeconds": 75,
+  "_stage": { "_trainHealth": 100, "_spawnIntervalSeconds": 1.7, "_bossSpawnSeconds": 50, "_projectileSpeed": 13, "_healthGrowthPerStage": 0.2, "_spawnGrowthPerStage": 0.4, "_minSpawnIntervalSeconds": 0.5, "_roamingGuardId": "roaming_guard", "_roamingGuardMin": 1, "_roamingGuardMax": 2 },
+  "_enemies": [
+    { "_id": "raider", "_name": "약탈병", "_role": "soldier", "_health": 22, "_speed": 0.7, "_contactDamage": 8, "_experience": 6, "_scale": 1.0, "_tint": { "r": 1, "g": 1, "b": 1, "a": 1 }, "_damageTaken": 1.0, "_chargeAtProgress": 0.5, "_chargeSpeed": 2.0, "_attackRange": 0, "_attackDamage": 0, "_attackInterval": 0, "_attackProjectileSpeed": 0 },
+    { "_id": "bomber", "_name": "자폭병", "_role": "soldier", "_health": 12, "_speed": 1.2, "_contactDamage": 22, "_experience": 6, "_scale": 0.9, "_tint": { "r": 1, "g": 1, "b": 1, "a": 1 }, "_damageTaken": 1.0, "_chargeAtProgress": 0.5, "_chargeSpeed": 3.2, "_attackRange": 0, "_attackDamage": 0, "_attackInterval": 0, "_attackProjectileSpeed": 0 },
+    { "_id": "shield_guard", "_name": "방패수호병", "_role": "guard", "_health": 70, "_speed": 0.6, "_contactDamage": 10, "_experience": 10, "_scale": 1.25, "_tint": { "r": 1, "g": 1, "b": 1, "a": 1 }, "_damageTaken": 0.6, "_chargeAtProgress": 0.5, "_chargeSpeed": 1.6, "_attackRange": 0, "_attackDamage": 0, "_attackInterval": 0, "_attackProjectileSpeed": 0 },
+    { "_id": "roaming_guard", "_name": "떠돌이 방패병", "_role": "guard", "_spriteId": "shield_guard", "_health": 50, "_speed": 0.6, "_contactDamage": 9, "_experience": 10, "_scale": 1.25, "_tint": { "r": 1, "g": 1, "b": 1, "a": 1 }, "_damageTaken": 0.6, "_chargeAtProgress": 0.5, "_chargeSpeed": 1.6, "_attackRange": 0, "_attackDamage": 0, "_attackInterval": 0, "_attackProjectileSpeed": 0 },
+    { "_id": "warlord", "_name": "약탈 두목", "_role": "boss", "_health": 180, "_speed": 0.6, "_contactDamage": 40, "_experience": 40, "_scale": 1.6, "_tint": { "r": 1, "g": 1, "b": 1, "a": 1 }, "_damageTaken": 1.0, "_chargeAtProgress": 0.5, "_chargeSpeed": 1.4, "_attackRange": 0, "_attackDamage": 0, "_attackInterval": 0, "_attackProjectileSpeed": 0 },
+    { "_id": "gunner_boss", "_name": "포격 두목", "_role": "boss", "_health": 90, "_speed": 0.6, "_contactDamage": 40, "_experience": 40, "_scale": 1.5, "_tint": { "r": 1, "g": 1, "b": 1, "a": 1 }, "_damageTaken": 1.0, "_chargeAtProgress": 0, "_chargeSpeed": 0, "_attackRange": 4.2, "_attackDamage": 6, "_attackInterval": 2.5, "_attackProjectileSpeed": 6 }
+  ],
+  "_lineups": [
+    { "_fromStage": 1, "_soldiers": [ { "_enemyId": "raider", "_weight": 1 } ], "_bossId": "warlord", "_guardId": "", "_guardCount": 0, "_guardsPerStage": 0, "_maxGuardCount": 0, "_extraBossIds": [] },
+    { "_fromStage": 2, "_soldiers": [ { "_enemyId": "raider", "_weight": 3 }, { "_enemyId": "bomber", "_weight": 1 } ], "_bossId": "warlord", "_guardId": "", "_guardCount": 0, "_guardsPerStage": 0, "_maxGuardCount": 0, "_extraBossIds": [] },
+    { "_fromStage": 3, "_soldiers": [ { "_enemyId": "raider", "_weight": 3 }, { "_enemyId": "bomber", "_weight": 1 } ], "_bossId": "gunner_boss", "_guardId": "shield_guard", "_guardCount": 2, "_guardsPerStage": 1, "_maxGuardCount": 3, "_extraBossIds": [] },
+    { "_fromStage": 5, "_soldiers": [ { "_enemyId": "raider", "_weight": 3 }, { "_enemyId": "bomber", "_weight": 1 } ], "_bossId": "gunner_boss", "_guardId": "shield_guard", "_guardCount": 3, "_guardsPerStage": 1, "_maxGuardCount": 3, "_extraBossIds": [ "warlord" ] }
+  ],
+  "_mainGun": { "_damage": 24, "_cooldownSeconds": 1.5, "_blastRadius": 1.2, "_maxLevel": 7, "_damagePerLevel": 8, "_radiusPerLevel": 0.2 },
+  "_levels": [
+    { "_level": 1, "_experience": 0, "_slots": 4 },
+    { "_level": 2, "_experience": 12, "_slots": 4 },
+    { "_level": 3, "_experience": 28, "_slots": 6 },
+    { "_level": 4, "_experience": 48, "_slots": 6 },
+    { "_level": 5, "_experience": 72, "_slots": 6 },
+    { "_level": 6, "_experience": 100, "_slots": 8 },
+    { "_level": 7, "_experience": 132, "_slots": 8 }
+  ],
+  "_economy": { "_victoryMarks": 80, "_defeatMarks": 25, "_repairMarks": 15, "_duplicateHintMarks": 12, "_turretInstallMarks": 10, "_turretUpgradeMarks": 15, "_hintChance": 0.35, "_passengerChance": 0.65 },
+  "_turrets": [
+    { "_id": "scrap", "_name": "고철 포탑", "_baseDamage": 7, "_attackInterval": 1.0, "_range": 8.0, "_maxLevel": 3, "_damagePerLevel": 3, "_starting": true },
+    { "_id": "timber", "_name": "목재 연사포", "_baseDamage": 4, "_attackInterval": 0.55, "_range": 7.5, "_maxLevel": 3, "_damagePerLevel": 2 },
+    { "_id": "water", "_name": "압력 수포", "_baseDamage": 6, "_attackInterval": 1.2, "_range": 7.0, "_maxLevel": 3, "_damagePerLevel": 3 },
+    { "_id": "coal", "_name": "석탄 화포", "_baseDamage": 12, "_attackInterval": 1.8, "_range": 8.5, "_maxLevel": 3, "_damagePerLevel": 5 },
+    { "_id": "iron", "_name": "철갑 관통포", "_baseDamage": 11, "_attackInterval": 1.5, "_range": 9.0, "_maxLevel": 3, "_damagePerLevel": 4 },
+    { "_id": "steam", "_name": "증기 분사포", "_baseDamage": 5, "_attackInterval": 0.8, "_range": 6.5, "_maxLevel": 3, "_damagePerLevel": 3 },
+    { "_id": "electric", "_name": "전격 포탑", "_baseDamage": 8, "_attackInterval": 1.1, "_range": 8.0, "_maxLevel": 3, "_damagePerLevel": 4 }
+  ],
+  "_buildings": [
+    { "_habitatId": "cleared_lot", "_turretId": "scrap", "_stat": "damage", "_bonus": 1 },
+    { "_habitatId": "logging_site", "_turretId": "timber", "_stat": "damage", "_bonus": 1 },
+    { "_habitatId": "stone_well", "_turretId": "water", "_stat": "range", "_bonus": 0.4 },
+    { "_habitatId": "temporary_shelter", "_turretId": "scrap", "_stat": "range", "_bonus": 0.4 },
+    { "_habitatId": "terrace_field", "_turretId": "timber", "_stat": "interval", "_bonus": 0.04 },
+    { "_habitatId": "coal_shaft", "_turretId": "coal", "_stat": "damage", "_bonus": 2 },
+    { "_habitatId": "communal_kitchen", "_turretId": "water", "_stat": "damage", "_bonus": 1 },
+    { "_habitatId": "iron_forge", "_turretId": "iron", "_stat": "damage", "_bonus": 2 },
+    { "_habitatId": "copper_pit", "_turretId": "electric", "_stat": "range", "_bonus": 0.5 },
+    { "_habitatId": "steam_boiler", "_turretId": "steam", "_stat": "damage", "_bonus": 2 },
+    { "_habitatId": "pump_station", "_turretId": "water", "_stat": "interval", "_bonus": 0.05 },
+    { "_habitatId": "gear_workshop", "_turretId": "steam", "_stat": "interval", "_bonus": 0.05 },
+    { "_habitatId": "steam_station", "_turretId": "coal", "_stat": "range", "_bonus": 0.5 },
+    { "_habitatId": "wire_workshop", "_turretId": "electric", "_stat": "damage", "_bonus": 2 },
+    { "_habitatId": "electric_works", "_turretId": "electric", "_stat": "interval", "_bonus": 0.06 },
+    { "_habitatId": "night_market", "_turretId": "iron", "_stat": "range", "_bonus": 0.5 },
+    { "_habitatId": "clock_tower", "_turretId": "iron", "_stat": "interval", "_bonus": 0.05 }
+  ]
+}

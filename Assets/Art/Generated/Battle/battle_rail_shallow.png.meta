@@ -1,0 +1,507 @@
+fileFormatVersion: 2
+guid: f8952b42bf8aabe4fa7d0e7dc981c820
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -1669269163881832405
+    second: battle_rail_shallow_0
+  - first:
+      213: -1235121845805242590
+    second: battle_rail_shallow_1
+  - first:
+      213: -2109016831963920678
+    second: battle_rail_shallow_2
+  - first:
+      213: 1156434927089128000
+    second: battle_rail_shallow_3
+  - first:
+      213: -6865438910290827141
+    second: battle_rail_shallow_4
+  - first:
+      213: -5067930561365023491
+    second: battle_rail_shallow_5
+  - first:
+      213: 1222824478233918485
+    second: battle_rail_shallow_6
+  - first:
+      213: -398738098104417216
+    second: battle_rail_shallow_7
+  - first:
+      213: -4968671640244931225
+    second: battle_rail_shallow_8
+  - first:
+      213: -6879661152221161022
+    second: battle_rail_shallow_9
+  - first:
+      213: 6720432813435371622
+    second: battle_rail_shallow_10
+  - first:
+      213: 3631414519129172172
+    second: battle_rail_shallow_11
+  - first:
+      213: -3727808931689725006
+    second: battle_rail_shallow_12
+  - first:
+      213: -5811680903220070488
+    second: battle_rail_shallow_13
+  - first:
+      213: -575068993341503626
+    second: battle_rail_shallow_14
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: battle_rail_shallow_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 47
+        width: 2172
+        height: 513
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b206f442a8095d8e0800000000000000
+      internalID: -1669269163881832405
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: battle_rail_shallow_1
+      rect:
+        serializedVersion: 2
+        x: 279
+        y: 488
+        width: 6
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2272476a937fbdee0800000000000000
+      internalID: -1235121845805242590
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: battle_rail_shallow_2
+      rect:
+        serializedVersion: 2
+        x: 281
+        y: 482
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ad688798d544bb2e0800000000000000
+      internalID: -2109016831963920678
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: battle_rail_shallow_3
+      rect:
+        serializedVersion: 2
+        x: 373
+        y: 488
+        width: 97
+        height: 77
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 042900b607b7c0010800000000000000
+      internalID: 1156434927089128000
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: battle_rail_shallow_4
+      rect:
+        serializedVersion: 2
+        x: 1134
+        y: 482
+        width: 186
+        height: 119
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b7868fc8faf09b0a0800000000000000
+      internalID: -6865438910290827141
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: battle_rail_shallow_5
+      rect:
+        serializedVersion: 2
+        x: 1277
+        y: 484
+        width: 7
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: df4ed7761081ba9b0800000000000000
+      internalID: -5067930561365023491
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: battle_rail_shallow_6
+      rect:
+        serializedVersion: 2
+        x: 1446
+        y: 485
+        width: 136
+        height: 80
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 51cf8c7526858f010800000000000000
+      internalID: 1222824478233918485
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: battle_rail_shallow_7
+      rect:
+        serializedVersion: 2
+        x: 2017
+        y: 480
+        width: 9
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0444218ffc5677af0800000000000000
+      internalID: -398738098104417216
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: battle_rail_shallow_8
+      rect:
+        serializedVersion: 2
+        x: 2065
+        y: 489
+        width: 9
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 765b4a5e77bbb0bb0800000000000000
+      internalID: -4968671640244931225
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: battle_rail_shallow_9
+      rect:
+        serializedVersion: 2
+        x: 973
+        y: 474
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2c99dcec1a88680a0800000000000000
+      internalID: -6879661152221161022
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: battle_rail_shallow_10
+      rect:
+        serializedVersion: 2
+        x: 979
+        y: 473
+        width: 8
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 660c1b59906c34d50800000000000000
+      internalID: 6720432813435371622
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: battle_rail_shallow_11
+      rect:
+        serializedVersion: 2
+        x: 2053
+        y: 478
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cc8e3ecd340656230800000000000000
+      internalID: 3631414519129172172
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: battle_rail_shallow_12
+      rect:
+        serializedVersion: 2
+        x: 281
+        y: 465
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2b30b140789244cc0800000000000000
+      internalID: -3727808931689725006
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: battle_rail_shallow_13
+      rect:
+        serializedVersion: 2
+        x: 1182
+        y: 224
+        width: 12
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8a775a79203c85fa0800000000000000
+      internalID: -5811680903220070488
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: battle_rail_shallow_14
+      rect:
+        serializedVersion: 2
+        x: 1174
+        y: 71
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 677c9822cc1f408f0800000000000000
+      internalID: -575068993341503626
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      battle_rail_shallow_0: -1669269163881832405
+      battle_rail_shallow_1: -1235121845805242590
+      battle_rail_shallow_10: 6720432813435371622
+      battle_rail_shallow_11: 3631414519129172172
+      battle_rail_shallow_12: -3727808931689725006
+      battle_rail_shallow_13: -5811680903220070488
+      battle_rail_shallow_14: -575068993341503626
+      battle_rail_shallow_2: -2109016831963920678
+      battle_rail_shallow_3: 1156434927089128000
+      battle_rail_shallow_4: -6865438910290827141
+      battle_rail_shallow_5: -5067930561365023491
+      battle_rail_shallow_6: 1222824478233918485
+      battle_rail_shallow_7: -398738098104417216
+      battle_rail_shallow_8: -4968671640244931225
+      battle_rail_shallow_9: -6879661152221161022
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

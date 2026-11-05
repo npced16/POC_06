@@ -8,6 +8,7 @@ using TMPro;
 
 using IronRing.Contracts;
 using IronRing.Contracts.Presentation;
+using IronRing.Combat;
 using IronRing.Habitats;
 using IronRing.Habitats.Demo;
 using IronRing.Hud.Hotbar;
@@ -36,6 +37,8 @@ namespace IronRing.Hud.Codex
         [SerializeField] private TMP_Text _title;
         [SerializeField] private TMP_Text _hint;
         [SerializeField] private Button _close;
+        [SerializeField] private Button _habitatsTab;
+        [SerializeField] private Button _turretsTab;
         [SerializeField] private RectTransform _grid;
         [Tooltip("카드 부품(Parts/CodexCard.prefab).")]
         [SerializeField] private CodexCardView _cardPrefab;
@@ -57,6 +60,9 @@ namespace IronRing.Hud.Codex
         private string _lastHub;
         private readonly Queue<string> _toasts = new Queue<string>();
         private float _nextToastAt;
+        private BattleRules _battleRules;
+        private bool _showTurrets;
+        private readonly HashSet<string> _knownTurrets = new HashSet<string>();
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStatics() { GameServices.Ready -= Create; _instance = null; }
@@ -103,6 +109,10 @@ namespace IronRing.Hud.Codex
             TMP_Text closeLabel = _close.GetComponentInChildren<TMP_Text>(true);
             if (closeLabel != null) closeLabel.text = Text("codex_close");
             _close.onClick.AddListener(Close);
+            _habitatsTab.onClick.AddListener(ShowHabitats);
+            _turretsTab.onClick.AddListener(ShowTurrets);
+            _battleRules = BattleRules.Load();
+            foreach (TurretRule turret in CurrentTurrets()) _knownTurrets.Add(turret.Id);
             _codex.RecipeUnlocked += OnRecipeUnlocked;
             if (_codex is HabitatCodex hintCodex) hintCodex.HintUnlocked += OnHintUnlocked;
             _codex.TileUnlocked += OnTileUnlocked;
@@ -141,8 +151,14 @@ namespace IronRing.Hud.Codex
             if (IsOpen) Rebuild();
         }
 
-        /// <summary>tileIds가 열리면 화면에 보이는 잠긴 카드의 재료 이름과 아이콘을 다시 그린다.</summary>
-        private void OnTileUnlocked(IReadOnlyList<string> tileIds, string byRecipeId) { if (IsOpen) Rebuild(); }
+        /// <summary>byRecipeId로 열린 tileIds의 이름을 알림 큐에 넣고 열린 도감을 갱신한다.</summary>
+        private void OnTileUnlocked(IReadOnlyList<string> tileIds, string byRecipeId)
+        {
+            var names = new List<string>();
+            foreach (string id in tileIds) names.Add(Lookup("item_" + id) ?? id);
+            _toasts.Enqueue(string.Format(Text("unlock_by_building"), HabitatName(byRecipeId), string.Join(" · ", names)));
+            if (IsOpen) Rebuild();
+        }
 
         /// <summary>typeId의 새 설계 단서를 알리고 열린 도감의 카드를 갱신한다.</summary>
         private void OnHintUnlocked(string typeId)
@@ -151,7 +167,25 @@ namespace IronRing.Hud.Codex
             if (IsOpen) Rebuild();
         }
 
-        private void OnClustersChanged(string hubId, string typeId) { if (IsOpen) Rebuild(); }
+        private void OnClustersChanged(string hubId, string typeId)
+        {
+            foreach (TurretRule turret in CurrentTurrets())
+                if (_knownTurrets.Add(turret.Id))
+                    _toasts.Enqueue(string.Format(Text("unlock_turret"), HabitatName(typeId), turret.Name));
+            if (IsOpen) Rebuild();
+        }
+
+        /// <summary>서식지 탭을 선택하고 현재 도감 목록을 다시 그린다.</summary>
+        private void ShowHabitats() { _showTurrets = false; Rebuild(); }
+
+        /// <summary>포탑 탭을 선택하고 현재 포탑 해금 목록을 다시 그린다.</summary>
+        private void ShowTurrets() { _showTurrets = true; Rebuild(); }
+
+        /// <summary>완성된 거점 건물과 승객을 기준으로 사용할 수 있는 포탑 목록을 반환한다.</summary>
+        private IReadOnlyList<TurretRule> CurrentTurrets()
+        {
+            return BattleIntegration.CreateLoadout(_battleRules, _clusters, _recruiter, _hubs != null ? _hubs.HubIds : null).AvailableTurrets();
+        }
         private void OnInteriorChanged(bool open) { if (IsOpen) Rebuild(); }
         private void OnNpcJoined(string hubId, string npcId) { if (IsOpen) Rebuild(); }
         private void OnNpcDemoReady(string firstNpcId) => Open();
@@ -216,6 +250,7 @@ namespace IronRing.Hud.Codex
                 child.SetActive(false);
                 Destroy(child);
             }
+            if (_showTurrets) { RebuildTurrets(); return; }
             foreach (HabitatType type in _catalog.Types)
             {
                 CodexCardView card = Instantiate(_cardPrefab, _grid);
@@ -247,6 +282,25 @@ namespace IronRing.Hud.Codex
                     type.VillageWork,
                     completed.Contains(type.Id));
                 FillDiagram(card, type);
+            }
+        }
+
+        /// <summary>사용 가능 포탑과 각 포탑의 건물 조건·기본 수치를 도감 카드에 표시한다.</summary>
+        private void RebuildTurrets()
+        {
+            var unlocked = new HashSet<string>();
+            foreach (TurretRule turret in CurrentTurrets()) unlocked.Add(turret.Id);
+            _title.text = string.Format(Text("codex_turret_title"), unlocked.Count, _battleRules.Turrets.Count);
+            foreach (TurretRule turret in _battleRules.Turrets)
+            {
+                string condition = Text("codex_turret_start");
+                foreach (BuildingTurretRule building in _battleRules.Buildings)
+                    if (building.TurretId == turret.Id) { condition = string.Format(Text("codex_turret_unlock"), HabitatName(building.HabitatId)); break; }
+                if (turret.Starting) condition = Text("codex_turret_start");
+                CodexCardView card = Instantiate(_cardPrefab, _grid);
+                card.name = "Turret_" + turret.Id;
+                card.ShowUnlocked(turret.Name, unlocked.Contains(turret.Id) ? "사용 가능" : "잠김", condition,
+                    string.Format(Text("codex_turret_stats"), turret.BaseDamage, turret.Range, turret.AttackInterval), false);
             }
         }
 

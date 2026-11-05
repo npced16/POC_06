@@ -61,6 +61,8 @@ namespace IronRing.Hud.Npc
         [SerializeField] private RectTransform _panel;
         [Tooltip("왼쪽 아래 큰 초상(아래 기준, 높이 고정·폭은 비율).")]
         [SerializeField] private Image _portrait;
+        [Header("Boarding scene")]
+        [SerializeField] private GameObject _boardingBackdrop;
         [Tooltip("그늘 알파(0~1). 데이터 값.")]
         [SerializeField] private float _dialogDimAlpha = 0.35f;
         [Tooltip("초상 카탈로그에 없을 때 몸체 스프라이트 확대 배수.")]
@@ -184,6 +186,7 @@ namespace IronRing.Hud.Npc
             }
             if (string.IsNullOrEmpty(hubId) || string.IsNullOrEmpty(npcId)) return;
             _boarding = false;
+            if (_boardingBackdrop != null) _boardingBackdrop.SetActive(false);
             if (_npc != null && _npc != npcId) InteriorNpcWalker.SetTalking(_npc, false);
             _hub = hubId;
             _npc = npcId;
@@ -209,6 +212,7 @@ namespace IronRing.Hud.Npc
         {
             if (_npc != null || string.IsNullOrEmpty(npcId) || _screens == null) return false;
             _boarding = true;
+            if (_boardingBackdrop != null) _boardingBackdrop.SetActive(true);
             _hub = null;
             _npc = npcId;
             _sequence.Clear();
@@ -217,7 +221,6 @@ namespace IronRing.Hud.Npc
             _choosing = false;
             _typedLine = null;
             SetPortrait(npcId);
-            _screens.Hide("RestEvent");
             _screens.Show(_screen.Id);
             _title.text = name ?? npcId;
             if (_meta != null)
@@ -255,11 +258,11 @@ namespace IronRing.Hud.Npc
             string was = _npc;
             bool boarding = _boarding;
             _boarding = false;
+            if (_boardingBackdrop != null) _boardingBackdrop.SetActive(false);
             _hub = null;
             _npc = null;
             _choosing = false;
             if (_screens != null) _screens.Hide(_screen.Id);
-            if (boarding && GameServices.Get<IRestEvents>()?.IsActive == true) _screens?.Show("RestEvent");
             if (was != null && !boarding) { InteriorNpcWalker.SetHighlighted(null); InteriorNpcWalker.SetTalking(was, false); HotbarScreen.Instance?.SetSuppressed(false); }
         }
 

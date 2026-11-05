@@ -1563,6 +1563,14 @@
     {
       "_key": "rest_boarding_result",
       "_value": "새 승객이 객차에 올랐다."
-    }
+    },
+    { "_key": "codex_tab_habitats", "_value": "서식지" },
+    { "_key": "codex_tab_turrets", "_value": "포탑" },
+    { "_key": "codex_turret_title", "_value": "포탑 도감  {0} / {1}" },
+    { "_key": "codex_turret_stats", "_value": "피해 {0}  ·  사거리 {1}  ·  간격 {2}초" },
+    { "_key": "codex_turret_unlock", "_value": "해금 조건: {0} 건설" },
+    { "_key": "codex_turret_start", "_value": "기본 포탑" },
+    { "_key": "unlock_by_building", "_value": "{0} 건설로 {1} 해금!" },
+    { "_key": "unlock_turret", "_value": "{0} 건설로 {1} 포탑 기능 해금!" }
   ]
 }

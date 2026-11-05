@@ -17,6 +17,7 @@ namespace IronRing.Bootstrap
     public sealed class GameSession : IDisposable
     {
         private readonly GameDefinition _data;
+        private readonly bool _usePhaseEvents;
         /// <summary>Authored track data or the real movement runtime, according to the owning type.</summary>
         public RingTrack Track { get; }
         /// <summary>Real resource inventory shared by placement, construction and encounters.</summary>
@@ -35,9 +36,10 @@ namespace IronRing.Bootstrap
         public HabitatLink HabitatLink { get; }
 
         /// <summary>Constructs real systems from data and an optional controller-owned track, using reproducible demo seeds when requested.</summary>
-        public GameSession(GameDefinition data, bool deterministic, RingTrack track = null)
+        public GameSession(GameDefinition data, bool deterministic, RingTrack track = null, bool usePhaseEvents = false)
         {
             _data = data;
+            _usePhaseEvents = usePhaseEvents;
             Track = track ?? data.Track.CreateTrack();
             Inventory = new ResourceInventory(data.Habitats.CreateStock());
             Habitat = new HabitatEvaluator(data.Recipes, Inventory, Track);
@@ -70,7 +72,7 @@ namespace IronRing.Bootstrap
                 Npcs.OnHubVisited(node.HubId);
                 Interior?.OnDocked(node.HubId);
             }
-            else Waypoints.OnWaypointArrived(node);
+            else if (!_usePhaseEvents) Waypoints.OnWaypointArrived(node);
         }
 
         /// <summary>Holds the real track when every hub is ruined so normal play cannot depart after defeat.</summary>
