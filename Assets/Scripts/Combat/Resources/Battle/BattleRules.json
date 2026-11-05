@@ -1,6 +1,20 @@
 {
   "_targetDurationSeconds": 75,
-  "_stage": { "_trainHealth": 100, "_enemyHealth": 22, "_enemySpeed": 0.7, "_enemyContactDamage": 8, "_enemyExperience": 6, "_spawnIntervalSeconds": 1.7, "_bossSpawnSeconds": 50, "_bossHealth": 180, "_bossSpeed": 0.6, "_bossContactDamage": 40, "_bossExperience": 40, "_projectileSpeed": 13 },
+  "_stage": { "_trainHealth": 100, "_spawnIntervalSeconds": 1.7, "_bossSpawnSeconds": 50, "_projectileSpeed": 13, "_healthGrowthPerStage": 0.2, "_spawnGrowthPerStage": 0.4, "_minSpawnIntervalSeconds": 0.5, "_roamingGuardId": "roaming_guard", "_roamingGuardMin": 1, "_roamingGuardMax": 2 },
+  "_enemies": [
+    { "_id": "raider", "_name": "약탈병", "_role": "soldier", "_health": 22, "_speed": 0.7, "_contactDamage": 8, "_experience": 6, "_scale": 1.0, "_tint": { "r": 1, "g": 1, "b": 1, "a": 1 }, "_damageTaken": 1.0, "_chargeAtProgress": 0.5, "_chargeSpeed": 2.0, "_attackRange": 0, "_attackDamage": 0, "_attackInterval": 0, "_attackProjectileSpeed": 0 },
+    { "_id": "bomber", "_name": "자폭병", "_role": "soldier", "_health": 12, "_speed": 1.2, "_contactDamage": 22, "_experience": 6, "_scale": 0.9, "_tint": { "r": 1, "g": 1, "b": 1, "a": 1 }, "_damageTaken": 1.0, "_chargeAtProgress": 0.5, "_chargeSpeed": 3.2, "_attackRange": 0, "_attackDamage": 0, "_attackInterval": 0, "_attackProjectileSpeed": 0 },
+    { "_id": "shield_guard", "_name": "방패수호병", "_role": "guard", "_health": 70, "_speed": 0.6, "_contactDamage": 10, "_experience": 10, "_scale": 1.25, "_tint": { "r": 1, "g": 1, "b": 1, "a": 1 }, "_damageTaken": 0.6, "_chargeAtProgress": 0.5, "_chargeSpeed": 1.6, "_attackRange": 0, "_attackDamage": 0, "_attackInterval": 0, "_attackProjectileSpeed": 0 },
+    { "_id": "roaming_guard", "_name": "떠돌이 방패병", "_role": "guard", "_spriteId": "shield_guard", "_health": 50, "_speed": 0.6, "_contactDamage": 9, "_experience": 10, "_scale": 1.25, "_tint": { "r": 1, "g": 1, "b": 1, "a": 1 }, "_damageTaken": 0.6, "_chargeAtProgress": 0.5, "_chargeSpeed": 1.6, "_attackRange": 0, "_attackDamage": 0, "_attackInterval": 0, "_attackProjectileSpeed": 0 },
+    { "_id": "warlord", "_name": "약탈 두목", "_role": "boss", "_health": 180, "_speed": 0.6, "_contactDamage": 40, "_experience": 40, "_scale": 1.6, "_tint": { "r": 1, "g": 1, "b": 1, "a": 1 }, "_damageTaken": 1.0, "_chargeAtProgress": 0.5, "_chargeSpeed": 1.4, "_attackRange": 0, "_attackDamage": 0, "_attackInterval": 0, "_attackProjectileSpeed": 0 },
+    { "_id": "gunner_boss", "_name": "포격 두목", "_role": "boss", "_health": 90, "_speed": 0.6, "_contactDamage": 40, "_experience": 40, "_scale": 1.5, "_tint": { "r": 1, "g": 1, "b": 1, "a": 1 }, "_damageTaken": 1.0, "_chargeAtProgress": 0, "_chargeSpeed": 0, "_attackRange": 4.2, "_attackDamage": 6, "_attackInterval": 2.5, "_attackProjectileSpeed": 6 }
+  ],
+  "_lineups": [
+    { "_fromStage": 1, "_soldiers": [ { "_enemyId": "raider", "_weight": 1 } ], "_bossId": "warlord", "_guardId": "", "_guardCount": 0, "_guardsPerStage": 0, "_maxGuardCount": 0, "_extraBossIds": [] },
+    { "_fromStage": 2, "_soldiers": [ { "_enemyId": "raider", "_weight": 3 }, { "_enemyId": "bomber", "_weight": 1 } ], "_bossId": "warlord", "_guardId": "", "_guardCount": 0, "_guardsPerStage": 0, "_maxGuardCount": 0, "_extraBossIds": [] },
+    { "_fromStage": 3, "_soldiers": [ { "_enemyId": "raider", "_weight": 3 }, { "_enemyId": "bomber", "_weight": 1 } ], "_bossId": "gunner_boss", "_guardId": "shield_guard", "_guardCount": 2, "_guardsPerStage": 1, "_maxGuardCount": 3, "_extraBossIds": [] },
+    { "_fromStage": 5, "_soldiers": [ { "_enemyId": "raider", "_weight": 3 }, { "_enemyId": "bomber", "_weight": 1 } ], "_bossId": "gunner_boss", "_guardId": "shield_guard", "_guardCount": 3, "_guardsPerStage": 1, "_maxGuardCount": 3, "_extraBossIds": [ "warlord" ] }
+  ],
   "_mainGun": { "_damage": 24, "_cooldownSeconds": 1.5, "_blastRadius": 1.2, "_maxLevel": 7, "_damagePerLevel": 8, "_radiusPerLevel": 0.2 },
   "_levels": [
     { "_level": 1, "_experience": 0, "_slots": 4 },

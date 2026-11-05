@@ -571,7 +571,7 @@ namespace IronRing.Combat.Editor
             foreach (GameObject root in scene.GetRootGameObjects()) if (root.name == "Battle Scenery") old = root;
             if (old != null) UnityEngine.Object.DestroyImmediate(old);
             Transform scenery = CreateWorldRoot(scene, "Battle Scenery");
-            Sprite background = LoadBattleSprite(reference ? "Assets/Art/Generated/Battle/battlefield_v2.png" : "Assets/Art/Generated/Battle/battlefield.png");
+            Sprite background = LoadBattleSprite(reference ? "Assets/Art/Generated/Battle/battlefield_topdown.png" : "Assets/Art/Generated/Battle/battlefield.png");
             GameObject backdrop = new GameObject("Ruined Battlefield", typeof(SpriteRenderer));
             backdrop.transform.SetParent(scenery, false);
             backdrop.transform.position = new Vector3(0, 0.85f, 2f);
