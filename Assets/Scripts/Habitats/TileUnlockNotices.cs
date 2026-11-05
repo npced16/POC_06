@@ -27,7 +27,6 @@ namespace IronRing.Habitats
         private void OnTileUnlocked(IReadOnlyList<string> tiles, string byRecipe)
         {
             UnityEngine.Debug.Log($"UNLOCK: tile {string.Join(",", tiles)} by {byRecipe}");
-            Toast("unlock_toast_tiles", tiles, _tileName);
         }
 
         private void Toast(string key, IReadOnlyList<string> ids, Func<string, string> nameOf)

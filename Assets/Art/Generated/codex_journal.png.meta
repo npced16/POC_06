@@ -1,0 +1,715 @@
+fileFormatVersion: 2
+guid: aa225e061dfb2cc44909624b2656e8d3
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -5891877939299769749
+    second: codex_journal_0
+  - first:
+      213: 4873512168014689581
+    second: codex_journal_1
+  - first:
+      213: -3311711906046748506
+    second: codex_journal_2
+  - first:
+      213: -3617515274889301337
+    second: codex_journal_3
+  - first:
+      213: 2331999270691791146
+    second: codex_journal_4
+  - first:
+      213: 2665805676397372761
+    second: codex_journal_5
+  - first:
+      213: -7288819761681542741
+    second: codex_journal_6
+  - first:
+      213: -3125308039360796832
+    second: codex_journal_7
+  - first:
+      213: -3036438280054268519
+    second: codex_journal_8
+  - first:
+      213: 5601219731343300254
+    second: codex_journal_9
+  - first:
+      213: -7071650156985341701
+    second: codex_journal_10
+  - first:
+      213: 3290297188739522247
+    second: codex_journal_11
+  - first:
+      213: -7469141827623615939
+    second: codex_journal_12
+  - first:
+      213: -1235369370187051040
+    second: codex_journal_13
+  - first:
+      213: -1198317783253737242
+    second: codex_journal_14
+  - first:
+      213: 3262009311872363767
+    second: codex_journal_15
+  - first:
+      213: -6127690633336019809
+    second: codex_journal_16
+  - first:
+      213: 7138861650223264869
+    second: codex_journal_17
+  - first:
+      213: 7217003746873670800
+    second: codex_journal_18
+  - first:
+      213: -715492775639466460
+    second: codex_journal_19
+  - first:
+      213: -4239791364706760373
+    second: codex_journal_20
+  - first:
+      213: -5900479667158569096
+    second: codex_journal_21
+  - first:
+      213: -8296798503160864236
+    second: codex_journal_22
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: codex_journal_0
+      rect:
+        serializedVersion: 2
+        x: 26
+        y: 534
+        width: 167
+        height: 414
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b62a3101b38db3ea0800000000000000
+      internalID: -5891877939299769749
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: codex_journal_1
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 702
+        width: 17
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d253f0fee7132a340800000000000000
+      internalID: 4873512168014689581
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: codex_journal_2
+      rect:
+        serializedVersion: 2
+        x: 202
+        y: 23
+        width: 1041
+        height: 1081
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6a8d6a1519f6a02d0800000000000000
+      internalID: -3311711906046748506
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: codex_journal_3
+      rect:
+        serializedVersion: 2
+        x: 1160
+        y: 712
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7a27cae16010ccdc0800000000000000
+      internalID: -3617515274889301337
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: codex_journal_4
+      rect:
+        serializedVersion: 2
+        x: 1160
+        y: 710
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a21ed023bfcec5020800000000000000
+      internalID: 2331999270691791146
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: codex_journal_5
+      rect:
+        serializedVersion: 2
+        x: 88
+        y: 331
+        width: 65
+        height: 187
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 955a2ed7328def420800000000000000
+      internalID: 2665805676397372761
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: codex_journal_6
+      rect:
+        serializedVersion: 2
+        x: 98
+        y: 457
+        width: 7
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ba1df196b09e8da90800000000000000
+      internalID: -7288819761681542741
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: codex_journal_7
+      rect:
+        serializedVersion: 2
+        x: 104
+        y: 443
+        width: 9
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0672a3495eca0a4d0800000000000000
+      internalID: -3125308039360796832
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: codex_journal_8
+      rect:
+        serializedVersion: 2
+        x: 142
+        y: 453
+        width: 19
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 99d97f6d8776cd5d0800000000000000
+      internalID: -3036438280054268519
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: codex_journal_9
+      rect:
+        serializedVersion: 2
+        x: 152
+        y: 461
+        width: 9
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e9650ab4ba78bbd40800000000000000
+      internalID: 5601219731343300254
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: codex_journal_10
+      rect:
+        serializedVersion: 2
+        x: 158
+        y: 461
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bf8ad0146a37cdd90800000000000000
+      internalID: -7071650156985341701
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: codex_journal_11
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 72
+        width: 113
+        height: 197
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7ce19444cdb79ad20800000000000000
+      internalID: 3290297188739522247
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: codex_journal_12
+      rect:
+        serializedVersion: 2
+        x: 255
+        y: 72
+        width: 8
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d328b7bb417485890800000000000000
+      internalID: -7469141827623615939
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: codex_journal_13
+      rect:
+        serializedVersion: 2
+        x: 676
+        y: 118
+        width: 13
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0ef4a936a161bdee0800000000000000
+      internalID: -1235369370187051040
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: codex_journal_14
+      rect:
+        serializedVersion: 2
+        x: 712
+        y: 62
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6e0a0293358be5fe0800000000000000
+      internalID: -1198317783253737242
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: codex_journal_15
+      rect:
+        serializedVersion: 2
+        x: 888
+        y: 67
+        width: 7
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7fc2b20bf2cf44d20800000000000000
+      internalID: 3262009311872363767
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: codex_journal_16
+      rect:
+        serializedVersion: 2
+        x: 938
+        y: 68
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f94a48ab5d116faa0800000000000000
+      internalID: -6127690633336019809
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: codex_journal_17
+      rect:
+        serializedVersion: 2
+        x: 970
+        y: 66
+        width: 51
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 564773af8d4521360800000000000000
+      internalID: 7138861650223264869
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: codex_journal_18
+      rect:
+        serializedVersion: 2
+        x: 726
+        y: 50
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 09c7113aba2f72460800000000000000
+      internalID: 7217003746873670800
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: codex_journal_19
+      rect:
+        serializedVersion: 2
+        x: 732
+        y: 39
+        width: 17
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 42eb6a48c1f0216f0800000000000000
+      internalID: -715492775639466460
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: codex_journal_20
+      rect:
+        serializedVersion: 2
+        x: 856
+        y: 39
+        width: 9
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b4982e8973c3925c0800000000000000
+      internalID: -4239791364706760373
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: codex_journal_21
+      rect:
+        serializedVersion: 2
+        x: 918
+        y: 37
+        width: 7
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 87f299a31094d1ea0800000000000000
+      internalID: -5900479667158569096
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: codex_journal_22
+      rect:
+        serializedVersion: 2
+        x: 926
+        y: 39
+        width: 19
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 412aa1e38b9dbdc80800000000000000
+      internalID: -8296798503160864236
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      codex_journal_0: -5891877939299769749
+      codex_journal_1: 4873512168014689581
+      codex_journal_10: -7071650156985341701
+      codex_journal_11: 3290297188739522247
+      codex_journal_12: -7469141827623615939
+      codex_journal_13: -1235369370187051040
+      codex_journal_14: -1198317783253737242
+      codex_journal_15: 3262009311872363767
+      codex_journal_16: -6127690633336019809
+      codex_journal_17: 7138861650223264869
+      codex_journal_18: 7217003746873670800
+      codex_journal_19: -715492775639466460
+      codex_journal_2: -3311711906046748506
+      codex_journal_20: -4239791364706760373
+      codex_journal_21: -5900479667158569096
+      codex_journal_22: -8296798503160864236
+      codex_journal_3: -3617515274889301337
+      codex_journal_4: 2331999270691791146
+      codex_journal_5: 2665805676397372761
+      codex_journal_6: -7288819761681542741
+      codex_journal_7: -3125308039360796832
+      codex_journal_8: -3036438280054268519
+      codex_journal_9: 5601219731343300254
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

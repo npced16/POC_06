@@ -54,7 +54,8 @@ namespace IronRing.Hud.Editor
         /// </summary>
         public static readonly string[] SCREEN_IDS =
         {
-            "TopBar", "Passengers", "HubPanel", "Defeat", "RunResult", "PhaseBanner", "InteriorTitle", "Hotbar", "Toast", "NpcDialog", "Codex", "RestEvent", "Onboarding", "DevSituations", // 스펙 001: 온보딩 팝업과 F9 개발자 상황 메뉴 화면 추가
+            "NpcBubble", "TopBar", "Passengers", "HubPanel", "Defeat", "RunResult", "PhaseBanner", "InteriorTitle", "Hotbar", "Toast", "NpcDialog", "Codex", "RestEvent",
+            "Onboarding", "DevSituations", // 스펙 001: 온보딩 팝업과 F9 개발자 상황 메뉴 화면 추가
             "GameMenu", // 스펙 003: 게임 메뉴(저장·백그라운드 실행·타이틀로·종료) 화면 추가
         };
 

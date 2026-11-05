@@ -33,6 +33,12 @@ namespace IronRing.Track
         private readonly HashSet<string> _usedThisLap = new HashSet<string>(StringComparer.Ordinal);
         private readonly Queue<string> _forced = new Queue<string>();
         private readonly List<string> _choices = new List<string>();
+        private readonly HashSet<string> _battleWaypointIds = new HashSet<string>(StringComparer.Ordinal);
+        // 화면 선택지 번호마다의 데이터 선택지와 교체로 내릴 승객 id(없으면 null). 만석 교체로 데이터 선택지가 여러 버튼이 된다.
+        private readonly List<RestChoice> _shownChoices = new List<RestChoice>();
+        private readonly List<string> _swapTargets = new List<string>();
+        private string _candidateId;
+        private string _chosenSwap;
         private RestEvent _event;
         private float _sinceStart;
         private float _sinceResolved;
@@ -82,6 +88,15 @@ namespace IronRing.Track
         public string BaseHubId => _track.Nodes[0].HubId;
         /// <summary>다음 거점 도착 때 받을 마르크(우편 행낭 등).</summary>
         public int PendingMoney => _pendingMoney;
+
+        /// <summary>전투가 담당할 경유지 id를 받아 해당 지점의 사건 추첨을 건너뛰도록 저장한다.</summary>
+        public void SetBattleWaypoints(IEnumerable<string> waypointIds)
+        {
+            _battleWaypointIds.Clear();
+            if (waypointIds == null) return;
+            foreach (string waypointId in waypointIds)
+                if (!string.IsNullOrWhiteSpace(waypointId)) _battleWaypointIds.Add(waypointId);
+        }
 
         /// <summary>text: ko.json 키 → 한국어, itemName: 아이템 id → 이름. 나머지는 지연 조회(null 반환 허용).</summary>
         public PhaseLoop(RestEventData data, ITrackRuntime track, ITileStock stock, Func<string, string> text, Func<string, string> itemName,
@@ -157,8 +172,8 @@ namespace IronRing.Track
         /// <summary>돈이 드는 선택지는 잔고가 비용 이상일 때만.</summary>
         public bool IsChoiceAvailable(int index)
         {
-            if (!IsActive || _event == null || index < 0 || index >= _event._choices.Length) return false;
-            int cost = CostOf(_event._choices[index]);
+            if (!IsActive || _event == null || index < 0 || index >= _shownChoices.Count) return false;
+            int cost = CostOf(_shownChoices[index]);
             IMoney money = _money();
             return cost <= 0 || money == null || money.Balance >= cost;
         }
@@ -171,7 +186,8 @@ namespace IronRing.Track
         public bool Choose(int index)
         {
             if (!IsActive || HasResolved || !IsChoiceAvailable(index)) return false;
-            RestChoice choice = _event._choices[index];
+            RestChoice choice = _shownChoices[index];
+            _chosenSwap = _swapTargets[index];
             var log = new List<string>();
             var detail = new List<string>();
             bool failed = RollFailed(choice);
@@ -228,7 +244,7 @@ namespace IronRing.Track
                 return;
             }
             if (Phase == LoopPhase.Build) SetPhase(LoopPhase.Circulate, Lap);
-            if (node.Kind == TrackNodeKind.Waypoint) StartEvent(node);
+            if (node.Kind == TrackNodeKind.Waypoint && !_battleWaypointIds.Contains(node.Id)) StartEvent(node);
         }
 
         private void SetPhase(LoopPhase phase, int lap)
@@ -243,15 +259,15 @@ namespace IronRing.Track
         private void StartEvent(ITrackNode node)
         {
             if (IsActive) return;
-            RestEvent e = Pick();
+            _candidateId = null;
+            RestEvent e = Pick(node.Id);
             if (e == null) return;
             _event = e;
             _usedThisLap.Add(e._id);
             NodeId = node.Id;
             Title = _text(e._title);
-            Text = _text(e._text);
-            _choices.Clear();
-            foreach (RestChoice c in e._choices) _choices.Add(_text(c._label));
+            Text = e._passengerCandidate ? CandidateText(e) : _text(e._text);
+            BuildChoices(e);
             HasResolved = false;
             ChosenIndex = -1;
             ResultText = "";
@@ -265,17 +281,38 @@ namespace IronRing.Track
             EventStarted?.Invoke();
         }
 
-        /// <summary>강제 큐 → (_minLap ≤ 바퀴, 이번 바퀴 미사용) 가중 → 다 썼으면 _minLap만 보고 가중.</summary>
-        private RestEvent Pick()
+        /// <summary>
+        /// 강제 큐 → (_minLap ≤ 바퀴, 이번 바퀴 미사용) 가중 → 다 썼으면 _minLap만 보고 가중으로 사건을 고른다.
+        /// nodeId는 승객 후보를 고르는 휴식지이며, 후보가 없으면 _passengerCandidate 사건은 뺀다. 고른 후보는 _candidateId에 저장한다.
+        /// </summary>
+        private RestEvent Pick(string nodeId)
         {
-            while (_forced.Count > 0)
+            string candidate = null;
+            bool candidateChecked = false;
+            bool Allowed(RestEvent e)
+            {
+                if (!e._passengerCandidate) return true;
+                if (!candidateChecked) { candidate = _passengers()?.PickCandidate(nodeId); candidateChecked = true; }
+                return candidate != null;
+            }
+
+            RestEvent picked = null;
+            while (picked == null && _forced.Count > 0)
             {
                 RestEvent forced = _data.Find(_forced.Dequeue());
-                if (forced != null) return forced;
+                if (forced != null && Allowed(forced)) picked = forced;
             }
+            if (picked == null) picked = PickWeighted(Allowed);
+            if (picked != null && picked._passengerCandidate) _candidateId = candidate;
+            return picked;
+        }
+
+        /// <summary>allowed를 통과한 사건 중 (_minLap ≤ 바퀴, 이번 바퀴 미사용) 가중 추첨, 다 썼으면 _minLap만 보고 가중 추첨한다. 없으면 null.</summary>
+        private RestEvent PickWeighted(Func<RestEvent, bool> allowed)
+        {
             var pool = new List<RestEvent>();
-            foreach (RestEvent e in _data._events) if (e._minLap <= Lap && !_usedThisLap.Contains(e._id)) pool.Add(e);
-            if (pool.Count == 0) foreach (RestEvent e in _data._events) if (e._minLap <= Lap) pool.Add(e);
+            foreach (RestEvent e in _data._events) if (e._minLap <= Lap && !_usedThisLap.Contains(e._id) && allowed(e)) pool.Add(e);
+            if (pool.Count == 0) foreach (RestEvent e in _data._events) if (e._minLap <= Lap && allowed(e)) pool.Add(e);
             if (pool.Count == 0) return null;
             int total = 0;
             foreach (RestEvent e in pool) total += Math.Max(0, e._weight);
@@ -288,6 +325,60 @@ namespace IronRing.Track
                 roll -= w;
             }
             return pool[pool.Count - 1];
+        }
+
+        /// <summary>
+        /// 승객 후보 사건 e의 상황 글을 만든다. e._text 형식에 후보 이름({0}), 건설 요청·직무 안내({1}),
+        /// 지금 탄 승객 수({2}), 최대 승객 수({3})를 넣어 반환한다.
+        /// </summary>
+        private string CandidateText(RestEvent e)
+        {
+            IPassengers passengers = _passengers();
+            string name = passengers?.Name(_candidateId) ?? _candidateId;
+            string request = passengers?.RequestLabel(_candidateId) ?? "";
+            int riding = passengers?.PassengerIds?.Count ?? 0;
+            int max = passengers?.MaxPassengers ?? 0;
+            return string.Format(_text(e._text), name, request, riding, max);
+        }
+
+        /// <summary>
+        /// 사건 e의 선택지를 화면 선택지(_choices, _shownChoices, _swapTargets)로 펼친다.
+        /// 후보가 있고 좌석이 가득 찼으면 후보를 태우는 선택지를 지금 승객마다 「이름 내리고 태운다」로 바꾼다.
+        /// </summary>
+        private void BuildChoices(RestEvent e)
+        {
+            _choices.Clear();
+            _shownChoices.Clear();
+            _swapTargets.Clear();
+            IPassengers passengers = _passengers();
+            bool full = _candidateId != null && passengers != null && passengers.IsFull;
+            foreach (RestChoice c in e._choices)
+            {
+                if (full && BoardsCandidate(c))
+                {
+                    foreach (string rider in passengers.PassengerIds)
+                        AddChoice(c, rider, string.Format(_text("rest_boarding_swap"), passengers.Name(rider)));
+                    continue;
+                }
+                AddChoice(c, null, _text(c._label));
+            }
+        }
+
+        /// <summary>화면 선택지 하나(데이터 선택지 choice, 내릴 승객 swapTarget, 문구 label)를 추가한다.</summary>
+        private void AddChoice(RestChoice choice, string swapTarget, string label)
+        {
+            _shownChoices.Add(choice);
+            _swapTargets.Add(swapTarget);
+            _choices.Add(label);
+        }
+
+        /// <summary>choice에 후보를 태우는 passenger 효과(_candidate)가 있으면 true를 반환한다.</summary>
+        private static bool BoardsCandidate(RestChoice choice)
+        {
+            if (choice._effects == null) return false;
+            foreach (RestEffect e in choice._effects)
+                if (e._type == RestEventData.PASSENGER && e._candidate) return true;
+            return false;
         }
 
         private static int CostOf(RestChoice choice)
@@ -390,6 +481,14 @@ namespace IronRing.Track
         private void ApplyPassenger(RestEffect e, List<string> log, List<string> detail)
         {
             IPassengers passengers = _passengers();
+            if (e._candidate)
+            {
+                // 사건 창에서 보여 준 후보만 태운다. 만석이면 고른 승객과 바꾼다.
+                bool ok = passengers != null && _candidateId != null && passengers.TrySwap(_chosenSwap, _candidateId, NodeId);
+                log.Add(ok ? "passenger " + _candidateId + (_chosenSwap != null ? " swap " + _chosenSwap : "") : "passenger none");
+                if (ok) detail.Add(string.Format(_text("rest_detail_passenger"), 1));
+                return;
+            }
             int count = Math.Max(1, e._count);
             int boarded = 0;
             for (int i = 0; i < count && passengers != null; i++)

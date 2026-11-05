@@ -46,15 +46,19 @@ namespace IronRing.Hud.Editor.Screens
             UiKit.StretchTop(hint.rectTransform, theme.LineHeight(UiTextSize.Small), UiKit.ContentTop(theme), pad.left + 4, pad.right + 4); // 제목판 바로 아래 한 줄
             hint.color = theme.Muted;
             Button close = UiKit.CloseButton(panel.transform, "Close", theme);
+            Button habitats = UiKit.Button(panel.transform, "HabitatsTab", Strings.Get("codex_tab_habitats"), theme);
+            UiKit.Place((RectTransform)habitats.transform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(pad.left + 4, -UiKit.ContentTop(theme) - 30), new Vector2(135, 40));
+            Button turrets = UiKit.Button(panel.transform, "TurretsTab", Strings.Get("codex_tab_turrets"), theme);
+            UiKit.Place((RectTransform)turrets.transform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(pad.left + 150, -UiKit.ContentTop(theme) - 30), new Vector2(135, 40));
 
             ScrollRect scroll = UiKit.ScrollGrid(panel.transform, "Grid", CardSize, new Vector2(8, 8), 3, out RectTransform grid);
-            UiKit.Stretch((RectTransform)scroll.transform, pad.left, UiKit.ContentTop(theme) + theme.LineHeight(UiTextSize.Small) + 6, pad.right, pad.bottom);
+            UiKit.Stretch((RectTransform)scroll.transform, pad.left, UiKit.ContentTop(theme) + theme.LineHeight(UiTextSize.Small) + 52, pad.right, pad.bottom);
             scroll.scrollSensitivity = 30;
 
             // 미리보기 카드(런타임에 지운다)
             ItemSpriteSet sprites = ItemSpriteSet.Load();
             var sample = ((GameObject)PrefabUtility.InstantiatePrefab(cardPart, grid)).GetComponent<CodexCardView>();
-            sample.ShowHint(Strings.Get("habitat_type_cobble_plaza"),
+            sample.ShowHint(Strings.Get("habitat_type_cleared_lot"),
                 Strings.Get("codex_kind_cluster") + "  ·  " + string.Format(Strings.Get("codex_cells"), 3),
                 "폐허에 사람들이 모일 터를 닦는다", "땅 세 칸을 붙인다",
                 string.Format(Strings.Get("codex_npc"), Strings.Get("codex_visitor_unknown")));
@@ -68,6 +72,8 @@ namespace IronRing.Hud.Editor.Screens
             UiKit.Bind(screen, "_title", title);
             UiKit.Bind(screen, "_hint", hint);
             UiKit.Bind(screen, "_close", close);
+            UiKit.Bind(screen, "_habitatsTab", habitats);
+            UiKit.Bind(screen, "_turretsTab", turrets);
             UiKit.Bind(screen, "_grid", grid);
             UiKit.Bind(screen, "_cardPrefab", cardPart.GetComponent<CodexCardView>());
             UiKit.Bind(screen, "_tilePrefab", tilePart.GetComponent<CodexTileView>());

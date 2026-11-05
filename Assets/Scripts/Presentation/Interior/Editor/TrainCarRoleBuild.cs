@@ -9,6 +9,8 @@ using UnityEditor;
 
 using TMPro;
 
+using IronRing.Combat;
+
 namespace IronRing.Presentation.Interior.Editor
 {
     /// <summary>정차 열차의 기관차와 짐칸을 서로 다른 스프라이트와 표식으로 만드는 제작 도구.</summary>
@@ -44,6 +46,67 @@ namespace IronRing.Presentation.Interior.Editor
             }
             finally { PrefabUtility.UnloadPrefabContents(contents); }
             AssetDatabase.SaveAssets();
+        }
+
+        /// <summary>거점 프리팹의 열차를 전투 열차와 같은 그림과 장착 포탑으로 구성해 저장한다.</summary>
+        public static void ApplyBattleTrain()
+        {
+            if (EditorApplication.isPlayingOrWillChangePlaymode) throw new InvalidOperationException("Exit Play mode first.");
+            GameObject hub = PrefabUtility.LoadPrefabContents(HUB_PREFAB);
+            try
+            {
+                Transform anchor = hub.transform.Find("TrainAnchor");
+                Transform track = hub.transform.Find("Track");
+                if (anchor == null || track == null) throw new InvalidOperationException("Train anchor or track missing.");
+                Transform[] cars = anchor.Cast<Transform>().Where(child => child.name.StartsWith("TrainCar ")).OrderBy(child => child.localPosition.x).ToArray();
+                if (cars.Length == 0) throw new InvalidOperationException("Train cars missing.");
+                float width = Mathf.Max(5f, cars[cars.Length - 1].localPosition.x - cars[0].localPosition.x + 2.5f);
+                foreach (Transform car in cars) car.gameObject.SetActive(false);
+                Transform markers = anchor.Find(MARKERS);
+                if (markers != null) markers.gameObject.SetActive(false);
+                track.gameObject.SetActive(false);
+                Transform old = anchor.Find("BattleStyleTrain");
+                if (old != null) UnityEngine.Object.DestroyImmediate(old.gameObject);
+                Transform oldRail = anchor.Find("Railway");
+                if (oldRail != null) UnityEngine.Object.DestroyImmediate(oldRail.gameObject);
+                Sprite trainSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Generated/Battle/side_train.png");
+                Sprite turretSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Generated/Battle/side_turret.png");
+                Sprite railSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Generated/Battle/battle_rail_dense.png");
+                if (trainSprite == null || turretSprite == null || railSprite == null) throw new InvalidOperationException("Battle train sprites missing.");
+                GameObject visual = new GameObject("BattleStyleTrain", typeof(SpriteRenderer), typeof(TrainArmamentVisual));
+                visual.transform.SetParent(anchor, false);
+                SpriteRenderer trainRenderer = visual.GetComponent<SpriteRenderer>();
+                trainRenderer.sprite = trainSprite;
+                trainRenderer.flipX = true;
+                trainRenderer.sortingOrder = 20;
+                float scale = width / trainSprite.bounds.size.x;
+                visual.transform.localScale = Vector3.one * scale;
+                GameObject rail = new GameObject("Railway", typeof(SpriteRenderer));
+                rail.transform.SetParent(anchor, false);
+                rail.transform.localPosition = new Vector3(0f, -0.28f, 0.1f);
+                rail.transform.localScale = new Vector3(width * 1.5f / railSprite.bounds.size.x, 0.2f, 1f);
+                rail.GetComponent<SpriteRenderer>().sprite = railSprite;
+                rail.GetComponent<SpriteRenderer>().sortingOrder = 19;
+                SerializedObject serialized = new SerializedObject(visual.GetComponent<TrainArmamentVisual>());
+                SerializedProperty turrets = serialized.FindProperty("_turrets");
+                turrets.arraySize = TrainArmament.SLOT_COUNT;
+                for (int i = 0; i < TrainArmament.SLOT_COUNT; i++)
+                {
+                    GameObject mount = new GameObject("Turret " + (i + 1), typeof(SpriteRenderer));
+                    mount.transform.SetParent(visual.transform, false);
+                    mount.transform.localPosition = new Vector3(-trainSprite.bounds.size.x * (0.36f - i * 0.11f), trainSprite.bounds.size.y * 0.22f, -0.1f);
+                    mount.transform.localScale = Vector3.one * (trainSprite.bounds.size.x * 0.065f / turretSprite.bounds.size.x);
+                    SpriteRenderer renderer = mount.GetComponent<SpriteRenderer>();
+                    renderer.sprite = turretSprite;
+                    renderer.flipX = true;
+                    renderer.sortingOrder = 21;
+                    turrets.GetArrayElementAtIndex(i).objectReferenceValue = renderer;
+                }
+                serialized.ApplyModifiedPropertiesWithoutUndo();
+                PrefabUtility.SaveAsPrefabAsset(hub, HUB_PREFAB);
+                AssetDatabase.SaveAssets();
+            }
+            finally { PrefabUtility.UnloadPrefabContents(hub); }
         }
 
         /// <summary>

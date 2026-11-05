@@ -5,7 +5,10 @@ using System.IO;
 using System.Linq;
 
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 
+using IronRing.Combat;
 using IronRing.Contracts;
 using IronRing.Contracts.Presentation;
 using IronRing.Interior;
@@ -42,6 +45,13 @@ namespace IronRing.Bootstrap
         private bool _finished;
         private float _timer;
         private float _previousTimeScale;
+        private bool _battleActive;
+        private BattlePocDriver _battleDriver;
+        private readonly List<Renderer> _hiddenBattleRenderers = new List<Renderer>();
+        private readonly List<Canvas> _hiddenBattleCanvases = new List<Canvas>();
+        private readonly List<Camera> _hiddenBattleCameras = new List<Camera>();
+        private readonly List<EventSystem> _hiddenBattleEventSystems = new List<EventSystem>();
+        private HashSet<string> _battleWaypoints;
         /// <summary>Live real-system session owned by this scene.</summary>
         public GameSession Session => _game;
 
@@ -66,7 +76,13 @@ namespace IronRing.Bootstrap
                 _hubData.text, _combatData.text, _settingsData.text, interiorData.text);
             _demo = Arguments().Contains("--integration-demo");
             _interiorDemo = Arguments().Contains("--interior-demo");
-            _game = new GameSession(_definition, _demo, _train.Track);
+            _battleWaypoints = new HashSet<string>(StringComparer.Ordinal);
+            if (!_demo && !_interiorDemo)
+            {
+                foreach (MapNode node in _map.GetComponentsInChildren<MapNode>(true))
+                    if (node.Hub == null && node.Content == WaypointContent.Battle) _battleWaypoints.Add(node.Id);
+            }
+            _game = new GameSession(_definition, _demo, _train.Track, !_demo && !_interiorDemo);
             _encounters = new EncounterPresentationSource(_game.Waypoints, _definition.Settings.EventKeys);
             _map.Bind(_game.Track, () => _train.TravelProgress);
             _viewMode = new InteriorViewMode();
@@ -89,6 +105,7 @@ namespace IronRing.Bootstrap
             GameServices.Register<IInteriorNavigation>(_interiorView);
             // 다른 스토리(013/014)의 설치자가 여기서 자기 서비스를 등록한다. 정확히 한 번, MarkReady 전에 부른다.
             GameServices.RaiseComposing();
+            LoopInstaller.Loop?.SetBattleWaypoints(_battleWaypoints);
             // Composing에서 이긴 구현을 뒤에서 연결한다: 서식지(013이 IHabitatSystem을 교체하면 NpcRecruiter가 그것을 쓴다), 아이템 인벤토리.
             _game.BindHabitat(GameServices.Get<IHabitatSystem>());
             _game.Interior.AttachItemInventory(GameServices.Get<IItemInventory>());
@@ -158,6 +175,100 @@ namespace IronRing.Bootstrap
         {
             _timer = 0;
             if (node.Kind == TrackNodeKind.Hub) _viewMode.Open(node.HubId);
+            else if (_battleWaypoints.Contains(node.Id) && !_battleActive)
+            {
+                _battleActive = true;
+                _game.Track.RequestHold("battle-stage");
+                StartCoroutine(OpenBattle());
+            }
+        }
+
+        /// <summary>경유지에 도착한 열차를 붙잡고 BattleReference 씬을 추가로 열어 전투 결과를 기다린다.</summary>
+        private IEnumerator OpenBattle()
+        {
+            AsyncOperation loading = SceneManager.LoadSceneAsync("BattleReference", LoadSceneMode.Additive);
+            if (loading == null)
+            {
+                UnityEngine.Debug.LogError("BattleReference scene is missing from Build Settings.");
+                _game.Track.ReleaseHold("battle-stage");
+                _battleActive = false;
+                yield break;
+            }
+            yield return loading;
+            Scene battle = SceneManager.GetSceneByName("BattleReference");
+            foreach (GameObject root in battle.GetRootGameObjects())
+                if ((_battleDriver = root.GetComponentInChildren<BattlePocDriver>(true)) != null) break;
+            if (_battleDriver == null)
+            {
+                UnityEngine.Debug.LogError("BattleReference scene has no BattlePocDriver.");
+                yield return SceneManager.UnloadSceneAsync(battle);
+                _game.Track.ReleaseHold("battle-stage");
+                _battleActive = false;
+                yield break;
+            }
+            HideMainForBattle(battle);
+            _battleDriver.Completed += OnBattleCompleted;
+        }
+
+        /// <summary>전투 씬 이외의 현재 렌더러·캔버스·카메라·입력 시스템을 숨기고 복원 목록에 기록한다.</summary>
+        private void HideMainForBattle(Scene battle)
+        {
+            foreach (Renderer renderer in UnityEngine.Object.FindObjectsByType<Renderer>(FindObjectsSortMode.None))
+                if (renderer.gameObject.scene != battle && renderer.enabled)
+                {
+                    _hiddenBattleRenderers.Add(renderer);
+                    renderer.enabled = false;
+                }
+            foreach (Canvas canvas in UnityEngine.Object.FindObjectsByType<Canvas>(FindObjectsSortMode.None))
+                if (canvas.gameObject.scene != battle && canvas.enabled)
+                {
+                    _hiddenBattleCanvases.Add(canvas);
+                    canvas.enabled = false;
+                }
+            foreach (Camera camera in UnityEngine.Object.FindObjectsByType<Camera>(FindObjectsSortMode.None))
+                if (camera.gameObject.scene != battle && camera.enabled)
+                {
+                    _hiddenBattleCameras.Add(camera);
+                    camera.enabled = false;
+                }
+            foreach (EventSystem events in UnityEngine.Object.FindObjectsByType<EventSystem>(FindObjectsSortMode.None))
+                if (events.gameObject.scene != battle && events.enabled)
+                {
+                    _hiddenBattleEventSystems.Add(events);
+                    events.enabled = false;
+                }
+        }
+
+        /// <summary>전투 승패가 확정되면 결과 문구를 잠시 보여준 뒤 열차 화면으로 복귀한다.</summary>
+        private void OnBattleCompleted(bool victory)
+        {
+            StartCoroutine(ReturnFromBattle());
+        }
+
+        /// <summary>전투 씬을 내리고 원래 화면과 열차 이동을 복원한다.</summary>
+        private IEnumerator ReturnFromBattle()
+        {
+            yield return new WaitForSecondsRealtime(3f);
+            if (_battleDriver != null) _battleDriver.Completed -= OnBattleCompleted;
+            Scene battle = SceneManager.GetSceneByName("BattleReference");
+            if (battle.IsValid() && battle.isLoaded) yield return SceneManager.UnloadSceneAsync(battle);
+            RestoreMainAfterBattle();
+            _game.Track.ReleaseHold("battle-stage");
+            _battleDriver = null;
+            _battleActive = false;
+        }
+
+        /// <summary>전투 진입 전에 켜져 있던 렌더러·캔버스·카메라·입력 시스템을 다시 켠다.</summary>
+        private void RestoreMainAfterBattle()
+        {
+            foreach (Renderer renderer in _hiddenBattleRenderers) if (renderer != null) renderer.enabled = true;
+            foreach (Canvas canvas in _hiddenBattleCanvases) if (canvas != null) canvas.enabled = true;
+            foreach (Camera camera in _hiddenBattleCameras) if (camera != null) camera.enabled = true;
+            foreach (EventSystem events in _hiddenBattleEventSystems) if (events != null) events.enabled = true;
+            _hiddenBattleRenderers.Clear();
+            _hiddenBattleCanvases.Clear();
+            _hiddenBattleCameras.Clear();
+            _hiddenBattleEventSystems.Clear();
         }
 
         /// <summary>
@@ -231,6 +342,9 @@ namespace IronRing.Bootstrap
         void OnDestroy()
         {
             if (_game == null) return;
+            if (_battleDriver != null) _battleDriver.Completed -= OnBattleCompleted;
+            RestoreMainAfterBattle();
+            if (_battleActive) _game.Track.ReleaseHold("battle-stage");
             _game.Track.Arrived -= OnArrived;
             _game.Waypoints.EncounterStarted -= OnEncounter;
             _game.Dispose();

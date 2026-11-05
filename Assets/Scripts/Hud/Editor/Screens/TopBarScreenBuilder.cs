@@ -37,11 +37,11 @@ namespace IronRing.Hud.Editor.Screens
             UiKit.Bind(screen, "_balance", balance); UiKit.Bind(screen, "_coin", coin); UiKit.Bind(screen, "_icons", icons);
             Button codex = UiKit.Button(root.transform, "Codex", "", theme);
             UiKit.Place((RectTransform)codex.transform, Vector2.one, Vector2.one, new Vector2(-20, -82), new Vector2(58, 58));
-            Image codexIcon = UiKit.Image(codex.transform, "Icon", icons.Get("ui_book"), Color.white);
+            Image codexIcon = UiKit.Image(codex.transform, "Icon", CodexIcon(), Color.white);
             UiKit.Place(codexIcon.rectTransform, new Vector2(.5f, .5f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(34, 34));
 
             Button passengers = UiKit.Button(root.transform, "Passengers", "", theme);
-            UiKit.Place((RectTransform)passengers.transform, Vector2.one, Vector2.one, new Vector2(-20, -150), new Vector2(58, 58));
+            UiKit.Place((RectTransform)passengers.transform, Vector2.one, Vector2.one, new Vector2(-20, -218), new Vector2(58, 58));
             Image passengersIcon = UiKit.Image(passengers.transform, "Icon", icons.Get("ui_people"), Color.white);
             UiKit.Place(passengersIcon.rectTransform, new Vector2(.5f, .5f), new Vector2(.5f, .5f), new Vector2(-3, 2), new Vector2(32, 32));
             TextMeshProUGUI passengerCount = UiKit.Label(passengers.transform, "Count", "0", UiTextSize.Normal, theme);
@@ -67,6 +67,22 @@ namespace IronRing.Hud.Editor.Screens
             UiKit.Bind(screen, "_passengers", passengers);
             UiKit.Bind(screen, "_passengerCount", passengerCount);
             return root;
+        }
+
+        /// <summary>도감 버튼용 책 이미지를 스프라이트로 가져와 반환한다.</summary>
+        private static Sprite CodexIcon()
+        {
+            const string path = "Assets/Art/Generated/codex_journal.png";
+            AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceSynchronousImport);
+            TextureImporter importer = (TextureImporter)AssetImporter.GetAtPath(path);
+            if (importer.textureType != TextureImporterType.Sprite || importer.spriteImportMode != SpriteImportMode.Single)
+            {
+                importer.textureType = TextureImporterType.Sprite;
+                importer.spriteImportMode = SpriteImportMode.Single;
+                importer.filterMode = FilterMode.Point;
+                importer.SaveAndReimport();
+            }
+            return AssetDatabase.LoadAssetAtPath<Sprite>(path);
         }
     }
 }
