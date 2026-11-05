@@ -324,7 +324,7 @@ namespace IronRing.Hud.Codex
             return string.Join(", ", names);
         }
 
-        /// <summary>typeId의 후보 중 영구 발견 기록에 남은 승객 이름만 이어 반환하고 없으면 null을 반환한다.</summary>
+        /// <summary>typeId의 후보 중 현재 게임의 발견 기록에 남은 승객 이름만 이어 반환하고 없으면 null을 반환한다.</summary>
         private string KnownVisitors(string typeId)
         {
             IReadOnlyList<string> candidates = _recruiter?.CandidatesOf(typeId);

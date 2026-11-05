@@ -74,8 +74,7 @@ namespace IronRing.Npc
                 Pool = NpcPoolData.FromJson(poolJson);
                 NpcInteraction.Settings settings = NpcInteraction.Settings.FromJson(interactionJson);
                 Homes = new NpcHomes(recruiter, GameServices.Get<IHabitatClusters>, Pool, hubs.HubIds, GameServices.Get<IItemPlacement>);
-                NpcHomes homes = Homes;
-                Interaction = new NpcInteraction(Pool, settings, hubs, recruiter, () => homes, GameServices.Get<ITrackRuntime>());
+                Interaction = new NpcInteraction(Pool, settings);
                 GameServices.Register<INpcHomes>(Homes);
                 GameServices.Register<INpcInteraction>(Interaction);
                 if (recruiter is NpcRecruiter concrete)

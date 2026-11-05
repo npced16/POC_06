@@ -34,6 +34,8 @@ namespace IronRing.Npc
         public string WorkKind { get; }
         /// <summary>Amount of the job effect applied while this NPC lives in a town.</summary>
         public int WorkBonus { get; }
+        /// <summary>마을에서 말풍선으로 띄우는 혼잣말(NpcPool.json `_mutterLines`, 빈 줄 제외). 없으면 빈 목록이다.</summary>
+        public IReadOnlyList<string> MutterLines { get; }
 
         /// <summary>
         /// NPC의 신원, 대사, 방문 조건, 직무 종류와 효과를 검증해 불변 정의로 복사한다.
@@ -41,7 +43,7 @@ namespace IronRing.Npc
         /// </summary>
         public NpcDefinition(string id, string name, string quote, IEnumerable<string> eligibleHubIds, bool requiresCompleteHabitat, string habitatTypeId = null,
             IEnumerable<string> lines = null, NpcPassengerProfile passenger = null, string teachesTypeId = null,
-            string workKind = null, int workBonus = 0)
+            string workKind = null, int workBonus = 0, IEnumerable<string> mutterLines = null)
         {
             if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(quote))
                 throw new ArgumentException("NPC id, name and quote must be non-empty.");
@@ -66,6 +68,11 @@ namespace IronRing.Npc
             if (workBonus < 0) throw new ArgumentOutOfRangeException(nameof(workBonus));
             WorkKind = workKind;
             WorkBonus = workBonus;
+            var mutters = new List<string>();
+            if (mutterLines != null)
+                foreach (string line in mutterLines)
+                    if (!string.IsNullOrWhiteSpace(line)) mutters.Add(line);
+            MutterLines = mutters.AsReadOnly();
         }
 
         /// <summary>True when hubId is one of this NPC's hubs (an empty hub list means any hub).</summary>
