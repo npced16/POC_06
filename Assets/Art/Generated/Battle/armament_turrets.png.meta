@@ -1,0 +1,3419 @@
+fileFormatVersion: 2
+guid: 33a3c3e8279aa9141bac5be8f8da2281
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -9000025050688304065
+    second: armament_turrets_0
+  - first:
+      213: -4087234731035262266
+    second: armament_turrets_1
+  - first:
+      213: 3511563007173994676
+    second: armament_turrets_2
+  - first:
+      213: 6346453777796236037
+    second: armament_turrets_3
+  - first:
+      213: 5366733486523107516
+    second: armament_turrets_4
+  - first:
+      213: -2686608828913598772
+    second: armament_turrets_5
+  - first:
+      213: 2174005475535996646
+    second: armament_turrets_6
+  - first:
+      213: -6481255842613742477
+    second: armament_turrets_7
+  - first:
+      213: 4769833460549844322
+    second: armament_turrets_8
+  - first:
+      213: 7149587502004150003
+    second: armament_turrets_9
+  - first:
+      213: 5690937242186329165
+    second: armament_turrets_10
+  - first:
+      213: -8114534448971960156
+    second: armament_turrets_11
+  - first:
+      213: -1988160738637972695
+    second: armament_turrets_12
+  - first:
+      213: -9206893822908304382
+    second: armament_turrets_13
+  - first:
+      213: 3449488222728592054
+    second: armament_turrets_14
+  - first:
+      213: 2165556685420352298
+    second: armament_turrets_15
+  - first:
+      213: -322506863128373052
+    second: armament_turrets_16
+  - first:
+      213: -6651778775233276485
+    second: armament_turrets_17
+  - first:
+      213: -1349413787326207378
+    second: armament_turrets_18
+  - first:
+      213: -611462892431990018
+    second: armament_turrets_19
+  - first:
+      213: -3000120674291448103
+    second: armament_turrets_20
+  - first:
+      213: -2461300333426261429
+    second: armament_turrets_21
+  - first:
+      213: -1670017078091215491
+    second: armament_turrets_22
+  - first:
+      213: 1814491853910172146
+    second: armament_turrets_23
+  - first:
+      213: -8668872924486900284
+    second: armament_turrets_24
+  - first:
+      213: 5169822255387519975
+    second: armament_turrets_25
+  - first:
+      213: 6958821908398364728
+    second: armament_turrets_26
+  - first:
+      213: 5682783699584947333
+    second: armament_turrets_27
+  - first:
+      213: -2018671470800387616
+    second: armament_turrets_28
+  - first:
+      213: 7430166530577485302
+    second: armament_turrets_29
+  - first:
+      213: 4079693057022437412
+    second: armament_turrets_30
+  - first:
+      213: -7784900416628732366
+    second: armament_turrets_31
+  - first:
+      213: 6719168803707269557
+    second: armament_turrets_32
+  - first:
+      213: -5834283087681648221
+    second: armament_turrets_33
+  - first:
+      213: 475208426092443216
+    second: armament_turrets_34
+  - first:
+      213: 1500512455105927253
+    second: armament_turrets_35
+  - first:
+      213: 3374361982700475967
+    second: armament_turrets_36
+  - first:
+      213: 6997048491598684438
+    second: armament_turrets_37
+  - first:
+      213: -8007758069027750536
+    second: armament_turrets_38
+  - first:
+      213: -652839892625295242
+    second: armament_turrets_39
+  - first:
+      213: -4836904997515950168
+    second: armament_turrets_40
+  - first:
+      213: 4302013935409190810
+    second: armament_turrets_41
+  - first:
+      213: -7324099715863347410
+    second: armament_turrets_42
+  - first:
+      213: -2389019486885640347
+    second: armament_turrets_43
+  - first:
+      213: -3947572449911262795
+    second: armament_turrets_44
+  - first:
+      213: -3075277471982275709
+    second: armament_turrets_45
+  - first:
+      213: 8536802035824909652
+    second: armament_turrets_46
+  - first:
+      213: 2219342307366466954
+    second: armament_turrets_47
+  - first:
+      213: -1084493067222187943
+    second: armament_turrets_48
+  - first:
+      213: -8799596902723804607
+    second: armament_turrets_49
+  - first:
+      213: 5248813138220134811
+    second: armament_turrets_50
+  - first:
+      213: -1610698057274195712
+    second: armament_turrets_51
+  - first:
+      213: 7733474615911843882
+    second: armament_turrets_52
+  - first:
+      213: -4147205581857843952
+    second: armament_turrets_53
+  - first:
+      213: 8113885901463573054
+    second: armament_turrets_54
+  - first:
+      213: -5394681091482876148
+    second: armament_turrets_55
+  - first:
+      213: -5446934641513085098
+    second: armament_turrets_56
+  - first:
+      213: -2768903413677147535
+    second: armament_turrets_57
+  - first:
+      213: 1098345146568709676
+    second: armament_turrets_58
+  - first:
+      213: -7012863421515388673
+    second: armament_turrets_59
+  - first:
+      213: 2036872782643714392
+    second: armament_turrets_60
+  - first:
+      213: 5926118621599480459
+    second: armament_turrets_61
+  - first:
+      213: 719677275883489474
+    second: armament_turrets_62
+  - first:
+      213: 8199711163073875575
+    second: armament_turrets_63
+  - first:
+      213: -2411526773898004905
+    second: armament_turrets_64
+  - first:
+      213: -156773299694681436
+    second: armament_turrets_65
+  - first:
+      213: 6685034611290629318
+    second: armament_turrets_66
+  - first:
+      213: 7387728144215188795
+    second: armament_turrets_67
+  - first:
+      213: 6089869598286683053
+    second: armament_turrets_68
+  - first:
+      213: 337730137052947706
+    second: armament_turrets_69
+  - first:
+      213: -3057644557616379174
+    second: armament_turrets_70
+  - first:
+      213: -1765893741290876535
+    second: armament_turrets_71
+  - first:
+      213: -2802060357926139533
+    second: armament_turrets_72
+  - first:
+      213: -4750040658160248209
+    second: armament_turrets_73
+  - first:
+      213: -8075725670665208859
+    second: armament_turrets_74
+  - first:
+      213: -4303828838483961752
+    second: armament_turrets_75
+  - first:
+      213: -4704000739193218772
+    second: armament_turrets_76
+  - first:
+      213: 1918204807560285772
+    second: armament_turrets_77
+  - first:
+      213: 706631998080101887
+    second: armament_turrets_78
+  - first:
+      213: 7371898567700902519
+    second: armament_turrets_79
+  - first:
+      213: 2489201830610589429
+    second: armament_turrets_80
+  - first:
+      213: 6337750700863725791
+    second: armament_turrets_81
+  - first:
+      213: -424161088014914764
+    second: armament_turrets_82
+  - first:
+      213: -4076392115917569430
+    second: armament_turrets_83
+  - first:
+      213: 4781224855735790858
+    second: armament_turrets_84
+  - first:
+      213: 6140586347780394752
+    second: armament_turrets_85
+  - first:
+      213: -7981979118365335979
+    second: armament_turrets_86
+  - first:
+      213: 2055745522506791500
+    second: armament_turrets_87
+  - first:
+      213: -6379762814408902982
+    second: armament_turrets_88
+  - first:
+      213: 5887228745356022381
+    second: armament_turrets_89
+  - first:
+      213: -647729299733461419
+    second: armament_turrets_90
+  - first:
+      213: 2876154231718468790
+    second: armament_turrets_91
+  - first:
+      213: 5929299298949577810
+    second: armament_turrets_92
+  - first:
+      213: 922511937006554586
+    second: armament_turrets_93
+  - first:
+      213: -5187176252093787704
+    second: armament_turrets_94
+  - first:
+      213: 1890666227944423310
+    second: armament_turrets_95
+  - first:
+      213: -4042093717481007209
+    second: armament_turrets_96
+  - first:
+      213: 5368692613111893781
+    second: armament_turrets_97
+  - first:
+      213: 2248342632604578494
+    second: armament_turrets_98
+  - first:
+      213: -1626791273443647685
+    second: armament_turrets_99
+  - first:
+      213: -1775355969789537233
+    second: armament_turrets_100
+  - first:
+      213: 1333580614045065161
+    second: armament_turrets_101
+  - first:
+      213: -3020515696905886417
+    second: armament_turrets_102
+  - first:
+      213: 7269465724380306244
+    second: armament_turrets_103
+  - first:
+      213: -27316027334549971
+    second: armament_turrets_104
+  - first:
+      213: 7828951518745166137
+    second: armament_turrets_105
+  - first:
+      213: 4924060852051207618
+    second: armament_turrets_106
+  - first:
+      213: 1389454952020200054
+    second: armament_turrets_107
+  - first:
+      213: 1547669061031950042
+    second: armament_turrets_108
+  - first:
+      213: -9064912644259158027
+    second: armament_turrets_109
+  - first:
+      213: -2528652672484557959
+    second: armament_turrets_110
+  - first:
+      213: -8689356337475364927
+    second: armament_turrets_111
+  - first:
+      213: -5727662458218094328
+    second: armament_turrets_112
+  - first:
+      213: 3501394652617055225
+    second: armament_turrets_113
+  - first:
+      213: 5161458918067987999
+    second: armament_turrets_114
+  - first:
+      213: 2449194871614561623
+    second: armament_turrets_115
+  - first:
+      213: 2873561573779038916
+    second: armament_turrets_116
+  - first:
+      213: 7687113945067166728
+    second: armament_turrets_117
+  - first:
+      213: -5122950158595788869
+    second: armament_turrets_118
+  - first:
+      213: -5815110577374719665
+    second: armament_turrets_119
+  - first:
+      213: 8145126215019760502
+    second: armament_turrets_120
+  - first:
+      213: 2405287147725960249
+    second: armament_turrets_121
+  - first:
+      213: -3502459915644200012
+    second: armament_turrets_122
+  - first:
+      213: 958699752325372907
+    second: armament_turrets_123
+  - first:
+      213: -3833154491706168404
+    second: armament_turrets_124
+  - first:
+      213: -4008796336589038922
+    second: armament_turrets_125
+  - first:
+      213: -4180393582499220605
+    second: armament_turrets_126
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: armament_turrets_0
+      rect:
+        serializedVersion: 2
+        x: 1247
+        y: 19
+        width: 608
+        height: 667
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f3c4b1c86ec791380800000000000000
+      internalID: -9000025050688304065
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_1
+      rect:
+        serializedVersion: 2
+        x: 1754
+        y: 685
+        width: 33
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6c2010fcaa93747c0800000000000000
+      internalID: -4087234731035262266
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_2
+      rect:
+        serializedVersion: 2
+        x: 1919
+        y: 580
+        width: 101
+        height: 106
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4b8220133f39bb030800000000000000
+      internalID: 3511563007173994676
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_3
+      rect:
+        serializedVersion: 2
+        x: 310
+        y: 578
+        width: 131
+        height: 80
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5030bf00612231850800000000000000
+      internalID: 6346453777796236037
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_4
+      rect:
+        serializedVersion: 2
+        x: 521
+        y: 578
+        width: 37
+        height: 78
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cb8476cfba77a7a40800000000000000
+      internalID: 5366733486523107516
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_5
+      rect:
+        serializedVersion: 2
+        x: 593
+        y: 544
+        width: 112
+        height: 112
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cce3d2e118f37bad0800000000000000
+      internalID: -2686608828913598772
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_6
+      rect:
+        serializedVersion: 2
+        x: 690
+        y: 602
+        width: 99
+        height: 72
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6e6c31d267e9b2e10800000000000000
+      internalID: 2174005475535996646
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_7
+      rect:
+        serializedVersion: 2
+        x: 822
+        y: 614
+        width: 26
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 374359a7624fd06a0800000000000000
+      internalID: -6481255842613742477
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_8
+      rect:
+        serializedVersion: 2
+        x: 973
+        y: 508
+        width: 231
+        height: 166
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 26d78ddb24ad13240800000000000000
+      internalID: 4769833460549844322
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_9
+      rect:
+        serializedVersion: 2
+        x: 1858
+        y: 600
+        width: 70
+        height: 68
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3fe9783f3ff683360800000000000000
+      internalID: 7149587502004150003
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_10
+      rect:
+        serializedVersion: 2
+        x: 2033
+        y: 610
+        width: 46
+        height: 62
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d4cae8715454afe40800000000000000
+      internalID: 5690937242186329165
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_11
+      rect:
+        serializedVersion: 2
+        x: 2077
+        y: 651
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4a03b5b49e1636f80800000000000000
+      internalID: -8114534448971960156
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_12
+      rect:
+        serializedVersion: 2
+        x: 2081
+        y: 640
+        width: 14
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 92bfa198752a864e0800000000000000
+      internalID: -1988160738637972695
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_13
+      rect:
+        serializedVersion: 2
+        x: 48
+        y: 490
+        width: 116
+        height: 156
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 204ffc829da8a3080800000000000000
+      internalID: -9206893822908304382
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_14
+      rect:
+        serializedVersion: 2
+        x: 169
+        y: 498
+        width: 73
+        height: 138
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6ba91ac234b0fdf20800000000000000
+      internalID: 3449488222728592054
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_15
+      rect:
+        serializedVersion: 2
+        x: 458
+        y: 530
+        width: 72
+        height: 108
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a23d37fe45a9d0e10800000000000000
+      internalID: 2165556685420352298
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_16
+      rect:
+        serializedVersion: 2
+        x: 464
+        y: 614
+        width: 10
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4c89b9977b9368bf0800000000000000
+      internalID: -322506863128373052
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_17
+      rect:
+        serializedVersion: 2
+        x: 473
+        y: 614
+        width: 11
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bb5dcb1527220b3a0800000000000000
+      internalID: -6651778775233276485
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_18
+      rect:
+        serializedVersion: 2
+        x: 802
+        y: 628
+        width: 12
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e6a28675f4be54de0800000000000000
+      internalID: -1349413787326207378
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_19
+      rect:
+        serializedVersion: 2
+        x: 810
+        y: 625
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ef2224f2db5a387f0800000000000000
+      internalID: -611462892431990018
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_20
+      rect:
+        serializedVersion: 2
+        x: 816
+        y: 632
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9d68d8d542e6d56d0800000000000000
+      internalID: -3000120674291448103
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_21
+      rect:
+        serializedVersion: 2
+        x: 2087
+        y: 586
+        width: 70
+        height: 59
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b42c3942364b7ddd0800000000000000
+      internalID: -2461300333426261429
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_22
+      rect:
+        serializedVersion: 2
+        x: 798
+        y: 610
+        width: 20
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d7d898bc058e2d8e0800000000000000
+      internalID: -1670017078091215491
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_23
+      rect:
+        serializedVersion: 2
+        x: 843
+        y: 578
+        width: 41
+        height: 52
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2f1e7204abe5e2910800000000000000
+      internalID: 1814491853910172146
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_24
+      rect:
+        serializedVersion: 2
+        x: 883
+        y: 562
+        width: 29
+        height: 59
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4c5e4fc310af1b780800000000000000
+      internalID: -8668872924486900284
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_25
+      rect:
+        serializedVersion: 2
+        x: 893
+        y: 610
+        width: 7
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7eb284c43f5eeb740800000000000000
+      internalID: 5169822255387519975
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_26
+      rect:
+        serializedVersion: 2
+        x: 897
+        y: 609
+        width: 45
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8385a4108a3b29060800000000000000
+      internalID: 6958821908398364728
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_27
+      rect:
+        serializedVersion: 2
+        x: 1727
+        y: 618
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 58414258aad4dde40800000000000000
+      internalID: 5682783699584947333
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_28
+      rect:
+        serializedVersion: 2
+        x: 1746
+        y: 610
+        width: 7
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0e14ab02efc3cf3e0800000000000000
+      internalID: -2018671470800387616
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_29
+      rect:
+        serializedVersion: 2
+        x: 437
+        y: 594
+        width: 14
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6fd4115c7114d1760800000000000000
+      internalID: 7430166530577485302
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_30
+      rect:
+        serializedVersion: 2
+        x: 555
+        y: 594
+        width: 9
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4282370683bfd9830800000000000000
+      internalID: 4079693057022437412
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_31
+      rect:
+        serializedVersion: 2
+        x: 2043
+        y: 581
+        width: 19
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 23ecd07315a76f390800000000000000
+      internalID: -7784900416628732366
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_32
+      rect:
+        serializedVersion: 2
+        x: 2057
+        y: 584
+        width: 38
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5b1bbd26d684f3d50800000000000000
+      internalID: 6719168803707269557
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_33
+      rect:
+        serializedVersion: 2
+        x: 113
+        y: 550
+        width: 17
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3a98aaf6176780fa0800000000000000
+      internalID: -5834283087681648221
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_34
+      rect:
+        serializedVersion: 2
+        x: 748
+        y: 513
+        width: 106
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0563387bb87489600800000000000000
+      internalID: 475208426092443216
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_35
+      rect:
+        serializedVersion: 2
+        x: 1878
+        y: 546
+        width: 20
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 55853abb024e2d410800000000000000
+      internalID: 1500512455105927253
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_36
+      rect:
+        serializedVersion: 2
+        x: 1914
+        y: 562
+        width: 8
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f36d17a585424de20800000000000000
+      internalID: 3374361982700475967
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_37
+      rect:
+        serializedVersion: 2
+        x: 1921
+        y: 568
+        width: 15
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6112ce9f7828a1160800000000000000
+      internalID: 6997048491598684438
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_38
+      rect:
+        serializedVersion: 2
+        x: 2057
+        y: 540
+        width: 42
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 87d3550967abed090800000000000000
+      internalID: -8007758069027750536
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_39
+      rect:
+        serializedVersion: 2
+        x: 2108
+        y: 535
+        width: 27
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6787dd89395a0f6f0800000000000000
+      internalID: -652839892625295242
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_40
+      rect:
+        serializedVersion: 2
+        x: 135
+        y: 504
+        width: 29
+        height: 39
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8a700c2288cdfdcb0800000000000000
+      internalID: -4836904997515950168
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_41
+      rect:
+        serializedVersion: 2
+        x: 215
+        y: 490
+        width: 13
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a9758d691e2d3bb30800000000000000
+      internalID: 4302013935409190810
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_42
+      rect:
+        serializedVersion: 2
+        x: 271
+        y: 490
+        width: 70
+        height: 69
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e2ffc68fc129b5a90800000000000000
+      internalID: -7324099715863347410
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_43
+      rect:
+        serializedVersion: 2
+        x: 358
+        y: 520
+        width: 13
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 56702ba2f6f78ded0800000000000000
+      internalID: -2389019486885640347
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_44
+      rect:
+        serializedVersion: 2
+        x: 362
+        y: 530
+        width: 11
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5b1bbed95c76739c0800000000000000
+      internalID: -3947572449911262795
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_45
+      rect:
+        serializedVersion: 2
+        x: 376
+        y: 514
+        width: 65
+        height: 41
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3833cb8ce6b6255d0800000000000000
+      internalID: -3075277471982275709
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_46
+      rect:
+        serializedVersion: 2
+        x: 432
+        y: 522
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 45ddc2fb830d87670800000000000000
+      internalID: 8536802035824909652
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_47
+      rect:
+        serializedVersion: 2
+        x: 440
+        y: 518
+        width: 18
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a85f299e110bcce10800000000000000
+      internalID: 2219342307366466954
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_48
+      rect:
+        serializedVersion: 2
+        x: 450
+        y: 500
+        width: 12
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 95009de1d4b13f0f0800000000000000
+      internalID: -1084493067222187943
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_49
+      rect:
+        serializedVersion: 2
+        x: 456
+        y: 484
+        width: 52
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 142258e3d3d81e580800000000000000
+      internalID: -8799596902723804607
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_50
+      rect:
+        serializedVersion: 2
+        x: 461
+        y: 510
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b91b3046db787d840800000000000000
+      internalID: 5248813138220134811
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_51
+      rect:
+        serializedVersion: 2
+        x: 461
+        y: 500
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 00182c796a6a5a9e0800000000000000
+      internalID: -1610698057274195712
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_52
+      rect:
+        serializedVersion: 2
+        x: 521
+        y: 478
+        width: 55
+        height: 61
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a280de08032d25b60800000000000000
+      internalID: 7733474615911843882
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_53
+      rect:
+        serializedVersion: 2
+        x: 623
+        y: 200
+        width: 297
+        height: 315
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 01598d20f7a2276c0800000000000000
+      internalID: -4147205581857843952
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_54
+      rect:
+        serializedVersion: 2
+        x: 847
+        y: 29
+        width: 397
+        height: 476
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e3259c8fc305a9070800000000000000
+      internalID: 8113885901463573054
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_55
+      rect:
+        serializedVersion: 2
+        x: 1854
+        y: 65
+        width: 318
+        height: 484
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c0785a9212e3225b0800000000000000
+      internalID: -5394681091482876148
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_56
+      rect:
+        serializedVersion: 2
+        x: 2081
+        y: 530
+        width: 12
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 657c7d97dc99864b0800000000000000
+      internalID: -5446934641513085098
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_57
+      rect:
+        serializedVersion: 2
+        x: 2108
+        y: 522
+        width: 7
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 17a386af301e299d0800000000000000
+      internalID: -2768903413677147535
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_58
+      rect:
+        serializedVersion: 2
+        x: 11
+        y: 21
+        width: 302
+        height: 438
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c26900e671b1e3f00800000000000000
+      internalID: 1098345146568709676
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_59
+      rect:
+        serializedVersion: 2
+        x: 265
+        y: 0
+        width: 353
+        height: 479
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ff8ae36bfdd4dae90800000000000000
+      internalID: -7012863421515388673
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_60
+      rect:
+        serializedVersion: 2
+        x: 1215
+        y: 216
+        width: 7
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 859d326010d644c10800000000000000
+      internalID: 2036872782643714392
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_61
+      rect:
+        serializedVersion: 2
+        x: 1235
+        y: 224
+        width: 313
+        height: 240
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b8ab3490d7dcd3250800000000000000
+      internalID: 5926118621599480459
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_62
+      rect:
+        serializedVersion: 2
+        x: 159
+        y: 190
+        width: 27
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2c8c4fd5baeccf900800000000000000
+      internalID: 719677275883489474
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_63
+      rect:
+        serializedVersion: 2
+        x: 458
+        y: 208
+        width: 10
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 77ec2dfdbd93bc170800000000000000
+      internalID: 8199711163073875575
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_64
+      rect:
+        serializedVersion: 2
+        x: 94
+        y: 180
+        width: 21
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 756377b0d29888ed0800000000000000
+      internalID: -2411526773898004905
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_65
+      rect:
+        serializedVersion: 2
+        x: 151
+        y: 178
+        width: 11
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4a2ce69b38703ddf0800000000000000
+      internalID: -156773299694681436
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_66
+      rect:
+        serializedVersion: 2
+        x: 566
+        y: 193
+        width: 12
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6c46b256f8306cc50800000000000000
+      internalID: 6685034611290629318
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_67
+      rect:
+        serializedVersion: 2
+        x: 1158
+        y: 180
+        width: 22
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b352a15fa9b768660800000000000000
+      internalID: 7387728144215188795
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_68
+      rect:
+        serializedVersion: 2
+        x: 981
+        y: 176
+        width: 9
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dab14565220938450800000000000000
+      internalID: 6089869598286683053
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_69
+      rect:
+        serializedVersion: 2
+        x: 1357
+        y: 178
+        width: 6
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: af42cf035cbdfa400800000000000000
+      internalID: 337730137052947706
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_70
+      rect:
+        serializedVersion: 2
+        x: 1508
+        y: 162
+        width: 22
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ada8ed599701195d0800000000000000
+      internalID: -3057644557616379174
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_71
+      rect:
+        serializedVersion: 2
+        x: 1162
+        y: 152
+        width: 11
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 98195479ff84e77e0800000000000000
+      internalID: -1765893741290876535
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_72
+      rect:
+        serializedVersion: 2
+        x: 1172
+        y: 150
+        width: 14
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 379cb9e43f41d19d0800000000000000
+      internalID: -2802060357926139533
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_73
+      rect:
+        serializedVersion: 2
+        x: 1768
+        y: 144
+        width: 9
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f6a12bd2037741eb0800000000000000
+      internalID: -4750040658160248209
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_74
+      rect:
+        serializedVersion: 2
+        x: 579
+        y: 139
+        width: 9
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5eb3f702a424def80800000000000000
+      internalID: -8075725670665208859
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_75
+      rect:
+        serializedVersion: 2
+        x: 1512
+        y: 136
+        width: 18
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 868d41c597ab544c0800000000000000
+      internalID: -4303828838483961752
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_76
+      rect:
+        serializedVersion: 2
+        x: 137
+        y: 118
+        width: 9
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c299635204808beb0800000000000000
+      internalID: -4704000739193218772
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_77
+      rect:
+        serializedVersion: 2
+        x: 290
+        y: 130
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c4ec3110c15de9a10800000000000000
+      internalID: 1918204807560285772
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_78
+      rect:
+        serializedVersion: 2
+        x: 577
+        y: 112
+        width: 15
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ffd2d70fe067ec900800000000000000
+      internalID: 706631998080101887
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_79
+      rect:
+        serializedVersion: 2
+        x: 1034
+        y: 93
+        width: 31
+        height: 44
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 772f50870be3e4660800000000000000
+      internalID: 7371898567700902519
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_80
+      rect:
+        serializedVersion: 2
+        x: 1172
+        y: 106
+        width: 30
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5f6dbc760eb6b8220800000000000000
+      internalID: 2489201830610589429
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_81
+      rect:
+        serializedVersion: 2
+        x: 1512
+        y: 116
+        width: 18
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fd027fffea634f750800000000000000
+      internalID: 6337750700863725791
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_82
+      rect:
+        serializedVersion: 2
+        x: 102
+        y: 112
+        width: 6
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 43be35ddcb31d1af0800000000000000
+      internalID: -424161088014914764
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_83
+      rect:
+        serializedVersion: 2
+        x: 643
+        y: 120
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a62c78dd7febd67c0800000000000000
+      internalID: -4076392115917569430
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_84
+      rect:
+        serializedVersion: 2
+        x: 686
+        y: 63
+        width: 97
+        height: 60
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a0d666d9ca25a5240800000000000000
+      internalID: 4781224855735790858
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_85
+      rect:
+        serializedVersion: 2
+        x: 818
+        y: 79
+        width: 24
+        height: 42
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 00f4014cfbeb73550800000000000000
+      internalID: 6140586347780394752
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_86
+      rect:
+        serializedVersion: 2
+        x: 1003
+        y: 110
+        width: 10
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 55e9f3d38405a3190800000000000000
+      internalID: -7981979118365335979
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_87
+      rect:
+        serializedVersion: 2
+        x: 1339
+        y: 109
+        width: 12
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c4afd9139a9778c10800000000000000
+      internalID: 2055745522506791500
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_88
+      rect:
+        serializedVersion: 2
+        x: 1349
+        y: 118
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ab639ef85878677a0800000000000000
+      internalID: -6379762814408902982
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_89
+      rect:
+        serializedVersion: 2
+        x: 1792
+        y: 97
+        width: 9
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d621a6e1a53a3b150800000000000000
+      internalID: 5887228745356022381
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_90
+      rect:
+        serializedVersion: 2
+        x: 1826
+        y: 114
+        width: 9
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 55646ca32adc207f0800000000000000
+      internalID: -647729299733461419
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_91
+      rect:
+        serializedVersion: 2
+        x: 95
+        y: 81
+        width: 35
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6bcd0d409072ae720800000000000000
+      internalID: 2876154231718468790
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_92
+      rect:
+        serializedVersion: 2
+        x: 430
+        y: 101
+        width: 14
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 25cbcd03c4a194250800000000000000
+      internalID: 5929299298949577810
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_93
+      rect:
+        serializedVersion: 2
+        x: 440
+        y: 70
+        width: 24
+        height: 41
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: add455218bb6dcc00800000000000000
+      internalID: 922511937006554586
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_94
+      rect:
+        serializedVersion: 2
+        x: 505
+        y: 93
+        width: 19
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8c19b9a7ea27308b0800000000000000
+      internalID: -5187176252093787704
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_95
+      rect:
+        serializedVersion: 2
+        x: 879
+        y: 108
+        width: 7
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e8f7479caeefc3a10800000000000000
+      internalID: 1890666227944423310
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_96
+      rect:
+        serializedVersion: 2
+        x: 1110
+        y: 81
+        width: 19
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 797d4bc0e2997e7c0800000000000000
+      internalID: -4042093717481007209
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_97
+      rect:
+        serializedVersion: 2
+        x: 1750
+        y: 91
+        width: 25
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 51f4cc0bc7d618a40800000000000000
+      internalID: 5368692613111893781
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_98
+      rect:
+        serializedVersion: 2
+        x: 1782
+        y: 99
+        width: 7
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eb233cd46b7b33f10800000000000000
+      internalID: 2248342632604578494
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_99
+      rect:
+        serializedVersion: 2
+        x: 84
+        y: 91
+        width: 9
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b3f9fa6b4f97c69e0800000000000000
+      internalID: -1626791273443647685
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_100
+      rect:
+        serializedVersion: 2
+        x: 93
+        y: 91
+        width: 7
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f2453d6d62bac57e0800000000000000
+      internalID: -1775355969789537233
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_101
+      rect:
+        serializedVersion: 2
+        x: 279
+        y: 95
+        width: 18
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9cfd08bb084d18210800000000000000
+      internalID: 1333580614045065161
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_102
+      rect:
+        serializedVersion: 2
+        x: 416
+        y: 81
+        width: 25
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f25ee6f1af8f416d0800000000000000
+      internalID: -3020515696905886417
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_103
+      rect:
+        serializedVersion: 2
+        x: 627
+        y: 95
+        width: 20
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 44bd090af8452e460800000000000000
+      internalID: 7269465724380306244
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_104
+      rect:
+        serializedVersion: 2
+        x: 664
+        y: 79
+        width: 23
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d2e9c06c734fe9ff0800000000000000
+      internalID: -27316027334549971
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_105
+      rect:
+        serializedVersion: 2
+        x: 784
+        y: 79
+        width: 19
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9318f8e3de506ac60800000000000000
+      internalID: 7828951518745166137
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_106
+      rect:
+        serializedVersion: 2
+        x: 820
+        y: 89
+        width: 10
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2c56be29147c55440800000000000000
+      internalID: 4924060852051207618
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_107
+      rect:
+        serializedVersion: 2
+        x: 1008
+        y: 63
+        width: 33
+        height: 42
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 67a429ecae5584310800000000000000
+      internalID: 1389454952020200054
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_108
+      rect:
+        serializedVersion: 2
+        x: 1611
+        y: 85
+        width: 7
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ad6fba4afcc6a7510800000000000000
+      internalID: 1547669061031950042
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_109
+      rect:
+        serializedVersion: 2
+        x: 1617
+        y: 79
+        width: 7
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5f76cfe5af5f23280800000000000000
+      internalID: -9064912644259158027
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_110
+      rect:
+        serializedVersion: 2
+        x: 1703
+        y: 77
+        width: 20
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 97b3730bacb68ecd0800000000000000
+      internalID: -2528652672484557959
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_111
+      rect:
+        serializedVersion: 2
+        x: 1888
+        y: 77
+        width: 14
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1c7ddf10374396780800000000000000
+      internalID: -8689356337475364927
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_112
+      rect:
+        serializedVersion: 2
+        x: 91
+        y: 81
+        width: 7
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 801e19837514380b0800000000000000
+      internalID: -5727662458218094328
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_113
+      rect:
+        serializedVersion: 2
+        x: 145
+        y: 79
+        width: 21
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9fb11b7a2e3779030800000000000000
+      internalID: 3501394652617055225
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_114
+      rect:
+        serializedVersion: 2
+        x: 617
+        y: 74
+        width: 12
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f16e6361a8f21a740800000000000000
+      internalID: 5161458918067987999
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_115
+      rect:
+        serializedVersion: 2
+        x: 784
+        y: 61
+        width: 24
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 75d5b4462c94df120800000000000000
+      internalID: 2449194871614561623
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_116
+      rect:
+        serializedVersion: 2
+        x: 800
+        y: 81
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4c2ef4dc601f0e720800000000000000
+      internalID: 2873561573779038916
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_117
+      rect:
+        serializedVersion: 2
+        x: 808
+        y: 83
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 80c1eaba76d1eaa60800000000000000
+      internalID: 7687113945067166728
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_118
+      rect:
+        serializedVersion: 2
+        x: 979
+        y: 80
+        width: 12
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bbfedda29ff97e8b0800000000000000
+      internalID: -5122950158595788869
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_119
+      rect:
+        serializedVersion: 2
+        x: 1054
+        y: 79
+        width: 7
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f4196f95db39c4fa0800000000000000
+      internalID: -5815110577374719665
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_120
+      rect:
+        serializedVersion: 2
+        x: 1301
+        y: 61
+        width: 33
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 67b89f8432d490170800000000000000
+      internalID: 8145126215019760502
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_121
+      rect:
+        serializedVersion: 2
+        x: 1440
+        y: 81
+        width: 7
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 934b407caeb416120800000000000000
+      internalID: 2405287147725960249
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_122
+      rect:
+        serializedVersion: 2
+        x: 1585
+        y: 79
+        width: 11
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4bb9bf77343c46fc0800000000000000
+      internalID: -3502459915644200012
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_123
+      rect:
+        serializedVersion: 2
+        x: 1629
+        y: 63
+        width: 35
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bebdb97685cfd4d00800000000000000
+      internalID: 958699752325372907
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_124
+      rect:
+        serializedVersion: 2
+        x: 1669
+        y: 65
+        width: 19
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cab29a87c46edcac0800000000000000
+      internalID: -3833154491706168404
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_125
+      rect:
+        serializedVersion: 2
+        x: 1685
+        y: 63
+        width: 19
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6ba19bca8f4ed58c0800000000000000
+      internalID: -4008796336589038922
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: armament_turrets_126
+      rect:
+        serializedVersion: 2
+        x: 619
+        y: 71
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 383bfc57f224cf5c0800000000000000
+      internalID: -4180393582499220605
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      armament_turrets_0: -9000025050688304065
+      armament_turrets_1: -4087234731035262266
+      armament_turrets_10: 5690937242186329165
+      armament_turrets_100: -1775355969789537233
+      armament_turrets_101: 1333580614045065161
+      armament_turrets_102: -3020515696905886417
+      armament_turrets_103: 7269465724380306244
+      armament_turrets_104: -27316027334549971
+      armament_turrets_105: 7828951518745166137
+      armament_turrets_106: 4924060852051207618
+      armament_turrets_107: 1389454952020200054
+      armament_turrets_108: 1547669061031950042
+      armament_turrets_109: -9064912644259158027
+      armament_turrets_11: -8114534448971960156
+      armament_turrets_110: -2528652672484557959
+      armament_turrets_111: -8689356337475364927
+      armament_turrets_112: -5727662458218094328
+      armament_turrets_113: 3501394652617055225
+      armament_turrets_114: 5161458918067987999
+      armament_turrets_115: 2449194871614561623
+      armament_turrets_116: 2873561573779038916
+      armament_turrets_117: 7687113945067166728
+      armament_turrets_118: -5122950158595788869
+      armament_turrets_119: -5815110577374719665
+      armament_turrets_12: -1988160738637972695
+      armament_turrets_120: 8145126215019760502
+      armament_turrets_121: 2405287147725960249
+      armament_turrets_122: -3502459915644200012
+      armament_turrets_123: 958699752325372907
+      armament_turrets_124: -3833154491706168404
+      armament_turrets_125: -4008796336589038922
+      armament_turrets_126: -4180393582499220605
+      armament_turrets_13: -9206893822908304382
+      armament_turrets_14: 3449488222728592054
+      armament_turrets_15: 2165556685420352298
+      armament_turrets_16: -322506863128373052
+      armament_turrets_17: -6651778775233276485
+      armament_turrets_18: -1349413787326207378
+      armament_turrets_19: -611462892431990018
+      armament_turrets_2: 3511563007173994676
+      armament_turrets_20: -3000120674291448103
+      armament_turrets_21: -2461300333426261429
+      armament_turrets_22: -1670017078091215491
+      armament_turrets_23: 1814491853910172146
+      armament_turrets_24: -8668872924486900284
+      armament_turrets_25: 5169822255387519975
+      armament_turrets_26: 6958821908398364728
+      armament_turrets_27: 5682783699584947333
+      armament_turrets_28: -2018671470800387616
+      armament_turrets_29: 7430166530577485302
+      armament_turrets_3: 6346453777796236037
+      armament_turrets_30: 4079693057022437412
+      armament_turrets_31: -7784900416628732366
+      armament_turrets_32: 6719168803707269557
+      armament_turrets_33: -5834283087681648221
+      armament_turrets_34: 475208426092443216
+      armament_turrets_35: 1500512455105927253
+      armament_turrets_36: 3374361982700475967
+      armament_turrets_37: 6997048491598684438
+      armament_turrets_38: -8007758069027750536
+      armament_turrets_39: -652839892625295242
+      armament_turrets_4: 5366733486523107516
+      armament_turrets_40: -4836904997515950168
+      armament_turrets_41: 4302013935409190810
+      armament_turrets_42: -7324099715863347410
+      armament_turrets_43: -2389019486885640347
+      armament_turrets_44: -3947572449911262795
+      armament_turrets_45: -3075277471982275709
+      armament_turrets_46: 8536802035824909652
+      armament_turrets_47: 2219342307366466954
+      armament_turrets_48: -1084493067222187943
+      armament_turrets_49: -8799596902723804607
+      armament_turrets_5: -2686608828913598772
+      armament_turrets_50: 5248813138220134811
+      armament_turrets_51: -1610698057274195712
+      armament_turrets_52: 7733474615911843882
+      armament_turrets_53: -4147205581857843952
+      armament_turrets_54: 8113885901463573054
+      armament_turrets_55: -5394681091482876148
+      armament_turrets_56: -5446934641513085098
+      armament_turrets_57: -2768903413677147535
+      armament_turrets_58: 1098345146568709676
+      armament_turrets_59: -7012863421515388673
+      armament_turrets_6: 2174005475535996646
+      armament_turrets_60: 2036872782643714392
+      armament_turrets_61: 5926118621599480459
+      armament_turrets_62: 719677275883489474
+      armament_turrets_63: 8199711163073875575
+      armament_turrets_64: -2411526773898004905
+      armament_turrets_65: -156773299694681436
+      armament_turrets_66: 6685034611290629318
+      armament_turrets_67: 7387728144215188795
+      armament_turrets_68: 6089869598286683053
+      armament_turrets_69: 337730137052947706
+      armament_turrets_7: -6481255842613742477
+      armament_turrets_70: -3057644557616379174
+      armament_turrets_71: -1765893741290876535
+      armament_turrets_72: -2802060357926139533
+      armament_turrets_73: -4750040658160248209
+      armament_turrets_74: -8075725670665208859
+      armament_turrets_75: -4303828838483961752
+      armament_turrets_76: -4704000739193218772
+      armament_turrets_77: 1918204807560285772
+      armament_turrets_78: 706631998080101887
+      armament_turrets_79: 7371898567700902519
+      armament_turrets_8: 4769833460549844322
+      armament_turrets_80: 2489201830610589429
+      armament_turrets_81: 6337750700863725791
+      armament_turrets_82: -424161088014914764
+      armament_turrets_83: -4076392115917569430
+      armament_turrets_84: 4781224855735790858
+      armament_turrets_85: 6140586347780394752
+      armament_turrets_86: -7981979118365335979
+      armament_turrets_87: 2055745522506791500
+      armament_turrets_88: -6379762814408902982
+      armament_turrets_89: 5887228745356022381
+      armament_turrets_9: 7149587502004150003
+      armament_turrets_90: -647729299733461419
+      armament_turrets_91: 2876154231718468790
+      armament_turrets_92: 5929299298949577810
+      armament_turrets_93: 922511937006554586
+      armament_turrets_94: -5187176252093787704
+      armament_turrets_95: 1890666227944423310
+      armament_turrets_96: -4042093717481007209
+      armament_turrets_97: 5368692613111893781
+      armament_turrets_98: 2248342632604578494
+      armament_turrets_99: -1626791273443647685
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
