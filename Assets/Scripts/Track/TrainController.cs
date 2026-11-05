@@ -45,7 +45,7 @@ namespace IronRing.Track
             if (!_track.IsMoving)
             {
                 _waiting += Time.deltaTime;
-                bool requested = _keyboardDeparture && Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame;
+                bool requested = _keyboardDeparture && Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame && !IronRing.Hud.Onboarding.DevSituationsScreen.IsOpen && !IronRing.Hud.GameMenuScreen.IsOpen; // 스펙 001: F9 개발자 메뉴가 열려 있으면 Space 출발 막음 / 스펙 003: 게임 메뉴가 열려 있어도 막음
                 bool demonstration = _autoDepart || _data.AutoDepart || Argument("--track-demo") != null;
                 if (requested || !_track.IsStopped || (demonstration && _waiting >= _data.StationWaitSeconds)) Depart();
                 return;

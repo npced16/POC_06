@@ -112,7 +112,8 @@ namespace IronRing.Habitats
     /// 레시피는 건물을 처음 직접 완성했을 때만 "discover"로 알려진다. 열린 재료, 승객, NPC, 사건은 레시피를 등록하지 않는다.
     /// 스토리 021의 시작 레시피·바퀴 해금과 스토리 042의 등급 해금은 더 쓰지 않는다(OnLapCompleted·BindTiers는 호환용으로 남음).
     /// </summary>
-    public sealed class HabitatCodex : IHabitatCodex, IDisposable
+    // 스펙 003: 저장 슬롯 참여 계약 ISaveParticipant 구현 추가
+    public sealed class HabitatCodex : IHabitatCodex, IDisposable, ISaveParticipant
     {
         public const string SOURCE_START = "start";
         public const string SOURCE_LAP = "lap";
@@ -388,6 +389,78 @@ namespace IronRing.Habitats
             RecipeUnlocked = null;
             HintUnlocked = null;
             TileUnlocked = null;
+        }
+
+        // 스펙 003: 저장 슬롯용 해금 조합·출처·NPC·해금 타일·완성 기록·단서 꺼내기·되돌리기 추가
+        /// <summary>스펙 003. 슬롯 파일 안의 키.</summary>
+        public string SaveKey => "codex";
+
+        /// <summary>스펙 003. 복원 순서(서식지 묶음 다음).</summary>
+        public int Order => 50;
+
+        /// <summary>
+        /// 해금 순서 목록(_unlocked·_openTiles·_builtOrder·_hinted)과 id 순으로 정렬한 출처·NPC 짝을 JSON으로 돌려준다.
+        /// 조회용 집합(_known·_openSet·_built·_hintedSet)은 목록에서 다시 만들므로 저장하지 않는다.
+        /// </summary>
+        public string Capture()
+        {
+            CodexSave state = new CodexSave
+            {
+                Unlocked = _unlocked.ToArray(),
+                OpenTiles = _openTiles.ToArray(),
+                Built = _builtOrder.ToArray(),
+                Hinted = _hinted.ToArray(),
+            };
+            List<string> sourceIds = new List<string>(_sourceOf.Keys);
+            sourceIds.Sort(StringComparer.Ordinal);
+            state.SourceIds = sourceIds.ToArray();
+            state.Sources = new string[sourceIds.Count];
+            for (int i = 0; i < sourceIds.Count; i++) state.Sources[i] = _sourceOf[sourceIds[i]];
+            List<string> npcIds = new List<string>(_npcOf.Keys);
+            npcIds.Sort(StringComparer.Ordinal);
+            state.NpcTypeIds = npcIds.ToArray();
+            state.Npcs = new string[npcIds.Count];
+            for (int i = 0; i < npcIds.Count; i++) state.Npcs[i] = _npcOf[npcIds[i]];
+            return UnityEngine.JsonUtility.ToJson(state);
+        }
+
+        /// <summary>
+        /// Capture가 만든 json으로 해금 목록과 집합, 출처·NPC 짝을 바꾼다. 해금 알림(토스트·핫바 자동 배정)을 다시 내지 않도록
+        /// 이벤트는 내지 않는다. 도감 화면은 열 때 다시 그린다.
+        /// </summary>
+        public void Restore(string json)
+        {
+            CodexSave state = UnityEngine.JsonUtility.FromJson<CodexSave>(json);
+            _unlocked.Clear();
+            _known.Clear();
+            foreach (string id in state.Unlocked) Add(id);
+            _openTiles.Clear();
+            _openSet.Clear();
+            foreach (string id in state.OpenTiles) OpenTile(id);
+            _builtOrder.Clear();
+            _built.Clear();
+            foreach (string id in state.Built) if (id != null && _built.Add(id)) _builtOrder.Add(id);
+            _hinted.Clear();
+            _hintedSet.Clear();
+            foreach (string id in state.Hinted) if (id != null && _hintedSet.Add(id)) _hinted.Add(id);
+            _sourceOf.Clear();
+            for (int i = 0; i < state.SourceIds.Length && i < state.Sources.Length; i++) _sourceOf[state.SourceIds[i]] = state.Sources[i];
+            _npcOf.Clear();
+            for (int i = 0; i < state.NpcTypeIds.Length && i < state.Npcs.Length; i++) _npcOf[state.NpcTypeIds[i]] = state.Npcs[i];
+        }
+
+        /// <summary>스펙 003. 저장 형식: 해금 순서 목록과 id 순 짝 목록.</summary>
+        [Serializable]
+        private sealed class CodexSave
+        {
+            public string[] Unlocked = Array.Empty<string>();
+            public string[] OpenTiles = Array.Empty<string>();
+            public string[] Built = Array.Empty<string>();
+            public string[] Hinted = Array.Empty<string>();
+            public string[] SourceIds = Array.Empty<string>();
+            public string[] Sources = Array.Empty<string>();
+            public string[] NpcTypeIds = Array.Empty<string>();
+            public string[] Npcs = Array.Empty<string>();
         }
     }
 }

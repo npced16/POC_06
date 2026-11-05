@@ -64,6 +64,7 @@ namespace IronRing.Hud.Ui
         /// <summary>text를 seconds초(실시간) 띄운다. 토스트 화면이 없거나 꺼져 있으면 false.</summary>
         public static bool Show(string text, float seconds)
         {
+            if (IronRing.Save.SaveSlots.IsRestoring) return false; // 스펙 003: 저장 슬롯 복원이 내는 변경 이벤트의 토스트를 띄우지 않도록 추가
             ToastScreen toast = Current;
             if (toast == null || toast._box == null || toast._text == null) return false;
             if (Swallowed(text)) return true;

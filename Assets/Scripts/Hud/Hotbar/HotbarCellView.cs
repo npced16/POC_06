@@ -49,6 +49,10 @@ namespace IronRing.Hud.Hotbar
             _rightClick = rightClick;
         }
 
+        // 스펙 001: 온보딩 퀵슬롯 강조가 칸 틀 색을 바꾸고 칸의 재료를 알 수 있도록 읽기 전용으로 공개.
+        public Image Frame => _frame;
+        public PlacementEntry Entry => _entry != null ? _entry() : default;
+
         /// <summary>아이콘(없으면 숨김)과 이름을 쓴다.</summary>
         public void Show(Sprite icon, string label)
         {

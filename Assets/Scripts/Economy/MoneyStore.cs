@@ -6,7 +6,8 @@ using IronRing.Contracts;
 namespace IronRing.Economy
 {
     /// <summary>스토리 040. IMoney 구현(회사 잔고, 마르크). 순수 C#.</summary>
-    public sealed class MoneyStore : IMoney
+    // 스펙 003: 저장 슬롯 참여 계약 ISaveParticipant 구현 추가
+    public sealed class MoneyStore : IMoney, ISaveParticipant
     {
         /// <summary>현재 잔고.</summary>
         public int Balance { get; private set; }
@@ -43,10 +44,41 @@ namespace IronRing.Economy
             if (Balance > PeakBalance) PeakBalance = Balance;
             Changed?.Invoke();
         }
+
+        // 스펙 003: 저장 슬롯용 잔고·최고 잔고 꺼내기·되돌리기 추가
+        /// <summary>스펙 003. 슬롯 파일 안의 키.</summary>
+        public string SaveKey => "money";
+
+        /// <summary>스펙 003. 복원 순서.</summary>
+        public int Order => 80;
+
+        /// <summary>잔고 Balance와 최고 잔고 PeakBalance를 JSON으로 돌려준다. 상태를 바꾸지 않는다.</summary>
+        public string Capture()
+        {
+            return UnityEngine.JsonUtility.ToJson(new MoneySave { Balance = Balance, PeakBalance = PeakBalance });
+        }
+
+        /// <summary>Capture가 만든 json으로 잔고와 최고 잔고를 바꾸고 Changed를 낸다.</summary>
+        public void Restore(string json)
+        {
+            MoneySave state = UnityEngine.JsonUtility.FromJson<MoneySave>(json);
+            Balance = state.Balance;
+            PeakBalance = Math.Max(state.PeakBalance, state.Balance);
+            Changed?.Invoke();
+        }
+
+        /// <summary>스펙 003. 저장 형식: 잔고와 최고 잔고.</summary>
+        [Serializable]
+        private sealed class MoneySave
+        {
+            public int Balance;
+            public int PeakBalance;
+        }
     }
 
     /// <summary>스토리 040. ILedger 구현. 거래·운임은 즉시 적고, Settle에서 유지비를 적은 뒤 바퀴를 닫는다.</summary>
-    public sealed class Ledger : ILedger
+    // 스펙 003: 저장 슬롯 참여 계약 ISaveParticipant 구현 추가(장부 _entries는 이 클래스가 가진다)
+    public sealed class Ledger : ILedger, ISaveParticipant
     {
         private readonly List<LedgerEntry> _entries = new List<LedgerEntry>();
 
@@ -96,6 +128,58 @@ namespace IronRing.Economy
             CurrentLap = lap + 1;
             LapSettled?.Invoke(lap, net);
             return net;
+        }
+
+        // 스펙 003: 저장 슬롯용 장부 항목·지금 바퀴 꺼내기·되돌리기 추가(수입·지출 합계는 항목에서 다시 계산)
+        /// <summary>스펙 003. 슬롯 파일 안의 키.</summary>
+        public string SaveKey => "ledger";
+
+        /// <summary>스펙 003. 복원 순서(돈 다음).</summary>
+        public int Order => 81;
+
+        /// <summary>적은 순서의 장부 항목 _entries와 지금 바퀴 CurrentLap을 JSON으로 돌려준다. 상태를 바꾸지 않는다.</summary>
+        public string Capture()
+        {
+            LedgerSave state = new LedgerSave { CurrentLap = CurrentLap };
+            foreach (LedgerEntry e in _entries) state.Entries.Add(new EntrySave { Lap = e.Lap, Kind = (int)e.Kind, Amount = e.Amount, Note = e.Note ?? string.Empty });
+            return UnityEngine.JsonUtility.ToJson(state);
+        }
+
+        /// <summary>
+        /// Capture가 만든 json으로 장부 항목과 지금 바퀴를 바꾸고 TotalIncome·TotalExpense를 항목에서 다시 계산한다.
+        /// 장부에는 변경 이벤트가 없어 알림을 내지 않는다.
+        /// </summary>
+        public void Restore(string json)
+        {
+            LedgerSave state = UnityEngine.JsonUtility.FromJson<LedgerSave>(json);
+            _entries.Clear();
+            TotalIncome = 0;
+            TotalExpense = 0;
+            foreach (EntrySave saved in state.Entries)
+            {
+                if (saved == null) continue;
+                _entries.Add(new LedgerEntry { Lap = saved.Lap, Kind = (LedgerKind)saved.Kind, Amount = saved.Amount, Note = saved.Note });
+                if (saved.Amount > 0) TotalIncome += saved.Amount; else TotalExpense -= saved.Amount;
+            }
+            CurrentLap = state.CurrentLap;
+        }
+
+        /// <summary>스펙 003. 저장 형식: 장부 항목 목록과 지금 바퀴.</summary>
+        [Serializable]
+        private sealed class LedgerSave
+        {
+            public List<EntrySave> Entries = new List<EntrySave>();
+            public int CurrentLap;
+        }
+
+        /// <summary>스펙 003. 저장 형식: 장부 항목 하나(종류는 정수).</summary>
+        [Serializable]
+        private sealed class EntrySave
+        {
+            public int Lap;
+            public int Kind;
+            public int Amount;
+            public string Note;
         }
     }
 }

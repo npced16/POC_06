@@ -131,7 +131,8 @@ namespace IronRing.Economy
     /// 첫 마을 붕괴만 Collapsing(RunState 패배), 모든 마을은 HubCollapsing.
     /// 048: Tier·TierId·TierName·IsMax·NextTier·Next*Need는 "현재 마을"(CurrentHub, 없으면 _hubId). Collapsed·Phase는 첫 마을(옛 의미; 마을별은 *At).
     /// </summary>
-    public sealed class TownTiers : ITownTier
+    // 스펙 003: 저장 슬롯 참여 계약 ISaveParticipant 구현 추가
+    public sealed class TownTiers : ITownTier, ISaveParticipant
     {
         private sealed class HubTier { public int Tier; public int LowLaps; public bool Collapsed; }
 
@@ -270,6 +271,85 @@ namespace IronRing.Economy
                 _unlockedHubs.Add(id);
                 HubUnlockRequested?.Invoke(id);
             }
+        }
+
+        // 스펙 003: 저장 슬롯용 마을 단계·업그레이드·정류장·열린 거점 꺼내기·되돌리기 추가
+        /// <summary>스펙 003. 슬롯 파일 안의 키.</summary>
+        public string SaveKey => "townTiers";
+
+        /// <summary>스펙 003. 복원 순서.</summary>
+        public int Order => 72;
+
+        /// <summary>
+        /// 열린 순서 _order대로 마을마다 등급·낮은 정산 연속 수·붕괴 여부와, 누적 해금 목록(업그레이드·정류장·열린 거점)을 JSON으로 돌려준다.
+        /// 레시피 목록 _recipes는 스토리 050부터 늘 비어 있어 저장하지 않는다. 상태를 바꾸지 않는다.
+        /// </summary>
+        public string Capture()
+        {
+            TierSave state = new TierSave
+            {
+                Upgrades = _upgrades.ToArray(),
+                Stops = _stops.ToArray(),
+                UnlockedHubs = _unlockedHubs.ToArray(),
+            };
+            foreach (string hubId in _order)
+            {
+                HubTier h = _hubs[hubId];
+                state.Hubs.Add(new HubTierSave { HubId = hubId, Tier = h.Tier, LowLaps = h.LowLaps, Collapsed = h.Collapsed });
+            }
+            return UnityEngine.JsonUtility.ToJson(state);
+        }
+
+        /// <summary>
+        /// Capture가 만든 json으로 마을을 열고(없으면 AddHub) 등급·붕괴 기록과 누적 해금 목록을 바꾼다. 해금 요청(HubUnlockRequested)은 내지 않는다.
+        /// 등급이 달라진 마을마다 HubTierChanged를, 첫 마을이면 TierChanged도 낸다.
+        /// </summary>
+        public void Restore(string json)
+        {
+            TierSave state = UnityEngine.JsonUtility.FromJson<TierSave>(json);
+            List<KeyValuePair<string, int>> changed = new List<KeyValuePair<string, int>>();
+            foreach (HubTierSave saved in state.Hubs)
+            {
+                if (saved == null || string.IsNullOrEmpty(saved.HubId)) continue;
+                AddHub(saved.HubId);
+                HubTier h = _hubs[saved.HubId];
+                int before = h.Tier;
+                h.Tier = Math.Max(0, Math.Min(_settings.Tiers.Count - 1, saved.Tier));
+                h.LowLaps = saved.LowLaps;
+                h.Collapsed = saved.Collapsed;
+                if (h.Tier != before) changed.Add(new KeyValuePair<string, int>(saved.HubId, h.Tier));
+            }
+            _upgrades.Clear();
+            _upgrades.AddRange(state.Upgrades);
+            _stops.Clear();
+            _stops.AddRange(state.Stops);
+            _unlockedHubs.Clear();
+            _unlockedHubs.AddRange(state.UnlockedHubs);
+            foreach (KeyValuePair<string, int> pair in changed)
+            {
+                HubTierChanged?.Invoke(pair.Key, pair.Value);
+                if (pair.Key == _settings.HubId) TierChanged?.Invoke(pair.Value);
+            }
+        }
+
+        /// <summary>스펙 003. 저장 형식: 마을별 등급 기록과 누적 해금 목록.</summary>
+        [Serializable]
+        private sealed class TierSave
+        {
+            public List<HubTierSave> Hubs = new List<HubTierSave>();
+            public string[] Upgrades = Array.Empty<string>();
+            public string[] Stops = Array.Empty<string>();
+            public string[] UnlockedHubs = Array.Empty<string>();
+        }
+
+        /// <summary>스펙 003. 저장 형식: 마을 하나의 등급·낮은 정산 연속 수·붕괴 여부.</summary>
+        [Serializable]
+        private sealed class HubTierSave
+        {
+            public string HubId;
+            public int Tier;
+            public int LowLaps;
+            public bool Collapsed;
         }
     }
 }

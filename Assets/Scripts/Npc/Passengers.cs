@@ -16,7 +16,8 @@ namespace IronRing.Npc
     /// Story 032 (POC 1 station): NpcPoolData.IgnoreHubRoster drops the roster check on disembarking and NpcPoolData.IgnoreOrigin
     /// drops the origin check on boarding; boarding conditions are judged at the NPC's first hub when it is in the run, else the first run hub.
     /// </summary>
-    public sealed class Passengers : IPassengers, IDisposable
+    // 스펙 003: 저장 슬롯 참여 계약 ISaveParticipant 구현 추가
+    public sealed class Passengers : IPassengers, IDisposable, ISaveParticipant
     {
         /// <summary>Waypoint id used for boards made by demo helpers.</summary>
         public const string DemoWaypoint = "demo";
@@ -365,6 +366,42 @@ namespace IronRing.Npc
         {
             foreach (Rider r in _riders) if (r.Id == npcId) return r;
             return null;
+        }
+
+        // 스펙 003: 저장 슬롯용 거점 방문 횟수 꺼내기·되돌리기 추가(탑승 중 승객은 저장하지 않음)
+        /// <summary>스펙 003. 슬롯 파일 안의 키.</summary>
+        public string SaveKey => "passengers";
+
+        /// <summary>스펙 003. 복원 순서.</summary>
+        public int Order => 62;
+
+        /// <summary>거점 방문 횟수 _visits를 거점 id 순으로 정렬해 JSON으로 돌려준다. 상태를 바꾸지 않는다.</summary>
+        public string Capture()
+        {
+            List<string> hubs = new List<string>(_visits.Keys);
+            hubs.Sort(StringComparer.Ordinal);
+            VisitSave state = new VisitSave { HubIds = hubs.ToArray(), Counts = new int[hubs.Count] };
+            for (int i = 0; i < hubs.Count; i++) state.Counts[i] = _visits[hubs[i]];
+            return UnityEngine.JsonUtility.ToJson(state);
+        }
+
+        /// <summary>Capture가 만든 json으로 _visits를 바꾼다. 방문 횟수에는 변경 이벤트가 없어 알림을 내지 않는다.</summary>
+        public void Restore(string json)
+        {
+            VisitSave state = UnityEngine.JsonUtility.FromJson<VisitSave>(json);
+            _visits.Clear();
+            for (int i = 0; i < state.HubIds.Length && i < state.Counts.Length; i++)
+            {
+                if (!string.IsNullOrEmpty(state.HubIds[i])) _visits[state.HubIds[i]] = state.Counts[i];
+            }
+        }
+
+        /// <summary>스펙 003. 저장 형식: 거점 id와 방문 횟수의 짝(같은 순번).</summary>
+        [Serializable]
+        private sealed class VisitSave
+        {
+            public string[] HubIds = Array.Empty<string>();
+            public int[] Counts = Array.Empty<int>();
         }
     }
 }

@@ -155,8 +155,9 @@ using Game.System;
 ## 10. Spec-Driven Development (SDD)
 
 - 기능 구현 전에 게임 컨셉 문서 `design/game-brief.md`를 먼저 읽고, 바뀌는 규칙은 그 문서부터 고친다.
-- 스펙 없이 기능 구현을 시작하지 않는다. 스펙은 `design/game-brief.md`의 해당 절이다(스토리 번호를 새로 만들지 않는다).
-- 커밋 메세지 제안 시 기능 영역을 범위로 쓴다. (예: `feat(loop): 휴식지 사건 가중치 조정`)
+- 스펙 없이 기능 구현을 시작하지 않는다. 기능 스펙은 `docs/specs/NNN-*.md`이며 작성 규칙·절차·목록은 `docs/README.md`, 양식은 `docs/spec-template.md`를 따른다. 게임 규칙의 원본은 `design/game-brief.md`다.
+- 구현은 승인된 스펙의 `FR-xxx` 단위로 하고, 끝나면 FR별 충족 코드를 보고한다. `production/epics`의 옛 스토리 번호는 새로 만들지 않는다.
+- 커밋 메세지 제안 시 스펙 작업은 스펙 번호를 범위로 쓰고(예: `feat(001): 잔해 치우기 비용표 적용`), 스펙 없는 정리 작업은 범위 없이 쓴다(예: `chore: 옛 데모 인자 정리`).
 
 ## 11. 이 프로젝트 (황동골 철도 회사)
 
@@ -168,10 +169,10 @@ using Game.System;
   - UI 프리팹: `.bridge/rebuild/<화면Id>` 빈 파일을 만들고 `IronRing.Hud.Editor.BuildMainCanvas.Generate` 실행(그 화면만 GUID 유지하고 재생성).
   - 그 밖 생성기: `IronRing.Bootstrap.Editor.BuildTopDownMain.Rebuild`(파괴적), `IronRing.Presentation.Interior.Editor.Story012Build.Generate`, `IronRing.Presentation.Interior.Editor.RuinBuild.Generate`/`GenerateMap`(멱등).
 - **UI**: UGUI. `MainCanvas` 프리팹 하나 아래에 화면마다 프리팹(`Assets/Prefabs/UI/Screens/`), 빌더는 `Assets/Scripts/Hud/Editor/Screens/<Id>ScreenBuilder.cs`, 색·글자는 `UiTheme.asset`. 런타임에 UI를 코드로 만들지 않는다.
-- **편집기 제어와 검증은 Unity Pipeline CLI(`unity`)만 사용한다. Python 스크립트와 옛 파일 큐 브리지는 사용하거나 다시 만들지 않는다.** 편집기는 사용자가 열어 둔다. 닫거나 batchmode로 띄우지 않는다. 여러 편집기가 열려 있으므로 `--project-path C:/Users/JUNGLE/Documents/GitHub/POC_06`을 지정한다.
+- **편집기 제어와 검증은 Unity Pipeline CLI(`unity`)만 사용한다. Python 스크립트와 옛 파일 큐 브리지는 사용하거나 다시 만들지 않는다.** 편집기는 사용자가 열어 둔다. 닫거나 batchmode로 띄우지 않는다. 여러 편집기가 열려 있으므로 `--project-path <저장소 루트>`를 지정한다. `<저장소 루트>`는 작업 중인 이 저장소의 절대 경로이며 `git rev-parse --show-toplevel`로 확인하고, `unity status` 목록에서 같은 경로의 편집기만 대상으로 삼는다.
   - 연결 확인: `unity status --format json`
-  - 컴파일: `unity command script recompile --project-path C:/Users/JUNGLE/Documents/GitHub/POC_06 --format json` 후 `unity command script recompile_status --project-path C:/Users/JUNGLE/Documents/GitHub/POC_06 --format json`에서 완료·오류 여부 확인.
-  - 씬 저장 상태: `unity command scene list_open --project-path C:/Users/JUNGLE/Documents/GitHub/POC_06 --format json`에서 `Main.unity`의 `isDirty:false` 확인.
+  - 컴파일: `unity command script recompile --project-path <저장소 루트> --format json` 후 `unity command script recompile_status --project-path <저장소 루트> --format json`에서 완료·오류 여부 확인.
+  - 씬 저장 상태: `unity command scene list_open --project-path <저장소 루트> --format json`에서 `Main.unity`의 `isDirty:false` 확인.
   - 생성기: `unity command script eval`에서 편집기 정적 메서드를 호출한다. 실행 전에 Play Mode 여부와 대상 메서드의 파괴적 동작을 확인한다.
   - Play Mode·캡처: `unity command editor.playmode start|stop`, `unity command capture game_view`를 사용한다. 데모 상태와 실제 입력 검증은 별도로 기록한다. 로그는 `%LOCALAPPDATA%/Unity/Editor/Editor.log`에서 `LOOP:`·`UNLOCK:`·`LINE:` 등으로 찾는다.
   - 지금 쓸 수 있는 데모 인자: `--loop-demo`, `--unlock-demo [--unlock-stage start|first|all]`, `--line-demo --line-stage locked|opened`, `--town-demo`, `--economy-demo ledger`.

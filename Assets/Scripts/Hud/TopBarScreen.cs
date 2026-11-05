@@ -34,6 +34,8 @@ namespace IronRing.Hud
         [Tooltip("스토리 025: 승객 수 버튼(누르면 승객 화면).")]
         [SerializeField] private Button _passengers;
         [SerializeField] private TMP_Text _passengerCount;
+        [Tooltip("스펙 003: 게임 메뉴 톱니 버튼(누르면 게임 메뉴 열기·한 단계 닫기).")] // 스펙 003: 톱니 버튼 설명 추가
+        [SerializeField] private Button _gameMenu; // 스펙 003: 톱니 버튼 참조 추가
         [Tooltip("스토리 039: 휴식지 이벤트 토스트 표시 시간(초).")]
         [SerializeField] private float _eventToastSeconds = 2.5f;
 
@@ -102,6 +104,7 @@ namespace IronRing.Hud
             if (_codex != null) _codex.onClick.AddListener(IronRing.Hud.Codex.CodexScreen.Toggle);
             // 스토리 025: 승객 버튼(P 키는 PassengersScreen이 읽는다).
             if (_passengers != null) _passengers.onClick.AddListener(PassengersScreen.Toggle);
+            if (_gameMenu != null) _gameMenu.onClick.AddListener(GameMenuScreen.Toggle); // 스펙 003: 톱니 버튼 클릭 시 게임 메뉴 열기
             _track.Arrived += OnArrived; _track.LapCompleted += OnLap;
             _hubs.RunLost += Refresh;
             _waypoints.EncounterStarted += OnArrived; _waypoints.EncounterEnded += OnEncounterEnded;

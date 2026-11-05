@@ -24,6 +24,8 @@ namespace IronRing.Hub
         [SerializeField] private float _perResident;
         [Tooltip("QA 2026-11-01: a Cluster/Set building counts at most ceil(RequiredCount x this) cells for prosperity. Absent or <= 0 = 1.5.")]
         [SerializeField] private float _cellCapRatio = 1.5f;
+        [Tooltip("스펙 004: 바퀴 정산 때 모든 마을의 번영도/최대치가 이 값 이상이면 클리어. 없거나 0 이하면 기존 기한·등급 규칙.")]
+        [SerializeField] private float _clearProsperityRatio; // 스펙 004: 클리어 비율 데이터 필드 추가
         [Header("Hub profiles")]
         [SerializeField] private HubProfile[] _hubs;
 
@@ -33,7 +35,7 @@ namespace IronRing.Hub
             HubData data = JsonUtility.FromJson<HubData>(json);
             if (data == null || data._hubs == null || data._hubs.Length == 0)
                 throw new ArgumentException("Hub data is empty.", nameof(json));
-            var rules = new HubRunRules(data._deadlineLaps, data._earlyWin, data._useTownTiers, data._perResident, data._cellCapRatio);
+            var rules = new HubRunRules(data._deadlineLaps, data._earlyWin, data._useTownTiers, data._perResident, data._cellCapRatio, data._clearProsperityRatio); // 스펙 004: 클리어 비율 전달 추가
             var definitions = new List<HubDefinition>();
             foreach (HubProfile profile in data._hubs) definitions.Add(profile.ToDefinition(rules));
             return definitions.AsReadOnly();
