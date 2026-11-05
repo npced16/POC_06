@@ -16,7 +16,8 @@ namespace IronRing.Economy
     /// Income은 열린 모든 마을의 건물 수입 합(정산이 쓴다). ExtraBuildings·SetResidents·HubId는 첫 마을(_hubId, 황동골) 기준(데모용).
     /// 고유 NPC(INpcRecruiter)는 여기서 세지 않는다.
     /// </summary>
-    public sealed class Population : IPopulation, IDisposable
+    // 스펙 003: 저장 슬롯 참여 계약 ISaveParticipant 구현 추가
+    public sealed class Population : IPopulation, IDisposable, ISaveParticipant
     {
         private sealed class Town { public int Residents, Housing, Light, Income; }
 
@@ -174,6 +175,48 @@ namespace IronRing.Economy
             if (_npcs != null) _npcs.NpcJoined -= OnNpcJoined;
             Changed = null;
             CurrentHub = null;
+        }
+
+        // 스펙 003: 저장 슬롯용 마을별 주민 기록 꺼내기·되돌리기 추가(주거·빛·수입은 다시 계산)
+        /// <summary>스펙 003. 슬롯 파일 안의 키.</summary>
+        public string SaveKey => "population";
+
+        /// <summary>스펙 003. 복원 순서.</summary>
+        public int Order => 71;
+
+        /// <summary>
+        /// 열린 순서 _order대로 마을 id와 주민 수를 JSON으로 돌려준다. 주거·빛·수입은 완성 건물과 NPC에서 다시 계산하므로 저장하지 않는다.
+        /// 상태를 바꾸지 않는다.
+        /// </summary>
+        public string Capture()
+        {
+            TownSave state = new TownSave { HubIds = _order.ToArray(), Residents = new int[_order.Count] };
+            for (int i = 0; i < _order.Count; i++) state.Residents[i] = _towns[_order[i]].Residents;
+            return UnityEngine.JsonUtility.ToJson(state);
+        }
+
+        /// <summary>
+        /// Capture가 만든 json으로 마을을 열고(없으면 AddHub) 주민 수를 둔 뒤, 모든 마을의 주거·빛·수입을 다시 계산하고 Changed를 낸다.
+        /// </summary>
+        public void Restore(string json)
+        {
+            TownSave state = UnityEngine.JsonUtility.FromJson<TownSave>(json);
+            for (int i = 0; i < state.HubIds.Length && i < state.Residents.Length; i++)
+            {
+                string hubId = state.HubIds[i];
+                if (string.IsNullOrEmpty(hubId)) continue;
+                AddHub(hubId);
+                _towns[hubId].Residents = state.Residents[i];
+            }
+            Refresh();
+        }
+
+        /// <summary>스펙 003. 저장 형식: 열린 순서의 마을 id와 주민 수의 짝(같은 순번).</summary>
+        [Serializable]
+        private sealed class TownSave
+        {
+            public string[] HubIds = Array.Empty<string>();
+            public int[] Residents = Array.Empty<int>();
         }
     }
 }

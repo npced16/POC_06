@@ -753,4 +753,18 @@ namespace IronRing.Contracts
         /// <summary>itemId, 새 수.</summary>
         event Action<string, int> Changed;
     }
+
+    // 스펙 003: 저장 슬롯에 상태를 꺼내고 되돌리는 참여 계약 추가
+    /// <summary>스펙 003. 저장 대상 시스템이 구현한다. SaveInstaller가 Order 순서로 Capture·Restore를 부른다.</summary>
+    public interface ISaveParticipant
+    {
+        /// <summary>슬롯 파일 안에서 이 시스템 상태를 찾는 키. 시스템마다 고유하다.</summary>
+        string SaveKey { get; }
+        /// <summary>복원 순서. 작은 값부터 Restore한다.</summary>
+        int Order { get; }
+        /// <summary>지금 상태를 JSON 문자열로 꺼낸다. 같은 상태면 같은 문자열을 돌려줘야 한다.</summary>
+        string Capture();
+        /// <summary>Capture가 만든 JSON으로 상태를 되돌리고 변경 이벤트를 낸다.</summary>
+        void Restore(string json);
+    }
 }
