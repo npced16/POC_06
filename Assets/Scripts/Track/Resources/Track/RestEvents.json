@@ -1,7 +1,7 @@
 ﻿{
   "_seed": 5101,
   "_autoChooseSeconds": 0,
-  "_autoContinueSeconds": 4,
+  "_autoContinueSeconds": 0,
   "_disableAutoBoarding": true,
   "_events": [
     {

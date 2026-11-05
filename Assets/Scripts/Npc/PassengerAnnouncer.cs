@@ -11,7 +11,6 @@ namespace IronRing.Npc
     public sealed class PassengerAnnouncer : MonoBehaviour
     {
         private readonly Queue<string> _queue = new Queue<string>();
-        private readonly Queue<string> _boardingQueue = new Queue<string>();
         private Passengers _passengers;
         private float _wait;
 
@@ -30,14 +29,9 @@ namespace IronRing.Npc
         /// <summary>id에 해당하는 승객 이름을 풀에서 찾아 반환하고, 정의가 없으면 id를 반환한다.</summary>
         private string Name(string id) => _passengers.Pool.Find(id)?.Name ?? id;
 
-        /// <summary>id가 waypoint에서 탑승하면 열린 휴식지 사건의 대화 대기열에 넣거나 기존 토스트로 알린다.</summary>
+        /// <summary>id가 waypoint에서 탑승하면 이름과 요청을 토스트 대기열에 추가한다.</summary>
         private void OnBoarded(string id, string waypoint)
         {
-            if (IronRing.Contracts.Presentation.GameServices.Get<IronRing.Contracts.IRestEvents>()?.IsActive == true)
-            {
-                _boardingQueue.Enqueue(id);
-                return;
-            }
             NpcDefinition npc = _passengers.Pool.Find(id);
             Enqueue(string.Format(_passengers.Pool.BoardToastFormat, Subject(Name(id)), _passengers.OriginName(id),
                 PassengerRequest.Label(npc) ?? _passengers.Proposal(id)));
@@ -87,18 +81,7 @@ namespace IronRing.Npc
 
         void Update()
         {
-            if (_boardingQueue.Count > 0)
-            {
-                IronRing.Hud.Npc.NpcDialogScreen dialog = IronRing.Hud.Npc.NpcDialogScreen.Instance;
-                if (dialog != null && !dialog.IsOpen)
-                {
-                    string id = _boardingQueue.Peek();
-                    NpcDefinition npc = _passengers.Pool.Find(id);
-                    string line = PassengerRequest.Label(npc) ?? _passengers.Proposal(id);
-                    if (string.IsNullOrEmpty(line)) line = npc?.Quote ?? string.Empty;
-                    if (dialog.OpenBoarding(id, Name(id), _passengers.OriginName(id), line)) _boardingQueue.Dequeue();
-                }
-            }
+            if (IronRing.Contracts.Presentation.GameServices.Get<IronRing.Contracts.IRestEvents>()?.IsActive == true) return;
             if (_wait > 0f) { _wait -= Time.unscaledDeltaTime; return; }
             if (_queue.Count == 0) return;
             float seconds = _passengers.Pool.ToastSeconds;
