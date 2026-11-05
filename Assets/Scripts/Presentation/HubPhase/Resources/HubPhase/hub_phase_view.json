@@ -20,5 +20,7 @@
   "_emptyBuildingToastSeconds": 2.5,
   "_npcPostSpacing": 0.45,
   "_npcPostsPerRow": 3,
-  "_npcRowOffset": 0.3
+  "_npcRowOffset": 0.3,
+  "_npcHoverOutlineColor": { "r": 0.25, "g": 1.0, "b": 0.35, "a": 1.0 },
+  "_npcHoverOutlinePixels": 2.0
 }
