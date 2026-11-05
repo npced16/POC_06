@@ -19,7 +19,7 @@ namespace IronRing.Hud
         [Header("사건 내용")]
         [SerializeField] private TMP_Text _title;
         [SerializeField] private TMP_Text _body;
-        [SerializeField] private Button[] _choices = new Button[3];
+        [SerializeField] private Button[] _choices = new Button[4];
         [Header("선택 결과")]
         [SerializeField] private GameObject _resultBox;
         [SerializeField] private TMP_Text _result;

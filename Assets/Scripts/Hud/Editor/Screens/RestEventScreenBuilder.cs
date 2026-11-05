@@ -49,7 +49,8 @@ namespace IronRing.Hud.Editor.Screens
             UiKit.Place(body.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -98f), new Vector2(600f, 115f));
             body.textWrappingMode = TextWrappingModes.Normal;
 
-            var choices = new Button[3];
+            // 만석 교체(승객 3명 + 돌려보내기)까지 담도록 4개를 만든다.
+            var choices = new Button[4];
             for (int i = 0; i < choices.Length; i++)
             {
                 Button button = UiKit.Button(panel.transform, "Choice" + (i + 1), "", theme);

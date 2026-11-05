@@ -43,34 +43,15 @@ namespace IronRing.Npc
             string line = string.Format(_passengers.Pool.DisembarkToastFormat, Subject(Name(id)), _passengers.OriginName(id));
             NpcDefinition npc = _passengers.Pool.Find(id);
             if (npc != null && npc.WorkBonus > 0)
-                line += " · " + WorkLabel(npc.WorkKind) + " +" + npc.WorkBonus;
+                line += " · " + PassengerRequest.WorkLabel(npc.WorkKind) + " +" + npc.WorkBonus;
             Enqueue(line);
-        }
-
-        /// <summary>직무 종류를 받아 합류 알림에 쓸 짧은 한국어 효과 이름을 반환한다.</summary>
-        private static string WorkLabel(string kind)
-        {
-            switch (kind)
-            {
-                case "income": return "매 바퀴 마르크";
-                case "housing": return "주거";
-                case "light": return "빛";
-                default: return "일손";
-            }
         }
 
         /// <summary>id가 열차를 떠나면 떠남 알림을 토스트 대기열에 추가한다.</summary>
         private void OnLeft(string id) => Enqueue(string.Format(_passengers.Pool.LeaveToastFormat, Subject(Name(id))));
 
-        /// <summary>이름 뒤에 주격 조사(이/가)를 붙인다. 마지막 글자에 받침이 있으면 "이", 없으면 "가". 한글이 아니면 "가".</summary>
-        private static string Subject(string name)
-        {
-            if (string.IsNullOrEmpty(name)) return name;
-            char last = name[name.Length - 1];
-            bool hangul = last >= '가' && last <= '힣';
-            bool batchim = hangul && (last - 0xAC00) % 28 != 0;
-            return name + (batchim ? "이" : "가");
-        }
+        /// <summary>name 뒤에 주격 조사를 붙인 문자열을 PassengerRequest.Subject로 만들어 반환한다.</summary>
+        private static string Subject(string name) => PassengerRequest.Subject(name);
 
         /// <summary>text를 기록하고 화면에 순서대로 표시할 토스트 대기열에 추가한다.</summary>
         private void Enqueue(string text)

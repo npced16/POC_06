@@ -109,6 +109,8 @@ namespace IronRing.Npc
             [SerializeField] private string _habitatTypeId;
             [Tooltip("Story 017: extra dialogue lines after _quote (Korean, 2 recommended).")]
             [SerializeField] private string[] _lines;
+            [Tooltip("마을에서 말풍선으로 띄우는 혼잣말(한국어, 16자 안팎 권장).")]
+            [SerializeField] private string[] _mutterLines;
             [Header("Passenger (Story 023)")]
             [SerializeField] private string _origin;
             [SerializeField] private string _originName;
@@ -131,7 +133,7 @@ namespace IronRing.Npc
                     ? new NpcPassengerProfile(_origin, _originName, _chance, Convert(_boardConditions), Convert(_conditions), _proposal, _hint)
                     : null;
                 return new NpcDefinition(_id, _name, _quote, hubs, _requiresCompleteHabitat, _habitatTypeId, _lines, passenger, _teachesTypeId,
-                    _workKind, _workBonus);
+                    _workKind, _workBonus, _mutterLines);
             }
 
             private static List<NpcCondition> Convert(ConditionEntry[] entries)
