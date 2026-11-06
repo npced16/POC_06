@@ -16,6 +16,7 @@
   - 저장 참여 계약 `ISaveParticipant`와 저장 대상 시스템들의 꺼내기·되돌리기 구현
   - 씬 이름 상수 `SceneNames`(Title·Main)
   - 백그라운드 실행 토글(`Application.runInBackground`, PlayerPrefs 기억)
+  - 전투 씬이 Main의 Canvas를 끈 동안에는 Esc로 메뉴를 열지 않고, Alt+F4는 확인 창을 보여 줄 수 없으므로 막지 않는다
   - 이 기능의 `ko.json` 키(문구 값은 사용자 검수 뒤 넣는다)
 - 제외:
   - 타이틀 화면 자체와 슬롯 고르기 화면 UI(스펙 002)
@@ -87,6 +88,7 @@
 | `Assets/Scripts/Track/PhaseLoop.cs` | `ISaveParticipant`: 바퀴 수 `Lap`. 복원 때 건설 페이즈로 둔다 |
 | `Assets/Scripts/Hud/Hotbar/HotbarScreen.cs` | `ISaveParticipant`: 퀵슬롯 배정 `_slots`(FR-020) |
 | `Assets/Scripts/Economy/MoneyStore.cs`의 `Ledger` | `ISaveParticipant`(키 `ledger`, Order 81): 장부 항목과 현재 바퀴 |
+| `Assets/Scripts/Combat/TrainArmament.cs`, `BattleHintJournal.cs` | 저장용 꺼내기·되돌리기·새 게임 초기화 메서드. `Save/CombatSaveParticipants.cs` 래퍼가 `ISaveParticipant`(키 `trainArmament` Order 85, `battleHintJournal` Order 86)로 참여시키고, 새 게임 때 `SaveInstaller`가 비운다 |
 | `Assets/Scripts/Track/LineOpener.cs` | `ISaveParticipant`(키 `lineOpener`, Order 65): 열린 선로. 복원 때 `Open()`으로 거점 열기·마을 연결을 다시 붙인다 |
 | `Assets/Scripts/Hub/HubState.cs` | 복원용 internal 메서드 |
 | `Assets/Scripts/Hud/Ui/ToastScreen.cs` | 복원 중(`SaveSlots.IsRestoring`)에는 토스트를 띄우지 않음 |
@@ -95,7 +97,7 @@
 
   위 표의 필드 가운데 다른 값에서 계산되는 값은 저장하지 않고 `Restore` 뒤에 다시 계산한다. 구현 중 표에 없는 상태 보유 클래스를 찾으면 구현을 멈추고 이 표에 추가하는 스펙 수정을 제안한다.
 
-- 참여자 복원 순서(`Order`): 10 `HubInterior` → 20 `ResourceInventory` → 21 `ItemInventory` → 22 `TileStock` → 30 `ItemPlacement` → 40 `ClusterHabitatSystem` → 50 `HabitatCodex` → 55 `HotbarScreen` → 60 `NpcRecruiter` → 61 `NpcHomes` → 62 `Passengers` → 65 `LineOpener` → 70 `RunState` → 71 `Population` → 72 `TownTiers` → 80 `MoneyStore` → 81 `Ledger` → 90 `RingTrack` → 91 `PhaseLoop`.
+- 참여자 복원 순서(`Order`): 10 `HubInterior` → 20 `ResourceInventory` → 21 `ItemInventory` → 22 `TileStock` → 30 `ItemPlacement` → 40 `ClusterHabitatSystem` → 50 `HabitatCodex` → 55 `HotbarScreen` → 60 `NpcRecruiter` → 61 `NpcHomes` → 62 `Passengers` → 65 `LineOpener` → 70 `RunState` → 71 `Population` → 72 `TownTiers` → 80 `MoneyStore` → 81 `Ledger` → 85 `TrainArmament` → 86 `BattleHintJournal` → 90 `RingTrack` → 91 `PhaseLoop`.
 
 ## 5. 동작 플로우차트
 

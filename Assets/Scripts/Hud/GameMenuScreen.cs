@@ -29,6 +29,7 @@ namespace IronRing.Hud
         private const int LOAD_TOAST_DELAY_FRAMES = 2;
 
         private static GameMenuScreen _instance;
+        private Canvas _rootCanvas;
         private static bool _loadFailedToast;
 
         private enum ConfirmAction { None, Overwrite, ToTitle, Quit }
@@ -104,8 +105,13 @@ namespace IronRing.Hud
             _yesButton.onClick.AddListener(ConfirmYes);
             _noButton.onClick.AddListener(ConfirmNo);
             SaveInstaller.QuitBlocked += OnQuitBlocked;
+            _rootCanvas = GetComponentInParent<Canvas>()?.rootCanvas;
+            SaveInstaller.CanPromptQuit = () => this != null && CanShow;
             ShowPanel(null);
         }
+
+        /// <summary>메뉴가 화면에 보일 수 있으면 true. 전투 씬이 Main의 Canvas를 끈 동안에는 false.</summary>
+        private bool CanShow => _rootCanvas == null || _rootCanvas.enabled;
 
         void Start()
         {
@@ -118,6 +124,7 @@ namespace IronRing.Hud
             TickLoadFailedToast();
             Keyboard keyboard = Keyboard.current;
             if (keyboard == null || !keyboard.escapeKey.wasPressedThisFrame) return;
+            if (!CanShow) return;
             if (DevSituationsScreen.IsOpen) return;
             if (_isOpen) { Back(); return; }
             if (EscUsedElsewhere()) return;
@@ -127,6 +134,7 @@ namespace IronRing.Hud
         void OnDestroy()
         {
             SaveInstaller.QuitBlocked -= OnQuitBlocked;
+            SaveInstaller.CanPromptQuit = null;
             if (_screens != null) _screens.ScreenChanged -= OnScreenChanged;
             if (_ghost != null) _ghost.SelectionChanged -= OnGhostSelectionChanged;
             // 메뉴가 열린 채 씬이 바뀌면 멈춘 시간을 되돌린다.

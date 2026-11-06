@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 using UnityEngine;
 
+using IronRing.Combat;
 using IronRing.Contracts;
 using IronRing.Contracts.Presentation;
 
@@ -19,6 +20,9 @@ namespace IronRing.Save
         /// <summary>저장하지 않은 진행이 있어 창 닫기를 막았을 때 발생한다. 게임 메뉴가 종료 확인 창을 연다.</summary>
         public static event Action QuitBlocked;
 
+        /// <summary>종료 확인 창을 지금 보여 줄 수 있는지 묻는 함수. 게임 메뉴가 넣는다. 없거나 false면 종료를 막지 않는다.</summary>
+        public static Func<bool> CanPromptQuit { get; set; }
+
         /// <summary>도메인 재로드가 꺼져 있으므로 플레이 진입마다 정적 상태를 지운다.</summary>
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStatics()
@@ -28,6 +32,7 @@ namespace IronRing.Save
             if (_quitHooked) Application.wantsToQuit -= OnWantsToQuit;
             _quitHooked = false;
             QuitBlocked = null;
+            CanPromptQuit = null;
         }
 
         /// <summary>MainRoot의 GameServices.Reset()보다 뒤에 구독하도록 씬 로드 직전에 건다.</summary>
@@ -71,6 +76,9 @@ namespace IronRing.Save
             SaveSlots.SetParticipants(CollectParticipants());
             if (SaveSlots.PendingLoadSlot <= 0)
             {
+                // 정적 클래스라 씬을 다시 열어도 남는 포탑·단서 기록을 새 게임 상태로 비운다.
+                TrainArmament.ResetForNewGame();
+                BattleHintJournal.ResetForNewGame();
                 SaveSlots.MarkCurrentAsSaved();
                 return;
             }
@@ -114,6 +122,9 @@ namespace IronRing.Save
             {
                 if (behaviour is ISaveParticipant participant && !result.Contains(participant)) result.Add(participant);
             }
+            // 서비스가 아닌 정적 클래스(포탑·전투 단서)는 래퍼로 참여시킨다.
+            result.Add(new TrainArmamentSaveParticipant());
+            result.Add(new BattleHintJournalSaveParticipant());
             return result;
         }
 
@@ -123,6 +134,8 @@ namespace IronRing.Save
         private static bool OnWantsToQuit()
         {
             if (SaveSlots.QuitAllowed || !GameServices.IsReady || !SaveSlots.HasUnsavedProgress()) return true;
+            // 전투 씬처럼 확인 창을 보여 줄 수 없으면 보이지 않는 창에 갇히지 않도록 종료를 막지 않는다.
+            if (CanPromptQuit == null || !CanPromptQuit()) return true;
             QuitBlocked?.Invoke();
             return false;
         }
