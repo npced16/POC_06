@@ -25,7 +25,8 @@ namespace IronRing.Economy
     /// </summary>
     public static class EconomyInstaller
     {
-        private const string STEAM_STATION_ID = "steam_station";
+        // 스펙 006 FR-008: 잿골을 여는 건물을 구리 갱도로 변경
+        private const string COPPER_PIT_ID = "copper_pit";
         private const string SECOND_HUB_ID = "hub-2";
 
         /// <summary>경제 수치 리소스 경로.</summary>
@@ -153,12 +154,12 @@ namespace IronRing.Economy
         }
 
         /// <summary>
-        /// 완성된 서식지의 hubId와 typeId를 확인해 황동골 증기역이면 잿골 선로를 연다.
+        /// 완성된 서식지의 hubId와 typeId를 확인해 황동골 구리 갱도면 잿골 선로를 연다.
         /// LineOpener.Open의 중복 방지를 사용하며 선로와 마을의 열린 상태를 변경한다.
         /// </summary>
         private static void OnHabitatCompleted(string hubId, string typeId)
         {
-            if (hubId == Town?.HubId && typeId == STEAM_STATION_ID) Line?.Open(SECOND_HUB_ID);
+            if (hubId == Town?.HubId && typeId == COPPER_PIT_ID) Line?.Open(SECOND_HUB_ID);
         }
 
         /// <summary>스토리 041. ItemPlacement에 결제·환급을 건다.</summary>

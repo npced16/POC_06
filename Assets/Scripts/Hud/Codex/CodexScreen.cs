@@ -111,6 +111,7 @@ namespace IronRing.Hud.Codex
             _close.onClick.AddListener(Close);
             _habitatsTab.onClick.AddListener(ShowHabitats);
             _turretsTab.onClick.AddListener(ShowTurrets);
+            if (DefenseVisibility.Hidden) _turretsTab.gameObject.SetActive(false); // 스펙 006: 디펜스 숨김 동안 포탑 탭을 숨김
             _battleRules = BattleRules.Load();
             foreach (TurretRule turret in CurrentTurrets()) _knownTurrets.Add(turret.Id);
             _codex.RecipeUnlocked += OnRecipeUnlocked;
@@ -170,7 +171,7 @@ namespace IronRing.Hud.Codex
         private void OnClustersChanged(string hubId, string typeId)
         {
             foreach (TurretRule turret in CurrentTurrets())
-                if (_knownTurrets.Add(turret.Id))
+                if (_knownTurrets.Add(turret.Id) && !DefenseVisibility.Hidden) // 스펙 006: 디펜스 숨김 동안 포탑 해금 알림을 내지 않음
                     _toasts.Enqueue(string.Format(Text("unlock_turret"), HabitatName(typeId), turret.Name));
             if (IsOpen) Rebuild();
         }
