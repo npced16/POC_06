@@ -100,6 +100,7 @@ namespace IronRing.Combat
             public Enemy Leader;
             public float Side;
             public bool Charging;
+            public bool ContactedTrain;
             public Vector2 ChargeTarget;
             public float AttackCooldown;
         }
@@ -467,6 +468,7 @@ namespace IronRing.Combat
             for (int i = _enemies.Count - 1; i >= 0; i--)
             {
                 Enemy enemy = _enemies[i];
+                if (enemy.ContactedTrain) continue;
                 Vector3 position = enemy.Object.transform.position;
                 bool guarding = enemy.Leader != null && _enemies.Contains(enemy.Leader);
                 if (!enemy.Charging && !guarding && enemy.Rule.ChargeAtProgress > 0 &&
@@ -495,9 +497,13 @@ namespace IronRing.Combat
                 if (!enemy.Charging) TickEnemyAttack(enemy, position, dt);
                 if (enemy.Side * (position.y - _trainY) > 0.45f) continue;
                 _trainHealth -= enemy.Rule.ContactDamage;
-                Destroy(enemy.Object);
-                _enemies.RemoveAt(i);
-                if (_trainHealth <= 0) Finish(false);
+                if (enemy.Rule.Role == BattleEnemyRole.Boss) enemy.ContactedTrain = true;
+                else
+                {
+                    Destroy(enemy.Object);
+                    _enemies.RemoveAt(i);
+                }
+                if (_trainHealth <= 0) { Finish(false); return; }
             }
         }
 

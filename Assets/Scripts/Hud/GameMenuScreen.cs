@@ -103,7 +103,6 @@ namespace IronRing.Hud
             }
             _yesButton.onClick.AddListener(ConfirmYes);
             _noButton.onClick.AddListener(ConfirmNo);
-            SaveInstaller.QuitBlocked += OnQuitBlocked;
             ShowPanel(null);
         }
 
@@ -126,7 +125,6 @@ namespace IronRing.Hud
 
         void OnDestroy()
         {
-            SaveInstaller.QuitBlocked -= OnQuitBlocked;
             if (_screens != null) _screens.ScreenChanged -= OnScreenChanged;
             if (_ghost != null) _ghost.SelectionChanged -= OnGhostSelectionChanged;
             // 메뉴가 열린 채 씬이 바뀌면 멈춘 시간을 되돌린다.
@@ -250,14 +248,6 @@ namespace IronRing.Hud
         {
             if (SaveSlots.HasUnsavedProgress()) ShowConfirm(ConfirmAction.Quit, "game_menu_quit_confirm");
             else Quit();
-        }
-
-        /// <summary>창 닫기가 막혔을 때 메뉴를 열고 종료 확인 창을 띄운다. 이미 떠 있으면 그대로 둔다(FR-013).</summary>
-        private void OnQuitBlocked()
-        {
-            Open();
-            if (_confirm == ConfirmAction.Quit && _confirmPanel.activeSelf) return;
-            ShowConfirm(ConfirmAction.Quit, "game_menu_quit_confirm");
         }
 
         /// <summary>action을 _confirm에 기억하고 messageKey 문구로 확인 패널을 켠다.</summary>

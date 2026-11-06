@@ -48,6 +48,16 @@ namespace IronRing.Onboarding
 
         public int TopicCount => _topics.Count;
         public string Current => _current;
+        /// <summary>기본 학습 묶음의 모든 항목을 완료했는지 기록을 확인해 반환한다.</summary>
+        public bool BasicTutorialCompleted
+        {
+            get
+            {
+                foreach (OnboardingTopic topic in _topics.Values)
+                    if (topic.Chain && !OnboardingProgress.IsSeen(topic.Id)) return false;
+                return true;
+            }
+        }
         /// <summary>마지막으로 해금된 재료 id(퀵슬롯 강조용). 없으면 null.</summary>
         public string LastUnlockedTile { get; private set; }
         public IEnumerable<OnboardingTopic> Topics => _topics.Values;

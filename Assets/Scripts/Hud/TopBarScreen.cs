@@ -8,6 +8,7 @@ using IronRing.Contracts.Presentation;
 using IronRing.Hud.Npc;
 using IronRing.Hud.Ui;
 using IronRing.Localization;
+using IronRing.Onboarding;
 
 namespace IronRing.Hud
 {
@@ -118,7 +119,7 @@ namespace IronRing.Hud
             if (_track == null) return;
             bool canDepart = _loop != null ? _loop.CanDepart : _track.IsHeld && _track.CurrentNode?.Kind == TrackNodeKind.Hub && !_waypoints.IsEncounterActive;
             _depart.gameObject.SetActive(!_hubs.IsRunLost && canDepart);
-            SetInteractable(_depart, !_hubs.IsRunLost && canDepart);
+            SetInteractable(_depart, !_hubs.IsRunLost && canDepart && (OnboardingInstaller.Director == null || OnboardingInstaller.Director.BasicTutorialCompleted));
             RefreshPeople();
             RefreshPassengers();
         }
@@ -189,6 +190,7 @@ namespace IronRing.Hud
         /// <summary>현재 거점 정차 상태를 확인하고 열차에 출발을 요청한 뒤 상태 표시를 갱신한다.</summary>
         private void Depart()
         {
+            if (OnboardingInstaller.Director != null && !OnboardingInstaller.Director.BasicTutorialCompleted) return;
             if (_hubs.IsRunLost) return;
             if (_loop != null) { if (!_loop.CanDepart) return; _loop.Depart(); }
             else { if (!_track.IsHeld || _waypoints.IsEncounterActive || _track.CurrentNode?.Kind != TrackNodeKind.Hub) return; _track.Depart(); }
@@ -206,6 +208,13 @@ namespace IronRing.Hud
         private void OnBoarded(string npcId, string waypointId) { RefreshPassengers(); }
         private void OnDisembarked(string npcId, string hubId) { RefreshPassengers(); }
         private void OnLeft(string npcId) { RefreshPassengers(); }
+
+        void Update()
+        {
+            if (_track == null || !_depart.gameObject.activeSelf) return;
+            bool tutorialComplete = OnboardingInstaller.Director == null || OnboardingInstaller.Director.BasicTutorialCompleted;
+            if (_depart.interactable != tutorialComplete) Refresh();
+        }
 
         void OnDestroy()
         {

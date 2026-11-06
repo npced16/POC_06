@@ -51,10 +51,6 @@ namespace IronRing.Hud.Onboarding
         [Tooltip("귀환 안내 때 카메라 크기 비율(1보다 작을수록 확대)")]
         [SerializeField, Range(0.1f, 1f)] private float _focusZoomRatio = 0.7f;
 
-        [Header("테스트")]
-        [Tooltip("에디터에서 Play Mode를 시작할 때 본 항목 기록을 지워 처음부터 순서대로 띄운다(빌드에서는 무시)")]
-        [SerializeField] private bool _resetProgressInEditor = true;
-
         [Header("등장 효과")]
         [Tooltip("팝업이 튀어나오는 시간(초)")]
         [SerializeField] private float _popSeconds = 0.3f;
@@ -70,13 +66,20 @@ namespace IronRing.Hud.Onboarding
         private string[] _unlockGuide;
         private readonly List<RaycastResult> _uiHits = new();
         private readonly Vector3[] _corners = new Vector3[4];
+        private Vector2 _boxAnchorMin;
+        private Vector2 _boxAnchorMax;
+        private Vector2 _boxPosition;
 
         void Awake()
         {
+            RectTransform boxRect = (RectTransform)_box.transform;
+            _boxAnchorMin = boxRect.anchorMin;
+            _boxAnchorMax = boxRect.anchorMax;
+            _boxPosition = boxRect.anchoredPosition;
             _box.SetActive(false);
             _confirm.onClick.AddListener(OnConfirmClicked);
             // 시작할 때 마을 내부가 먼저 열려도 첫 안내가 뜨도록, 다른 Start보다 앞선 Awake에서 기록을 지운다(FR-025).
-            if (Application.isEditor && _resetProgressInEditor) ResetProgress();
+            ResetProgress();
         }
 
         void OnDestroy()
@@ -122,12 +125,16 @@ namespace IronRing.Hud.Onboarding
             TextAsset asset = Resources.Load<TextAsset>(TOPICS_PATH);
             foreach (OnboardingTopic topic in OnboardingTopicsData.Parse(asset != null ? asset.text : null).Topics) ids.Add(topic.Id);
             OnboardingProgress.ResetAll(ids);
-            Debug.Log("ONBOARDING: progress reset (editor)");
+            Debug.Log("ONBOARDING: progress reset");
         }
 
         /// <summary>topic의 표정 그림과 문구를 등장 효과와 함께 팝업에 보이고, 안내형일 때만 확인 버튼을 켠다. 안내 배치 패턴이 있으면 시작한다(FR-006, FR-007, FR-018, FR-021).</summary>
         private void OnShown(OnboardingTopic topic)
         {
+            RectTransform boxRect = (RectTransform)_box.transform;
+            boxRect.anchorMin = topic.Id == "npc_interact" ? new Vector2(0f, 1f) : _boxAnchorMin;
+            boxRect.anchorMax = topic.Id == "npc_interact" ? new Vector2(0f, 1f) : _boxAnchorMax;
+            boxRect.anchoredPosition = topic.Id == "npc_interact" ? new Vector2(_boxPosition.x, -_boxPosition.y) : _boxPosition;
             Sprite sprite = MascotOf(topic.Mascot);
             _mascot.sprite = sprite;
             _mascot.gameObject.SetActive(sprite != null);

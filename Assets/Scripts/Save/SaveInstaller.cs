@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 using UnityEngine;
@@ -9,25 +8,16 @@ using IronRing.Contracts.Presentation;
 namespace IronRing.Save
 {
     /// <summary>
-    /// 스펙 003. GameServices.Ready 뒤에 저장 참여자를 모으고, 불러올 슬롯이 있으면 복원하고,
-    /// Application.wantsToQuit으로 저장하지 않은 진행의 종료를 가로챈다.
+    /// GameServices.Ready 뒤에 저장 참여자를 모으고 불러올 슬롯이 있으면 복원한다.
     /// </summary>
     public static class SaveInstaller
     {
-        private static bool _quitHooked;
-
-        /// <summary>저장하지 않은 진행이 있어 창 닫기를 막았을 때 발생한다. 게임 메뉴가 종료 확인 창을 연다.</summary>
-        public static event Action QuitBlocked;
-
         /// <summary>도메인 재로드가 꺼져 있으므로 플레이 진입마다 정적 상태를 지운다.</summary>
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStatics()
         {
             GameServices.Composing -= OnComposing;
             GameServices.Ready -= OnReady;
-            if (_quitHooked) Application.wantsToQuit -= OnWantsToQuit;
-            _quitHooked = false;
-            QuitBlocked = null;
         }
 
         /// <summary>MainRoot의 GameServices.Reset()보다 뒤에 구독하도록 씬 로드 직전에 건다.</summary>
@@ -35,11 +25,6 @@ namespace IronRing.Save
         private static void Subscribe()
         {
             SubscribeComposing();
-            if (!_quitHooked && !IsDemoRun())
-            {
-                Application.wantsToQuit += OnWantsToQuit;
-                _quitHooked = true;
-            }
         }
 
         /// <summary>
@@ -117,24 +102,5 @@ namespace IronRing.Save
             return result;
         }
 
-        /// <summary>
-        /// 창 닫기·Alt+F4 때 불린다. 종료 허용 표시가 없고 저장하지 않은 진행이 있으면 QuitBlocked를 내고 false로 막는다.
-        /// </summary>
-        private static bool OnWantsToQuit()
-        {
-            if (SaveSlots.QuitAllowed || !GameServices.IsReady || !SaveSlots.HasUnsavedProgress()) return true;
-            QuitBlocked?.Invoke();
-            return false;
-        }
-
-        /// <summary>데모 인자(--*-demo)로 실행했으면 true. 데모 자동 종료를 막지 않기 위해 쓴다.</summary>
-        private static bool IsDemoRun()
-        {
-            foreach (string arg in Environment.GetCommandLineArgs())
-            {
-                if (arg.StartsWith("--", StringComparison.Ordinal) && arg.EndsWith("-demo", StringComparison.Ordinal)) return true;
-            }
-            return false;
-        }
     }
 }

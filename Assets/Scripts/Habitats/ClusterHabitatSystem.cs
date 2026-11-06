@@ -141,6 +141,36 @@ namespace IronRing.Habitats
             locked.RemoveAll(entry => !entry.Intact(tileAt));
             var reserved = new HashSet<int>();
             foreach (LockedCluster entry in locked) foreach (int index in entry.Cluster.Cells) reserved.Add(index);
+            for (int i = 0; i < locked.Count; i++)
+            {
+                HabitatType type = _catalog.Get(locked[i].Cluster.TypeId);
+                if (type == null || type.Kind != HabitatKind.Cluster) continue;
+                var expanded = new List<int>(locked[i].Cluster.Cells);
+                if (expanded.Count >= HabitatType.MAX_RECIPE_CELLS) continue;
+                bool added;
+                do
+                {
+                    added = false;
+                    foreach (IInteriorCell candidate in cells)
+                    {
+                        if (candidate == null || reserved.Contains(candidate.Index) || candidate.State != InteriorCellState.ItemPlaced || candidate.ItemId != type.TileItemId) continue;
+                        foreach (IInteriorCell member in cells)
+                        {
+                            if (member == null || !expanded.Contains(member.Index) || member.IsUpper != candidate.IsUpper) continue;
+                            if (Math.Abs(member.Row - candidate.Row) + Math.Abs(member.Column - candidate.Column) != 1) continue;
+                            expanded.Add(candidate.Index);
+                            reserved.Add(candidate.Index);
+                            added = true;
+                            break;
+                        }
+                        if (expanded.Count >= HabitatType.MAX_RECIPE_CELLS) break;
+                    }
+                } while (added && expanded.Count < HabitatType.MAX_RECIPE_CELLS);
+                if (expanded.Count == locked[i].Cluster.Cells.Count) continue;
+                expanded.Sort();
+                var cluster = new HabitatCluster { TypeId = type.Id, Cells = expanded.AsReadOnly() };
+                locked[i] = LockedCluster.Snapshot(cluster, tileAt);
+            }
             foreach (HabitatCluster fresh in HabitatMatcher.Evaluate(cells, _catalog, reserved))
                 locked.Add(LockedCluster.Snapshot(fresh, tileAt));
             if (locked.Count == 0) return None;

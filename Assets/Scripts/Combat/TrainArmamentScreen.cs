@@ -9,6 +9,7 @@ using TMPro;
 
 using IronRing.Contracts;
 using IronRing.Contracts.Presentation;
+using IronRing.Onboarding;
 using IronRing.Presentation.Interior;
 
 namespace IronRing.Combat
@@ -82,7 +83,7 @@ namespace IronRing.Combat
 
         void Update()
         {
-            if (_panel.activeSelf || Mouse.current == null || Camera.main == null)
+            if (_panel.activeSelf || OnboardingInstaller.Director?.Current != null || Mouse.current == null || Camera.main == null)
             {
                 _trainHover.gameObject.SetActive(false);
                 SetTrainOutline(null);

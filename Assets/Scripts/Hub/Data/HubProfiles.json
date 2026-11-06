@@ -4,7 +4,7 @@
   "_earlyWin": true,
   "_useTownTiers": true,
   "_perResident": 1,
-  "_clearProsperityRatio": 0.8,
+  "_clearProsperityRatio": 2.0,
   "_cellCapRatio": 1.25,
   "_hubs": [
     { "_id": "hub-1", "_name": "황동골", "_minimum": 0, "_maximum": 100, "_initial": 0, "_ruinThreshold": 0, "_settledThreshold": 40, "_basePerLap": -6, "_perNpc": 3, "_perPlacedItem": 0, "_perHabitatCell": 1, "_habitatBonus": 5, "_decayScale": 1, "_npcScale": 1, "_settleByHabitat": false },
