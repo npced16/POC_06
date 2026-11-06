@@ -15,10 +15,19 @@ namespace IronRing.Hub
         public float PerResident { get; }
         /// <summary>QA 2026-11-01 (mixed-cluster prosperity cap): a Cluster/Set building counts at most ceil(RequiredCount x ratio) cells for prosperity (HubProfiles.json `_cellCapRatio`, default 1.5).</summary>
         public float CellCapRatio { get; }
+        // 스펙 004: 번영도 클리어 비율과 켜짐 여부 프로퍼티 추가
+        /// <summary>스펙 004: 바퀴 정산 때 모든 마을이 번영도/최대치 이 비율 이상이면 클리어(HubProfiles.json `_clearProsperityRatio`). 0 이하면 꺼짐.</summary>
+        public float ClearProsperityRatio { get; }
+        /// <summary>스펙 004: 번영도 클리어 규칙이 켜져 있는지(켜지면 기한·등급·정착 승리를 쓰지 않는다).</summary>
+        public bool UsesProsperityClear => ClearProsperityRatio > 0f;
 
-        /// <summary>Validates and stores the data-driven deadline in laps (at least 1) and the Story 030 early-win switch.</summary>
-        public HubRunRules(int deadlineLaps, bool earlyWin = false, bool useTownTiers = false, float perResident = 0f, float cellCapRatio = 1.5f)
+        /// <summary>
+        /// Validates and stores the data-driven deadline in laps (at least 1) and the Story 030 early-win switch.
+        /// 스펙 004: clearProsperityRatio(0 이하면 꺼짐)를 ClearProsperityRatio에 저장한다.
+        /// </summary>
+        public HubRunRules(int deadlineLaps, bool earlyWin = false, bool useTownTiers = false, float perResident = 0f, float cellCapRatio = 1.5f, float clearProsperityRatio = 0f)
         {
+            ClearProsperityRatio = clearProsperityRatio > 0f ? clearProsperityRatio : 0f; // 스펙 004: 클리어 비율 저장 추가
             CellCapRatio = cellCapRatio > 0f ? cellCapRatio : 1.5f;
             UseTownTiers = useTownTiers;
             PerResident = perResident;

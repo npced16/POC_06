@@ -12,7 +12,8 @@ namespace IronRing.Track
     /// 잠긴 역은 RingTrack이 Arrived 없이 통과시키므로 사건이 없다. 열린 다른 마을은 Arrived(Hub)라 사건 없이 기존 정차 규칙.
     /// 의존은 지연 조회(Func)로 받아 설치 순서와 무관하다. Unity 시간은 Tick(dt)으로만 들어온다.
     /// </summary>
-    public sealed class PhaseLoop : IPhaseLoop, IRestEvents, IDisposable
+    // 스펙 003: 저장 슬롯 참여 계약 ISaveParticipant 구현 추가
+    public sealed class PhaseLoop : IPhaseLoop, IRestEvents, IDisposable, ISaveParticipant
     {
         /// <summary>사건 창 동안의 열차 hold 이유.</summary>
         public const string HOLD = "rest-event";
@@ -550,5 +551,41 @@ namespace IronRing.Track
         }
 
         private static string Signed(int v) => v >= 0 ? "+" + v : "-" + (-v);
+
+        // 스펙 003: 저장 슬롯용 바퀴 번호·돌아올 때 받을 마르크 꺼내기·되돌리기 추가(복원 때 건설 페이즈로 둔다)
+        /// <summary>스펙 003. 슬롯 파일 안의 키.</summary>
+        public string SaveKey => "phaseLoop";
+
+        /// <summary>스펙 003. 복원 순서(맨 끝).</summary>
+        public int Order => 91;
+
+        /// <summary>바퀴 번호 Lap과 거점 도착 때 받을 마르크 _pendingMoney를 JSON으로 돌려준다. 상태를 바꾸지 않는다.</summary>
+        public string Capture()
+        {
+            return UnityEngine.JsonUtility.ToJson(new LoopSave { Lap = Lap, PendingMoney = _pendingMoney });
+        }
+
+        /// <summary>
+        /// Capture가 만든 json으로 Lap과 _pendingMoney를 두고, 이번 바퀴 사용 사건을 비운 뒤 건설 페이즈로 둔다.
+        /// PhaseChanged(Build, Lap)를 낸다.
+        /// </summary>
+        public void Restore(string json)
+        {
+            LoopSave state = UnityEngine.JsonUtility.FromJson<LoopSave>(json);
+            _pendingMoney = state.PendingMoney;
+            _usedThisLap.Clear();
+            Phase = LoopPhase.Build;
+            Lap = Math.Max(1, state.Lap);
+            UnityEngine.Debug.Log($"LOOP: phase {Phase} lap={Lap} (저장 슬롯 복원)");
+            PhaseChanged?.Invoke(Phase, Lap);
+        }
+
+        /// <summary>스펙 003. 저장 형식: 바퀴 번호와 돌아올 때 받을 마르크.</summary>
+        [Serializable]
+        private sealed class LoopSave
+        {
+            public int Lap;
+            public int PendingMoney;
+        }
     }
 }

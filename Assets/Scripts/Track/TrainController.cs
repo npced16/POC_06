@@ -50,7 +50,7 @@ namespace IronRing.Track
             if (!_track.IsMoving)
             {
                 _waiting += Time.deltaTime;
-                bool requested = _keyboardDeparture && Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame;
+                bool requested = _keyboardDeparture && Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame && !IronRing.Hud.Onboarding.DevSituationsScreen.IsOpen && !IronRing.Hud.GameMenuScreen.IsOpen && (IronRing.Onboarding.OnboardingInstaller.Director == null || IronRing.Onboarding.OnboardingInstaller.Director.BasicTutorialCompleted); // 개발자 메뉴와 게임 메뉴가 열렸거나 기본 학습이 끝나지 않으면 Space 출발을 막는다.
                 bool demonstration = _autoDepart || _data.AutoDepart || Argument("--track-demo") != null;
                 if (requested || !_track.IsStopped || (demonstration && _waiting >= _data.StationWaitSeconds)) Depart();
                 return;

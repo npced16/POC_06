@@ -131,6 +131,10 @@ namespace IronRing.Contracts
         IReadOnlyList<string> JoinedOf(string habitatTypeId) => Array.Empty<string>();
         /// <summary>스토리 023. npcId, hubId. 승객이 내려 합류한 순간(NpcJoined 직후). 표현이 열차 칸→집 도착 연출에 쓴다.</summary>
         event Action<string, string> NpcArrived { add { } remove { } }
+        /// <summary>스펙 005. 합류한 npcId의 합류 기록을 지운다. 합류하지 않았으면 false.</summary>
+        bool TryWithdraw(string npcId) => false;
+        /// <summary>스펙 005. hubId, npcId. 합류 기록이 지워진 뒤.</summary>
+        event Action<string, string> NpcWithdrawn { add { } remove { } }
     }
 
     /// <summary>Story 004. Prosperity per hub, ruin transition, and the run-lost rule (all hubs ruined).</summary>
@@ -372,6 +376,8 @@ namespace IronRing.Contracts
         IReadOnlyList<NpcHome> HomesAt(string hubId);
         /// <summary>npcId. 집이 생기거나 칸이 바뀌거나 비었을 때.</summary>
         event Action<string> HomeChanged;
+        /// <summary>스펙 005. npcId의 집을 같은 거점의 같은 종류 완성 묶음 cells로 옮긴다. 그런 묶음이 아니면 false.</summary>
+        bool TryMoveHome(string npcId, IReadOnlyList<int> cells) => false;
     }
 
     /// <summary>NPC 대화 패널의 선택지 하나.</summary>
@@ -474,6 +480,14 @@ namespace IronRing.Contracts
         string RequestLabel(string npcId) => "";
         /// <summary>열차 최대 승객 수(좌석 수). 모르면 0.</summary>
         int MaxPassengers => 0;
+        /// <summary>스펙 005. hubId의 주민 npcId를 합류 취소하고 태운다. 좌석 수만 본다. 주민이 아니거나 좌석이 없으면 false.</summary>
+        bool TryBoardResident(string npcId, string hubId) => false;
+        /// <summary>스펙 005. 승객 npcId를 하차 조건을 보고 hubId에 바로 내린다. 승객이 아니거나 조건이 맞지 않으면 false.</summary>
+        bool TryPlace(string npcId, string hubId) => false;
+        /// <summary>스펙 005. npcId가 주민이었다가 다시 탄 승객이면 true.</summary>
+        bool IsReturning(string npcId) => false;
+        /// <summary>스펙 005. npcId, hubId. 다시 탄 주민이 내렸을 때. 이때는 Disembarked를 내지 않아 운임이 없다.</summary>
+        event Action<string, string> Returned { add { } remove { } }
     }
 
     // ----- 런의 끝과 번영 예보(스토리 028) -----
@@ -606,6 +620,9 @@ namespace IronRing.Contracts
         int TotalExpense { get; }
         /// <summary>정산 직후: 바퀴 번호, 그 바퀴 순이익.</summary>
         event Action<int, int> LapSettled;
+        // 스펙 010: 상점 구매 기록용 장부 쓰기 추가
+        /// <summary>스펙 010. 지금 바퀴에 kind·amount(부호 있음)·note 한 줄을 적는다. 기본 구현은 아무것도 하지 않는다.</summary>
+        void Record(LedgerKind kind, int amount, string note) { }
     }
 
     // ----- 타일 비용(스토리 041) -----
@@ -766,5 +783,53 @@ namespace IronRing.Contracts
         IReadOnlyDictionary<string, int> Snapshot();
         /// <summary>itemId, 새 수.</summary>
         event Action<string, int> Changed;
+    }
+
+    // 스펙 003: 저장 슬롯에 상태를 꺼내고 되돌리는 참여 계약 추가
+    /// <summary>스펙 003. 저장 대상 시스템이 구현한다. SaveInstaller가 Order 순서로 Capture·Restore를 부른다.</summary>
+    public interface ISaveParticipant
+    {
+        /// <summary>슬롯 파일 안에서 이 시스템 상태를 찾는 키. 시스템마다 고유하다.</summary>
+        string SaveKey { get; }
+        /// <summary>복원 순서. 작은 값부터 Restore한다.</summary>
+        int Order { get; }
+        /// <summary>지금 상태를 JSON 문자열로 꺼낸다. 같은 상태면 같은 문자열을 돌려줘야 한다.</summary>
+        string Capture();
+        /// <summary>Capture가 만든 JSON으로 상태를 되돌리고 변경 이벤트를 낸다.</summary>
+        void Restore(string json);
+    }
+
+    // 스펙 010: 녹슨 다리 찢어진 설계도 상점 계약 추가
+    /// <summary>스펙 010. 녹슨 다리 상점. 바퀴마다 미완성 건물 조각을 진열하고, 조각 한 장으로 재료 조건 하나를 공개한다.</summary>
+    public interface IBlueprintShop
+    {
+        /// <summary>상점 화면이 열려 있는지.</summary>
+        bool IsOpen { get; }
+        /// <summary>이번 바퀴 진열 건물 id(최대 진열 수, 추첨 순서).</summary>
+        IReadOnlyList<string> Offers { get; }
+        /// <summary>recipeId 조각의 가격(마르크). 가격이 없으면 0.</summary>
+        int PriceOf(string recipeId);
+        /// <summary>recipeId 상품을 이번 바퀴에 이미 샀으면 true.</summary>
+        bool IsSoldOut(string recipeId);
+        /// <summary>지금 recipeId를 살 수 없는 이유(한국어). 살 수 있으면 "".</summary>
+        string UnavailableReason(string recipeId);
+        /// <summary>recipeId 상품을 산다. 성공하면 잔고·장부·공개 재료·품절을 바꾸고 true, 실패하면 아무것도 바꾸지 않고 false.</summary>
+        bool TryBuy(string recipeId);
+        /// <summary>recipeId 건물에서 조각으로 공개한 타일 id(공개 순서). 없으면 빈 목록.</summary>
+        IReadOnlyList<string> RevealedTiles(string recipeId);
+        /// <summary>recipeId 건물 레시피에서 tileId가 필요한 총 수량.</summary>
+        int RequiredCountOf(string recipeId, string tileId);
+        /// <summary>상점을 열고 열차를 붙잡는다. 이미 열려 있으면 무시한다.</summary>
+        void Open();
+        /// <summary>상점을 닫고 열차를 보낸다. 처음이면 다음 마을을 연다. 닫혀 있으면 무시한다.</summary>
+        void Continue();
+        /// <summary>상점이 열릴 때.</summary>
+        event Action Opened;
+        /// <summary>진열·품절·공개 상태가 바뀔 때.</summary>
+        event Action Changed;
+        /// <summary>상점이 닫힐 때.</summary>
+        event Action Closed;
+        /// <summary>구매 성공: 건물 id, 공개한 타일 id.</summary>
+        event Action<string, string> Purchased;
     }
 }

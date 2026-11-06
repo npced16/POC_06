@@ -12,7 +12,8 @@ namespace IronRing.Npc
     /// 같은 종류가 다시 완성되면 마지막 집과 가장 많이 겹치는 묶음(없으면 빈 묶음)을 되찾는다. 묶음이 자라거나 줄면 칸 목록을 따라 갱신한다.
     /// IHabitatClusters는 Composing 순서에 기대지 않도록 늦게 얻는다(첫 사용 또는 Bind 호출 때 구독).
     /// </summary>
-    public sealed class NpcHomes : INpcHomes, IDisposable
+    // 스펙 003: 저장 슬롯 참여 계약 ISaveParticipant 구현 추가
+    public sealed class NpcHomes : INpcHomes, IDisposable, ISaveParticipant
     {
         private readonly INpcRecruiter _recruiter;
         private readonly NpcPoolData _pool;
@@ -55,6 +56,7 @@ namespace IronRing.Npc
             _pool = pool ?? throw new ArgumentNullException(nameof(pool));
             _placementSource = placement;
             _recruiter.NpcJoined += OnNpcJoined;
+            _recruiter.NpcWithdrawn += OnNpcWithdrawn;
             if (hubIds != null)
                 foreach (string hub in hubIds)
                     foreach (string npc in _recruiter.NpcsAt(hub))
@@ -113,6 +115,7 @@ namespace IronRing.Npc
             if (_disposed) return;
             _disposed = true;
             _recruiter.NpcJoined -= OnNpcJoined;
+            _recruiter.NpcWithdrawn -= OnNpcWithdrawn;
             if (_clusters != null)
             {
                 _clusters.HabitatCompleted -= OnHabitatChanged;
@@ -131,6 +134,44 @@ namespace IronRing.Npc
             if (!AddRecord(hubId, npcId)) return;
             Bind();
             Refresh(hubId, npcId);
+        }
+
+        /// <summary>
+        /// 스펙 005. 합류가 취소된 npcId의 집 기록을 지우고 HomeChanged를 낸 뒤 hubId의 남은 집을 다시 맞춘다.
+        /// 기록이 없으면 아무것도 바꾸지 않는다.
+        /// </summary>
+        private void OnNpcWithdrawn(string hubId, string npcId)
+        {
+            if (!_records.Remove(npcId)) return;
+            _joinOrder.Remove(npcId);
+            Bind();
+            HomeChanged?.Invoke(npcId);
+            Refresh(hubId, null);
+        }
+
+        /// <summary>
+        /// 스펙 005. npcId의 집을 cells로 옮긴다. cells는 그 NPC 거점의 같은 종류 완성 묶음과 칸이 같아야 한다.
+        /// 옮기면 Cells와 LastCells를 바꾸고 HomeChanged를 낸다. 이미 그 집이면 알림 없이 true, 맞는 묶음이 없으면 false를 반환한다.
+        /// </summary>
+        public bool TryMoveHome(string npcId, IReadOnlyList<int> cells)
+        {
+            Bind();
+            if (npcId == null || cells == null || _clusters == null || !_records.TryGetValue(npcId, out Record r)) return false;
+            int[] wanted = new List<int>(cells).ToArray();
+            Array.Sort(wanted);
+            foreach (HabitatCluster cluster in _clusters.CompletedAt(r.HubId))
+            {
+                if (cluster?.Cells == null || cluster.TypeId != r.TypeId) continue;
+                int[] found = new List<int>(cluster.Cells).ToArray();
+                Array.Sort(found);
+                if (!SameCells(found, wanted)) continue;
+                if (SameCells(wanted, r.Cells)) return true;
+                r.Cells = wanted;
+                r.LastCells = wanted;
+                HomeChanged?.Invoke(npcId);
+                return true;
+            }
+            return false;
         }
 
         private void OnHabitatChanged(string hubId, string typeId) => Refresh(hubId, null);
@@ -251,5 +292,66 @@ namespace IronRing.Npc
             HabitatTypeId = r.TypeId,
             Cells = Array.AsReadOnly((int[])r.Cells.Clone())
         };
+
+        // 스펙 003: 저장 슬롯용 숙소 기록·합류 순서 꺼내기·되돌리기 추가
+        /// <summary>스펙 003. 슬롯 파일 안의 키.</summary>
+        public string SaveKey => "npcHomes";
+
+        /// <summary>스펙 003. 복원 순서(합류 기록 다음).</summary>
+        public int Order => 61;
+
+        /// <summary>
+        /// 합류 순서 _joinOrder대로 NPC마다 거점·집 칸·마지막 집 칸을 JSON으로 돌려준다. 서식지 종류는 풀 데이터에서 다시 읽으므로 저장하지 않는다.
+        /// 상태를 바꾸지 않는다.
+        /// </summary>
+        public string Capture()
+        {
+            HomesSave state = new HomesSave();
+            foreach (string npcId in _joinOrder)
+            {
+                Record r = _records[npcId];
+                state.Records.Add(new RecordSave { NpcId = r.NpcId, HubId = r.HubId, Cells = r.Cells, LastCells = r.LastCells });
+            }
+            return UnityEngine.JsonUtility.ToJson(state);
+        }
+
+        /// <summary>Capture가 만든 json으로 숙소 기록과 합류 순서를 바꾸고, 기록된 NPC마다 HomeChanged를 낸다.</summary>
+        public void Restore(string json)
+        {
+            HomesSave state = UnityEngine.JsonUtility.FromJson<HomesSave>(json);
+            _records.Clear();
+            _joinOrder.Clear();
+            foreach (RecordSave saved in state.Records)
+            {
+                if (saved == null || saved.NpcId == null || saved.HubId == null || _records.ContainsKey(saved.NpcId)) continue;
+                _records.Add(saved.NpcId, new Record
+                {
+                    NpcId = saved.NpcId,
+                    HubId = saved.HubId,
+                    TypeId = _pool.Find(saved.NpcId)?.HabitatTypeId,
+                    Cells = saved.Cells ?? Array.Empty<int>(),
+                    LastCells = saved.LastCells ?? Array.Empty<int>(),
+                });
+                _joinOrder.Add(saved.NpcId);
+            }
+            foreach (string npcId in _joinOrder) HomeChanged?.Invoke(npcId);
+        }
+
+        /// <summary>스펙 003. 저장 형식: 합류 순서의 숙소 기록 목록.</summary>
+        [Serializable]
+        private sealed class HomesSave
+        {
+            public List<RecordSave> Records = new List<RecordSave>();
+        }
+
+        /// <summary>스펙 003. 저장 형식: NPC 하나의 거점·집 칸·마지막 집 칸.</summary>
+        [Serializable]
+        private sealed class RecordSave
+        {
+            public string NpcId;
+            public string HubId;
+            public int[] Cells = Array.Empty<int>();
+            public int[] LastCells = Array.Empty<int>();
+        }
     }
 }

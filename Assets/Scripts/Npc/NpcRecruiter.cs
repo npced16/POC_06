@@ -12,7 +12,8 @@ namespace IronRing.Npc
     /// TryJoin (a passenger disembarking). Without a handler (standalone Story 003 demo) the legacy single roll applies.
     /// An NPC joins at most once per run either way.
     /// </summary>
-    public sealed class NpcRecruiter : INpcRecruiter
+    // 스펙 003: 저장 슬롯 참여 계약 ISaveParticipant 구현 추가
+    public sealed class NpcRecruiter : INpcRecruiter, ISaveParticipant
     {
         private readonly List<NpcDefinition> _pool;
         private readonly float _joinChance;
@@ -28,6 +29,8 @@ namespace IronRing.Npc
         public event Action<string, string> NpcJoined;
         /// <summary>Story 023: npcId, hubId — raised right after NpcJoined (homes are assigned by then); presentation plays the arrival walk.</summary>
         public event Action<string, string> NpcArrived;
+        /// <summary>스펙 005. hubId, npcId. 합류 기록이 지워진 뒤.</summary>
+        public event Action<string, string> NpcWithdrawn;
 
         /// <summary>Story 023: receives every hub visit instead of the legacy roll (set by Passengers). Null keeps the legacy roll.</summary>
         public Action<string> VisitHandler { get; set; }
@@ -79,6 +82,21 @@ namespace IronRing.Npc
         {
             if (string.IsNullOrEmpty(hubId) || IsJoined(npcId) || _pool.Find(n => n.Id == npcId) == null) return false;
             Commit(npcId, hubId);
+            return true;
+        }
+
+        /// <summary>
+        /// 스펙 005. npcId의 합류 기록을 _joined, _joinOrder, _members에서 지우고 NpcWithdrawn을 낸다.
+        /// 합류하지 않은 npcId면 아무것도 바꾸지 않고 false를 반환한다.
+        /// </summary>
+        public bool TryWithdraw(string npcId)
+        {
+            if (!IsJoined(npcId)) return false;
+            string hubId = HubOf(npcId);
+            _joined.Remove(npcId);
+            _joinOrder.Remove(npcId);
+            _members[hubId].Remove(npcId);
+            NpcWithdrawn?.Invoke(hubId, npcId);
             return true;
         }
 
@@ -138,6 +156,75 @@ namespace IronRing.Npc
                 if (npc != null && npc.HabitatTypeId == habitatTypeId) list.Add(id);
             }
             return list.AsReadOnly();
+        }
+
+        // 스펙 003: 저장 슬롯용 합류한 NPC 꺼내기·되돌리기 추가
+        /// <summary>스펙 003. 슬롯 파일 안의 키.</summary>
+        public string SaveKey => "npcRecruiter";
+
+        /// <summary>스펙 003. 복원 순서.</summary>
+        public int Order => 60;
+
+        /// <summary>
+        /// 합류 순서 _joinOrder와 NPC마다 합류한 거점을 JSON으로 돌려준다. _joined와 거점별 _members는 이 둘에서 다시 만든다.
+        /// 상태를 바꾸지 않는다.
+        /// </summary>
+        public string Capture()
+        {
+            JoinSave state = new JoinSave { NpcIds = _joinOrder.ToArray(), HubIds = new string[_joinOrder.Count] };
+            for (int i = 0; i < _joinOrder.Count; i++) state.HubIds[i] = HubOf(_joinOrder[i]);
+            return UnityEngine.JsonUtility.ToJson(state);
+        }
+
+        /// <summary>
+        /// Capture가 만든 json으로 합류 기록을 바꾼다. 풀에 없는 NPC는 건너뛴다. 새로 합류 상태가 된 NPC마다 NpcJoined를 낸다
+        /// (도착 걸음 연출 NpcArrived는 내지 않는다).
+        /// </summary>
+        public void Restore(string json)
+        {
+            JoinSave state = UnityEngine.JsonUtility.FromJson<JoinSave>(json);
+            HashSet<string> before = new HashSet<string>(_joined, StringComparer.Ordinal);
+            _joined.Clear();
+            _joinOrder.Clear();
+            _members.Clear();
+            List<KeyValuePair<string, string>> joined = new List<KeyValuePair<string, string>>();
+            for (int i = 0; i < state.NpcIds.Length && i < state.HubIds.Length; i++)
+            {
+                string npcId = state.NpcIds[i];
+                string hubId = state.HubIds[i];
+                if (string.IsNullOrEmpty(hubId) || _joined.Contains(npcId) || _pool.Find(n => n.Id == npcId) == null) continue;
+                _joined.Add(npcId);
+                _joinOrder.Add(npcId);
+                if (!_members.TryGetValue(hubId, out List<string> members))
+                {
+                    members = new List<string>();
+                    _members.Add(hubId, members);
+                }
+                members.Add(npcId);
+                joined.Add(new KeyValuePair<string, string>(hubId, npcId));
+            }
+            foreach (KeyValuePair<string, string> pair in joined)
+            {
+                if (!before.Contains(pair.Value)) NpcJoined?.Invoke(pair.Key, pair.Value);
+            }
+        }
+
+        /// <summary>npcId가 합류한 거점 id를 _members에서 찾아 돌려준다. 없으면 빈 문자열.</summary>
+        private string HubOf(string npcId)
+        {
+            foreach (KeyValuePair<string, List<string>> pair in _members)
+            {
+                if (pair.Value.Contains(npcId)) return pair.Key;
+            }
+            return string.Empty;
+        }
+
+        /// <summary>스펙 003. 저장 형식: 합류 순서의 NPC id와 합류 거점 id의 짝(같은 순번).</summary>
+        [Serializable]
+        private sealed class JoinSave
+        {
+            public string[] NpcIds = Array.Empty<string>();
+            public string[] HubIds = Array.Empty<string>();
         }
     }
 }

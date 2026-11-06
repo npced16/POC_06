@@ -19,13 +19,15 @@ namespace IronRing.Interior
     /// <summary>
     /// 스토리 012. 거점 내부 칸과 조사 규칙의 순수 C# 구현(design/game-brief.md Core loop 2단계).
     /// 격자·횟수·확률은 InteriorData에서, 무작위는 주입된 IRandomSource에서 와서 같은 시드면 같은 결과가 난다.
-    /// 묻힌 자원은 IResourceInventory에, 묻힌 아이템은 IItemInventory(스토리 013, null이면 보고만)에 들어간다.
+    /// 묻힌 자원은 IResourceInventory에, 묻힌 아이템은 연결된 지급 경로 또는 IItemInventory에 들어간다.
     /// </summary>
-    public sealed class HubInterior : IHubInterior, IInvestigationReport
+    // 스펙 003: 저장 슬롯 참여 계약 ISaveParticipant 구현 추가
+    public sealed class HubInterior : IHubInterior, IInvestigationReport, ISaveParticipant
     {
         private readonly InteriorData _data;
         private readonly IResourceInventory _resources;
         private IItemInventory _items;
+        private Action<string, int> _grantItem;
         private readonly IRandomSource _random;
         private readonly Dictionary<string, InteriorCell[]> _cells = new Dictionary<string, InteriorCell[]>(StringComparer.Ordinal);
         private readonly Dictionary<string, ReadOnlyCollection<IInteriorCell>> _views = new Dictionary<string, ReadOnlyCollection<IInteriorCell>>(StringComparer.Ordinal);
@@ -75,6 +77,9 @@ namespace IronRing.Interior
         /// </summary>
         public void AttachItemInventory(IItemInventory items) => _items = items;
 
+        /// <summary>매장 아이템의 지급 경로 grantItem을 연결한다. null이면 기존 아이템 인벤토리를 사용한다.</summary>
+        public void AttachItemRewardGrant(Action<string, int> grantItem) => _grantItem = grantItem;
+
         /// <summary>위 구역 줄 우선, 그 다음 아래 구역 순서로 잔해 칸 배열을 만든다.</summary>
         private InteriorCell[] CreateCells()
         {
@@ -121,7 +126,7 @@ namespace IronRing.Interior
 
         /// <summary>
         /// hubId의 cellIndex를 조사한다. 횟수를 1 줄이고 고정 부지면 FacilityPlot, 아니면 확률표로 결과를 정한다.
-        /// 발견한 자원은 재고에, 아이템은 아이템 인벤토리(있으면)에 넣고 칸은 Empty가 된다. 조사할 수 없으면 예외.
+        /// 발견한 자원과 아이템을 연결된 지급 경로에 넣고 칸을 Empty로 바꾸며 결과와 foundId를 반환한다. 조사할 수 없으면 예외.
         /// </summary>
         public InvestigationResult Investigate(string hubId, int cellIndex, out string foundId)
         {
@@ -137,7 +142,8 @@ namespace IronRing.Interior
                     break;
                 case InvestigationResult.FoundItem:
                     foundId = _data.BuriedItems[Clamp(_random.NextInt(0, _data.BuriedItems.Count), 0, _data.BuriedItems.Count - 1)];
-                    _items?.Add(foundId, 1);
+                    if (_grantItem != null) _grantItem(foundId, 1);
+                    else _items?.Add(foundId, 1);
                     cell.State = InteriorCellState.Empty;
                     break;
                 case InvestigationResult.FoundResource:
@@ -196,6 +202,31 @@ namespace IronRing.Interior
             return Transition(hubId, cellIndex, InteriorCellState.ItemPlaced, InteriorCellState.Empty, null);
         }
 
+        /// <summary>
+        /// source의 재료를 destination 칸으로 한 번에 옮긴 뒤 changed를 호출하고 변경된 칸을 알린다.
+        /// 전체 칸이 유효하지 않으면 상태를 바꾸지 않고 false를 반환한다.
+        /// </summary>
+        public bool TryMoveItems(string hubId, IReadOnlyList<int> source, IReadOnlyList<int> destination, Action changed)
+        {
+            if (!_cells.TryGetValue(hubId, out InteriorCell[] cells) || source == null || destination == null || source.Count == 0 || source.Count != destination.Count) return false;
+            var from = new HashSet<int>();
+            var to = new HashSet<int>();
+            var items = new string[source.Count];
+            for (int i = 0; i < source.Count; i++)
+            {
+                int a = source[i], b = destination[i];
+                if (a < 0 || a >= cells.Length || b < 0 || b >= cells.Length || !from.Add(a) || !to.Add(b) || cells[a].State != InteriorCellState.ItemPlaced) return false;
+                items[i] = cells[a].ItemId;
+            }
+            foreach (int index in to) if (!from.Contains(index) && cells[index].State != InteriorCellState.Empty) return false;
+            foreach (int index in from) { cells[index].State = InteriorCellState.Empty; cells[index].ItemId = null; }
+            for (int i = 0; i < destination.Count; i++) { cells[destination[i]].State = InteriorCellState.ItemPlaced; cells[destination[i]].ItemId = items[i]; }
+            changed?.Invoke();
+            from.UnionWith(to);
+            foreach (int index in from) CellChanged?.Invoke(hubId, index);
+            return true;
+        }
+
 
         /// <summary>칸이 from 상태일 때만 to로 바꾸고 아이템 id를 기록한 뒤 CellChanged를 알린다.</summary>
         private bool Transition(string hubId, int cellIndex, InteriorCellState from, InteriorCellState to, string itemId)
@@ -215,6 +246,89 @@ namespace IronRing.Interior
         {
             if (hubId == null || !_cells.ContainsKey(hubId)) throw new ArgumentException("Unknown hub: " + hubId, nameof(hubId));
             return hubId;
+        }
+
+        // 스펙 003: 저장 슬롯용 칸 상태·조사 남은 횟수 꺼내기·되돌리기 추가
+        /// <summary>스펙 003. 슬롯 파일 안의 키.</summary>
+        public string SaveKey => "hubInterior";
+
+        /// <summary>스펙 003. 복원 순서(맨 먼저).</summary>
+        public int Order => 10;
+
+        /// <summary>
+        /// 거점마다(생성 순서) 칸 상태·놓인 아이템·고정 부지 여부와 조사 남은 횟수를 JSON으로 돌려준다.
+        /// 상태를 바꾸지 않는다.
+        /// </summary>
+        public string Capture()
+        {
+            SaveState state = new SaveState();
+            foreach (string hubId in _hubIds)
+            {
+                InteriorCell[] cells = _cells[hubId];
+                HubSave hub = new HubSave
+                {
+                    HubId = hubId,
+                    Left = _left[hubId],
+                    States = new int[cells.Length],
+                    Items = new string[cells.Length],
+                    Plots = new bool[cells.Length],
+                };
+                for (int i = 0; i < cells.Length; i++)
+                {
+                    hub.States[i] = (int)cells[i].State;
+                    hub.Items[i] = cells[i].ItemId ?? string.Empty;
+                    hub.Plots[i] = cells[i].GuaranteedPlot;
+                }
+                state.Hubs.Add(hub);
+            }
+            return UnityEngine.JsonUtility.ToJson(state);
+        }
+
+        /// <summary>
+        /// Capture가 만든 json으로 아는 거점의 칸과 조사 남은 횟수를 되돌린다. 모든 칸을 바꾼 뒤
+        /// 칸마다 CellChanged, 거점마다 InvestigationsChanged를 내서 화면이 다시 그려지게 한다.
+        /// </summary>
+        public void Restore(string json)
+        {
+            SaveState state = UnityEngine.JsonUtility.FromJson<SaveState>(json);
+            List<string> restored = new List<string>();
+            foreach (HubSave hub in state.Hubs)
+            {
+                if (hub == null || hub.HubId == null || !_cells.TryGetValue(hub.HubId, out InteriorCell[] cells)) continue;
+                int count = Math.Min(cells.Length, hub.States.Length);
+                for (int i = 0; i < count; i++)
+                {
+                    cells[i].State = (InteriorCellState)hub.States[i];
+                    string itemId = i < hub.Items.Length ? hub.Items[i] : null;
+                    cells[i].ItemId = string.IsNullOrEmpty(itemId) ? null : itemId;
+                    cells[i].GuaranteedPlot = i < hub.Plots.Length && hub.Plots[i];
+                }
+                _left[hub.HubId] = hub.Left;
+                restored.Add(hub.HubId);
+            }
+            foreach (string hubId in restored)
+            {
+                for (int i = 0; i < _cells[hubId].Length; i++) CellChanged?.Invoke(hubId, i);
+                InvestigationsChanged?.Invoke(hubId, _left[hubId]);
+            }
+        }
+
+        /// <summary>스펙 003. 저장 형식: 거점 목록.</summary>
+        [Serializable]
+        private sealed class SaveState
+        {
+            public List<HubSave> Hubs = new List<HubSave>();
+        }
+
+        /// <summary>스펙 003. 저장 형식: 거점 하나의 칸 배열(칸 번호 순서)과 조사 남은 횟수.</summary>
+        [Serializable]
+        private sealed class HubSave
+        {
+            public string HubId;
+            public int Left;
+            public int[] States = Array.Empty<int>();
+            public string[] Items = Array.Empty<string>();
+            public bool[] Plots = Array.Empty<bool>();
         }
     }
 }

@@ -235,6 +235,9 @@ namespace IronRing.Hud.Npc
         /// <summary>현재 대화가 열려 있으면 true를 반환해 다음 승객 대화가 겹치지 않게 한다.</summary>
         public bool IsOpen => _npc != null;
 
+        // 스펙 001: 온보딩이 승객 합류 대화와 주민 대화를 구분하도록 합류 대화 여부를 읽기 전용으로 공개.
+        public bool IsBoardingOpen => _npc != null && _boarding;
+
         /// <summary>대화를 닫는다(닫기 버튼·Esc·그늘 클릭).</summary>
         public void Close() => Hide();
 

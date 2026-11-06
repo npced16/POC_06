@@ -34,7 +34,8 @@ namespace IronRing.Track
     }
 
     /// <summary>Pure C# one-edge movement with immutable circular topology and explicit station departure.</summary>
-    public sealed class RingTrack : ITrackRuntime
+    // 스펙 003: 저장 슬롯 참여 계약 ISaveParticipant 구현 추가
+    public sealed class RingTrack : ITrackRuntime, ISaveParticipant
     {
         private readonly ReadOnlyCollection<TrackNode> _nodes;
         private readonly Dictionary<string, int> _holds = new Dictionary<string, int>(StringComparer.Ordinal);
@@ -158,6 +159,39 @@ namespace IronRing.Track
             if (!_holds.TryGetValue(reason, out int count)) return;
             if (count == 1) _holds.Remove(reason);
             else _holds[reason] = count - 1;
+        }
+
+        // 스펙 003: 저장 슬롯용 바퀴 수 꺼내기·되돌리기 추가(복원 때 열차를 거점 정차 위치에 둔다)
+        /// <summary>스펙 003. 슬롯 파일 안의 키.</summary>
+        public string SaveKey => "ringTrack";
+
+        /// <summary>스펙 003. 복원 순서.</summary>
+        public int Order => 90;
+
+        /// <summary>완료 바퀴 수 LapCount를 JSON으로 돌려준다. 저장은 건설 페이즈(거점 정차)에서만 하므로 위치는 저장하지 않는다.</summary>
+        public string Capture()
+        {
+            return UnityEngine.JsonUtility.ToJson(new TrackSave { LapCount = LapCount });
+        }
+
+        /// <summary>
+        /// Capture가 만든 json으로 LapCount를 두고 열차를 첫 노드(거점)에 멈춘 상태로 둔 뒤 PositionChanged를 낸다.
+        /// 도착 처리(조사 횟수 초기화·정산)가 다시 일어나지 않도록 Arrived·LapCompleted는 내지 않는다.
+        /// </summary>
+        public void Restore(string json)
+        {
+            TrackSave state = UnityEngine.JsonUtility.FromJson<TrackSave>(json);
+            LapCount = Math.Max(0, state.LapCount);
+            CurrentIndex = 0;
+            IsMoving = false;
+            PositionChanged?.Invoke(CurrentNode);
+        }
+
+        /// <summary>스펙 003. 저장 형식: 완료 바퀴 수.</summary>
+        [Serializable]
+        private sealed class TrackSave
+        {
+            public int LapCount;
         }
     }
 }

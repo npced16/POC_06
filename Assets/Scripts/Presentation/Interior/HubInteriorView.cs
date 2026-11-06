@@ -81,12 +81,26 @@ namespace IronRing.Presentation.Interior
                 return null;
             }
             var views = new InteriorCellView[cells.Count];
+            Transform gridTransform = root.transform.Find("Grid");
+            Grid grid = gridTransform != null ? gridTransform.GetComponent<Grid>() : null;
+            if (grid == null) UnityEngine.Debug.LogWarning($"HubInteriorView: '{root.name}'에 Unity Grid가 없어 기존 스냅을 사용합니다.");
+            var gridCells = new Dictionary<Vector3Int, int>();
             foreach (InteriorCellView view in root.Cells())
             {
                 if (view.Index < 0 || view.Index >= views.Length || views[view.Index] != null)
                 {
                     UnityEngine.Debug.LogError($"HubInteriorView: '{root.name}'의 칸 색인 {view.Index}이(가) 범위 밖이거나 중복입니다(칸 {cells.Count}개 필요).");
                     return null;
+                }
+                if (grid != null)
+                {
+                    Vector3Int coordinate = grid.WorldToCell(view.transform.position);
+                    if (gridCells.ContainsKey(coordinate) || Vector2.Distance(grid.GetCellCenterWorld(coordinate), view.transform.position) > 0.01f)
+                    {
+                        UnityEngine.Debug.LogError($"HubInteriorView: '{root.name}'의 칸 {view.Index}이 Grid 중심에 맞지 않거나 중복됩니다.");
+                        return null;
+                    }
+                    gridCells.Add(coordinate, view.Index);
                 }
                 views[view.Index] = view;
             }
@@ -100,7 +114,27 @@ namespace IronRing.Presentation.Interior
                 views[index].SetSprite(root.Catalog.CellSprite(cells[index].State));
                 views[index].SetBuildable(cells[index].State == InteriorCellState.Empty);
             }
-            return new HubArea { Root = root, Cells = views, CameraSize = root.CameraSize };
+            return new HubArea { Root = root, Cells = views, Grid = grid, GridCells = gridCells, CameraSize = root.CameraSize };
+        }
+
+        /// <summary>hubId와 world 좌표를 Grid 셀로 변환해 기존 칸 인덱스를 반환하며, 칸이 없으면 -1을 반환한다.</summary>
+        public int CellAtWorld(string hubId, Vector3 world)
+        {
+            if (hubId == null || !_areas.TryGetValue(hubId, out HubArea area)) return -1;
+            if (area.Grid == null)
+            {
+                float radius = area.Root.Catalog.SnapRadius * area.Root.Catalog.TileSize;
+                float best = radius * radius;
+                int found = -1;
+                for (int i = 0; i < area.Cells.Length; i++)
+                {
+                    float distance = ((Vector2)(area.Cells[i].transform.position - world)).sqrMagnitude;
+                    if (distance <= best) { best = distance; found = i; }
+                }
+                return found;
+            }
+            Vector3Int coordinate = area.Grid.WorldToCell(world);
+            return area.GridCells.TryGetValue(coordinate, out int index) ? index : -1;
         }
 
         /// <summary>hubId의 cellIndex 칸 앵커(씬 칸 오브젝트). 내부 맵이나 칸이 없으면 null.</summary>
@@ -203,6 +237,8 @@ namespace IronRing.Presentation.Interior
         {
             public HubInteriorRoot Root { get; set; }
             public InteriorCellView[] Cells { get; set; }
+            public Grid Grid { get; set; }
+            public Dictionary<Vector3Int, int> GridCells { get; set; }
             public float CameraSize { get; set; }
         }
     }

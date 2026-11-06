@@ -36,7 +36,8 @@ namespace IronRing.Hud.Hotbar
     /// 게임 상태는 바꾸지 않고 고스트에 명령만 보낸다. 참조는 인스펙터로 꽂는다.
     /// </summary>
     [RequireComponent(typeof(UiScreen))]
-    public sealed class HotbarScreen : MonoBehaviour, IHotbarDemoTarget
+    // 스펙 003: 저장 슬롯 참여 계약 ISaveParticipant 구현 추가(FR-020)
+    public sealed class HotbarScreen : MonoBehaviour, IHotbarDemoTarget, ISaveParticipant
     {
         /// <summary>슬롯 수.</summary>
         public const int SLOT_COUNT = 9;
@@ -46,6 +47,18 @@ namespace IronRing.Hud.Hotbar
         private static HotbarScreen _instance;
         /// <summary>현재 핫바 화면(데모 드라이버용). 초기화 전·캔버스가 없으면 null.</summary>
         public static HotbarScreen Instance => _instance;
+
+        // 스펙 001: 배정 칸 수를 읽기 전용 프로퍼티로 추가(온보딩이 퀵슬롯 가득 참을 판정).
+        /// <summary>재료가 배정된 퀵슬롯 칸 수(0~9).</summary>
+        public int FilledSlotCount
+        {
+            get
+            {
+                int count = 0;
+                foreach (PlacementEntry entry in _slots) if (entry.IsValid) count++;
+                return count;
+            }
+        }
 
         [Tooltip("거점 내부에서만 켜는 모든 내용(핫바·팔레트·알림·드래그 칩).")]
         [SerializeField] private GameObject _content;
@@ -188,8 +201,8 @@ namespace IronRing.Hud.Hotbar
             }
         }
 
-        /// <summary>entry의 아이템 id를 도감 잠금 상태와 대조해 표시 가능 여부를 반환한다.</summary>
-        private bool IsAvailable(PlacementEntry entry) => entry.Kind != PlacementKind.Item || _codex == null || _codex.IsTileUnlocked(entry.Id);
+        /// <summary>entry의 재고 또는 도감 해금 상태를 확인해 초기 빠른 칸에 배정할 수 있는지 반환한다.</summary>
+        private bool IsAvailable(PlacementEntry entry) => entry.Kind != PlacementKind.Item || (_stock != null && _stock.CountOf(entry.Id) > 0) || _codex == null || _codex.IsTileUnlocked(entry.Id);
 
         /// <summary>entry가 현재 아이템 카탈로그에 있는지 반환한다.</summary>
         private bool Exists(PlacementEntry entry)
@@ -204,7 +217,7 @@ namespace IronRing.Hud.Hotbar
             var list = new List<PlacementEntry>();
             string[] categories = PaletteCategories();
             foreach (ItemDefinition item in _items.Items)
-                if ((categories.Length == 0 || Array.IndexOf(categories, item.Category) >= 0) && IsAvailable(new PlacementEntry(PlacementKind.Item, item.Id)))
+                if (categories.Length == 0 || Array.IndexOf(categories, item.Category) >= 0)
                     list.Add(new PlacementEntry(PlacementKind.Item, item.Id));
             return list;
         }
@@ -284,18 +297,33 @@ namespace IronRing.Hud.Hotbar
             }
         }
 
-        /// <summary>entry의 데이터 가격과 현재 결제 가능 상태를 읽어 view의 가격·부족 표시를 갱신한다.</summary>
+        /// <summary>entry가 땅이면 view에 가격과 잔고 부족을, 다른 재료면 재고 수와 부족 상태를 표시한다.</summary>
         private void RefreshPrice(HotbarCellView view, PlacementEntry entry)
         {
             ItemDefinition item = entry.Kind == PlacementKind.Item ? _items.Get(entry.Id) : null;
             int stockCount = item != null && _stock != null ? _stock.CountOf(entry.Id) : 0;
-            bool affordable = stockCount > 0 || item == null || _money == null || (_cost != null ? _cost.CanAfford(entry.Id) : _money.Balance >= item.Price);
-            view.SetPrice(item != null ? (_cost != null ? _cost.PriceOf(entry.Id) : item.Price) : (int?)null, affordable);
-            view.SetStock(stockCount);
+            bool ground = item != null && entry.Id == "tile_cobble";
+            int price = ground && _cost != null ? _cost.PriceOf(entry.Id) : 0;
+            bool affordable = item == null || (ground ? _cost == null || _cost.CanAfford(entry.Id) : stockCount > 0);
+            view.SetPrice(ground ? price : null, affordable);
+            view.SetStock(stockCount, item != null && !ground);
         }
 
-        /// <summary>itemId의 재고 수가 바뀌면 핫바와 열린 팔레트의 배지·가격 줄을 갱신한다.</summary>
-        private void OnStockChanged(string itemId, int count) { Refresh(); }
+        /// <summary>itemId 재고가 count로 바뀌면 보유 재료를 빈 빠른 칸에 배정하고 수량 표시를 갱신한다.</summary>
+        private void OnStockChanged(string itemId, int count)
+        {
+            var entry = new PlacementEntry(PlacementKind.Item, itemId);
+            if (count > 0 && !IronRing.Save.SaveSlots.IsRestoring && Exists(entry) && !Array.Exists(_slots, slot => slot.Equals(entry)))
+            {
+                int empty = Array.FindIndex(_slots, slot => !slot.IsValid);
+                if (empty >= 0)
+                {
+                    _slots[empty] = entry;
+                    _unlockFlashUntil[empty] = Time.realtimeSinceStartup + Mathf.Max(0f, _unlockFlashSeconds);
+                }
+            }
+            Refresh();
+        }
 
         /// <summary>entry에 해당하는 시설 또는 아이템의 표시 이름을 반환한다.</summary>
         private string DisplayName(PlacementEntry entry)
@@ -339,10 +367,14 @@ namespace IronRing.Hud.Hotbar
             Refresh();
         }
 
+        /// <summary>entry를 배치 재료로 선택하고 빠른 칸 배정 대기 상태를 전환한다.</summary>
         private void OnPaletteClicked(PlacementEntry entry)
         {
             _pendingAssign = _pendingAssign.Equals(entry) ? default : entry;
+            _selectedSlot = -1;
+            _ghost.Select(entry);
             Refresh();
+            UpdateMaterialHint();
         }
 
         /// <summary>새로 열린 tileIds를 빈 핫바 슬롯에 순서대로 배정하고 반짝임 시간을 시작하며 팔레트를 갱신한다.</summary>
@@ -442,6 +474,7 @@ namespace IronRing.Hud.Hotbar
         /// <summary>키 1~9로 슬롯을 고른다(같은 키를 다시 누르면 해제).</summary>
         private void ReadDigitKeys()
         {
+            if (IronRing.Hud.Onboarding.DevSituationsScreen.IsOpen) return; // 스펙 001: F9 개발자 메뉴가 열려 있으면 숫자키 퀵슬롯 선택 막음
             Keyboard keyboard = Keyboard.current;
             if (keyboard == null) return;
             KeyControl[] keys = { keyboard.digit1Key, keyboard.digit2Key, keyboard.digit3Key, keyboard.digit4Key, keyboard.digit5Key,
@@ -567,6 +600,59 @@ namespace IronRing.Hud.Hotbar
             if (_codex != null) _codex.TileUnlocked -= OnTileUnlocked;
             if (_stock != null) _stock.Changed -= OnStockChanged;
             if (_instance == this) _instance = null;
+        }
+
+        // 스펙 003: 저장 슬롯용 퀵슬롯 9칸 배정 꺼내기·되돌리기 추가(FR-020)
+        /// <summary>스펙 003. 슬롯 파일 안의 키.</summary>
+        public string SaveKey => "hotbar";
+
+        /// <summary>스펙 003. 복원 순서(도감 복원 다음).</summary>
+        public int Order => 55; // 스펙 003: 도감(50) 복원 뒤에 팔레트를 만들도록 복원 순서를 뒤로 옮김
+
+        /// <summary>퀵슬롯 9칸 배정 _slots를 칸 순서대로(빈 칸은 빈 id) JSON으로 돌려준다. 상태를 바꾸지 않는다.</summary>
+        public string Capture()
+        {
+            HotbarSave state = new HotbarSave { Kinds = new int[SLOT_COUNT], Ids = new string[SLOT_COUNT] };
+            for (int i = 0; i < SLOT_COUNT; i++)
+            {
+                state.Kinds[i] = (int)_slots[i].Kind;
+                state.Ids[i] = _slots[i].IsValid ? _slots[i].Id : string.Empty;
+            }
+            return JsonUtility.ToJson(state);
+        }
+
+        /// <summary>
+        /// Capture가 만든 json으로 _slots를 바꾼다. 카탈로그에 없는 항목은 빈 칸으로 둔다.
+        /// 선택·배정 대기·해금 반짝임을 지우고 팔레트와 칸을 다시 그린다.
+        /// </summary>
+        public void Restore(string json)
+        {
+            HotbarSave state = JsonUtility.FromJson<HotbarSave>(json);
+            if (_items == null)
+            {
+                Debug.LogWarning("SAVE: 퀵슬롯 복원 건너뜀 (아이템 서비스 연결 전)"); // 스펙 003: 퀵슬롯 복원 실패를 로그로 남김
+                return;
+            }
+            if (_selectedSlot >= 0) SelectSlot(-1);
+            _pendingAssign = default;
+            for (int i = 0; i < SLOT_COUNT; i++)
+            {
+                string id = i < state.Ids.Length ? state.Ids[i] : null;
+                PlacementKind kind = i < state.Kinds.Length ? (PlacementKind)state.Kinds[i] : PlacementKind.Item;
+                PlacementEntry entry = string.IsNullOrEmpty(id) ? default : new PlacementEntry(kind, id);
+                _slots[i] = Exists(entry) ? entry : default;
+                _unlockFlashUntil[i] = 0f;
+            }
+            BuildPalette();
+            Refresh();
+        }
+
+        /// <summary>스펙 003. 저장 형식: 칸 순서의 항목 종류(정수)와 id.</summary>
+        [Serializable]
+        private sealed class HotbarSave
+        {
+            public int[] Kinds = Array.Empty<int>();
+            public string[] Ids = Array.Empty<string>();
         }
     }
 }

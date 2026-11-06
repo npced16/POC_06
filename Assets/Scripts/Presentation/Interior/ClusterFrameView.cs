@@ -50,6 +50,7 @@ namespace IronRing.Presentation.Interior
                 if (root.Catalog != null) { _catalog = root.Catalog; break; }
             _clusters.HabitatCompleted += OnClusterChanged;
             _clusters.HabitatBroken += OnClusterChanged;
+            if (_clusters is IHabitatClusterChanges changes) changes.HabitatChanged += OnClusterChanged;
             _view.InteriorChanged += OnInteriorChanged;
             if (_view.InteriorOpen) Rebuild(_view.InteriorHubId);
         }
@@ -174,6 +175,7 @@ namespace IronRing.Presentation.Interior
         {
             GameServices.Ready -= Create;
             if (_clusters != null) { _clusters.HabitatCompleted -= OnClusterChanged; _clusters.HabitatBroken -= OnClusterChanged; }
+            if (_clusters is IHabitatClusterChanges changes) changes.HabitatChanged -= OnClusterChanged;
             if (_view != null) _view.InteriorChanged -= OnInteriorChanged;
             if (_instance == this) _instance = null;
         }

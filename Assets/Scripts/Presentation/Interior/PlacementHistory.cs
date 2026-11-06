@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using IronRing.Contracts;
+using IronRing.Contracts.Presentation;
 
 namespace IronRing.Presentation.Interior
 {
@@ -14,7 +15,9 @@ namespace IronRing.Presentation.Interior
         /// <summary>타일 하나를 회수했다 → 되돌리면 다시 놓기.</summary>
         PickUp,
         /// <summary>건물(완성 서식지 묶음)을 철거했다 → 되돌리면 모든 타일을 다시 놓기.</summary>
-        Demolish
+        Demolish,
+        /// <summary>완성된 서식지를 옮겼다.</summary>
+        Move
     }
 
     /// <summary>되돌리기 기록 한 건. Tiles는 (칸, 아이템 id) 목록이다(배치·회수는 한 칸, 철거는 묶음 전체).</summary>
@@ -28,6 +31,8 @@ namespace IronRing.Presentation.Interior
         public string TypeId;
         /// <summary>영향을 받은 칸과 그 칸의 아이템 id.</summary>
         public IReadOnlyList<KeyValuePair<int, string>> Tiles;
+        /// <summary>이동 후 칸 목록.</summary>
+        public IReadOnlyList<KeyValuePair<int, string>> Destination;
     }
 
     /// <summary>
@@ -74,6 +79,18 @@ namespace IronRing.Presentation.Interior
             if (_actions.Count == 0) return false;
             PlacementAction action = _actions.Last.Value;
             _actions.RemoveLast();
+            if (action.Kind == PlacementActionKind.Move)
+            {
+                var placement = _placement as IronRing.Items.ItemPlacement;
+                var clusters = GameServices.Get<IHabitatClusters>();
+                HabitatCluster cluster = clusters?.CompletedAt(action.HubId).FirstOrDefault(c => c.TypeId == action.TypeId && c.Cells.Count == action.Destination.Count && new HashSet<int>(c.Cells).SetEquals(action.Destination.Select(t => t.Key)));
+                if (placement == null || cluster == null) return false;
+                var originalByCurrent = new Dictionary<int, int>();
+                for (int i = 0; i < action.Tiles.Count; i++) originalByCurrent[action.Destination[i].Key] = action.Tiles[i].Key;
+                if (!placement.TryMoveHabitat(action.HubId, cluster, cluster.Cells.Select(index => originalByCurrent[index]).ToArray())) return false;
+                undone = action;
+                return true;
+            }
             int applied = 0;
             foreach (KeyValuePair<int, string> tile in action.Tiles)
             {

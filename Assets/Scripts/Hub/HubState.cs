@@ -75,6 +75,18 @@ namespace IronRing.Hub
             transitions.Add(target);
         }
 
+        // 스펙 003: 저장 슬롯 복원용 번영·단계·정착 이력 직접 설정 추가
+        /// <summary>
+        /// 스펙 003. 저장 슬롯에서 읽은 prosperity·phase·everSettled를 전이표 없이 그대로 둔다.
+        /// Prosperity·Phase·HasEverSettled를 바꾼다.
+        /// </summary>
+        internal void Restore(float prosperity, HubPhase phase, bool everSettled)
+        {
+            Prosperity = prosperity;
+            Phase = phase;
+            HasEverSettled = everSettled;
+        }
+
         /// <summary>Explicit transition table; returns the phase that follows current for the given conditions.</summary>
         private static HubPhase Next(HubPhase current, bool alive, bool settles)
         {

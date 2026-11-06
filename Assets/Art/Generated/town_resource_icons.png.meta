@@ -1,0 +1,506 @@
+fileFormatVersion: 2
+guid: d715aac501bb98a4cb229982460a3acc
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -2124610659727163488
+    second: town_resource_icons_0
+  - first:
+      213: 946635564051316317
+    second: town_resource_icons_1
+  - first:
+      213: 2731061478711737748
+    second: town_resource_icons_2
+  - first:
+      213: 1876223587840943382
+    second: town_resource_icons_3
+  - first:
+      213: -3230660061920079040
+    second: town_resource_icons_4
+  - first:
+      213: 3511905938842958681
+    second: town_resource_icons_5
+  - first:
+      213: -6274749060852574333
+    second: town_resource_icons_6
+  - first:
+      213: -4907390376868942904
+    second: town_resource_icons_7
+  - first:
+      213: 997645243234582092
+    second: town_resource_icons_8
+  - first:
+      213: -5375155220474134063
+    second: town_resource_icons_9
+  - first:
+      213: -7836165485719025936
+    second: town_resource_icons_10
+  - first:
+      213: -2996620577231060638
+    second: town_resource_icons_11
+  - first:
+      213: -1176937515968099992
+    second: town_resource_icons_12
+  - first:
+      213: 1086614164193137299
+    second: town_resource_icons_13
+  - first:
+      213: 7692825530724481692
+    second: town_resource_icons_14
+  - first:
+      213: 7722554237208230890
+    second: town_resource_icons_15
+  - first:
+      213: -1960614157105104474
+    second: town_resource_icons_16
+  - first:
+      213: -6303035023537039224
+    second: town_resource_icons_17
+  - first:
+      213: 6011809044876378921
+    second: town_resource_icons_18
+  - first:
+      213: -8421631723827404480
+    second: town_resource_icons_19
+  - first:
+      213: -7630978451037075174
+    second: town_resource_icons_20
+  - first:
+      213: -2508884300411912681
+    second: town_resource_icons_21
+  - first:
+      213: 4235477584916943707
+    second: town_resource_icons_22
+  - first:
+      213: 7944353773406770167
+    second: town_resource_icons_23
+  - first:
+      213: -3391459262342493881
+    second: town_resource_icons_24
+  - first:
+      213: -6787270701670936186
+    second: town_resource_icons_25
+  - first:
+      213: 5222295504392882714
+    second: town_resource_icons_26
+  - first:
+      213: -474203127901380789
+    second: town_resource_icons_27
+  - first:
+      213: -2110672380564506667
+    second: town_resource_icons_28
+  - first:
+      213: -8844082665658274208
+    second: town_resource_icons_29
+  - first:
+      213: 1741279510883367845
+    second: town_resource_icons_30
+  - first:
+      213: -3823955449566603698
+    second: town_resource_icons_31
+  - first:
+      213: 7180107619565614835
+    second: town_resource_icons_32
+  - first:
+      213: 5768159688209231218
+    second: town_resource_icons_33
+  - first:
+      213: 2455550844409288615
+    second: town_resource_icons_34
+  - first:
+      213: 3624928298458031177
+    second: town_resource_icons_35
+  - first:
+      213: 3242671650955493222
+    second: town_resource_icons_36
+  - first:
+      213: -4764531007313841963
+    second: town_resource_icons_37
+  - first:
+      213: 7451666516774851878
+    second: town_resource_icons_38
+  - first:
+      213: -6157672297831216910
+    second: town_resource_icons_39
+  - first:
+      213: -3671586338040302142
+    second: town_resource_icons_40
+  - first:
+      213: -2958311355119766823
+    second: town_resource_icons_41
+  - first:
+      213: 303758965870856233
+    second: town_resource_icons_42
+  - first:
+      213: -4043212645804712106
+    second: town_resource_icons_43
+  - first:
+      213: -2875793464228910975
+    second: town_resource_icons_44
+  - first:
+      213: -1440769627014638288
+    second: town_resource_icons_45
+  - first:
+      213: 6397270200143282596
+    second: town_resource_icons_46
+  - first:
+      213: 8074356325931027485
+    second: town_resource_icons_47
+  - first:
+      213: -7282265125366902004
+    second: town_resource_icons_48
+  - first:
+      213: -8310740093846662326
+    second: town_resource_icons_49
+  - first:
+      213: 5727194582292553446
+    second: town_resource_icons_50
+  - first:
+      213: -6028087242727481739
+    second: town_resource_icons_51
+  - first:
+      213: -6879030902542081006
+    second: town_resource_icons_52
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: tile_stone
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 399
+        width: 393
+        height: 400
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 39c65107ebfdf1b488230eff25e85cd4
+      internalID: -2135555509
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tile_timber
+      rect:
+        serializedVersion: 2
+        x: 393
+        y: 399
+        width: 394
+        height: 400
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 00610e17de26b874ab4cf90b390819e3
+      internalID: -473185660
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tile_water_can
+      rect:
+        serializedVersion: 2
+        x: 787
+        y: 399
+        width: 394
+        height: 400
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 14a10d5496dba944e98c4b1fd53debe1
+      internalID: -1074501345
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tile_grain
+      rect:
+        serializedVersion: 2
+        x: 1181
+        y: 399
+        width: 394
+        height: 400
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7800ecd4f076e5b4aacf63e5cfa24a22
+      internalID: 1975932906
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tile_coal
+      rect:
+        serializedVersion: 2
+        x: 1575
+        y: 399
+        width: 394
+        height: 400
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 19fcd02342ba39e4db3d435753c2e760
+      internalID: -658293619
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tile_iron_stock
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 393
+        height: 399
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 12e61559f27ff0c42babacd405b0c2fb
+      internalID: 1083371736
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tile_copper
+      rect:
+        serializedVersion: 2
+        x: 393
+        y: 0
+        width: 394
+        height: 399
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a0decefd1068ab04683c6d240e9d5d17
+      internalID: 710982221
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tile_steam_pipe
+      rect:
+        serializedVersion: 2
+        x: 787
+        y: 0
+        width: 394
+        height: 399
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4e14a3c1c529a2343b830574b9a2944a
+      internalID: 2103675076
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tile_gear
+      rect:
+        serializedVersion: 2
+        x: 1181
+        y: 0
+        width: 394
+        height: 399
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 28485b1c7def89f4fbca009175f6598d
+      internalID: 442940041
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tile_wire
+      rect:
+        serializedVersion: 2
+        x: 1575
+        y: 0
+        width: 394
+        height: 399
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ff3f908fe17691c46adfa6bbc988734c
+      internalID: -447696129
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: be230d2699922244ca3f9066aae755fa
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      tile_coal: -658293619
+      tile_copper: 710982221
+      tile_gear: 442940041
+      tile_grain: 1975932906
+      tile_iron_stock: 1083371736
+      tile_steam_pipe: 2103675076
+      tile_stone: -2135555509
+      tile_timber: -473185660
+      tile_water_can: -1074501345
+      tile_wire: -447696129
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

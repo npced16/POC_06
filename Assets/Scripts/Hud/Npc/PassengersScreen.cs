@@ -12,13 +12,15 @@ using IronRing.Hud.Ui;
 using IronRing.Localization;
 using IronRing.Npc;
 using IronRing.Npc.Demo;
+using IronRing.Presentation.HubPhase;
 
 namespace IronRing.Hud.Npc
 {
     /// <summary>
-    /// 상황 화면 "Passengers": 지금 열차에 탄 승객마다 이름과 건물 완성 후 합류 관계를 한 줄에 보여 준다.
+    /// 상황 화면 "Passengers": 지금 열차에 탄 승객마다 NPC 그림과 직업 이름(괄호에 서식지)을 한 줄에 보여 준다.
     /// 비어 있으면 "승객이 없다". 상단 바 승객 버튼(Toggle)·P 키로 열고 닫고, 닫기 버튼·Esc로 닫는다. 탑승·하차·이탈 때 다시 그린다.
-    /// 숨은 조건과 조합법은 보이지 않는다. 게임 상태는 읽기만 한다. 키는 화면이 꺼져 있어도 ScreenTicker로 읽는다.
+    /// 숨은 조건과 조합법은 보이지 않는다. 키는 화면이 꺼져 있어도 ScreenTicker로 읽는다.
+    /// 스펙 005: 줄을 끌면 NpcDragController로 넘기고 끄는 동안 패널을 감춘다. 게임 상태는 직접 바꾸지 않는다.
     /// </summary>
     [RequireComponent(typeof(UiScreen))]
     public sealed class PassengersScreen : MonoBehaviour
@@ -35,6 +37,10 @@ namespace IronRing.Hud.Npc
         [SerializeField] private RectTransform _list;
         [Tooltip("승객 한 줄 부품(Parts/PassengerRow.prefab).")]
         [SerializeField] private PassengerRowView _rowPrefab;
+        [Tooltip("승객을 끄는 동안 패널을 감출 CanvasGroup.")]
+        [SerializeField] private CanvasGroup _panelGroup;
+        [Tooltip("승객을 끌어 내릴 수 있다는 안내 문구.")]
+        [SerializeField] private TMP_Text _hint;
 
         private UiScreens _screens;
         private UiScreen _screen;
@@ -80,12 +86,14 @@ namespace IronRing.Hud.Npc
             _passengers = GameServices.Get<IPassengers>();
             _interaction = GameServices.Get<INpcInteraction>();
             _empty.text = Strings.Get("passengers_empty");
+            _hint.text = Strings.Get("passengers_drag_hint");
             TMP_Text closeLabel = _close.GetComponentInChildren<TMP_Text>(true);
             if (closeLabel != null) closeLabel.text = Strings.Get("passengers_close");
             _close.onClick.AddListener(Close);
             _passengers.Boarded += OnBoarded;
             _passengers.Disembarked += OnDisembarked;
             _passengers.Left += OnLeft;
+            _passengers.Returned += OnDisembarked;
             ClearRows(); // 프리팹 미리보기 줄
             SetOpen(false);
             ScreenTicker.Add(Tick);
@@ -93,6 +101,30 @@ namespace IronRing.Hud.Npc
         }
 
         private void OnDemoStageReady(string firstNpcId) => Open();
+
+        /// <summary>스펙 005. npcId의 끌기를 시작한다. 시작되면 패널을 감추고 끝날 때 되돌리도록 구독한다. 끌 수 없으면 그대로 둔다.</summary>
+        public void BeginRowDrag(string npcId)
+        {
+            NpcDragController drag = NpcDragController.Instance;
+            if (drag == null || !drag.BeginPassenger(npcId)) return;
+            drag.PassengerDragEnded += OnRowDragEnded;
+            SetPanelVisible(false);
+        }
+
+        /// <summary>스펙 005. 승객 끌기가 끝나면 구독을 풀고 패널을 되돌린다. placed면 승객 목록을 닫는다.</summary>
+        private void OnRowDragEnded(bool placed)
+        {
+            NpcDragController.Instance.PassengerDragEnded -= OnRowDragEnded;
+            SetPanelVisible(true);
+            if (placed) Close();
+        }
+
+        /// <summary>스펙 005. visible에 따라 패널의 투명도와 입력 차단을 바꾼다. 화면은 끄지 않아 끌기 이벤트가 이어진다.</summary>
+        private void SetPanelVisible(bool visible)
+        {
+            _panelGroup.alpha = visible ? 1f : 0f;
+            _panelGroup.blocksRaycasts = visible;
+        }
 
         private void SetOpen(bool open)
         {
@@ -108,7 +140,8 @@ namespace IronRing.Hud.Npc
         private void Tick()
         {
             Keyboard keyboard = Keyboard.current;
-            if (keyboard == null) return;
+            // 끄는 중의 Esc는 끌기 취소이며 패널을 닫지 않는다.
+            if (keyboard == null || NpcDragController.IsInputHeld) return;
             if (keyboard.pKey.wasPressedThisFrame) Toggle();
             else if (IsOpen && keyboard.escapeKey.wasPressedThisFrame) Close();
         }
@@ -125,10 +158,11 @@ namespace IronRing.Hud.Npc
             {
                 PassengerRowView row = Instantiate(_rowPrefab, _list);
                 row.name = "Row_" + id;
-                row.Show(_interaction != null ? _interaction.DisplayName(id) : id,
-                    PassengerRequest.Label(NpcInstaller.Pool?.Find(id)));
+                string name = _interaction != null ? _interaction.DisplayName(id) : id;
+                row.Show(id, PassengerRequest.RowName(NpcInstaller.Pool?.Find(id), name), InteriorNpcWalker.BodySprite(id));
             }
             _empty.gameObject.SetActive(ids.Count == 0);
+            _hint.gameObject.SetActive(ids.Count > 0);
         }
 
         private void ClearRows()
@@ -152,6 +186,7 @@ namespace IronRing.Hud.Npc
                 _passengers.Boarded -= OnBoarded;
                 _passengers.Disembarked -= OnDisembarked;
                 _passengers.Left -= OnLeft;
+                _passengers.Returned -= OnDisembarked;
             }
             _instance = null;
         }

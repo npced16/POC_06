@@ -49,6 +49,10 @@ namespace IronRing.Hud.Hotbar
             _rightClick = rightClick;
         }
 
+        // 스펙 001: 온보딩 퀵슬롯 강조가 칸 틀 색을 바꾸고 칸의 재료를 알 수 있도록 읽기 전용으로 공개.
+        public Image Frame => _frame;
+        public PlacementEntry Entry => _entry != null ? _entry() : default;
+
         /// <summary>아이콘(없으면 숨김)과 이름을 쓴다.</summary>
         public void Show(Sprite icon, string label)
         {
@@ -75,16 +79,18 @@ namespace IronRing.Hud.Hotbar
             if (!affordable) _frame.color = _unaffordableTint;
         }
 
-        /// <summary>count가 양수이면 오른쪽 위 가격 대신 ×N 재고를 표시하고, 없으면 재고 배지를 숨긴다.</summary>
-        public void SetStock(int count)
+        /// <summary>show가 참이면 count를 0을 포함한 재고 배지로 표시하고, 거짓이면 배지를 숨긴다.</summary>
+        public void SetStock(int count, bool show)
         {
             if (_stockBadge != null)
             {
-                _stockBadge.gameObject.SetActive(count > 0);
-                if (count > 0) _stockBadge.text = string.Format(Strings.Get("stock_badge"), count);
+                _stockBadge.gameObject.SetActive(show);
+                if (show) _stockBadge.text = string.Format(Strings.Get("stock_badge"), count);
             }
+            else if (show) _price.text = string.Format(Strings.Get("stock_badge"), count);
+            if (!show) return;
             if (count <= 0) return;
-            _price.text = string.Empty;
+            if (_stockBadge != null) _price.text = string.Empty;
             if (_priceIcon != null) _priceIcon.gameObject.SetActive(false);
             _price.color = Color.white;
             SetAffordable(true);

@@ -34,6 +34,9 @@ namespace IronRing.Presentation.Map
         /// <summary>이 표지의 거점 id.</summary>
         public string HubId => _hubId;
 
+        /// <summary>스펙 001 FR-035: 열린 뒤 투명에서 불투명으로 나타나는 연출이 진행 중이면 true.</summary>
+        public bool Revealing => _reveal >= 0f;
+
         /// <summary>편집기 제작 도구가 거점 id, 건물 렌더러, 라벨, 클릭 콜라이더, 두 라벨 문구를 기록한다.</summary>
         public void Configure(string hubId, SpriteRenderer[] renderers, TextMesh label, Collider2D[] colliders, string lockedText, string openText)
         {

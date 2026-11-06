@@ -14,7 +14,8 @@ namespace IronRing.Habitats
     /// 스토리 035(카탈로그 LockCompleted): 완성되는 순간의 칸 묶음을 거점별 고정 목록에 넣고, 이후 판정에서 고정 칸은 처음부터 차지된
     /// 것으로 본다(옆에 타일을 놓아도 커지지 않음). 자기 칸의 타일이 빠지거나 바뀔 때만 고정이 풀리고, 풀린 칸은 같은 판정에서 다시 본다.
     /// </summary>
-    public sealed class ClusterHabitatSystem : IHabitatClusters, IHabitatSystem, IHabitatClusterChanges, IDisposable
+    // 스펙 003: 저장 슬롯 참여 계약 ISaveParticipant 구현 추가
+    public sealed class ClusterHabitatSystem : IHabitatClusters, IHabitatSystem, IHabitatClusterChanges, IDisposable, ISaveParticipant
     {
         private static readonly IReadOnlyList<HabitatCluster> None = Array.Empty<HabitatCluster>();
 
@@ -84,12 +85,33 @@ namespace IronRing.Habitats
         /// <summary>한 번이라도 완성된 적이 있는지(sticky).</summary>
         public bool IsEventFlagSet(string hubId) => hubId != null && _flags.Contains(hubId);
 
+        /// <summary>
+        /// hubId에서 source 묶음의 고정 칸을 destination으로 교체하고 완성 목록을 갱신한다.
+        /// 실제 칸 변경이 끝난 직후 호출하며 이동된 묶음의 종류를 유지한다.
+        /// </summary>
+        public void MoveLocked(string hubId, HabitatCluster source, IReadOnlyList<int> destination)
+        {
+            if (_catalog.LockCompleted && _locked.TryGetValue(hubId, out List<LockedCluster> locked))
+            {
+                locked.RemoveAll(entry => ReferenceEquals(entry.Cluster, source));
+                var tiles = new Dictionary<int, string>();
+                foreach (IInteriorCell cell in _interior.Cells(hubId)) tiles[cell.Index] = cell.ItemId;
+                locked.Add(LockedCluster.Snapshot(new HabitatCluster { TypeId = source.TypeId, Cells = destination }, tiles));
+            }
+            Evaluate(hubId);
+        }
+
         /// <summary>거점을 다시 판정해 목록을 바꾸고 종류별 증감만큼 Broken → Completed 순으로 알린 뒤, 처음 완성이면 플래그를 켠다.</summary>
-        public void Evaluate(string hubId)
+        public void Evaluate(string hubId) => Evaluate(hubId, null);
+
+        /// <summary>
+        /// hubId의 조합을 preferredCell을 우선해 재판정하고 변경 이벤트와 완성 상태를 갱신한다.
+        /// </summary>
+        private void Evaluate(string hubId, int? preferredCell)
         {
             if (_disposed || hubId == null) return;
             IReadOnlyList<HabitatCluster> before = CompletedAt(hubId);
-            IReadOnlyList<HabitatCluster> after = Compute(hubId);
+            IReadOnlyList<HabitatCluster> after = Compute(hubId, preferredCell);
             _completed[hubId] = after;
             Dictionary<string, int> oldCounts = Count(before), newCounts = Count(after);
             foreach (string typeId in _catalog.TypeIds)
@@ -123,14 +145,15 @@ namespace IronRing.Habitats
             }
         }
 
-        private IReadOnlyList<HabitatCluster> Compute(string hubId)
+        /// <summary>hubId의 완성 묶음을 계산하며 preferredCell을 포함한 새 조합을 우선해 반환한다.</summary>
+        private IReadOnlyList<HabitatCluster> Compute(string hubId, int? preferredCell = null)
         {
             IReadOnlyList<IInteriorCell> cells;
             try { cells = _interior.Cells(hubId); }
             catch (ArgumentException) { return None; }
             if (!_catalog.LockCompleted)
             {
-                List<HabitatCluster> all = HabitatMatcher.Evaluate(cells, _catalog);
+                List<HabitatCluster> all = HabitatMatcher.Evaluate(cells, _catalog, preferredCell: preferredCell);
                 return all.Count == 0 ? None : all.AsReadOnly();
             }
             var tileAt = new Dictionary<int, string>();
@@ -140,7 +163,7 @@ namespace IronRing.Habitats
             locked.RemoveAll(entry => !entry.Intact(tileAt));
             var reserved = new HashSet<int>();
             foreach (LockedCluster entry in locked) foreach (int index in entry.Cluster.Cells) reserved.Add(index);
-            foreach (HabitatCluster fresh in HabitatMatcher.Evaluate(cells, _catalog, reserved))
+            foreach (HabitatCluster fresh in HabitatMatcher.Evaluate(cells, _catalog, reserved, preferredCell))
                 locked.Add(LockedCluster.Snapshot(fresh, tileAt));
             if (locked.Count == 0) return None;
             var result = new List<HabitatCluster>(locked.Count);
@@ -195,8 +218,103 @@ namespace IronRing.Habitats
             return string.Join("|", parts);
         }
 
-        private void OnCellChanged(string hubId, int cellIndex) => Evaluate(hubId);
+        private void OnCellChanged(string hubId, int cellIndex) => Evaluate(hubId, cellIndex);
 
-        private void OnItemChanged(string hubId, int cellIndex, string itemId) => Evaluate(hubId);
+        private void OnItemChanged(string hubId, int cellIndex, string itemId) => Evaluate(hubId, cellIndex);
+
+        // 스펙 003: 저장 슬롯용 잠긴 묶음·플래그 꺼내기·되돌리기 추가(완성 묶음은 복원된 보드에서 다시 계산)
+        /// <summary>스펙 003. 슬롯 파일 안의 키.</summary>
+        public string SaveKey => "habitatClusters";
+
+        /// <summary>스펙 003. 복원 순서(칸·배치 다음).</summary>
+        public int Order => 40;
+
+        /// <summary>
+        /// 거점 id 순으로 잠긴 묶음(종류·칸, 잠긴 순서)과 한 번이라도 완성된 거점 플래그 _flags를 JSON으로 돌려준다.
+        /// 완성 묶음 _completed와 잠긴 칸의 타일은 보드에서 다시 계산되므로 저장하지 않는다.
+        /// </summary>
+        public string Capture()
+        {
+            ClusterSave state = new ClusterSave();
+            List<string> hubs = new List<string>(_locked.Keys);
+            hubs.Sort(StringComparer.Ordinal);
+            foreach (string hubId in hubs)
+            {
+                foreach (LockedCluster entry in _locked[hubId])
+                {
+                    List<int> cells = new List<int>(entry.Cluster.Cells ?? Array.Empty<int>());
+                    state.Locked.Add(new LockedSave { HubId = hubId, TypeId = entry.Cluster.TypeId, Cells = cells.ToArray() });
+                }
+            }
+            List<string> flags = new List<string>(_flags);
+            flags.Sort(StringComparer.Ordinal);
+            state.Flags = flags.ToArray();
+            return UnityEngine.JsonUtility.ToJson(state);
+        }
+
+        /// <summary>
+        /// Capture가 만든 json으로 _flags와 _locked를 바꾼다. 잠긴 칸의 타일은 지금(복원된) 보드에서 읽는다.
+        /// 그 뒤 거점마다 Evaluate로 완성 묶음을 다시 계산해 달라진 만큼 Completed·Broken·Changed를 낸다.
+        /// </summary>
+        public void Restore(string json)
+        {
+            ClusterSave state = UnityEngine.JsonUtility.FromJson<ClusterSave>(json);
+            _flags.Clear();
+            foreach (string hubId in state.Flags) if (!string.IsNullOrEmpty(hubId)) _flags.Add(hubId);
+            HashSet<string> hubs = new HashSet<string>(_completed.Keys, StringComparer.Ordinal);
+            foreach (string hubId in _locked.Keys) hubs.Add(hubId);
+            _locked.Clear();
+            Dictionary<string, Dictionary<int, string>> tilesByHub = new Dictionary<string, Dictionary<int, string>>(StringComparer.Ordinal);
+            foreach (LockedSave saved in state.Locked)
+            {
+                if (saved == null || saved.HubId == null) continue;
+                if (!tilesByHub.TryGetValue(saved.HubId, out Dictionary<int, string> tileAt))
+                {
+                    tileAt = TilesAt(saved.HubId);
+                    tilesByHub[saved.HubId] = tileAt;
+                }
+                if (!_locked.TryGetValue(saved.HubId, out List<LockedCluster> locked)) _locked[saved.HubId] = locked = new List<LockedCluster>();
+                HabitatCluster cluster = new HabitatCluster { TypeId = saved.TypeId, Cells = Array.AsReadOnly(saved.Cells ?? Array.Empty<int>()) };
+                HabitatType type = _catalog.Get(saved.TypeId);
+                IReadOnlyList<IInteriorCell> cells;
+                try { cells = _interior.Cells(saved.HubId); }
+                catch (ArgumentException) { continue; }
+                if (type != null && HabitatMatcher.MatchesCluster(cells, type, cluster))
+                    locked.Add(LockedCluster.Snapshot(cluster, tileAt));
+                hubs.Add(saved.HubId);
+            }
+            List<string> ordered = new List<string>(hubs);
+            ordered.Sort(StringComparer.Ordinal);
+            foreach (string hubId in ordered) Evaluate(hubId);
+        }
+
+        /// <summary>hubId의 지금 칸마다 놓인 타일 id(없으면 null)를 돌려준다. 모르는 거점이면 빈 사전.</summary>
+        private Dictionary<int, string> TilesAt(string hubId)
+        {
+            Dictionary<int, string> tileAt = new Dictionary<int, string>();
+            IReadOnlyList<IInteriorCell> cells;
+            try { cells = _interior.Cells(hubId); }
+            catch (ArgumentException) { return tileAt; }
+            foreach (IInteriorCell cell in cells)
+                if (cell != null) tileAt[cell.Index] = cell.State == InteriorCellState.ItemPlaced && !string.IsNullOrEmpty(cell.ItemId) ? cell.ItemId : null;
+            return tileAt;
+        }
+
+        /// <summary>스펙 003. 저장 형식: 잠긴 묶음 목록과 플래그 거점 목록.</summary>
+        [Serializable]
+        private sealed class ClusterSave
+        {
+            public List<LockedSave> Locked = new List<LockedSave>();
+            public string[] Flags = Array.Empty<string>();
+        }
+
+        /// <summary>스펙 003. 저장 형식: 잠긴 묶음 하나(거점·종류·칸).</summary>
+        [Serializable]
+        private sealed class LockedSave
+        {
+            public string HubId;
+            public string TypeId;
+            public int[] Cells = Array.Empty<int>();
+        }
     }
 }

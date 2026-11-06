@@ -9,6 +9,7 @@ using TMPro;
 
 using IronRing.Contracts;
 using IronRing.Contracts.Presentation;
+using IronRing.Onboarding;
 using IronRing.Presentation.Interior;
 
 namespace IronRing.Combat
@@ -65,6 +66,7 @@ namespace IronRing.Combat
             _apply.onClick.AddListener(Apply);
             _remove.onClick.AddListener(Remove);
             _overlayClose.onClick.AddListener(HideOverlay);
+            if (DefenseVisibility.Hidden) _open.gameObject.SetActive(false); // 스펙 006: 디펜스 숨김 동안 정비 열기 버튼을 숨김
             for (int i = 0; i < _slots.Length; i++)
             {
                 int index = i;
@@ -82,7 +84,8 @@ namespace IronRing.Combat
 
         void Update()
         {
-            if (_panel.activeSelf || Mouse.current == null || Camera.main == null)
+            // 스펙 006: 디펜스 숨김 동안 열차 테두리와 클릭을 처리하지 않음
+            if (DefenseVisibility.Hidden || _panel.activeSelf || OnboardingInstaller.Director?.Current != null || Mouse.current == null || Camera.main == null)
             {
                 _trainHover.gameObject.SetActive(false);
                 SetTrainOutline(null);
@@ -111,7 +114,8 @@ namespace IronRing.Combat
             RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, max, null, out Vector2 localMax);
             _trainHover.anchoredPosition = (localMin + localMax) * .5f;
             _trainHover.sizeDelta = localMax - localMin;
-            if (Mouse.current.leftButton.wasPressedThisFrame) Open();
+            // 열차 옆 NPC를 누른 입력은 NPC 클릭·끌기로 처리한다.
+            if (Mouse.current.leftButton.wasPressedThisFrame && !IronRing.Presentation.HubPhase.InteriorNpcWalker.IsHoveringNpc) Open();
         }
 
         void OnDisable()
@@ -143,6 +147,7 @@ namespace IronRing.Combat
         /// <summary>거점 해금 상태를 읽고 정비 패널을 연다.</summary>
         public void Open()
         {
+            if (DefenseVisibility.Hidden) return; // 스펙 006: 디펜스 숨김 동안 정비 창을 열지 않음
             _rules = BattleRules.Load();
             UnbindMoney();
             _money = GameServices.Get<IMoney>();

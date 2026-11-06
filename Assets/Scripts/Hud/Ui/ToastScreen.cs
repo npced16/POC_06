@@ -18,6 +18,7 @@ namespace IronRing.Hud.Ui
         [Tooltip("스토리 024: 상황 화면이 열려 있는 동안 쌓아 둘 토스트 최대 개수(넘치면 가장 오래된 것을 버린다)")]
         [SerializeField] private int _maxQueued = 4;
         private float _until;
+        private bool _overSituation;
         private readonly System.Collections.Generic.Queue<(string text, float seconds)> _queue = new();
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -64,6 +65,7 @@ namespace IronRing.Hud.Ui
         /// <summary>text를 seconds초(실시간) 띄운다. 토스트 화면이 없거나 꺼져 있으면 false.</summary>
         public static bool Show(string text, float seconds)
         {
+            if (IronRing.Save.SaveSlots.IsRestoring) return false; // 스펙 003: 저장 슬롯 복원이 내는 변경 이벤트의 토스트를 띄우지 않도록 추가
             ToastScreen toast = Current;
             if (toast == null || toast._box == null || toast._text == null) return false;
             if (Swallowed(text)) return true;
@@ -75,6 +77,19 @@ namespace IronRing.Hud.Ui
                 return true;
             }
             toast.Display(text, seconds);
+            return true;
+        }
+
+        /// <summary>
+        /// 스펙 005. text를 상황 화면이 열려 있어도 기다리지 않고 seconds초 띄운다. 끌어 놓기 실패처럼 바로 이유를 보여야 할 때 쓴다.
+        /// 토스트 화면이 없거나 꺼져 있으면 false를 반환한다.
+        /// </summary>
+        public static bool ShowNow(string text, float seconds)
+        {
+            ToastScreen toast = Current;
+            if (toast == null || toast._box == null || toast._text == null) return false;
+            toast.Display(text, seconds);
+            toast._overSituation = true;
             return true;
         }
 
@@ -91,6 +106,7 @@ namespace IronRing.Hud.Ui
         private void Display(string text, float seconds)
         {
             _text.text = text;
+            _overSituation = false;
             _until = Time.realtimeSinceStartup + seconds;
             _box.SetActive(true);
         }
@@ -111,7 +127,7 @@ namespace IronRing.Hud.Ui
         void Update()
         {
             if (_box == null) return;
-            if (_box.activeSelf && (Time.realtimeSinceStartup >= _until || SituationOpen())) _box.SetActive(false);
+            if (_box.activeSelf && (Time.realtimeSinceStartup >= _until || (SituationOpen() && !_overSituation))) _box.SetActive(false);
             if (!_box.activeSelf && _queue.Count > 0 && !SituationOpen())
             {
                 var next = _queue.Dequeue();

@@ -13,11 +13,26 @@ namespace IronRing.Npc
         /// </summary>
         public static string Label(NpcDefinition npc)
         {
+            string habitatName = HabitatName(npc);
+            return habitatName != null ? string.Format(Strings.Get("passengers_wants"), habitatName, npc.Name) : null;
+        }
+
+        /// <summary>
+        /// 승객 목록 줄에 쓸 이름을 만든다. displayName 뒤 괄호에 npc의 서식지 이름을 붙여 반환한다.
+        /// 서식지가 없으면 displayName을 그대로 반환한다.
+        /// </summary>
+        public static string RowName(NpcDefinition npc, string displayName)
+        {
+            string habitatName = HabitatName(npc);
+            return habitatName != null ? string.Format(Strings.Get("passengers_row_name"), displayName, habitatName) : displayName;
+        }
+
+        /// <summary>npc의 HabitatTypeId로 서식지 표시 이름을 반환한다. 서식지가 없으면 null, 문구가 없으면 id를 반환한다.</summary>
+        private static string HabitatName(NpcDefinition npc)
+        {
             if (npc == null || string.IsNullOrEmpty(npc.HabitatTypeId)) return null;
-            string habitatName;
-            try { habitatName = Strings.Get("habitat_type_" + npc.HabitatTypeId); }
-            catch (KeyNotFoundException) { habitatName = npc.HabitatTypeId; }
-            return string.Format(Strings.Get("passengers_wants"), habitatName, npc.Name);
+            try { return Strings.Get("habitat_type_" + npc.HabitatTypeId); }
+            catch (KeyNotFoundException) { return npc.HabitatTypeId; }
         }
 
         /// <summary>

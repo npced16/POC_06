@@ -14,8 +14,8 @@ namespace IronRing.Presentation.Interior
 {
     /// <summary>
     /// 스토리 015. 거점 내부 화면의 배치 고스트와 마우스 배치 입력. 핫바가 고른 대상(Select) 또는 드래그 중인 대상(BeginDrag)의
-    /// 반투명 GhostPiece 프리팹(InteriorCatalog)을 마우스 아래 가장 가까운 칸 앵커(IInteriorAnchors)에 스냅해 보이고, 놓을 수 있으면 초록·없으면 붉게 칠한다.
-    /// 좌클릭 = 배치, 칸 우클릭 = 선택 재료와 관계없이 회수(완성 건물은 전체 철거), 빈 곳 우클릭·Esc = 선택 취소,
+    /// 반투명 GhostPiece 프리팹(InteriorCatalog)을 마우스 아래 Grid 칸 앵커에 스냅해 보이고, 놓을 수 있으면 초록·없으면 붉게 칠한다.
+        /// 완성 서식지 좌클릭 = 선택, 좌클릭 = 배치, 우클릭 = 선택 취소 또는 타일 한 칸 회수,
     /// Ctrl+Z = 최근 배치·회수·철거 되돌리기(PlacementHistory, 스토리 031). UI 위의 클릭과 닫힌 내부 화면에서는 아무것도 하지 않는다.
     /// 게임 상태는 IItemPlacement가 소유하며 이 뷰는 명령만 보낸다.
     /// </summary>
@@ -45,6 +45,11 @@ namespace IronRing.Presentation.Interior
         private IPlacementSurface _surface;
         private Vector3 _ghostBaseScale = Vector3.one;
         private int _ghostBaseOrder;
+        private HabitatCluster _movingCluster;
+        private int _movingAnchor;
+        private int _movingTurns;
+        private readonly List<GameObject> _movingGhosts = new List<GameObject>();
+        private List<int> _movingDestination;
 
         /// <summary>스토리 034. 거점 칸 대신 쓰는 배치 면(열차 장비 모드). null이면 거점 칸.</summary>
         public IPlacementSurface Surface => _surface;
@@ -77,6 +82,8 @@ namespace IronRing.Presentation.Interior
         public PlacementEntry Selected => _selected;
         /// <summary>핫바·팔레트에서 끌고 있는지.</summary>
         public bool IsDragging => _dragging;
+        /// <summary>완성 서식지를 이동 중인지 반환한다.</summary>
+        public bool IsMovingHabitat => _movingCluster != null;
         /// <summary>드래그 중인 대상(드래그 중이 아니면 IsValid false).</summary>
         public PlacementEntry DragEntry => _dragging ? _dragEntry : default;
         /// <summary>마지막 프레임에 고스트가 스냅한 칸(없으면 -1).</summary>
@@ -124,6 +131,7 @@ namespace IronRing.Presentation.Interior
         /// <summary>entry를 선택한다(핫바 슬롯·키 1~9). 잘못된 값이면 선택을 지운다.</summary>
         public void Select(PlacementEntry entry)
         {
+            CancelHabitatMove();
             if (!entry.IsValid) { ClearSelection(); return; }
             if (_selected.Equals(entry)) return;
             _selected = entry;
@@ -141,6 +149,7 @@ namespace IronRing.Presentation.Interior
         /// <summary>핫바·팔레트 항목 드래그를 시작한다. 드래그 동안 같은 고스트가 entry로 보인다.</summary>
         public void BeginDrag(PlacementEntry entry)
         {
+            CancelHabitatMove();
             if (!entry.IsValid || _view == null || !_view.InteriorOpen) return;
             _dragEntry = entry;
             _dragging = true;
@@ -163,10 +172,12 @@ namespace IronRing.Presentation.Interior
         /// <summary>데모·캡처용: 마우스 대신 cellIndex 칸 위에 고스트를 고정한다(마우스 입력은 무시). 음수면 해제.</summary>
         public void Park(int cellIndex) => _parkedCell = cellIndex;
 
-        /// <summary>entry를 hubId의 cellIndex에 놓을 수 있는지. 아이템은 IItemPlacement.CanPlace.</summary>
-        public bool Affordable(string itemId) => GameServices.Get<IPlacementCost>()?.CanAfford(itemId) ?? true;
+        /// <summary>itemId가 땅이면 개간 비용을, 다른 재료면 재고를 확인하여 배치 가능 여부를 반환한다.</summary>
+        public bool Affordable(string itemId) => itemId == "tile_cobble"
+            ? GameServices.Get<IPlacementCost>()?.CanAfford(itemId) ?? true
+            : (GameServices.Get<ITileStock>()?.CountOf(itemId) ?? 0) > 0;
 
-        /// <summary>엔트리를 hubId의 cellIndex에 놓을 수 있는지(스토리 041: 아이템은 잔고도 검사).</summary>
+        /// <summary>hubId와 cellIndex에 entry를 놓을 수 있는지 재고와 배치 조건을 확인해 반환한다.</summary>
         public bool CanPlace(string hubId, int cellIndex, PlacementEntry entry)
         {
             if (!entry.IsValid || hubId == null) return false;
@@ -181,8 +192,6 @@ namespace IronRing.Presentation.Interior
         {
             if (entry.Kind == PlacementKind.Item && !Affordable(entry.Id))
             {
-                // 스토리 041: 잔고 부족이면 배치 거절 토스트(고스트는 CanPlace가 붉게 칠한다).
-                IronRing.Hud.Ui.ToastScreen.Show(IronRing.Localization.Strings.Get("econ_no_funds"), 2f);
                 Notice?.Invoke("placement_refused", entry);
                 return false;
             }
@@ -295,14 +304,23 @@ namespace IronRing.Presentation.Interior
                 if (cell >= 0) world = _anchors.CellAnchor(hub, cell).position;
             }
             HoverCell = cell;
+            if (_movingCluster != null)
+            {
+                SetGhost(default, Vector3.zero, false);
+                UpdateHabitatMove(hub, cell, overUi);
+                if (!parked) HandleHabitatInput(hub, cell, overUi);
+                return;
+            }
             HoverValid = active.IsValid && cell >= 0 && CanPlace(hub, cell, active);
             SetGhost(active, world, active.IsValid && (!overUi || parked));
             if (!parked) HandleInput(hub, active, cell, overUi);
         }
 
-        /// <summary>마우스·키보드 입력: Esc는 선택 취소, 칸 우클릭은 회수, 좌클릭은 배치한다.</summary>
+        /// <summary>hub의 cell과 UI 겹침 상태를 받아 서식지 선택, 배치, 회수와 취소 입력을 처리한다.</summary>
         private void HandleInput(string hub, PlacementEntry active, int cell, bool overUi)
         {
+            // NPC를 끄는 동안의 우클릭은 끌기 취소이므로 회수·철거로 처리하지 않는다.
+            if (IronRing.Presentation.HubPhase.NpcDragController.IsInputHeld) return;
             Mouse mouse = Mouse.current;
             Keyboard keyboard = Keyboard.current;
             bool escape = keyboard != null && keyboard.escapeKey.wasPressedThisFrame;
@@ -314,19 +332,189 @@ namespace IronRing.Presentation.Interior
                 return;
             }
             if (escape && _selected.IsValid) { ClearSelection(); return; }
-            if (keyboard != null && keyboard.zKey.wasPressedThisFrame && keyboard.ctrlKey.isPressed) { if (_surface != null) _surface.TryUndo(); else TryUndo(); return; }
+            if (keyboard != null && keyboard.zKey.wasPressedThisFrame && keyboard.ctrlKey.isPressed && !IronRing.Hud.GameMenuScreen.IsOpen && !IronRing.Hud.Onboarding.DevSituationsScreen.IsOpen) { if (_surface != null) _surface.TryUndo(); else TryUndo(); return; } // 스펙 003: 게임 메뉴·개발자 메뉴가 열려 있으면 되돌리기 막음
+            bool left = mouse != null && mouse.leftButton.wasPressedThisFrame;
+            if (left && !overUi && _surface == null && TrySelectHabitat(hub, cell, PointerWorld(Pointer()))) return;
             if (right)
             {
                 if (overUi) return;
+                if (_selected.IsValid) { ClearSelection(); return; }
                 if (cell >= 0)
                 {
                     if (_surface != null) _surface.TryRemove(cell);
-                    else if (!TryDemolish(hub, cell)) TryPickUp(hub, cell);
+                    else TryPickUp(hub, cell);
                 }
-                else if (_selected.IsValid) ClearSelection();
                 return;
             }
-            if (mouse != null && mouse.leftButton.wasPressedThisFrame && active.IsValid && !overUi && cell >= 0) TryPlace(hub, cell, active);
+            if (left && active.IsValid && !overUi && cell >= 0) TryPlace(hub, cell, active);
+        }
+
+        /// <summary>
+        /// hub의 클릭 칸 또는 이름 중심 world에서 완성 서식지를 찾아 이동 대상으로 선택한다.
+        /// 선택하면 기존 재료 선택을 해제하고 true를 반환한다.
+        /// </summary>
+        private bool TrySelectHabitat(string hub, int cell, Vector3 world)
+        {
+            HabitatCluster cluster = BuildingAt(hub, cell);
+            int anchorCell = cell;
+            IInteriorCell clicked = Cell(hub, cell);
+            if (cluster == null && (clicked == null || clicked.State != InteriorCellState.ItemPlaced) && _clusters != null)
+            {
+                float radius = (_catalog != null ? _catalog.TileSize : 1f) * 0.5f;
+                float nearestName = radius * radius;
+                foreach (HabitatCluster candidate in _clusters.CompletedAt(hub))
+                {
+                    if (candidate.Cells == null || candidate.Cells.Count == 0) continue;
+                    Vector3 center = Vector3.zero;
+                    int count = 0;
+                    int closest = -1;
+                    float closestDistance = float.MaxValue;
+                    foreach (int index in candidate.Cells)
+                    {
+                        Transform anchor = _anchors.CellAnchor(hub, index);
+                        if (anchor == null) continue;
+                        center += anchor.position;
+                        count++;
+                        float distance = ((Vector2)(anchor.position - world)).sqrMagnitude;
+                        if (distance < closestDistance) { closestDistance = distance; closest = index; }
+                    }
+                    if (count == 0) continue;
+                    float nameDistance = ((Vector2)(center / count - world)).sqrMagnitude;
+                    if (nameDistance <= nearestName) { nearestName = nameDistance; cluster = candidate; anchorCell = closest; }
+                }
+            }
+            if (cluster == null) return false;
+            ClearSelection();
+            _movingCluster = cluster;
+            _movingAnchor = anchorCell;
+            _movingTurns = 0;
+            IronRing.Hud.Ui.ToastScreen.Show(IronRing.Localization.Strings.Get("habitat_move_controls"), 4f);
+            return true;
+        }
+
+        /// <summary>선택한 묶음의 기준 칸을 cell로 옮기고 회전한 후보와 배치 가능 색을 표시한다.</summary>
+        private void UpdateHabitatMove(string hub, int cell, bool overUi)
+        {
+            _movingDestination = HabitatDestination(hub, cell);
+            var placement = _placement as IronRing.Items.ItemPlacement;
+            bool valid = _movingDestination != null && placement != null && placement.CanMoveHabitat(hub, _movingCluster, _movingDestination);
+            HoverValid = valid;
+            while (_movingGhosts.Count < _movingCluster.Cells.Count && _catalog != null && _catalog.ClusterFramePrefab != null)
+            {
+                _movingGhosts.Add(CreateHabitatGhost());
+            }
+            float tile = _catalog != null ? _catalog.TileSize : 1f;
+            Quaternion rotation = Quaternion.Euler(0f, 0f, -90f * _movingTurns);
+            Vector3 origin = _anchors.CellAnchor(hub, _movingAnchor).position;
+            var positions = new List<Vector2Int>();
+            var occupied = new HashSet<Vector2Int>();
+            foreach (int index in _movingCluster.Cells)
+            {
+                Vector3 offset = rotation * (_anchors.CellAnchor(hub, index).position - origin);
+                var position = new Vector2Int(Mathf.RoundToInt(offset.x / tile), Mathf.RoundToInt(offset.y / tile));
+                positions.Add(position);
+                occupied.Add(position);
+            }
+            Vector2Int[] directions = { Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left };
+            for (int i = 0; i < _movingGhosts.Count; i++)
+            {
+                GameObject ghost = _movingGhosts[i];
+                bool show = !overUi && cell >= 0;
+                ghost.SetActive(show);
+                if (!show) continue;
+                if (_movingDestination != null) ghost.transform.position = _anchors.CellAnchor(hub, _movingDestination[i]).position;
+                else
+                {
+                    Vector3 offset = _anchors.CellAnchor(hub, _movingCluster.Cells[i]).position - _anchors.CellAnchor(hub, _movingAnchor).position;
+                    ghost.transform.position = _anchors.CellAnchor(hub, cell).position + rotation * offset;
+                }
+                Color color = valid ? _catalog.GhostValidColor : _catalog.GhostInvalidColor;
+                for (int edge = 0; edge < directions.Length; edge++)
+                {
+                    LineRenderer line = ghost.transform.GetChild(edge).GetComponent<LineRenderer>();
+                    line.enabled = !occupied.Contains(positions[i] + directions[edge]);
+                    line.startColor = color;
+                    line.endColor = color;
+                }
+            }
+        }
+
+        /// <summary>카탈로그의 프레임 재질과 타일 크기로 서식지 고스트의 네 외곽선을 만들어 반환한다.</summary>
+        private GameObject CreateHabitatGhost()
+        {
+            GameObject ghost = new GameObject("HabitatGhostCell");
+            ghost.transform.SetParent(transform, false);
+            SpriteRenderer source = _catalog.ClusterFramePrefab.GetComponentInChildren<SpriteRenderer>(true);
+            Vector2Int[] directions = { Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left };
+            float half = _catalog.TileSize * 0.5f;
+            float depth = -(_catalog.BuildingDepth + 0.04f);
+            foreach (Vector2Int direction in directions)
+            {
+                GameObject edge = new GameObject("Edge");
+                edge.transform.SetParent(ghost.transform, false);
+                LineRenderer line = edge.AddComponent<LineRenderer>();
+                if (source != null) line.sharedMaterial = source.sharedMaterial;
+                line.useWorldSpace = false;
+                line.positionCount = 2;
+                line.startWidth = _catalog.TileSize * 3f / 32f;
+                line.endWidth = line.startWidth;
+                line.sortingOrder = _catalog.BuildingSignOrder + 3;
+                line.SetPosition(0, direction.x == 0 ? new Vector3(-half, direction.y * half, depth) : new Vector3(direction.x * half, -half, depth));
+                line.SetPosition(1, direction.x == 0 ? new Vector3(half, direction.y * half, depth) : new Vector3(direction.x * half, half, depth));
+            }
+            return ghost;
+        }
+
+        /// <summary>hub와 기준 cell을 사용해 회전된 목적지 인덱스 목록을 반환하며 범위 밖이면 null을 반환한다.</summary>
+        private List<int> HabitatDestination(string hub, int cell)
+        {
+            IInteriorCell origin = Cell(hub, _movingAnchor), target = Cell(hub, cell);
+            if (origin == null || target == null) return null;
+            IReadOnlyList<IInteriorCell> cells = _interior.Cells(hub);
+            int upperRows = cells.Where(c => c.IsUpper).Select(c => c.Row + 1).DefaultIfEmpty(0).Max();
+            int originRow = origin.Row + (origin.IsUpper ? 0 : upperRows);
+            int targetRow = target.Row + (target.IsUpper ? 0 : upperRows);
+            var result = new List<int>();
+            foreach (int index in _movingCluster.Cells)
+            {
+                IInteriorCell part = Cell(hub, index);
+                int row = part.Row + (part.IsUpper ? 0 : upperRows) - originRow, column = part.Column - origin.Column;
+                for (int turn = 0; turn < _movingTurns; turn++) { int previous = row; row = column; column = -previous; }
+                IInteriorCell destination = cells.FirstOrDefault(c => c.Row + (c.IsUpper ? 0 : upperRows) == targetRow + row && c.Column == target.Column + column);
+                if (destination == null) return null;
+                result.Add(destination.Index);
+            }
+            return result;
+        }
+
+        /// <summary>선택 중 회전, 확정, 취소, 제거 입력을 처리하고 이동 기록을 보관한다.</summary>
+        private void HandleHabitatInput(string hub, int cell, bool overUi)
+        {
+            Keyboard keyboard = Keyboard.current;
+            Mouse mouse = Mouse.current;
+            if (keyboard != null && keyboard.escapeKey.wasPressedThisFrame) { CancelHabitatMove(); return; }
+            if (mouse != null && mouse.rightButton.wasPressedThisFrame && !overUi) { CancelHabitatMove(); return; }
+            if (keyboard != null && keyboard.rKey.wasPressedThisFrame) { _movingTurns = (_movingTurns + 1) % 4; UpdateHabitatMove(hub, cell, overUi); }
+            if (keyboard != null && keyboard.deleteKey.wasPressedThisFrame) { int origin = _movingAnchor; CancelHabitatMove(); TryPickUp(hub, origin); return; }
+            if (mouse == null || !mouse.leftButton.wasPressedThisFrame || overUi || !HoverValid || _movingDestination == null) return;
+            var placement = _placement as IronRing.Items.ItemPlacement;
+            var before = _movingCluster.Cells.Select(index => new KeyValuePair<int, string>(index, Cell(hub, index).ItemId)).ToArray();
+            var after = _movingDestination.Select((index, i) => new KeyValuePair<int, string>(index, before[i].Value)).ToArray();
+            string type = _movingCluster.TypeId;
+            if (placement != null && placement.TryMoveHabitat(hub, _movingCluster, _movingDestination))
+            {
+                _history?.Record(new PlacementAction { Kind = PlacementActionKind.Move, HubId = hub, TypeId = type, Tiles = before, Destination = after });
+                CancelHabitatMove();
+            }
+        }
+
+        /// <summary>현재 선택된 묶음과 미리보기 오브젝트를 지워 원래 배치를 유지한다.</summary>
+        private void CancelHabitatMove()
+        {
+            _movingCluster = null;
+            _movingDestination = null;
+            foreach (GameObject ghost in _movingGhosts) if (ghost != null) Destroy(ghost);
+            _movingGhosts.Clear();
         }
 
         /// <summary>entry의 고스트를 world에 보이거나(visible) 숨긴다. 스프라이트는 대상이 바뀔 때만 바꾸고 색은 HoverValid로 정한다.</summary>
@@ -360,6 +548,9 @@ namespace IronRing.Presentation.Interior
             if (!_ghost.activeSelf) _ghost.SetActive(true);
         }
 
+        /// <summary>스펙 005. 화면 좌표 pointer 아래의 칸 번호를 반환하고 world에 월드 좌표를 담는다. 칸이 없으면 -1을 반환한다.</summary>
+        public int CellAt(Vector2 pointer, out Vector3 world) => NearestCell(pointer, out world);
+
         /// <summary>화면 좌표 pointer 아래의 월드 위치와 스냅 반경 안에서 가장 가까운 열린 거점의 칸(없으면 -1).</summary>
         private int NearestCell(Vector2 pointer, out Vector3 world)
         {
@@ -369,20 +560,7 @@ namespace IronRing.Presentation.Interior
             if (camera == null || hub == null) return -1;
             world = camera.ScreenToWorldPoint(new Vector3(pointer.x, pointer.y, -camera.transform.position.z));
             world.z = 0;
-            float tile = _catalog != null ? _catalog.TileSize : 1f;
-            float radius = (_catalog != null ? _catalog.SnapRadius : 0.75f) * tile;
-            float best = radius * radius;
-            int found = -1;
-            int count = _interior.Cells(hub).Count;
-            for (int i = 0; i < count; i++)
-            {
-                Transform anchor = _anchors.CellAnchor(hub, i);
-                if (anchor == null) continue;
-                Vector2 delta = (Vector2)(anchor.position - world);
-                float distance = delta.sqrMagnitude;
-                if (distance <= best) { best = distance; found = i; }
-            }
-            return found;
+            return (_anchors as HubInteriorView)?.CellAtWorld(hub, world) ?? -1;
         }
 
         /// <summary>pointer가 HUD(UGUI MainCanvas) 위인지: EventSystem.IsPointerOverGameObject 판정만 쓴다(스토리 025에서 옛 등록 판정 제거).</summary>
@@ -416,6 +594,7 @@ namespace IronRing.Presentation.Interior
         private void OnInteriorChanged(bool open)
         {
             if (open) return;
+            CancelHabitatMove();
             _surface = null;
             EndDrag(false);
             _parkedCell = -1;
