@@ -10,13 +10,11 @@ namespace IronRing.Shop
     /// 스펙 010. 녹슨 다리 찢어진 설계도 상점(IBlueprintShop). 순수 C#.
     /// 새 게임과 바퀴 정산 때 미완성·미공개 조건이 남은·전체 단서가 없는 건물 최대 OfferCount종을 추첨해 그 바퀴 동안 유지한다.
     /// 조각 한 장은 그 건물의 아직 모르는 타일 id 하나와 총 필요 수량을 공개하고, 그 상품을 이번 바퀴에 품절시킨다.
-    /// 도감·돈·장부·선로 개통은 쓰는 순간에 조회해 설치기 순서에 기대지 않는다.
+    /// 도감·돈·장부는 쓰는 순간에 조회해 설치기 순서에 기대지 않는다.
     /// </summary>
     public sealed class BlueprintShop : IBlueprintShop, ISaveParticipant, IDisposable
     {
         private const string HOLD_REASON = "fragment-shop";
-        /// <summary>녹슨 다리 상점을 처음 마칠 때 여는 거점.</summary>
-        public const string NEXT_HUB_ID = "hub-2";
 
         private readonly FragmentShopSettings _settings;
         private readonly HabitatCatalog _catalog;
@@ -24,7 +22,6 @@ namespace IronRing.Shop
         private readonly Func<IHabitatCodex> _codex;
         private readonly Func<IMoney> _money;
         private readonly Func<ILedger> _ledger;
-        private readonly Func<ILineOpener> _line;
         private readonly Func<string, bool> _battleHint;
         private readonly Func<string, string> _text;
         private readonly Random _random;
@@ -54,7 +51,7 @@ namespace IronRing.Shop
         /// battleHint(id)는 전투에서 그 건물의 전체 단서를 얻었는지, text(key)는 ko.json 문구를 돌려준다. 진열은 Draw를 불러야 생긴다.
         /// </summary>
         public BlueprintShop(FragmentShopSettings settings, HabitatCatalog catalog, ITrackRuntime track, Func<IHabitatCodex> codex,
-            Func<IMoney> money, Func<ILedger> ledger, Func<ILineOpener> line, Func<string, bool> battleHint, Func<string, string> text, Random random)
+            Func<IMoney> money, Func<ILedger> ledger, Func<string, bool> battleHint, Func<string, string> text, Random random)
         {
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _catalog = catalog ?? throw new ArgumentNullException(nameof(catalog));
@@ -62,7 +59,6 @@ namespace IronRing.Shop
             _codex = codex ?? (() => null);
             _money = money ?? (() => null);
             _ledger = ledger ?? (() => null);
-            _line = line ?? (() => null);
             _battleHint = battleHint ?? (_ => false);
             _text = text ?? (k => k);
             _random = random ?? new Random();
@@ -177,8 +173,6 @@ namespace IronRing.Shop
         {
             if (!IsOpen) return;
             IsOpen = false;
-            ILineOpener line = _line();
-            if (line != null && !line.IsOpen(NEXT_HUB_ID)) line.Open(NEXT_HUB_ID);
             _track.ReleaseHold(HOLD_REASON);
             UnityEngine.Debug.Log("SHOP: continue");
             Closed?.Invoke();

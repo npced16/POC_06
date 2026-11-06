@@ -65,6 +65,18 @@ namespace IronRing.Hud.Codex
             ShowUnlocked(name, meta, work, unknownVisitor, role, false);
         }
 
+        /// <summary>
+        /// 단서 카드에 서식지 이름과 효과 한 줄만 보이고 재료 배열·종류 줄·찾아오는 이·실루엣은 숨긴다.
+        /// name과 effect를 사용하며, 카드의 표시 상태를 변경한다.
+        /// </summary>
+        public void ShowHintSummary(string name, string effect)
+        {
+            ShowLocked(name);
+            if (_silhouette != null) _silhouette.SetActive(false);
+            _bonus.text = effect;
+            _bonus.gameObject.SetActive(true);
+        }
+
         /// <summary>해금 카드: 이름·종류 줄·보너스·NPC를 쓰고 완성 표시를 켜거나 끈다. 배열은 Diagram에 따로 채운다.</summary>
         public void ShowUnlocked(string name, string meta, string bonus, string npc, bool complete) => ShowUnlocked(name, meta, bonus, npc, null, complete);
 

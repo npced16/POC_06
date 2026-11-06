@@ -42,7 +42,6 @@ namespace IronRing.Combat
         [SerializeField] private float _distantEnemyHeight = 0.65f;
         [SerializeField] private float _nearEnemyHeight = 1.15f;
         [SerializeField] private float _enemySway = 0.08f;
-        [SerializeField] private string _nextHubId = "hub-2";
         [Header("UI")]
         [SerializeField] private TMP_Text _statusText;
         [SerializeField] private TMP_Text _resultText;
@@ -832,14 +831,12 @@ namespace IronRing.Combat
         {
             if (_finished) return;
             _finished = true;
-            if (victory && !string.IsNullOrWhiteSpace(_nextHubId))
-                GameServices.Get<ILineOpener>()?.Open(_nextHubId);
             BattleReward reward = BattleIntegration.ResolveReward(_rules, victory, GameServices.Get<IMoney>(),
                 GameServices.Get<IHabitatCodex>(), GameServices.Get<IHabitatClusters>(),
                 GameServices.Get<IPassengers>(), "battle-poc", _random);
             _cardPanel.SetActive(false);
             _resultPanel.SetActive(true);
-            _resultText.text = (victory ? "승리! 다음 마을이 열립니다." : "패배. 열차로 후퇴합니다.") +
+            _resultText.text = (victory ? "승리!" :"패배. 열차로 후퇴합니다.") +
                 $"\n마르크 +{reward.Marks}" +
                 (reward.HintId == null ? "" : "\n설계도 힌트: " + HintText(reward.HintId)) +
                 (reward.PassengerId == null ? "" : $"\n승객: {reward.PassengerId}");

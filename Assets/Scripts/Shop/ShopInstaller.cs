@@ -64,7 +64,6 @@ namespace IronRing.Shop
                 () => GameServices.Get<IHabitatCodex>(),
                 () => GameServices.Get<IMoney>(),
                 () => GameServices.Get<ILedger>(),
-                () => GameServices.Get<ILineOpener>(),
                 BattleHintJournal.Has, Text, new System.Random());
             Shop.Draw();
             GameServices.Register<IBlueprintShop>(Shop);

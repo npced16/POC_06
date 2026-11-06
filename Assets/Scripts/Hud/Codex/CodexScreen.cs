@@ -16,7 +16,6 @@ using IronRing.Hud.Hotbar;
 using IronRing.Hud.Ui;
 using IronRing.Items;
 using IronRing.Localization;
-using IronRing.Npc;
 using IronRing.Npc.Demo;
 using IronRing.Presentation.Items;
 using IronRing.Shop;
@@ -264,15 +263,10 @@ namespace IronRing.Hud.Codex
                 card.name = "Card_" + type.Id;
                 if (!_codex.IsUnlocked(type.Id))
                 {
-                    string knownVisitors = KnownVisitors(type.Id);
                     if (_codex is HabitatCodex clues && clues.HasHint(type.Id))
                     {
-                        card.ShowHint(HabitatName(type.Id),
-                            KindName(type.Kind) + "  ·  " + string.Format(Text("codex_cells"), CellCount(type)),
-                            WorkDescription(type.VillageWork), type.MaterialRole,
-                            string.Format(Text("codex_npc"), knownVisitors ?? Text("codex_visitor_unknown")));
-                        SetProduction(card, type);
-                        FillDiagram(card, type, true);
+                        // 단서 카드는 이름과 효과만 보이고 재료 배열은 공개하지 않는다.
+                        card.ShowHintSummary(HabitatName(type.Id), WorkDescription(type.VillageWork));
                         continue;
                     }
                     // 스펙 010: 상점 조각으로 알아낸 재료·수량만 보이고 배치는 숨긴다.
@@ -282,11 +276,7 @@ namespace IronRing.Hud.Codex
                         card.ShowLocked(HabitatName(type.Id), fragments);
                         continue;
                     }
-                    if (knownVisitors != null)
-                    {
-                        card.ShowKnownVisitor(HabitatName(type.Id), string.Format(Text("codex_npc"), knownVisitors));
-                        continue;
-                    }
+                    // 승객을 태운 기록만으로는 잠긴 카드를 공개하지 않는다.
                     card.ShowLocked(Text("codex_locked"));
                     continue;
                 }
@@ -362,7 +352,7 @@ namespace IronRing.Hud.Codex
         }
 
         /// <summary>
-        /// "찾아오는 이": 그 종류의 후보 가운데 현재 또는 과거에 합류한 사람은 이름, 나머지는 "???"
+        /// "찾아오는 이": 그 종류의 후보 가운데 이번 런에 합류한 사람만 이름, 탑승만 한 사람과 나머지는 "???"
         /// (예: "점등부, ???"). 숨은 조건은 보이지 않는다. 후보 목록이 없으면(옛 구현) 예전처럼 NPC 종류 이름.
         /// </summary>
         private string Visitors(HabitatType type)
@@ -374,22 +364,11 @@ namespace IronRing.Hud.Codex
             int unknown = 0;
             foreach (string id in candidates)
             {
-                if (joined.Contains(id) || PassengerDiscovery.IsKnown(id)) names.Add(NpcName(id));
+                if (joined.Contains(id)) names.Add(NpcName(id));
                 else unknown++;
             }
             for (int i = 0; i < unknown; i++) names.Add(Text("codex_visitor_unknown"));
             return string.Join(", ", names);
-        }
-
-        /// <summary>typeId의 후보 중 현재 게임의 발견 기록에 남은 승객 이름만 이어 반환하고 없으면 null을 반환한다.</summary>
-        private string KnownVisitors(string typeId)
-        {
-            IReadOnlyList<string> candidates = _recruiter?.CandidatesOf(typeId);
-            if (candidates == null) return null;
-            var names = new List<string>();
-            foreach (string id in candidates)
-                if (PassengerDiscovery.IsKnown(id)) names.Add(NpcName(id));
-            return names.Count == 0 ? null : string.Join(", ", names);
         }
 
         /// <summary>스토리 030. board·teach로 열린 종류면 "가르쳐 주는 이: 직업", 아니면 null.</summary>
