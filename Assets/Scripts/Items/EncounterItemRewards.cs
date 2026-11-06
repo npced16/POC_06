@@ -14,35 +14,37 @@ namespace IronRing.Items
     public sealed class EncounterItemRewards
     {
         private readonly IItemInventory _items;
+        private readonly Action<string, int> _grantItem;
         private readonly string _victoryItem;
         private readonly int _victoryAmount;
         private readonly Dictionary<string, KeyValuePair<string, int>> _eventItems;
 
         /// <summary>승리 보상과 이벤트 제목별 보상을 주입받는다. 비어 있으면 아무것도 주지 않는다.</summary>
         public EncounterItemRewards(IItemInventory items, string victoryItem, int victoryAmount,
-            IReadOnlyDictionary<string, KeyValuePair<string, int>> eventItems)
+            IReadOnlyDictionary<string, KeyValuePair<string, int>> eventItems, Action<string, int> grantItem = null)
         {
             _items = items ?? throw new ArgumentNullException(nameof(items));
+            _grantItem = grantItem ?? new Action<string, int>(_items.Add);
             _victoryItem = victoryItem;
             _victoryAmount = Math.Max(0, victoryAmount);
             _eventItems = new Dictionary<string, KeyValuePair<string, int>>(StringComparer.Ordinal);
             if (eventItems != null) foreach (var e in eventItems) _eventItems[e.Key] = e.Value;
         }
 
-        /// <summary>조우 결과와 이벤트 제목(이벤트일 때)으로 보상을 인벤토리에 더하고 준 아이템 id를 돌려준다(없으면 null).</summary>
+        /// <summary>조우 결과와 이벤트 제목에 해당하는 아이템을 지급하고 지급한 id를 반환한다. 보상이 없으면 null을 반환한다.</summary>
         public string Grant(EncounterOutcome outcome, string eventTitle)
         {
             if (outcome == EncounterOutcome.EventResolved && eventTitle != null
                 && _eventItems.TryGetValue(eventTitle, out var reward) && !string.IsNullOrEmpty(reward.Key) && reward.Value > 0)
             {
-                _items.Add(reward.Key, reward.Value);
+                _grantItem(reward.Key, reward.Value);
                 return reward.Key;
             }
             return null;
         }
 
-        /// <summary>Story005Encounters.json에서 아이템 보상 필드만 읽는다(005의 EncounterData는 이 필드를 무시한다).</summary>
-        public static EncounterItemRewards Parse(string json, IItemInventory items)
+        /// <summary>json에서 아이템 보상을 읽어 items와 선택적 grantItem 지급 경로를 사용하는 보상 객체를 반환한다.</summary>
+        public static EncounterItemRewards Parse(string json, IItemInventory items, Action<string, int> grantItem = null)
         {
             var data = string.IsNullOrWhiteSpace(json) ? null : JsonUtility.FromJson<RewardData>(json);
             var events = new Dictionary<string, KeyValuePair<string, int>>(StringComparer.Ordinal);
@@ -50,7 +52,7 @@ namespace IronRing.Items
                 foreach (EventData e in data._events)
                     if (e != null && !string.IsNullOrEmpty(e._title) && !string.IsNullOrEmpty(e._item))
                         events[e._title] = new KeyValuePair<string, int>(e._item, e._itemAmount);
-            return new EncounterItemRewards(items, data?._rewardItem, data?._rewardItemAmount ?? 0, events);
+            return new EncounterItemRewards(items, data?._rewardItem, data?._rewardItemAmount ?? 0, events, grantItem);
         }
 
 #pragma warning disable 0649

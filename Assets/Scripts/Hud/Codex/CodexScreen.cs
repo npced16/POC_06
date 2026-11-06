@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 using UnityEngine;
@@ -13,6 +14,7 @@ using IronRing.Habitats;
 using IronRing.Habitats.Demo;
 using IronRing.Hud.Hotbar;
 using IronRing.Hud.Ui;
+using IronRing.Items;
 using IronRing.Localization;
 using IronRing.Npc;
 using IronRing.Npc.Demo;
@@ -55,6 +57,7 @@ namespace IronRing.Hud.Codex
         private INpcRecruiter _recruiter;
         private INpcInteraction _interaction;
         private HabitatCatalog _catalog;
+        private ProductionData _production;
         private ItemSpriteSet _sprites;
         private float _toastSeconds;
         private string _lastHub;
@@ -103,6 +106,8 @@ namespace IronRing.Hud.Codex
             _track = GameServices.Get<ITrackRuntime>();
             _hubs = GameServices.Get<IHubStateSystem>();
             _catalog = HabitatsInstaller.Catalog;
+            TextAsset productionAsset = Resources.Load<TextAsset>("Habitats/HabitatProduction");
+            if (productionAsset != null) _production = JsonUtility.FromJson<ProductionData>(productionAsset.text);
             _sprites = ItemSpriteSet.Load();
             _toastSeconds = HotbarData.Load().ToastSeconds;
             _hint.text = Text("codex_hint");
@@ -252,7 +257,7 @@ namespace IronRing.Hud.Codex
                 Destroy(child);
             }
             if (_showTurrets) { RebuildTurrets(); return; }
-            foreach (HabitatType type in _catalog.Types)
+            foreach (HabitatType type in _catalog.DisplayTypes)
             {
                 CodexCardView card = Instantiate(_cardPrefab, _grid);
                 card.name = "Card_" + type.Id;
@@ -263,8 +268,9 @@ namespace IronRing.Hud.Codex
                     {
                         card.ShowHint(HabitatName(type.Id),
                             KindName(type.Kind) + "  ·  " + string.Format(Text("codex_cells"), CellCount(type)),
-                            type.VillageWork, type.MaterialRole,
+                            WorkDescription(type.VillageWork), type.MaterialRole,
                             string.Format(Text("codex_npc"), knownVisitors ?? Text("codex_visitor_unknown")));
+                        SetProduction(card, type);
                         FillDiagram(card, type, true);
                         continue;
                     }
@@ -280,10 +286,52 @@ namespace IronRing.Hud.Codex
                     KindName(type.Kind) + "  ·  " + string.Format(Text("codex_cells"), CellCount(type)),
                     string.Format(Text("codex_bonus"), type.ProsperityBonus.ToString("0")),
                     string.Format(Text("codex_npc"), Visitors(type)),
-                    type.VillageWork,
+                    WorkDescription(type.VillageWork),
                     completed.Contains(type.Id));
+                SetProduction(card, type);
                 FillDiagram(card, type);
             }
+        }
+
+        /// <summary>type의 생산 설정과 수입을 읽어 card의 바퀴당 생산 행을 설정한다.</summary>
+        private void SetProduction(CodexCardView card, HabitatType type)
+        {
+            if (_production?._entries == null) return;
+            Sprite resourceSprite = null;
+            string resourceText = null;
+            foreach (ProductionEntry entry in _production._entries)
+            {
+                if (entry == null || entry._habitatId != type.Id || entry._amount <= 0 || string.IsNullOrEmpty(entry._itemId)) continue;
+                string name = ItemsInstaller.Catalog?.Get(entry._itemId)?.Name ?? entry._itemId;
+                resourceSprite = MaterialSprite(entry._itemId);
+                resourceText = "바퀴당 " + name + " " + entry._amount;
+                break;
+            }
+            string incomeText = type.Income > 0 ? "바퀴당 " + type.Income : null;
+            card.SetProduction(resourceSprite, resourceText, _sprites != null ? _sprites.Get("ui_coin") : null, incomeText);
+            card.SetYield(resourceText == null && incomeText == null ? "생산 없음" : null);
+        }
+
+        /// <summary>work에서 별도로 표시하는 바퀴당 생산 문구를 제외하고 건물 역할 설명을 반환한다.</summary>
+        private static string WorkDescription(string work)
+        {
+            if (string.IsNullOrEmpty(work)) return string.Empty;
+            int production = work.IndexOf("바퀴마다", StringComparison.Ordinal);
+            return production < 0 ? work : work.Substring(0, production).TrimEnd(' ', '.', ';');
+        }
+
+        [Serializable]
+        private sealed class ProductionData
+        {
+            public ProductionEntry[] _entries;
+        }
+
+        [Serializable]
+        private sealed class ProductionEntry
+        {
+            public string _habitatId;
+            public string _itemId;
+            public int _amount;
         }
 
         /// <summary>사용 가능 포탑과 각 포탑의 건물 조건·기본 수치를 도감 카드에 표시한다.</summary>
@@ -368,20 +416,22 @@ namespace IronRing.Hud.Codex
                     }
                 return;
             }
-            card.SetColumns(0);
+            card.SetColumns(3);
+            int count = 0;
             if (type.Kind == HabitatKind.Set)
             {
-                int fixedCount = 0;
                 foreach (HabitatTileRequirement tile in type.SetTiles)
                 {
                     for (int i = 0; i < tile.MinCount; i++) Icon(card, tile.TileItemId, revealAll);
-                    fixedCount += tile.MinCount;
+                    count += tile.MinCount;
                 }
-                int rest = type.RequiredCount - fixedCount;
-                if (rest > 0) Tile(card).Show(null, "+" + rest, false);
-                return;
+                while (count < type.RequiredCount) { Tile(card).Show(null, "?", false); count++; }
             }
-            for (int i = 0; i < type.RequiredCount; i++) Icon(card, type.TileItemId, revealAll);
+            else
+            {
+                for (; count < type.RequiredCount; count++) Icon(card, type.TileItemId, revealAll);
+            }
+            while (count < 9) { Tile(card).Show(null, null, true); count++; }
         }
 
         private CodexTileView Tile(CodexCardView card) => Instantiate(_tilePrefab, card.Diagram);
@@ -394,9 +444,15 @@ namespace IronRing.Hud.Codex
                 Tile(card).Show(null, Text("codex_locked"), false);
                 return;
             }
-            Sprite sprite = _sprites != null ? _sprites.Get(tileItemId) : null;
-            string name = Lookup("item_" + tileItemId) ?? tileItemId;
-            Tile(card).Show(sprite, name.Substring(0, 1), false);
+            string name = ItemsInstaller.Catalog?.Get(tileItemId)?.Name ?? Lookup("item_" + tileItemId) ?? tileItemId;
+            Tile(card).Show(MaterialSprite(tileItemId), name, false);
+        }
+
+        /// <summary>itemId에 해당하는 보유량 아이콘을 반환하고 땅은 기존 타일 아이콘을 사용한다.</summary>
+        private Sprite MaterialSprite(string itemId)
+        {
+            if (itemId == "tile_cobble") return _sprites != null ? _sprites.Get(itemId) : null;
+            return TopBarScreen.ResourceIcon(itemId);
         }
 
         private static int CellCount(HabitatType type)

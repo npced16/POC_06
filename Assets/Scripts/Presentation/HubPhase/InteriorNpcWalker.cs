@@ -321,15 +321,19 @@ namespace IronRing.Presentation.HubPhase
             }
         }
 
-        /// <summary>True when cell shares an edge (same area, Manhattan distance 1 in Row/Column) with any home cell.</summary>
+        /// <summary>cell이 homeCells 중 하나와 연속 그리드에서 변을 공유하는지 cells의 좌표를 사용해 반환한다.</summary>
         private static bool IsAdjacentToHome(IInteriorCell cell, IReadOnlyList<int> homeCells, IReadOnlyList<IInteriorCell> cells)
         {
+            int upperRows = 0;
+            foreach (IInteriorCell candidate in cells)
+                if (candidate.IsUpper) upperRows = Mathf.Max(upperRows, candidate.Row + 1);
+            int row = cell.Row + (cell.IsUpper ? 0 : upperRows);
             foreach (int index in homeCells)
             {
                 if (index < 0 || index >= cells.Count) continue;
                 IInteriorCell home = cells[index];
-                if (home.IsUpper != cell.IsUpper) continue;
-                if (Mathf.Abs(home.Row - cell.Row) + Mathf.Abs(home.Column - cell.Column) == 1) return true;
+                int homeRow = home.Row + (home.IsUpper ? 0 : upperRows);
+                if (Mathf.Abs(homeRow - row) + Mathf.Abs(home.Column - cell.Column) == 1) return true;
             }
             return false;
         }

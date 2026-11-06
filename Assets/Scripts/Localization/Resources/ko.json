@@ -522,7 +522,7 @@
     },
     {
       "_key": "hotbar_palette_hint",
-      "_value": "항목을 누른 뒤 핫바 칸을 누르면 그 칸에 들어갑니다. 항목을 칸으로 끌어 바로 놓을 수도 있습니다."
+      "_value": "항목을 누르면 배치할 재료로 선택됩니다. 선택한 뒤 핫바 칸을 누르면 그 칸에도 배정됩니다."
     },
     {
       "_key": "hotbar_assigned",
@@ -1566,7 +1566,7 @@
     },
     {
       "_key": "onboarding_place_material",
-      "_value": "좋아요! 이제 잡은 재료를 빈 칸에 놓아보세요!"
+      "_value": "땅을 네 칸 이어 개간지를 만들어 보세요. 땅을 놓을 때마다 마르크가 들어요."
     },
     {
       "_key": "onboarding_build_combo",
@@ -1574,15 +1574,15 @@
     },
     {
       "_key": "onboarding_unlock_material",
-      "_value": "생산 건물을 처음 지으면 새 재료가 열려요. 퀵슬롯에 새 재료가 생겼어요."
+      "_value": "개간지를 처음 완성해 돌 4개를 얻었어요! 빠른 칸의 돌을 골라 사용해 보세요. 생산 건물은 열차가 한 바퀴 돌 때마다 재료를 더 만들어요."
     },
     {
       "_key": "onboarding_buy_material",
-      "_value": "재료를 설치할 때는 돈이 들어가요. 화면 우측 상단에서 내가 보유한 돈을 확인할 수 있으니, 효율적으로 관리해봐요!"
+      "_value": "땅을 놓을 때는 마르크를 내고, 다른 재료는 재고를 하나씩 사용해요."
     },
     {
       "_key": "onboarding_pick_up",
-      "_value": "재료를 잘못 놓았다면 우클릭으로 회수할 수 있어요. 비용은 그대로 돌려드려요. 건물이 된 칸을 회수하면 건물이 사라지니 조심하세요!"
+      "_value": "재료를 잘못 놓았다면 우클릭으로 회수할 수 있어요. 사용한 재료는 재고로 돌아와요."
     },
     {
       "_key": "onboarding_undo",
@@ -1610,7 +1610,7 @@
     },
     {
       "_key": "onboarding_return_town",
-      "_value": "고생하셨어요! 다시 마을로 돌아오셨네요! 마을로 돌아올 때마다 수입을 얻고, 새 건물의 설계 단서도 하나씩 얻을 수 있어요!"
+      "_value": "마을로 돌아왔어요! 한 바퀴를 돌 때마다 생산 건물이 재료를 만들고 마을 수입을 얻어요."
     },
     {
       "_key": "onboarding_boarding_dialog",
@@ -1759,6 +1759,66 @@
     { "_key": "npc_drag_wrong_home", "_value": "{0} 그곳엔 살지 않겠다고 거부했다" },
     { "_key": "npc_drag_train_full", "_value": "열차에 빈 자리가 없다" },
     { "_key": "passengers_drag_hint", "_value": "승객을 끌어 자기 건물에 놓으면 바로 내립니다." },
-    { "_key": "passengers_row_name", "_value": "{0} ({1})" }
+    { "_key": "passengers_row_name", "_value": "{0} ({1})" },
+    { "_key": "habitat_move_controls", "_value": "클릭: 옮기기  ·  R: 회전  ·  Delete: 제거  ·  우클릭: 취소" },
+    { "_key": "habitat_type_timber_mill", "_value": "제재소" },
+    { "_key": "habitat_type_stone_quarry", "_value": "채석장" },
+    { "_key": "habitat_type_water_reservoir", "_value": "저수장" },
+    { "_key": "habitat_type_grain_store", "_value": "곡물 창고" },
+    { "_key": "habitat_type_coal_store", "_value": "석탄 저장소" },
+    { "_key": "habitat_type_iron_workshop", "_value": "철재 공방" },
+    { "_key": "habitat_type_copper_workshop", "_value": "구리 공방" },
+    { "_key": "habitat_type_pipe_workshop", "_value": "증기관 공방" },
+    { "_key": "habitat_type_gear_factory", "_value": "톱니 공방" },
+    { "_key": "habitat_type_wire_factory", "_value": "전선 작업장" },
+    { "_key": "habitat_type_mixed_cobble_timber", "_value": "목재 쉼터" },
+    { "_key": "habitat_type_mixed_cobble_water_can", "_value": "물가 쉼터" },
+    { "_key": "habitat_type_mixed_cobble_grain", "_value": "곡물 마당" },
+    { "_key": "habitat_type_mixed_cobble_coal", "_value": "연료 마당" },
+    { "_key": "habitat_type_mixed_cobble_iron_stock", "_value": "철재 야적장" },
+    { "_key": "habitat_type_mixed_cobble_copper", "_value": "구리 야적장" },
+    { "_key": "habitat_type_mixed_cobble_steam_pipe", "_value": "관로 마당" },
+    { "_key": "habitat_type_mixed_cobble_gear", "_value": "기계 마당" },
+    { "_key": "habitat_type_mixed_cobble_wire", "_value": "전선 마당" },
+    { "_key": "habitat_type_mixed_timber_water_can", "_value": "목조 우물집" },
+    { "_key": "habitat_type_mixed_timber_grain", "_value": "곡물 건조장" },
+    { "_key": "habitat_type_mixed_timber_coal", "_value": "목재 연료고" },
+    { "_key": "habitat_type_mixed_timber_iron_stock", "_value": "철물 창고" },
+    { "_key": "habitat_type_mixed_timber_copper", "_value": "구리 창고" },
+    { "_key": "habitat_type_mixed_timber_steam_pipe", "_value": "관로 창고" },
+    { "_key": "habitat_type_mixed_timber_gear", "_value": "부품 창고" },
+    { "_key": "habitat_type_mixed_timber_wire", "_value": "전선 창고" },
+    { "_key": "habitat_type_mixed_stone_water_can", "_value": "석조 물탱크" },
+    { "_key": "habitat_type_mixed_stone_grain", "_value": "석조 곡물고" },
+    { "_key": "habitat_type_mixed_stone_coal", "_value": "석조 연료고" },
+    { "_key": "habitat_type_mixed_stone_copper", "_value": "구리 기초" },
+    { "_key": "habitat_type_mixed_stone_steam_pipe", "_value": "관로 기초" },
+    { "_key": "habitat_type_mixed_stone_wire", "_value": "전선 기초" },
+    { "_key": "habitat_type_mixed_water_can_grain", "_value": "식수 배급소" },
+    { "_key": "habitat_type_mixed_water_can_coal", "_value": "난방 시설" },
+    { "_key": "habitat_type_mixed_water_can_iron_stock", "_value": "철제 물탱크" },
+    { "_key": "habitat_type_mixed_water_can_copper", "_value": "구리 물탱크" },
+    { "_key": "habitat_type_mixed_water_can_wire", "_value": "전기 세척장" },
+    { "_key": "habitat_type_mixed_grain_coal", "_value": "연료 곡물고" },
+    { "_key": "habitat_type_mixed_grain_iron_stock", "_value": "철제 곡물고" },
+    { "_key": "habitat_type_mixed_grain_copper", "_value": "구리 곡물고" },
+    { "_key": "habitat_type_mixed_grain_steam_pipe", "_value": "증기 제분소" },
+    { "_key": "habitat_type_mixed_grain_gear", "_value": "기계 제분소" },
+    { "_key": "habitat_type_mixed_grain_wire", "_value": "전기 제분소" },
+    { "_key": "habitat_type_mixed_coal_copper", "_value": "구리 연료고" },
+    { "_key": "habitat_type_mixed_coal_steam_pipe", "_value": "증기 난방소" },
+    { "_key": "habitat_type_mixed_coal_gear", "_value": "기계 난방소" },
+    { "_key": "habitat_type_mixed_coal_wire", "_value": "전기 난방소" },
+    { "_key": "habitat_type_mixed_iron_stock_wire", "_value": "전기 정비소" },
+    { "_key": "habitat_type_mixed_copper_steam_pipe", "_value": "구리 배관소" },
+    { "_key": "habitat_type_mixed_copper_gear", "_value": "구리 기계소" },
+    { "_key": "habitat_type_mixed_copper_wire", "_value": "배전 작업소" },
+    { "_key": "habitat_type_mixed_steam_pipe_wire", "_value": "증기 배전실" },
+    { "_key": "habitat_type_mixed_gear_wire", "_value": "기계 배전실" },
+    { "_key": "habitat_info_empty", "_value": "거주자 없음" },
+    { "_key": "habitat_info_residents", "_value": "거주자: {0}" },
+    { "_key": "habitat_info_marks", "_value": "마르크 {0}" },
+    { "_key": "habitat_info_no_yield", "_value": "생산 없음" },
+    { "_key": "habitat_info_yield", "_value": "바퀴당: {0}" }
   ]
 }

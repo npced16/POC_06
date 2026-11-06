@@ -7,27 +7,22 @@ using IronRing.Contracts;
 namespace IronRing.Habitats
 {
     /// <summary>
-    /// 스토리 016. 거점 칸 목록에서 완성된 서식지를 찾는 순수 함수. 위·아래 구역(IInteriorCell.IsUpper)을 따로 보고 선로를 건너
-    /// 잇지 않는다. 한 칸은 서식지 하나에만 속한다(같은 칸이 두 서식지로 중복 계산되지 않음):
-    ///  1) Pattern 종류를 먼저(타일 칸 수가 많은 것부터, 같으면 카탈로그 순서) 판정한다. 템플릿의 8변형(회전 4 × 거울)을 구역 위에서
-    ///     줄 우선으로 밀어 보며, 아직 쓰이지 않은 칸만으로 들어맞으면 그 칸들을 차지한다(겹치는 매칭은 먼저 찾은 하나만).
-    ///  2) 스토리 020. 남은 칸에서 묶음형(Cluster·Set)을 RequiredCount가 큰 것부터(같으면 카탈로그 순서) 판정한다. 종류마다 그 종류가
-    ///     받는 타일(Cluster는 한 타일, Set은 집합)이 놓인 아직 안 쓰인 칸의 상하좌우 묶음을 flood fill로 찾고, 총 칸 수가 RequiredCount 이상 9 이하이며
-    ///     타일별 최소 수를 모두 채우면 그 묶음 전체를 차지한다. Cluster만 보면 016 규칙과 같다(같은 타일 묶음은 들어맞는 가장 큰
-    ///     종류 하나로 센다. 예: 톱니장치 9칸 묶음은 대공방 하나이고 작은 종류로 중복 계산되지 않는다).
+    /// 위·아래 구역을 화면 배치에 맞게 연결하고 이미 사용한 칸을 제외해 정확한 재료 수의 연결 묶음을 찾는다.
+    /// 패턴을 먼저 판정하고 묶음은 필요 칸 수가 큰 순서와 카탈로그 순서로 판정한다.
     /// </summary>
     public static class HabitatMatcher
     {
         /// <summary>
         /// cells(거점의 모든 칸)에서 완성된 서식지를 결정적 순서로 돌려준다. reserved(스토리 035: 이미 고정된 서식지의 칸)는
-        /// 처음부터 차지된 것으로 보아 새 판정에 쓰지 않는다. 고정된 서식지 자체는 돌려주지 않는다(호출자가 합친다).
+        /// 처음부터 차지된 것으로 보아 새 판정에 쓰지 않는다. preferredCell이 있으면 그 칸을 포함한 조합을 먼저 찾는다.
+        /// 고정된 서식지는 돌려주지 않고 새 조합 목록만 반환한다.
         /// </summary>
-        public static List<HabitatCluster> Evaluate(IReadOnlyList<IInteriorCell> cells, HabitatCatalog catalog, IEnumerable<int> reserved = null)
+        public static List<HabitatCluster> Evaluate(IReadOnlyList<IInteriorCell> cells, HabitatCatalog catalog, IEnumerable<int> reserved = null, int? preferredCell = null)
         {
             if (catalog == null) throw new ArgumentNullException(nameof(catalog));
             var result = new List<HabitatCluster>();
             if (cells == null || cells.Count == 0) return result;
-            Region[] regions = { Region.Build(cells, true), Region.Build(cells, false) };
+            Region[] regions = { Region.Build(cells) };
             var claimed = new HashSet<int>();
             if (reserved != null) foreach (int index in reserved) claimed.Add(index);
 
@@ -36,43 +31,46 @@ namespace IronRing.Habitats
                 .Where(entry => entry.type.Kind == HabitatKind.Pattern)
                 .OrderByDescending(entry => entry.type.RequiredCount).ThenBy(entry => entry.order)
                 .Select(entry => entry.type);
-            foreach (HabitatType type in patterns)
-            {
-                List<string[,]> variants = Variants(type.Pattern);
-                foreach (Region region in regions)
-                    for (int top = 0; top < region.Rows; top++)
-                        for (int left = 0; left < region.Columns; left++)
-                            foreach (string[,] template in variants)
-                            {
-                                List<int> match = Match(region, template, top, left, claimed);
-                                if (match == null) continue;
-                                foreach (int index in match) claimed.Add(index);
-                                result.Add(new HabitatCluster { TypeId = type.Id, Cells = match.AsReadOnly() });
-                                break;
-                            }
-            }
-
             IEnumerable<HabitatType> groups = catalog.Types
                 .Select((type, order) => (type, order))
                 .Where(entry => entry.type.Kind == HabitatKind.Cluster || entry.type.Kind == HabitatKind.Set)
                 .OrderByDescending(entry => entry.type.RequiredCount).ThenBy(entry => entry.order)
                 .Select(entry => entry.type);
-            foreach (HabitatType type in groups)
-                foreach (Region region in regions)
+
+            for (int pass = preferredCell.HasValue ? 0 : 1; pass < 2; pass++)
+            {
+                bool preferredOnly = pass == 0;
+                foreach (HabitatType type in patterns)
                 {
-                    var visited = new HashSet<int>();
-                    for (int row = 0; row < region.Rows; row++)
-                        for (int column = 0; column < region.Columns; column++)
-                        {
-                            IInteriorCell start = region.At(row, column);
-                            if (start == null || !type.AcceptsTile(Tile(start)) || claimed.Contains(start.Index) || visited.Contains(start.Index)) continue;
-                            List<int> group = Flood(region, row, column, type, claimed, visited, out Dictionary<string, int> counts);
-                            if (!Satisfies(type, group.Count, counts)) continue;
-                            foreach (int index in group) claimed.Add(index);
-                            group.Sort();
-                            result.Add(new HabitatCluster { TypeId = type.Id, Cells = group.AsReadOnly() });
-                        }
+                    List<string[,]> variants = Variants(type.Pattern);
+                    foreach (Region region in regions)
+                        for (int top = 0; top < region.Rows; top++)
+                            for (int left = 0; left < region.Columns; left++)
+                                foreach (string[,] template in variants)
+                                {
+                                    List<int> match = Match(region, template, top, left, claimed);
+                                    if (match == null || (preferredOnly && !match.Contains(preferredCell.Value))) continue;
+                                    foreach (int index in match) claimed.Add(index);
+                                    result.Add(new HabitatCluster { TypeId = type.Id, Cells = match.AsReadOnly() });
+                                    break;
+                                }
                 }
+
+                foreach (HabitatType type in groups)
+                    foreach (Region region in regions)
+                        for (int row = 0; row < region.Rows; row++)
+                            for (int column = 0; column < region.Columns; column++)
+                            {
+                                IInteriorCell start = region.At(row, column);
+                                if (start == null || !type.AcceptsTile(Tile(start)) || claimed.Contains(start.Index)) continue;
+                                if (preferredOnly && start.Index != preferredCell.Value) continue;
+                                List<int> group = FindGroup(region, row, column, type, claimed);
+                                if (group == null) continue;
+                                foreach (int index in group) claimed.Add(index);
+                                group.Sort();
+                                result.Add(new HabitatCluster { TypeId = type.Id, Cells = group.AsReadOnly() });
+                            }
+            }
             return result;
         }
 
@@ -95,46 +93,115 @@ namespace IronRing.Habitats
                     if (cell == null || Tile(cell) != want || claimed.Contains(cell.Index)) return null;
                     cells.Add(cell.Index);
                 }
+            if (!Connected(region, cells)) return null;
             cells.Sort();
             return cells;
         }
 
         /// <summary>
-        /// type의 최소 재료 수와 counts를 검사하고 완성 묶음이 최대 9칸인지 판단한다.
-        /// 조건을 모두 만족하면 true를 반환한다.
+        /// cells의 저장된 cluster가 type의 정확한 재료와 연결 조건에 맞는지 판정한다.
+        /// 해당 칸만 사용한 재판정 결과가 저장된 묶음과 같으면 true를 반환한다.
         /// </summary>
-        private static bool Satisfies(HabitatType type, int size, Dictionary<string, int> counts)
+        public static bool MatchesCluster(IReadOnlyList<IInteriorCell> cells, HabitatType type, HabitatCluster cluster)
         {
-            if (size < type.RequiredCount || size > HabitatType.MAX_RECIPE_CELLS) return false;
-            foreach (HabitatTileRequirement tile in type.SetTiles)
-                if ((counts.TryGetValue(tile.TileItemId, out int n) ? n : 0) < tile.MinCount) return false;
-            return true;
+            if (cells == null || type == null || cluster?.Cells == null || cluster.Cells.Count != type.RequiredCount) return false;
+            var wanted = new HashSet<int>(cluster.Cells);
+            if (wanted.Count != type.RequiredCount) return false;
+            var reserved = new HashSet<int>();
+            int found = 0;
+            foreach (IInteriorCell cell in cells)
+            {
+                if (cell == null) continue;
+                if (wanted.Contains(cell.Index)) found++;
+                else reserved.Add(cell.Index);
+            }
+            if (found != wanted.Count) return false;
+            List<HabitatCluster> matches = Evaluate(cells, new HabitatCatalog(new[] { type }), reserved);
+            return matches.Count == 1 && matches[0].Cells.Count == wanted.Count && matches[0].Cells.All(wanted.Contains);
         }
 
-        /// <summary>(row, column)에서 시작해 type이 받는 타일이 놓이고 아직 안 쓰인 칸을 상하좌우로 모으며 타일별 개수를 센다.</summary>
-        private static List<int> Flood(Region region, int row, int column, HabitatType type, HashSet<int> claimed, HashSet<int> visited, out Dictionary<string, int> counts)
+        /// <summary>
+        /// region에서 start를 포함하고 claimed를 피하는 정확한 type 조합을 찾는다.
+        /// 연결된 칸 인덱스 목록을 반환하며 없으면 null을 반환한다.
+        /// </summary>
+        private static List<int> FindGroup(Region region, int row, int column, HabitatType type, HashSet<int> claimed)
         {
-            counts = new Dictionary<string, int>(StringComparer.Ordinal);
-            var group = new List<int>();
-            var stack = new Stack<(int r, int c)>();
-            stack.Push((row, column));
-            visited.Add(region.At(row, column).Index);
-            while (stack.Count > 0)
-            {
-                (int r, int c) = stack.Pop();
-                IInteriorCell cell = region.At(r, c);
-                group.Add(cell.Index);
-                string tile = Tile(cell);
-                counts[tile] = (counts.TryGetValue(tile, out int n) ? n : 0) + 1;
+            var limits = new Dictionary<string, int>(StringComparer.Ordinal);
+            foreach (HabitatTileRequirement tile in type.SetTiles) limits[tile.TileItemId] = tile.MinCount;
+            if (limits.Values.Sum() != type.RequiredCount) return null;
+            var chosen = new List<IInteriorCell>();
+            var chosenIds = new HashSet<int>();
+            var counts = new Dictionary<string, int>(StringComparer.Ordinal);
+            IInteriorCell start = region.At(row, column);
+            chosen.Add(start);
+            chosenIds.Add(start.Index);
+            counts[Tile(start)] = 1;
+            if (!ExtendGroup(region, type.RequiredCount, claimed, limits, chosen, chosenIds, counts)) return null;
+            return chosen.Select(cell => cell.Index).ToList();
+        }
+
+        /// <summary>
+        /// chosen에 인접한 미사용 칸을 재료별 limits 이내에서 추가해 requiredCount까지 탐색한다.
+        /// 일치하는 연결 조합을 찾으면 chosen을 보존하고 true를 반환한다.
+        /// </summary>
+        private static bool ExtendGroup(Region region, int requiredCount, HashSet<int> claimed,
+            Dictionary<string, int> limits, List<IInteriorCell> chosen, HashSet<int> chosenIds, Dictionary<string, int> counts)
+        {
+            if (chosen.Count == requiredCount) return true;
+            var candidates = new SortedDictionary<int, IInteriorCell>();
+            foreach (IInteriorCell member in chosen)
                 foreach ((int dr, int dc) in new[] { (-1, 0), (1, 0), (0, -1), (0, 1) })
                 {
-                    IInteriorCell next = region.At(r + dr, c + dc);
-                    if (next == null || visited.Contains(next.Index) || claimed.Contains(next.Index) || !type.AcceptsTile(Tile(next))) continue;
-                    visited.Add(next.Index);
-                    stack.Push((r + dr, c + dc));
+                    IInteriorCell next = region.At(region.RowOf(member) + dr, member.Column + dc);
+                    if (next == null || claimed.Contains(next.Index) || chosenIds.Contains(next.Index)) continue;
+                    string tile = Tile(next);
+                    if (tile == null || !limits.TryGetValue(tile, out int limit)) continue;
+                    if ((counts.TryGetValue(tile, out int count) ? count : 0) >= limit) continue;
+                    candidates[next.Index] = next;
+                }
+            foreach (IInteriorCell next in candidates.Values)
+            {
+                string tile = Tile(next);
+                chosen.Add(next);
+                chosenIds.Add(next.Index);
+                counts[tile] = (counts.TryGetValue(tile, out int count) ? count : 0) + 1;
+                if (ExtendGroup(region, requiredCount, claimed, limits, chosen, chosenIds, counts)) return true;
+                counts[tile]--;
+                chosenIds.Remove(next.Index);
+                chosen.RemoveAt(chosen.Count - 1);
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// region의 indices가 상하좌우로 하나의 묶음인지 확인한다.
+        /// 모든 인덱스가 연결되어 있으면 true를 반환한다.
+        /// </summary>
+        private static bool Connected(Region region, List<int> indices)
+        {
+            if (indices.Count == 0) return false;
+            var remaining = new HashSet<int>(indices);
+            IInteriorCell start = null;
+            for (int row = 0; row < region.Rows && start == null; row++)
+                for (int column = 0; column < region.Columns; column++)
+                {
+                    IInteriorCell cell = region.At(row, column);
+                    if (cell != null && remaining.Contains(cell.Index)) { start = cell; break; }
+                }
+            if (start == null) return false;
+            var stack = new Stack<IInteriorCell>();
+            stack.Push(start);
+            remaining.Remove(start.Index);
+            while (stack.Count > 0)
+            {
+                IInteriorCell cell = stack.Pop();
+                foreach ((int dr, int dc) in new[] { (-1, 0), (1, 0), (0, -1), (0, 1) })
+                {
+                    IInteriorCell next = region.At(region.RowOf(cell) + dr, cell.Column + dc);
+                    if (next != null && remaining.Remove(next.Index)) stack.Push(next);
                 }
             }
-            return group;
+            return remaining.Count == 0;
         }
 
         /// <summary>템플릿의 서로 다른 8변형(원본·거울 각각 0/90/180/270도 회전).</summary>
@@ -182,27 +249,46 @@ namespace IronRing.Habitats
             return string.Join("|", parts);
         }
 
-        /// <summary>한 구역(위 또는 아래)의 줄×칸 격자 보기.</summary>
+        /// <summary>위쪽과 아래쪽을 화면 순서대로 잇는 줄×칸 격자 보기.</summary>
         private sealed class Region
         {
             private readonly IInteriorCell[,] _grid;
+            private readonly int _upperRows;
             public int Rows { get; }
             public int Columns { get; }
 
-            private Region(IInteriorCell[,] grid) { _grid = grid; Rows = grid.GetLength(0); Columns = grid.GetLength(1); }
+            private Region(IInteriorCell[,] grid, int upperRows)
+            {
+                _grid = grid;
+                _upperRows = upperRows;
+                Rows = grid.GetLength(0);
+                Columns = grid.GetLength(1);
+            }
 
+            /// <summary>cell의 구역과 행을 통합 격자의 행으로 바꾸어 반환한다.</summary>
+            public int RowOf(IInteriorCell cell) => cell.Row + (cell.IsUpper ? 0 : _upperRows);
+
+            /// <summary>통합 row와 column의 칸을 반환하며 범위 밖이면 null을 반환한다.</summary>
             public IInteriorCell At(int row, int column) =>
                 row >= 0 && row < Rows && column >= 0 && column < Columns ? _grid[row, column] : null;
 
-            public static Region Build(IReadOnlyList<IInteriorCell> cells, bool upper)
+            /// <summary>cells의 위쪽 행 다음에 아래쪽 행을 이어 통합 격자를 반환한다.</summary>
+            public static Region Build(IReadOnlyList<IInteriorCell> cells)
             {
-                int rows = 0, columns = 0;
+                int upperRows = 0, lowerRows = 0, columns = 0;
                 foreach (IInteriorCell cell in cells)
-                    if (cell != null && cell.IsUpper == upper) { rows = Math.Max(rows, cell.Row + 1); columns = Math.Max(columns, cell.Column + 1); }
-                var grid = new IInteriorCell[rows, columns];
+                {
+                    if (cell == null) continue;
+                    if (cell.IsUpper) upperRows = Math.Max(upperRows, cell.Row + 1);
+                    else lowerRows = Math.Max(lowerRows, cell.Row + 1);
+                    columns = Math.Max(columns, cell.Column + 1);
+                }
+                var grid = new IInteriorCell[upperRows + lowerRows, columns];
+                var region = new Region(grid, upperRows);
                 foreach (IInteriorCell cell in cells)
-                    if (cell != null && cell.IsUpper == upper && cell.Row >= 0 && cell.Column >= 0) grid[cell.Row, cell.Column] = cell;
-                return new Region(grid);
+                    if (cell != null && cell.Row >= 0 && cell.Column >= 0)
+                        grid[region.RowOf(cell), cell.Column] = cell;
+                return region;
             }
         }
     }

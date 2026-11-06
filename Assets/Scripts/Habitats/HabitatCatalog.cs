@@ -214,6 +214,8 @@ namespace IronRing.Habitats
 
         /// <summary>데이터 순서의 모든 종류.</summary>
         public IReadOnlyList<HabitatType> Types => _types;
+        /// <summary>도감에 표시할 종류를 건물 정보 데이터 순서로 반환한다.</summary>
+        public IReadOnlyList<HabitatType> DisplayTypes { get; private set; }
         /// <summary>데이터 순서의 모든 종류 id.</summary>
         public IReadOnlyList<string> TypeIds { get; }
         /// <summary>스토리 035. true(기본)면 한 번 완성된 서식지는 칸이 고정되어 더 커지지 않는다. false면 매번 전체 재판정(예전 규칙).</summary>
@@ -236,6 +238,7 @@ namespace IronRing.Habitats
                 ids.Add(type.Id);
             }
             TypeIds = new ReadOnlyCollection<string>(ids);
+            DisplayTypes = _types.AsReadOnly();
         }
 
         /// <summary>id의 종류, 없으면 null.</summary>
@@ -300,7 +303,11 @@ namespace IronRing.Habitats
                 bool hasDecor = t._decor != null && (!string.IsNullOrWhiteSpace(t._decor._roofTint) || t._decor._windows > 0 || (t._decor._props != null && t._decor._props.Length > 0));
                 types[types.Count - 1].SetDecor(hasDecor ? new HabitatDecor(t._decor._roofTint, t._decor._windows, t._decor._props) : HabitatDecor.DefaultFor(types[types.Count - 1].BuildingStyle));
             }
-            return new HabitatCatalog(types) { LockCompleted = data._lockCompleted };
+            var catalog = new HabitatCatalog(types) { LockCompleted = data._lockCompleted };
+            var displayTypes = new List<HabitatType>();
+            foreach (TypeData type in data._types) displayTypes.Add(catalog.Get(type._id));
+            catalog.DisplayTypes = displayTypes.AsReadOnly();
+            return catalog;
         }
 
 #pragma warning disable 0649
