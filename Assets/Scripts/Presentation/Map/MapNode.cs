@@ -5,7 +5,9 @@ namespace IronRing.Presentation.Map
     public enum WaypointContent
     {
         Event,
-        Battle
+        Battle,
+        // 스펙 005: 녹슨 다리 찢어진 설계도 상점 경유지
+        Shop
     }
 
     public sealed class MapNode : MonoBehaviour

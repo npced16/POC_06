@@ -17,6 +17,7 @@ using IronRing.Localization;
 using IronRing.Npc;
 using IronRing.Npc.Demo;
 using IronRing.Presentation.Items;
+using IronRing.Shop;
 
 namespace IronRing.Hud.Codex
 {
@@ -267,6 +268,13 @@ namespace IronRing.Hud.Codex
                         FillDiagram(card, type, true);
                         continue;
                     }
+                    // 스펙 005: 상점 조각으로 알아낸 재료·수량만 보이고 배치는 숨긴다.
+                    string fragments = FragmentText(type);
+                    if (fragments != null)
+                    {
+                        card.ShowLocked(HabitatName(type.Id), fragments);
+                        continue;
+                    }
                     if (knownVisitors != null)
                     {
                         card.ShowKnownVisitor(HabitatName(type.Id), string.Format(Text("codex_npc"), knownVisitors));
@@ -381,6 +389,23 @@ namespace IronRing.Hud.Codex
                 return;
             }
             for (int i = 0; i < type.RequiredCount; i++) Icon(card, type.TileItemId, revealAll);
+        }
+
+        /// <summary>
+        /// 스펙 005. type 건물에서 상점 조각으로 공개한 재료를 "이름 ×수량" 목록으로 만들고, 아직 모르는 재료가 남으면 안내 줄을 붙인다.
+        /// 공개한 재료가 없거나 상점이 없으면 null을 반환한다.
+        /// </summary>
+        private string FragmentText(HabitatType type)
+        {
+            IBlueprintShop shop = GameServices.Get<IBlueprintShop>();
+            IReadOnlyList<string> revealed = shop?.RevealedTiles(type.Id);
+            if (revealed == null || revealed.Count == 0) return null;
+            var items = new List<string>();
+            foreach (string tile in revealed)
+                items.Add(string.Format(Text("codex_fragment_item"), Lookup("item_" + tile) ?? tile, shop.RequiredCountOf(type.Id, tile)));
+            string text = string.Format(Text("codex_fragment_known"), string.Join(", ", items));
+            if (revealed.Count < BlueprintShop.TileCounts(type).Count) text += "\n" + Text("codex_fragment_more");
+            return text;
         }
 
         private CodexTileView Tile(CodexCardView card) => Instantiate(_tilePrefab, card.Diagram);

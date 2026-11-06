@@ -196,7 +196,7 @@ namespace IronRing.Habitats
             BuildTileTable();
             ValidateData();
             foreach (string id in _settings.StarterTiles) OpenTile(id);
-            if (_track != null) _track.LapCompleted += OnLapCompleted;
+            // 스펙 005: 바퀴 정산의 무료 전체 설계 단서는 지급하지 않는다(OnLapCompleted는 데모·개발 메뉴 호출용으로 남는다).
             if (_clusters != null) _clusters.HabitatCompleted += OnHabitatCompleted;
         }
 
@@ -383,7 +383,6 @@ namespace IronRing.Habitats
         /// <summary>구독을 푼다.</summary>
         public void Dispose()
         {
-            if (_track != null) _track.LapCompleted -= OnLapCompleted;
             if (_clusters != null) _clusters.HabitatCompleted -= OnHabitatCompleted;
             UnbindNpcs();
             RecipeUnlocked = null;

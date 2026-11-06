@@ -1,0 +1,22 @@
+{
+  "_offerCount": 4,
+  "_prices": [
+    { "_recipeId": "cleared_lot", "_price": 20 },
+    { "_recipeId": "logging_site", "_price": 20 },
+    { "_recipeId": "temporary_shelter", "_price": 20 },
+    { "_recipeId": "stone_well", "_price": 30 },
+    { "_recipeId": "terrace_field", "_price": 30 },
+    { "_recipeId": "communal_kitchen", "_price": 30 },
+    { "_recipeId": "coal_shaft", "_price": 40 },
+    { "_recipeId": "iron_forge", "_price": 40 },
+    { "_recipeId": "copper_pit", "_price": 40 },
+    { "_recipeId": "steam_boiler", "_price": 50 },
+    { "_recipeId": "pump_station", "_price": 50 },
+    { "_recipeId": "gear_workshop", "_price": 50 },
+    { "_recipeId": "steam_station", "_price": 50 },
+    { "_recipeId": "wire_workshop", "_price": 60 },
+    { "_recipeId": "electric_works", "_price": 60 },
+    { "_recipeId": "night_market", "_price": 60 },
+    { "_recipeId": "clock_tower", "_price": 60 }
+  ]
+}

@@ -48,3 +48,4 @@ SDD 작업을 시작할 때 이 파일을 가장 먼저 읽는다.
 | 002 | `docs/specs/002-title-screen.md` | 별도 Title 씬의 타이틀 화면(새 게임·이어하기·종료)과 저장 슬롯 선택 화면 | 승인 |
 | 003 | `docs/specs/003-game-menu-save.md` | 게임 안 메뉴(저장·타이틀로·종료·백그라운드 실행), 저장 슬롯 3개와 나가기 확인 | 승인 |
 | 004 | `docs/specs/004-prosperity-clear.md` | 바퀴 정산 때 모든 마을 번영도 80% 이상이면 클리어(기한·등급 승리 제거) | 승인 |
+| 005 | `docs/specs/005-rusted-bridge-fragment-shop.md` | 녹슨 다리에서 찢어진 설계도 조각을 구매하고 잿골을 여는 상점 | 구현완료 |

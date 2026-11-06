@@ -88,6 +88,7 @@ namespace IronRing.Save
                 GameServices.Get<ILedger>(),
                 GameServices.Get<ITrackRuntime>(),
                 GameServices.Get<IPhaseLoop>(),
+                GameServices.Get<IBlueprintShop>(), // 스펙 005: 상점 진열·품절·공개 재료
             };
             List<ISaveParticipant> result = new List<ISaveParticipant>();
             foreach (object service in services)
