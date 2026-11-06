@@ -155,6 +155,13 @@ namespace IronRing.Hud
             button.interactable = on;
             TMP_Text label = button.GetComponentInChildren<TMP_Text>(true);
             if (label != null && _theme != null) label.color = on ? _theme.Text : _theme.Muted;
+            // 스펙 001: 기본 학습 전처럼 눌 수 없을 때 버튼 전체(배경·아이콘)를 반투명하게 보이게 함
+            foreach (Graphic graphic in button.GetComponentsInChildren<Graphic>(true))
+            {
+                Color color = graphic.color;
+                color.a = on ? 1f : 0.45f;
+                graphic.color = color;
+            }
         }
 
         /// <summary>늦게 등록되는 주민 서비스를 찾아 이벤트에 연결하고 준비 후 탐색을 중단한다.</summary>

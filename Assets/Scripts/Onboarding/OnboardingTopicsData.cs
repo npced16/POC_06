@@ -16,6 +16,7 @@ namespace IronRing.Onboarding
         [SerializeField] private string _mascot;
         [SerializeField] private string[] _guide;
         [SerializeField] private bool _chain;
+        [SerializeField] private bool _town;
 
         public string Id => _id;
         public int Order => _order;
@@ -28,6 +29,8 @@ namespace IronRing.Onboarding
         public string[] Guide => _guide ?? System.Array.Empty<string>();
         /// <summary>true = 기본 학습 묶음. 앞 순서 묶음 항목을 모두 본 뒤에만 뜬다(FR-024).</summary>
         public bool Chain => _chain;
+        /// <summary>마을 내부 화면에서만 할 수 있는 항목이면 true. 마을 내부가 열릴 때까지 큐에서 기다린다(FR-030).</summary>
+        public bool Town => _town;
     }
 
     /// <summary>스펙 001 FR-001. OnboardingTopics.json 전체.</summary>
