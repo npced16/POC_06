@@ -65,12 +65,15 @@ namespace IronRing.Items
             if (_resolver != null)
             {
                 TextAsset encounters = UnityEngine.Resources.Load<TextAsset>("Story005Encounters");
-                _rewards = EncounterItemRewards.Parse(encounters != null ? encounters.text : null, inventory);
+                _rewards = EncounterItemRewards.Parse(encounters != null ? encounters.text : null, inventory,
+                    (itemId, amount) => GrantItem(inventory, itemId, amount));
                 _resolver.EncounterEnded += OnEncounterEnded;
             }
 
             IHubInterior interior = GameServices.Get<IHubInterior>();
             if (interior == null) { WarnOnce("ItemsInstaller: IHubInterior가 등록되지 않아 배치·태그 서식지 연결을 건너뜁니다."); return; }
+            if (interior is IronRing.Interior.HubInterior rewardInterior)
+                rewardInterior.AttachItemRewardGrant((itemId, amount) => GrantItem(inventory, itemId, amount));
             IInteriorItemSlots slots = interior as IInteriorItemSlots;
             if (slots == null && interior is IronRing.Interior.HubInterior hubInterior) slots = new HubInteriorItemSlots(hubInterior);
             if (slots == null) { WarnOnce("ItemsInstaller: 칸 쓰기(TryPlaceItem/TryRemoveItem)를 지원하지 않는 IHubInterior라 배치를 건너뜁니다."); return; }
@@ -90,6 +93,17 @@ namespace IronRing.Items
         {
             IViewMode view = GameServices.Get<IViewMode>();
             return view == null || (view.InteriorOpen && view.InteriorHubId == hubId);
+        }
+
+        /// <summary>itemId와 amount를 받아 타일은 배치 재고에, 그 외 아이템은 inventory에 지급한다. 재고 서비스가 없으면 기존 인벤토리에 지급한다.</summary>
+        private static void GrantItem(IItemInventory inventory, string itemId, int amount)
+        {
+            ItemDefinition item = Catalog.Get(itemId);
+            ITileStock stock = GameServices.Get<ITileStock>();
+            if (item != null && item.Category == ItemDefinition.TileCategory && stock != null)
+                stock.Add(itemId, amount);
+            else
+                inventory.Add(itemId, amount);
         }
 
         /// <summary>조우 종료 시 데이터의 아이템 보상을 지급한다. 이벤트 제목은 005의 WaypointResolver에서 읽는다.</summary>

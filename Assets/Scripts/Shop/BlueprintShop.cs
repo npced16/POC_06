@@ -7,7 +7,7 @@ using IronRing.Habitats;
 namespace IronRing.Shop
 {
     /// <summary>
-    /// 스펙 005. 녹슨 다리 찢어진 설계도 상점(IBlueprintShop). 순수 C#.
+    /// 스펙 010. 녹슨 다리 찢어진 설계도 상점(IBlueprintShop). 순수 C#.
     /// 새 게임과 바퀴 정산 때 미완성·미공개 조건이 남은·전체 단서가 없는 건물 최대 OfferCount종을 추첨해 그 바퀴 동안 유지한다.
     /// 조각 한 장은 그 건물의 아직 모르는 타일 id 하나와 총 필요 수량을 공개하고, 그 상품을 이번 바퀴에 품절시킨다.
     /// 도감·돈·장부·선로 개통은 쓰는 순간에 조회해 설치기 순서에 기대지 않는다.
@@ -240,10 +240,10 @@ namespace IronRing.Shop
             Purchased = null;
         }
 
-        /// <summary>스펙 005. 슬롯 파일 안의 키.</summary>
+        /// <summary>스펙 010. 슬롯 파일 안의 키.</summary>
         public string SaveKey => "fragmentShop";
 
-        /// <summary>스펙 005. 복원 순서(도감 50 다음).</summary>
+        /// <summary>스펙 010. 복원 순서(도감 50 다음).</summary>
         public int Order => 51;
 
         /// <summary>
@@ -283,7 +283,7 @@ namespace IronRing.Shop
             Changed?.Invoke();
         }
 
-        /// <summary>스펙 005. 저장 형식.</summary>
+        /// <summary>스펙 010. 저장 형식.</summary>
         [Serializable]
         private sealed class ShopSave
         {
@@ -293,7 +293,7 @@ namespace IronRing.Shop
             public RevealSave[] Revealed = Array.Empty<RevealSave>();
         }
 
-        /// <summary>스펙 005. 건물 id와 공개 타일 id 배열의 짝.</summary>
+        /// <summary>스펙 010. 건물 id와 공개 타일 id 배열의 짝.</summary>
         [Serializable]
         private sealed class RevealSave
         {

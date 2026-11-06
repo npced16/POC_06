@@ -13,7 +13,7 @@ using IronRing.Localization;
 namespace IronRing.Hud
 {
     /// <summary>
-    /// 스펙 005. 녹슨 다리 찢어진 설계도 상점 화면. 상품 카드(건물 이름·가격·구매 버튼·품절이나 구매 불가 이유)와
+    /// 스펙 010. 녹슨 다리 찢어진 설계도 상점 화면. 상품 카드(건물 이름·가격·구매 버튼·품절이나 구매 불가 이유)와
     /// 잔고·구매 결과·[계속]을 그린다. 게임 상태는 IBlueprintShop과 IMoney에서 읽고, 입력은 상점에 넘긴다.
     /// </summary>
     [RequireComponent(typeof(UiScreen))]

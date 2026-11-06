@@ -1,4 +1,4 @@
-﻿{
+{
   "_lockCompleted": true,
   "_types": [
     {
@@ -9,6 +9,17 @@
       "_buildingStyle": "yard",
       "_signProp": "earth_marker",
       "_income": 2,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "stone_quarry",
+      "_name": "채석장",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 0,
       "_housing": 0,
       "_light": 0
     },
@@ -35,14 +46,36 @@
       "_light": 0
     },
     {
+      "_id": "timber_mill",
+      "_name": "제재소",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 0,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
       "_id": "temporary_shelter",
       "_name": "임시 거처",
       "_prosperityBonus": 4,
       "_npcTypeId": "shelter_keeper",
       "_buildingStyle": "housing",
       "_signProp": "bunk",
-      "_income": 0,
+      "_income": 3,
       "_housing": 5,
+      "_light": 0
+    },
+    {
+      "_id": "mixed_cobble_timber",
+      "_name": "목재 쉼터",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 3,
+      "_housing": 0,
       "_light": 0
     },
     {
@@ -68,14 +101,113 @@
       "_light": 0
     },
     {
+      "_id": "water_reservoir",
+      "_name": "저수장",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 0,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "mixed_cobble_water_can",
+      "_name": "물가 쉼터",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 0,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "mixed_timber_water_can",
+      "_name": "목조 우물집",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 0,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "mixed_stone_water_can",
+      "_name": "석조 물탱크",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 0,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
       "_id": "communal_kitchen",
       "_name": "공동 취사장",
       "_prosperityBonus": 5,
       "_npcTypeId": "cook",
       "_buildingStyle": "housing",
       "_signProp": "bench_tools",
-      "_income": 1,
+      "_income": 4,
       "_housing": 2,
+      "_light": 0
+    },
+    {
+      "_id": "grain_store",
+      "_name": "곡물 창고",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 0,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "mixed_cobble_grain",
+      "_name": "곡물 마당",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 0,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "mixed_timber_grain",
+      "_name": "곡물 건조장",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 0,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "mixed_stone_grain",
+      "_name": "석조 곡물고",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 0,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "mixed_water_can_grain",
+      "_name": "식수 배급소",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 3,
+      "_housing": 0,
       "_light": 0
     },
     {
@@ -101,6 +233,72 @@
       "_light": 0
     },
     {
+      "_id": "coal_store",
+      "_name": "석탄 저장소",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 0,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "mixed_cobble_coal",
+      "_name": "연료 마당",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 0,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "mixed_timber_coal",
+      "_name": "목재 연료고",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 0,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "mixed_stone_coal",
+      "_name": "석조 연료고",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 0,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "mixed_water_can_coal",
+      "_name": "난방 시설",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 3,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "iron_workshop",
+      "_name": "철재 공방",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 0,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
       "_id": "steam_boiler",
       "_name": "보일러실",
       "_prosperityBonus": 7,
@@ -112,14 +310,124 @@
       "_light": 1
     },
     {
-      "_id": "pump_station",
-      "_name": "급수장",
-      "_prosperityBonus": 6,
-      "_npcTypeId": "pump_keeper",
+      "_id": "mixed_cobble_iron_stock",
+      "_name": "철재 야적장",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
       "_buildingStyle": "storage",
-      "_signProp": "pipe_valve",
+      "_signProp": "bench_tools",
       "_income": 3,
-      "_housing": 1,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "mixed_timber_iron_stock",
+      "_name": "철물 창고",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 3,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "mixed_water_can_iron_stock",
+      "_name": "철제 물탱크",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 3,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "mixed_grain_iron_stock",
+      "_name": "철제 곡물고",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 3,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "copper_workshop",
+      "_name": "구리 공방",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 0,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "mixed_cobble_copper",
+      "_name": "구리 야적장",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 3,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "mixed_timber_copper",
+      "_name": "구리 창고",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 3,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "mixed_stone_copper",
+      "_name": "구리 기초",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 3,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "mixed_water_can_copper",
+      "_name": "구리 물탱크",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 3,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "mixed_coal_copper",
+      "_name": "구리 연료고",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 3,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "pipe_workshop",
+      "_name": "증기관 공방",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 0,
+      "_housing": 0,
       "_light": 0
     },
     {
@@ -134,15 +442,92 @@
       "_light": 0
     },
     {
-      "_id": "steam_station",
-      "_name": "증기역",
-      "_prosperityBonus": 8,
-      "_npcTypeId": "station_master",
-      "_buildingStyle": "machine",
-      "_signProp": "engine",
-      "_income": 6,
+      "_id": "pump_station",
+      "_name": "급수장",
+      "_prosperityBonus": 6,
+      "_npcTypeId": "pump_keeper",
+      "_buildingStyle": "storage",
+      "_signProp": "pipe_valve",
+      "_income": 0,
+      "_housing": 1,
+      "_light": 0
+    },
+    {
+      "_id": "mixed_cobble_steam_pipe",
+      "_name": "관로 마당",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 3,
       "_housing": 0,
-      "_light": 1
+      "_light": 0
+    },
+    {
+      "_id": "mixed_timber_steam_pipe",
+      "_name": "관로 창고",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 3,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "mixed_stone_steam_pipe",
+      "_name": "관로 기초",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 3,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "mixed_grain_steam_pipe",
+      "_name": "증기 제분소",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 0,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "mixed_coal_steam_pipe",
+      "_name": "증기 난방소",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 3,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "mixed_copper_steam_pipe",
+      "_name": "구리 배관소",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 3,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "gear_factory",
+      "_name": "톱니 공방",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 0,
+      "_housing": 0,
+      "_light": 0
     },
     {
       "_id": "wire_workshop",
@@ -156,13 +541,90 @@
       "_light": 0
     },
     {
+      "_id": "steam_station",
+      "_name": "증기역",
+      "_prosperityBonus": 8,
+      "_npcTypeId": "station_master",
+      "_buildingStyle": "machine",
+      "_signProp": "engine",
+      "_income": 8,
+      "_housing": 0,
+      "_light": 1
+    },
+    {
+      "_id": "mixed_cobble_gear",
+      "_name": "기계 마당",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 3,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "mixed_timber_gear",
+      "_name": "부품 창고",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 3,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "mixed_grain_gear",
+      "_name": "기계 제분소",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 0,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "mixed_coal_gear",
+      "_name": "기계 난방소",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 3,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "mixed_copper_gear",
+      "_name": "구리 기계소",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 3,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "wire_factory",
+      "_name": "전선 작업장",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 0,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
       "_id": "electric_works",
       "_name": "발전소",
       "_prosperityBonus": 10,
       "_npcTypeId": "electrician",
       "_buildingStyle": "machine",
       "_signProp": "dynamo",
-      "_income": 7,
+      "_income": 8,
       "_housing": 0,
       "_light": 5
     },
@@ -173,7 +635,7 @@
       "_npcTypeId": "night_vendor",
       "_buildingStyle": "housing",
       "_signProp": "twin_lamps",
-      "_income": 5,
+      "_income": 7,
       "_housing": 1,
       "_light": 2
     },
@@ -184,9 +646,108 @@
       "_npcTypeId": "clock_keeper",
       "_buildingStyle": "machine",
       "_signProp": "big_gear",
-      "_income": 2,
+      "_income": 6,
       "_housing": 0,
       "_light": 3
+    },
+    {
+      "_id": "mixed_cobble_wire",
+      "_name": "전선 마당",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 3,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "mixed_timber_wire",
+      "_name": "전선 창고",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 3,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "mixed_water_can_wire",
+      "_name": "전기 세척장",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 3,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "mixed_grain_wire",
+      "_name": "전기 제분소",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 0,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "mixed_coal_wire",
+      "_name": "전기 난방소",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 3,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "mixed_iron_stock_wire",
+      "_name": "전기 정비소",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 3,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "mixed_copper_wire",
+      "_name": "배전 작업소",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 3,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "mixed_steam_pipe_wire",
+      "_name": "증기 배전실",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 3,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "mixed_gear_wire",
+      "_name": "기계 배전실",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 3,
+      "_housing": 0,
+      "_light": 0
     }
   ]
 }

@@ -9,9 +9,11 @@ using IronRing.Contracts;
 using IronRing.Contracts.Presentation;
 using IronRing.Habitats;
 using IronRing.Hud.Codex;
+using IronRing.Hud.HubPhase;
 using IronRing.Hud.Hotbar;
 using IronRing.Hud.Npc;
 using IronRing.Presentation.Interior;
+using IronRing.Presentation.Map;
 using IronRing.Track;
 
 namespace IronRing.Onboarding
@@ -30,14 +32,17 @@ namespace IronRing.Onboarding
         private readonly HashSet<string> _doneEarly = new();
         private string _current;
         private string _devTopic;
+        private bool _devPending;
         private bool _subscribed;
         private bool _ghostSubscribed;
         private bool _loopSubscribed;
         private bool _anyBuilt;
-        private bool _dialogOpen;
+        private bool _codexOpen;
+        private bool _passengersOpen;
+        // 스펙 001 FR-035: 잿골이 열린 뒤 개통 배너와 지도 연출이 끝나기를 기다리는 중
+        private bool _lineOpenPending;
         private int _filledSlots;
         private IViewMode _view;
-        private IPlacementCost _cost;
 
         /// <summary>항목이 화면에 떠야 할 때(항목).</summary>
         public event Action<OnboardingTopic> Shown;
@@ -83,7 +88,6 @@ namespace IronRing.Onboarding
             if (_subscribed) return;
             _subscribed = true;
             _view = GameServices.Get<IViewMode>();
-            _cost = GameServices.Get<IPlacementCost>();
             if (_view != null) _view.InteriorChanged += OnInteriorChanged;
 
             IItemPlacement placement = GameServices.Get<IItemPlacement>();
@@ -97,17 +101,10 @@ namespace IronRing.Onboarding
             if (clusters != null) clusters.HabitatCompleted += OnHabitatCompleted;
 
             IHabitatCodex codex = GameServices.Get<IHabitatCodex>();
-            if (codex != null) codex.TileUnlocked += OnTileUnlocked;
             if (codex is HabitatCodex concrete) concrete.HintUnlocked += OnHintUnlocked;
 
             IPassengers passengers = GameServices.Get<IPassengers>();
             if (passengers != null) passengers.Boarded += OnBoarded;
-
-            INpcRecruiter recruiter = GameServices.Get<INpcRecruiter>();
-            if (recruiter != null) recruiter.NpcJoined += OnNpcJoined;
-
-            INpcInteraction interaction = GameServices.Get<INpcInteraction>();
-            if (interaction != null) interaction.Interacted += OnInteracted;
 
             ILineOpener opener = GameServices.Get<ILineOpener>();
             if (opener != null) opener.HubOpened += OnHubOpened;
@@ -135,13 +132,17 @@ namespace IronRing.Onboarding
         {
             if (!_subscribed) return;
             SubscribeLate();
-            if (CodexScreen.IsOpen) Complete("codex");
-            if (PassengersScreen.IsOpen) Complete("passengers");
-
-            bool dialogOpen = NpcDialogScreen.Instance != null && NpcDialogScreen.Instance.IsBoardingOpen;
-            if (dialogOpen && !_dialogOpen) Trigger("boarding_dialog");
-            if (!dialogOpen && _dialogOpen) Complete("boarding_dialog");
-            _dialogOpen = dialogOpen;
+            // 스펙 001 FR-033: 도감·승객 창이 열리는 순간 그 설명형 안내를 닫고, 창이 닫히면 다음 안내를 띄운다.
+            bool codexOpen = CodexScreen.IsOpen;
+            bool passengersOpen = PassengersScreen.IsOpen;
+            bool windowClosed = (!codexOpen && _codexOpen) || (!passengersOpen && _passengersOpen);
+            if (codexOpen && !_codexOpen && _current == "codex") Confirm();
+            _codexOpen = codexOpen;
+            if (passengersOpen && !_passengersOpen && _current == "passengers") Confirm();
+            _passengersOpen = passengersOpen;
+            if (windowClosed) ShowNext();
+            // 스펙 001 FR-035: 개통 배너와 지도 잿골 등장 연출이 모두 끝나면 잿골 안내를 띄운다.
+            if (_lineOpenPending && !PhaseBannerScreen.IsBusy && !AnyHubRevealing()) { _lineOpenPending = false; Trigger("line_open"); }
 
             bool interiorOpen = _view != null && _view.InteriorOpen;
             bool overUi = EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
@@ -180,6 +181,7 @@ namespace IronRing.Onboarding
             _queue.Remove(id);
             if (_current != null && _current != id) _queue.Insert(0, _current);
             _current = id;
+            if (id == _devTopic) _devPending = false;
             Debug.Log("ONBOARDING: shown " + id + " (forced)");
             Shown?.Invoke(topic);
         }
@@ -199,8 +201,11 @@ namespace IronRing.Onboarding
                 string shown = _current;
                 _current = null;
                 Closed?.Invoke(shown);
+                // 숨긴 팝업은 연습이 끝난 뒤 다시 뜨도록 큐 맨 앞에 되돌린다.
+                if (shown != id) _queue.Insert(0, shown);
             }
             _devTopic = id;
+            _devPending = true;
         }
 
         /// <summary>떠 있는 안내형 항목의 확인 버튼을 눌렀을 때 그 항목을 닫는다(FR-008).</summary>
@@ -208,6 +213,32 @@ namespace IronRing.Onboarding
         {
             OnboardingTopic topic = Find(_current);
             if (topic != null && !topic.IsAction) Close(topic.Id);
+        }
+
+        /// <summary>떠 있는 행동형 항목의 건너뛰기 버튼을 눌렀을 때, 완료로 내보내지 않고 본 항목으로 기록해 닫는다(FR-027).</summary>
+        public void Skip()
+        {
+            OnboardingTopic topic = Find(_current);
+            if (topic == null || !topic.IsAction) return;
+            Debug.Log("ONBOARDING: skipped " + topic.Id);
+            Close(topic.Id);
+        }
+
+        /// <summary>
+        /// 마을 내부가 열려 있으면 아직 보지 않은 기본 학습 묶음 항목 중 order가 가장 작은 것을 발생시킨다(FR-028).
+        /// 건너뛰기나 이어하기로 다음 항목의 발생 이벤트가 사라져도 기본 학습이 끝까지 이어지게 한다.
+        /// </summary>
+        private void AdvanceChain()
+        {
+            // 개발자 메뉴 연습 중에는 기본 학습을 끼워 넣지 않는다.
+            if (_devPending || _view == null || !_view.InteriorOpen) return;
+            OnboardingTopic next = null;
+            foreach (OnboardingTopic topic in _topics.Values)
+            {
+                if (!topic.Chain || OnboardingProgress.IsSeen(topic.Id)) continue;
+                if (next == null || topic.Order < next.Order) next = topic;
+            }
+            if (next != null) Trigger(next.Id);
         }
 
         /// <summary>
@@ -231,8 +262,11 @@ namespace IronRing.Onboarding
         {
             OnboardingProgress.MarkSeen(id);
             _current = null;
+            // 연습한 항목이 닫히면 순서 제한 예외를 푼다.
+            if (id == _devTopic) _devTopic = null;
             Closed?.Invoke(id);
             OnClosed(id);
+            if (Find(id).Chain) AdvanceChain();
             ShowNext();
         }
 
@@ -243,18 +277,20 @@ namespace IronRing.Onboarding
         private void ShowNext()
         {
             if (_current != null || _queue.Count == 0) return;
+            // 도감·승객 창이 떠 있으면 건너뛰기로 닫아도 다음 안내를 창 위에 띄우지 않고 창이 닫힐 때까지 미룬다(FR-033).
+            if (CodexScreen.IsOpen || PassengersScreen.IsOpen) return;
             int best = -1;
             for (int i = 0; i < _queue.Count; i++)
             {
                 if (!Ready(_topics[_queue[i]])) continue;
                 if (best < 0 || _topics[_queue[i]].Order < _topics[_queue[best]].Order) best = i;
             }
-            // 개발자 메뉴로 고른 항목이 큐에 있으면 order와 관계없이 먼저 띄운다(FR-016).
-            int dev = _devTopic != null ? _queue.IndexOf(_devTopic) : -1;
-            if (dev >= 0) best = dev;
+            // 개발자 메뉴로 고른 항목이 뜰 때까지 다른 항목은 띄우지 않고, 큐에 들어오면 order와 관계없이 먼저 띄운다(FR-016).
+            if (_devPending) best = _queue.IndexOf(_devTopic);
             if (best < 0) return;
             _current = _queue[best];
             _queue.RemoveAt(best);
+            if (_current == _devTopic) _devPending = false;
             Debug.Log("ONBOARDING: shown " + _current);
             Shown?.Invoke(_topics[_current]);
             if (_doneEarly.Remove(_current)) Complete(_current);
@@ -263,7 +299,10 @@ namespace IronRing.Onboarding
         /// <summary>topic이 기본 학습 묶음이 아니거나, order가 더 작은 묶음 항목을 모두 봤으면 true를 돌려준다(FR-024).</summary>
         private bool Ready(OnboardingTopic topic)
         {
-            if (!topic.Chain || topic.Id == _devTopic) return true;
+            if (topic.Id == _devTopic) return true;
+            // 마을 화면에서만 할 수 있는 항목은 마을 내부가 열릴 때까지 기다린다(FR-030).
+            if (topic.Town && (_view == null || !_view.InteriorOpen)) return false;
+            if (!topic.Chain) return true;
             foreach (OnboardingTopic other in _topics.Values)
             {
                 if (other.Chain && other.Order < topic.Order && !OnboardingProgress.IsSeen(other.Id)) return false;
@@ -291,7 +330,6 @@ namespace IronRing.Onboarding
         private void OnClosed(string id)
         {
             if (id == "undo" && _view != null && _view.InteriorOpen) Trigger("camera_zoom");
-            if (id == "npc_join") Trigger("npc_interact");
         }
 
         /// <summary>내부 화면이 열리면 재료 고르기·마을 들어가기를, 닫히면 출발 안내를 처리한다.</summary>
@@ -301,24 +339,27 @@ namespace IronRing.Onboarding
             {
                 Complete("return_town");
                 Trigger("select_material");
+                AdvanceChain();
+                // 마을 밖에서 발생해 기다리던 항목을 띄운다(FR-030).
+                ShowNext();
                 return;
             }
             if (_anyBuilt && LoopInstaller.Loop != null && LoopInstaller.Loop.Phase == LoopPhase.Build) Trigger("depart");
         }
 
-        /// <summary>재료를 고르면 재료 고르기를 끝내고, 놓기·구매 안내를 발생시킨다.</summary>
+        /// <summary>entry 재료를 고르면 선택 안내를 끝내고 배치 또는 재고 사용 안내를 발생시킨다.</summary>
         private void OnSelectionChanged(PlacementEntry entry)
         {
             if (!entry.IsValid) return;
             Complete("select_material");
             Trigger("place_material");
-            if (PriceOf(entry.Id) > 0) Trigger("buy_material");
+            if (entry.Id != "tile_cobble") Trigger("buy_material");
         }
 
-        /// <summary>값이 있는 재료를 놓으면 구매 안내를 끝내고 회수 안내를 발생시킨다.</summary>
+        /// <summary>hubId의 cellIndex에 itemId 재료를 놓으면 재고 사용 안내를 끝내고 회수 안내를 발생시킨다.</summary>
         private void OnItemPlaced(string hubId, int cellIndex, string itemId)
         {
-            if (PriceOf(itemId) <= 0) return;
+            if (itemId == "tile_cobble") return;
             Complete("buy_material");
             Trigger("pick_up");
         }
@@ -333,20 +374,18 @@ namespace IronRing.Onboarding
         /// <summary>Ctrl+Z 되돌리기를 하면 되돌리기 안내를 끝낸다.</summary>
         private void OnUndone(PlacementAction action) => Complete("undo");
 
-        /// <summary>건물이 완성되면 놓기 안내를 끝내고 조합 안내를 발생시킨다.</summary>
+        /// <summary>hubId에서 typeId 건물이 완성되면 배치 안내를 끝내고 조합과 개간지 생산 안내를 발생시킨다.</summary>
         private void OnHabitatCompleted(string hubId, string typeId)
         {
             _anyBuilt = true;
             // 재료 해금이 먼저 큐에 들어와 있어도 조합 안내가 앞서도록, 놓기 안내를 닫기 전에 조합 안내를 큐에 넣는다.
             Trigger("build_combo");
+            if (typeId == "cleared_lot")
+            {
+                LastUnlockedTile = "tile_stone";
+                Trigger("unlock_material");
+            }
             Complete("place_material");
-        }
-
-        /// <summary>새 재료가 해금되면 첫 재료 id를 LastUnlockedTile에 기억하고 해금 안내를 발생시킨다.</summary>
-        private void OnTileUnlocked(IReadOnlyList<string> tileIds, string byRecipeId)
-        {
-            if (tileIds != null && tileIds.Count > 0) LastUnlockedTile = tileIds[0];
-            Trigger("unlock_material");
         }
 
         /// <summary>설계 단서를 얻으면 도감 안내를 발생시킨다.</summary>
@@ -355,14 +394,20 @@ namespace IronRing.Onboarding
         /// <summary>승객이 타면 승객 목록 안내를 발생시킨다.</summary>
         private void OnBoarded(string npcId, string waypointId) => Trigger("passengers");
 
-        /// <summary>NPC가 합류하면 합류 안내를 발생시킨다.</summary>
-        private void OnNpcJoined(string hubId, string npcId) => Trigger("npc_join");
 
-        /// <summary>마을 주민과 상호작용하면 상호작용 안내를 끝낸다.</summary>
-        private void OnInteracted(string npcId, string optionId) => Complete("npc_interact");
+        /// <summary>
+        /// 스펙 001 FR-035: 잠긴 마을이 열리면 선로 개통 안내를 바로 띄우지 않고 _lineOpenPending만 켠다.
+        /// 불러오기 복원 중의 개통은 학습 상황이 아니므로 무시한다.
+        /// </summary>
+        private void OnHubOpened(string hubId) { if (!IronRing.Save.SaveSlots.IsRestoring) _lineOpenPending = true; }
 
-        /// <summary>잠긴 마을이 열리면 선로 개통 안내를 발생시킨다.</summary>
-        private void OnHubOpened(string hubId) => Trigger("line_open");
+        /// <summary>지도에서 새로 열린 마을이 나타나는 연출이 진행 중인 표지가 하나라도 있으면 true를 돌려준다.</summary>
+        private static bool AnyHubRevealing()
+        {
+            foreach (MapLockedHub hub in UnityEngine.Object.FindObjectsByType<MapLockedHub>(FindObjectsSortMode.None))
+                if (hub.Revealing) return true;
+            return false;
+        }
 
         /// <summary>마을 번영이 직전 값보다 떨어지면 위험 안내를 발생시킨다.</summary>
         private void OnProsperityChanged(string hubId, float value)
@@ -380,7 +425,5 @@ namespace IronRing.Onboarding
             if (phase == LoopPhase.Circulate) Complete("depart");
         }
 
-        /// <summary>itemId 재료의 배치 가격을 돌려준다. 비용 서비스가 없으면 0.</summary>
-        private int PriceOf(string itemId) => _cost != null && itemId != null ? _cost.PriceOf(itemId) : 0;
     }
 }

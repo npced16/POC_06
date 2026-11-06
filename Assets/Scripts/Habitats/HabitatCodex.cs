@@ -196,7 +196,7 @@ namespace IronRing.Habitats
             BuildTileTable();
             ValidateData();
             foreach (string id in _settings.StarterTiles) OpenTile(id);
-            // 스펙 005: 바퀴 정산의 무료 전체 설계 단서는 지급하지 않는다(OnLapCompleted는 데모·개발 메뉴 호출용으로 남는다).
+            // 스펙 010: 바퀴 정산의 무료 전체 설계 단서는 지급하지 않는다(OnLapCompleted는 데모·개발 메뉴 호출용으로 남는다).
             if (_clusters != null) _clusters.HabitatCompleted += OnHabitatCompleted;
         }
 

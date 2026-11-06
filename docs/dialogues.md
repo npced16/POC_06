@@ -182,7 +182,7 @@
 
 ## 5. 녹슨 다리 상점 창 (`Shop`)
 
-스펙 `docs/specs/005-rusted-bridge-fragment-shop.md`. 열차가 `REST-2`에 도착하면 열리고 열차를 붙잡는다. 구매하지 않아도 [계속]으로 닫고 떠난다.
+스펙 `docs/specs/010-rusted-bridge-fragment-shop.md`. 열차가 `REST-2`에 도착하면 열리고 열차를 붙잡는다. 구매하지 않아도 [계속]으로 닫고 떠난다.
 
 | 위치 | 문구 (`ko.json` 키) |
 | --- | --- |

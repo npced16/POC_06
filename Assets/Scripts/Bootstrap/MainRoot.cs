@@ -52,7 +52,7 @@ namespace IronRing.Bootstrap
         private readonly List<Camera> _hiddenBattleCameras = new List<Camera>();
         private readonly List<EventSystem> _hiddenBattleEventSystems = new List<EventSystem>();
         private HashSet<string> _battleWaypoints;
-        // 스펙 005: 찢어진 설계도 상점이 담당하는 경유지
+        // 스펙 010: 찢어진 설계도 상점이 담당하는 경유지
         private HashSet<string> _shopWaypoints;
         /// <summary>Live real-system session owned by this scene.</summary>
         public GameSession Session => _game;
@@ -85,7 +85,8 @@ namespace IronRing.Bootstrap
                 foreach (MapNode node in _map.GetComponentsInChildren<MapNode>(true))
                 {
                     if (node.Hub != null) continue;
-                    if (node.Content == WaypointContent.Battle) _battleWaypoints.Add(node.Id);
+                    // 스펙 006: 디펜스 숨김 동안 전투 경유지를 모으지 않음(상점 경유지는 계속 모은다)
+                    if (node.Content == WaypointContent.Battle) { if (!DefenseVisibility.Hidden) _battleWaypoints.Add(node.Id); }
                     else if (node.Content == WaypointContent.Shop) _shopWaypoints.Add(node.Id);
                 }
             }
@@ -112,7 +113,7 @@ namespace IronRing.Bootstrap
             GameServices.Register<IInteriorNavigation>(_interiorView);
             // 다른 스토리(013/014)의 설치자가 여기서 자기 서비스를 등록한다. 정확히 한 번, MarkReady 전에 부른다.
             GameServices.RaiseComposing();
-            // 스펙 005: 상점 경유지도 사건 추첨에서 뺀다.
+            // 스펙 010: 상점 경유지도 사건 추첨에서 뺀다.
             LoopInstaller.Loop?.SetBattleWaypoints(_battleWaypoints.Concat(_shopWaypoints));
             // Composing에서 이긴 구현을 뒤에서 연결한다: 서식지(013이 IHabitatSystem을 교체하면 NpcRecruiter가 그것을 쓴다), 아이템 인벤토리.
             _game.BindHabitat(GameServices.Get<IHabitatSystem>());

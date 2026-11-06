@@ -4,8 +4,6 @@ using System.Linq;
 
 using UnityEngine;
 
-using TMPro;
-
 using IronRing.Contracts;
 using IronRing.Contracts.Presentation;
 using IronRing.Habitats;
@@ -40,7 +38,6 @@ namespace IronRing.Presentation.Interior
         private bool _warned;
         private readonly Dictionary<string, Building> _buildings = new Dictionary<string, Building>(StringComparer.Ordinal);
         private readonly List<SpriteRenderer> _hidden = new List<SpriteRenderer>();
-        private readonly List<TextMeshPro> _hiddenLabels = new List<TextMeshPro>();
         private readonly List<Collapse> _collapsing = new List<Collapse>();
 
         /// <summary>스토리 031. 무너지는 중인 건물(내려앉기·투명해지기).</summary>
@@ -356,8 +353,6 @@ namespace IronRing.Presentation.Interior
                 if (view == null || view.ItemSlot == view.transform) continue;
                 foreach (SpriteRenderer renderer in view.ItemSlot.GetComponentsInChildren<SpriteRenderer>(true))
                     if (renderer.enabled) { renderer.enabled = false; _hidden.Add(renderer); }
-                foreach (TextMeshPro label in view.ItemSlot.GetComponentsInChildren<TextMeshPro>(true))
-                    if (label.enabled) { label.enabled = false; _hiddenLabels.Add(label); }
             }
         }
 
@@ -365,8 +360,6 @@ namespace IronRing.Presentation.Interior
         {
             foreach (SpriteRenderer renderer in _hidden) if (renderer != null) renderer.enabled = true;
             _hidden.Clear();
-            foreach (TextMeshPro label in _hiddenLabels) if (label != null) label.enabled = true;
-            _hiddenLabels.Clear();
         }
 
         private void Clear()

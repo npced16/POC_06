@@ -2,8 +2,10 @@ using System.Collections.Generic;
 
 using UnityEngine;
 
+using IronRing.Combat;
 using IronRing.Contracts;
 using IronRing.Contracts.Presentation;
+using IronRing.Npc;
 
 namespace IronRing.Save
 {
@@ -54,8 +56,13 @@ namespace IronRing.Save
         private static void OnReady()
         {
             SaveSlots.SetParticipants(CollectParticipants());
+            // 정적 클래스라 씬을 다시 열어도 남는 포탑·단서 기록을 먼저 비운다. 그 키가 없는 슬롯을 불러와도 직전 게임 상태가 섞이지 않는다.
+            TrainArmament.ResetForNewGame();
+            BattleHintJournal.ResetForNewGame();
             if (SaveSlots.PendingLoadSlot <= 0)
             {
+                // 승객 발견 기록은 저장하지 않고 현재 게임 동안만 유지하므로 새 게임에서만 비운다.
+                PassengerDiscovery.ResetForNewGame();
                 SaveSlots.MarkCurrentAsSaved();
                 return;
             }
@@ -88,7 +95,7 @@ namespace IronRing.Save
                 GameServices.Get<ILedger>(),
                 GameServices.Get<ITrackRuntime>(),
                 GameServices.Get<IPhaseLoop>(),
-                GameServices.Get<IBlueprintShop>(), // 스펙 005: 상점 진열·품절·공개 재료
+                GameServices.Get<IBlueprintShop>(), // 스펙 010: 상점 진열·품절·공개 재료
             };
             List<ISaveParticipant> result = new List<ISaveParticipant>();
             foreach (object service in services)
@@ -100,6 +107,9 @@ namespace IronRing.Save
             {
                 if (behaviour is ISaveParticipant participant && !result.Contains(participant)) result.Add(participant);
             }
+            // 서비스가 아닌 정적 클래스(포탑·전투 단서)는 래퍼로 참여시킨다.
+            result.Add(new TrainArmamentSaveParticipant());
+            result.Add(new BattleHintJournalSaveParticipant());
             return result;
         }
 

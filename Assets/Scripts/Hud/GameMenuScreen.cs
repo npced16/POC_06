@@ -118,6 +118,8 @@ namespace IronRing.Hud
             Keyboard keyboard = Keyboard.current;
             if (keyboard == null || !keyboard.escapeKey.wasPressedThisFrame) return;
             if (DevSituationsScreen.IsOpen) return;
+            // NPC 끌기 취소에 쓴 Esc는 메뉴를 열지 않는다.
+            if (IronRing.Presentation.HubPhase.NpcDragController.IsInputHeld) return;
             if (_isOpen) { Back(); return; }
             if (EscUsedElsewhere()) return;
             Open();

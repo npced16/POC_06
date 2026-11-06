@@ -32,10 +32,14 @@ namespace IronRing.Presentation.Interior
         private void Refresh()
         {
             BattleRules rules = BattleRules.Load();
+            GetComponent<SpriteRenderer>().enabled = !DefenseVisibility.Hidden; // 스펙 006: 디펜스 숨김 동안 열차 그림을 끔
+            // 스펙 006: 디펜스 숨김 동안 열차 아래 선로(TrainAnchor의 형제 Railway) 그림도 끔
+            Transform railway = transform.parent != null ? transform.parent.Find("Railway") : null;
+            if (railway != null) railway.GetComponent<SpriteRenderer>().enabled = !DefenseVisibility.Hidden;
             for (int i = 0; i < _turrets.Length; i++)
             {
                 string id = TrainArmament.TurretId(i);
-                _turrets[i].enabled = !string.IsNullOrEmpty(id);
+                _turrets[i].enabled = !DefenseVisibility.Hidden && !string.IsNullOrEmpty(id); // 스펙 006: 디펜스 숨김 동안 포탑 그림을 끔
                 if (_sprites == null) continue;
                 for (int j = 0; j < rules.Turrets.Count && j < _sprites.Length; j++)
                     if (rules.Turrets[j].Id == id) { _turrets[i].sprite = _sprites[j]; break; }

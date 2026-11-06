@@ -6,7 +6,7 @@ namespace IronRing.Presentation.Map
     {
         Event,
         Battle,
-        // 스펙 005: 녹슨 다리 찢어진 설계도 상점 경유지
+        // 스펙 010: 녹슨 다리 찢어진 설계도 상점 경유지
         Shop
     }
 

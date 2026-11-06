@@ -44,8 +44,16 @@ SDD 작업을 시작할 때 이 파일을 가장 먼저 읽는다.
 
 | 번호 | 파일 | 한 줄 설명 | 상태 |
 |------|------|------------|------|
-| 001 | `docs/specs/001-onboarding-popups.md` | 첫 발생 상황마다 마스코트 팝업으로 행동을 가르치는 온보딩과 F9 개발자 상황 메뉴 | 승인 |
-| 002 | `docs/specs/002-title-screen.md` | 별도 Title 씬의 타이틀 화면(새 게임·이어하기·종료)과 저장 슬롯 선택 화면 | 승인 |
-| 003 | `docs/specs/003-game-menu-save.md` | 게임 안 메뉴(저장·타이틀로·종료·백그라운드 실행), 저장 슬롯 3개와 나가기 확인 | 승인 |
+| 001 | `docs/specs/001-onboarding-popups.md` | 첫 발생 상황마다 마스코트 팝업으로 행동을 가르치는 온보딩과 F9 개발자 상황 메뉴 | 구현완료 |
+| 002 | `docs/specs/002-title-screen.md` | 별도 Title 씬의 타이틀 화면(새 게임·이어하기·종료)과 저장 슬롯 선택 화면 | 구현완료 |
+| 003 | `docs/specs/003-game-menu-save.md` | 게임 안 메뉴(저장·타이틀로·종료·백그라운드 실행), 저장 슬롯 3개와 나가기 확인 | 구현완료 |
 | 004 | `docs/specs/004-prosperity-clear.md` | 바퀴 정산 때 모든 마을 번영도 80% 이상이면 클리어(기한·등급 승리 제거) | 승인 |
-| 005 | `docs/specs/005-rusted-bridge-fragment-shop.md` | 녹슨 다리에서 찢어진 설계도 조각을 구매하고 잿골을 여는 상점 | 구현완료 |
+| 005 | `docs/specs/005-npc-drag-placement.md` | 마을 NPC와 열차 승객을 끌어 열차 탑승·집 이동·직접 하차(자동 규칙 유지) | 구현완료 |
+| 006 | `docs/specs/006-hide-defense.md` | 디펜스(정차역 전투·포탑·정비) 화면을 스위치 하나로 숨기고 기능 코드는 보존 | 구현완료 |
+| 007 | `docs/specs/007-battle-hint-line-rules.md` | 전투 보상 단서를 도감에 반영하고, 바퀴 단서 지급과 구리 갱도 잿골 개통을 빼서 바뀐 game-brief 규칙에 맞춤(스펙 006 디펜스 숨김 동안 보류) | 작성중 |
+| 005 | `docs/specs/005-habitat-move-rotate.md` | 완성 서식지 선택·이동·회전·제거 | 승인 |
+| 006 | `docs/specs/006-habitat-production.md` | 서식지 자원 생산과 네 칸 조합 | 작성중 |
+| 007 | `docs/specs/007-unified-town-grid.md` | 마을 건설 그리드와 인접 판정 통합 | 승인 |
+| 008 | `docs/specs/008-town-resource-hud.md` | 마을 HUD 버튼과 해금된 재료 재고 표시 | 승인 |
+| 009 | `docs/specs/009-combine-completed-habitats.md` | 완성 서식지 두 개를 복합 서식지로 조합 | 작성중 |
+| 010 | `docs/specs/010-rusted-bridge-fragment-shop.md` | 녹슨 다리에서 찢어진 설계도 조각을 구매하고 잿골을 여는 상점 | 구현완료 |

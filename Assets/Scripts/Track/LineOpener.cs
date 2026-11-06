@@ -31,7 +31,11 @@ namespace IronRing.Track
         /// <inheritdoc />
         public bool IsOpen(string hubId) => !_locked.Contains(hubId);
 
-        /// <inheritdoc />
+        // 스펙 003: Open 메서드에 summary 주석 추가
+        /// <summary>
+        /// 잠긴 거점 hubId의 선로를 연다. 잠긴 목록에서 빼고 선로를 풀어 준 뒤 HubOpened를 낸다.
+        /// 이미 열린 거점이면 아무것도 하지 않는다.
+        /// </summary>
         public void Open(string hubId)
         {
             if (!_locked.Remove(hubId)) return;

@@ -1,0 +1,169 @@
+{
+  "_entries": [
+    {
+      "_habitatId": "cleared_lot",
+      "_itemId": "tile_stone",
+      "_amount": 1
+    },
+    {
+      "_habitatId": "logging_site",
+      "_itemId": "tile_timber",
+      "_amount": 1
+    },
+    {
+      "_habitatId": "stone_well",
+      "_itemId": "tile_water_can",
+      "_amount": 1
+    },
+    {
+      "_habitatId": "terrace_field",
+      "_itemId": "tile_grain",
+      "_amount": 2
+    },
+    {
+      "_habitatId": "coal_shaft",
+      "_itemId": "tile_coal",
+      "_amount": 2
+    },
+    {
+      "_habitatId": "iron_forge",
+      "_itemId": "tile_iron_stock",
+      "_amount": 2
+    },
+    {
+      "_habitatId": "copper_pit",
+      "_itemId": "tile_copper",
+      "_amount": 2
+    },
+    {
+      "_habitatId": "steam_boiler",
+      "_itemId": "tile_steam_pipe",
+      "_amount": 3
+    },
+    {
+      "_habitatId": "gear_workshop",
+      "_itemId": "tile_gear",
+      "_amount": 2
+    },
+    {
+      "_habitatId": "wire_workshop",
+      "_itemId": "tile_wire",
+      "_amount": 2
+    },
+    {
+      "_habitatId": "timber_mill",
+      "_itemId": "tile_timber",
+      "_amount": 3
+    },
+    {
+      "_habitatId": "stone_quarry",
+      "_itemId": "tile_stone",
+      "_amount": 3
+    },
+    {
+      "_habitatId": "iron_workshop",
+      "_itemId": "tile_iron_stock",
+      "_amount": 3
+    },
+    {
+      "_habitatId": "copper_workshop",
+      "_itemId": "tile_copper",
+      "_amount": 3
+    },
+    {
+      "_habitatId": "pipe_workshop",
+      "_itemId": "tile_steam_pipe",
+      "_amount": 3
+    },
+    {
+      "_habitatId": "gear_factory",
+      "_itemId": "tile_gear",
+      "_amount": 3
+    },
+    {
+      "_habitatId": "wire_factory",
+      "_itemId": "tile_wire",
+      "_amount": 3
+    },
+    {
+      "_habitatId": "water_reservoir",
+      "_itemId": "tile_water_can",
+      "_amount": 1
+    },
+    {
+      "_habitatId": "grain_store",
+      "_itemId": "tile_grain",
+      "_amount": 1
+    },
+    {
+      "_habitatId": "coal_store",
+      "_itemId": "tile_coal",
+      "_amount": 1
+    },
+    {
+      "_habitatId": "pump_station",
+      "_itemId": "tile_water_can",
+      "_amount": 2
+    },
+    {
+      "_habitatId": "mixed_cobble_water_can",
+      "_itemId": "tile_water_can",
+      "_amount": 1
+    },
+    {
+      "_habitatId": "mixed_timber_water_can",
+      "_itemId": "tile_water_can",
+      "_amount": 1
+    },
+    {
+      "_habitatId": "mixed_stone_water_can",
+      "_itemId": "tile_water_can",
+      "_amount": 1
+    },
+    {
+      "_habitatId": "mixed_cobble_grain",
+      "_itemId": "tile_grain",
+      "_amount": 1
+    },
+    {
+      "_habitatId": "mixed_timber_grain",
+      "_itemId": "tile_grain",
+      "_amount": 1
+    },
+    {
+      "_habitatId": "mixed_stone_grain",
+      "_itemId": "tile_grain",
+      "_amount": 1
+    },
+    {
+      "_habitatId": "mixed_cobble_coal",
+      "_itemId": "tile_coal",
+      "_amount": 1
+    },
+    {
+      "_habitatId": "mixed_timber_coal",
+      "_itemId": "tile_coal",
+      "_amount": 1
+    },
+    {
+      "_habitatId": "mixed_stone_coal",
+      "_itemId": "tile_coal",
+      "_amount": 1
+    },
+    {
+      "_habitatId": "mixed_grain_steam_pipe",
+      "_itemId": "tile_grain",
+      "_amount": 1
+    },
+    {
+      "_habitatId": "mixed_grain_gear",
+      "_itemId": "tile_grain",
+      "_amount": 1
+    },
+    {
+      "_habitatId": "mixed_grain_wire",
+      "_itemId": "tile_grain",
+      "_amount": 1
+    }
+  ]
+}

@@ -12,7 +12,7 @@ using IronRing.Localization;
 namespace IronRing.Shop
 {
     /// <summary>
-    /// 스펙 005 조립기. GameServices.Composing에서 FragmentShop.json과 서식지 카탈로그를 직접 읽어 BlueprintShop을 만들고
+    /// 스펙 010 조립기. GameServices.Composing에서 FragmentShop.json과 서식지 카탈로그를 직접 읽어 BlueprintShop을 만들고
     /// 새 게임의 첫 진열을 추첨한 뒤 IBlueprintShop으로 등록한다. 저장 슬롯을 불러오면 SaveInstaller가 Ready에서 진열을 덮어쓴다.
     /// ITrackRuntime이 없는 씬에서는 아무것도 하지 않는다. 정적 상태는 SubsystemRegistration에서 지운다.
     /// </summary>

@@ -8,7 +8,7 @@ using IronRing.Habitats;
 namespace IronRing.Shop
 {
     /// <summary>
-    /// 스펙 005. Resources/Shop/FragmentShop.json의 진열 수와 건물별 조각 가격.
+    /// 스펙 010. Resources/Shop/FragmentShop.json의 진열 수와 건물별 조각 가격.
     /// 잘못된 가격이나 카탈로그에 없는 건물 id가 있으면 오류를 출력하고 IsValid를 false로 둬 결제를 막는다.
     /// </summary>
     public sealed class FragmentShopSettings

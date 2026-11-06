@@ -65,6 +65,7 @@ namespace IronRing.Economy
             _clusters.HabitatCompleted += OnClusterChanged;
             _clusters.HabitatBroken += OnClusterChanged;
             if (_npcs != null) _npcs.NpcJoined += OnNpcJoined;
+            if (_npcs != null) _npcs.NpcWithdrawn += OnNpcWithdrawn;
             AddHub(settings.HubId);
         }
 
@@ -92,6 +93,9 @@ namespace IronRing.Economy
         private void OnClusterChanged(string hubId, string typeId) { if (Tracks(hubId)) Refresh(); }
 
         private void OnNpcJoined(string hubId, string npcId) { if (Tracks(hubId)) Refresh(); }
+
+        /// <summary>스펙 005. hubId에서 합류가 취소되면 직무 효과가 빠지도록 마을 수치를 다시 계산한다.</summary>
+        private void OnNpcWithdrawn(string hubId, string npcId) { if (Tracks(hubId)) Refresh(); }
 
         /// <summary>모든 마을의 주거·빛·수입을 다시 세고 Changed.</summary>
         public void Refresh()
@@ -173,6 +177,7 @@ namespace IronRing.Economy
             _clusters.HabitatCompleted -= OnClusterChanged;
             _clusters.HabitatBroken -= OnClusterChanged;
             if (_npcs != null) _npcs.NpcJoined -= OnNpcJoined;
+            if (_npcs != null) _npcs.NpcWithdrawn -= OnNpcWithdrawn;
             Changed = null;
             CurrentHub = null;
         }

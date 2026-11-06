@@ -19,7 +19,7 @@ namespace IronRing.Interior
     /// <summary>
     /// 스토리 012. 거점 내부 칸과 조사 규칙의 순수 C# 구현(design/game-brief.md Core loop 2단계).
     /// 격자·횟수·확률은 InteriorData에서, 무작위는 주입된 IRandomSource에서 와서 같은 시드면 같은 결과가 난다.
-    /// 묻힌 자원은 IResourceInventory에, 묻힌 아이템은 IItemInventory(스토리 013, null이면 보고만)에 들어간다.
+    /// 묻힌 자원은 IResourceInventory에, 묻힌 아이템은 연결된 지급 경로 또는 IItemInventory에 들어간다.
     /// </summary>
     // 스펙 003: 저장 슬롯 참여 계약 ISaveParticipant 구현 추가
     public sealed class HubInterior : IHubInterior, IInvestigationReport, ISaveParticipant
@@ -27,6 +27,7 @@ namespace IronRing.Interior
         private readonly InteriorData _data;
         private readonly IResourceInventory _resources;
         private IItemInventory _items;
+        private Action<string, int> _grantItem;
         private readonly IRandomSource _random;
         private readonly Dictionary<string, InteriorCell[]> _cells = new Dictionary<string, InteriorCell[]>(StringComparer.Ordinal);
         private readonly Dictionary<string, ReadOnlyCollection<IInteriorCell>> _views = new Dictionary<string, ReadOnlyCollection<IInteriorCell>>(StringComparer.Ordinal);
@@ -76,6 +77,9 @@ namespace IronRing.Interior
         /// </summary>
         public void AttachItemInventory(IItemInventory items) => _items = items;
 
+        /// <summary>매장 아이템의 지급 경로 grantItem을 연결한다. null이면 기존 아이템 인벤토리를 사용한다.</summary>
+        public void AttachItemRewardGrant(Action<string, int> grantItem) => _grantItem = grantItem;
+
         /// <summary>위 구역 줄 우선, 그 다음 아래 구역 순서로 잔해 칸 배열을 만든다.</summary>
         private InteriorCell[] CreateCells()
         {
@@ -122,7 +126,7 @@ namespace IronRing.Interior
 
         /// <summary>
         /// hubId의 cellIndex를 조사한다. 횟수를 1 줄이고 고정 부지면 FacilityPlot, 아니면 확률표로 결과를 정한다.
-        /// 발견한 자원은 재고에, 아이템은 아이템 인벤토리(있으면)에 넣고 칸은 Empty가 된다. 조사할 수 없으면 예외.
+        /// 발견한 자원과 아이템을 연결된 지급 경로에 넣고 칸을 Empty로 바꾸며 결과와 foundId를 반환한다. 조사할 수 없으면 예외.
         /// </summary>
         public InvestigationResult Investigate(string hubId, int cellIndex, out string foundId)
         {
@@ -138,7 +142,8 @@ namespace IronRing.Interior
                     break;
                 case InvestigationResult.FoundItem:
                     foundId = _data.BuriedItems[Clamp(_random.NextInt(0, _data.BuriedItems.Count), 0, _data.BuriedItems.Count - 1)];
-                    _items?.Add(foundId, 1);
+                    if (_grantItem != null) _grantItem(foundId, 1);
+                    else _items?.Add(foundId, 1);
                     cell.State = InteriorCellState.Empty;
                     break;
                 case InvestigationResult.FoundResource:
@@ -195,6 +200,31 @@ namespace IronRing.Interior
         public bool TryRemoveItem(string hubId, int cellIndex)
         {
             return Transition(hubId, cellIndex, InteriorCellState.ItemPlaced, InteriorCellState.Empty, null);
+        }
+
+        /// <summary>
+        /// source의 재료를 destination 칸으로 한 번에 옮긴 뒤 changed를 호출하고 변경된 칸을 알린다.
+        /// 전체 칸이 유효하지 않으면 상태를 바꾸지 않고 false를 반환한다.
+        /// </summary>
+        public bool TryMoveItems(string hubId, IReadOnlyList<int> source, IReadOnlyList<int> destination, Action changed)
+        {
+            if (!_cells.TryGetValue(hubId, out InteriorCell[] cells) || source == null || destination == null || source.Count == 0 || source.Count != destination.Count) return false;
+            var from = new HashSet<int>();
+            var to = new HashSet<int>();
+            var items = new string[source.Count];
+            for (int i = 0; i < source.Count; i++)
+            {
+                int a = source[i], b = destination[i];
+                if (a < 0 || a >= cells.Length || b < 0 || b >= cells.Length || !from.Add(a) || !to.Add(b) || cells[a].State != InteriorCellState.ItemPlaced) return false;
+                items[i] = cells[a].ItemId;
+            }
+            foreach (int index in to) if (!from.Contains(index) && cells[index].State != InteriorCellState.Empty) return false;
+            foreach (int index in from) { cells[index].State = InteriorCellState.Empty; cells[index].ItemId = null; }
+            for (int i = 0; i < destination.Count; i++) { cells[destination[i]].State = InteriorCellState.ItemPlaced; cells[destination[i]].ItemId = items[i]; }
+            changed?.Invoke();
+            from.UnionWith(to);
+            foreach (int index in from) CellChanged?.Invoke(hubId, index);
+            return true;
         }
 
 

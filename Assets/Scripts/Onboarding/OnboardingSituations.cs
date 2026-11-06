@@ -20,11 +20,9 @@ namespace IronRing.Onboarding
     public static class OnboardingSituations
     {
         private const string COBBLE = "tile_cobble";
-        private const string STONE = "tile_stone";
         private const int DEV_COINS = 500;
-        private const int LOT_SIZE = 3;
+        private const int LOT_SIZE = 4;
         private const int MAX_LAP_STEPS = 20;
-        private const string BOARDING_EVENT = "waypoint_boarding";
         private static readonly string[] HOTBAR_FILL_TYPES =
         {
             "cleared_lot", "logging_site", "stone_well", "terrace_field", "coal_shaft", "iron_forge", "copper_pit", "steam_boiler",
@@ -45,9 +43,9 @@ namespace IronRing.Onboarding
                 "select_material" => ReopenInterior(hubId, director, topicId) ? "자동" : null,
                 "place_material" => OpenInterior(hubId) && Select(null) ? "퀵슬롯에서 재료를 고르세요" : null,
                 "build_combo" => OpenInterior(hubId) && Coins() && PlaceLot(hubId) ? "자동(개간지 완성)" : null,
-                "unlock_material" => !IsTileUnlocked(STONE) && OpenInterior(hubId) && Coins() && PlaceLot(hubId) ? "자동(돌 해금)" : null,
-                "buy_material" => OpenInterior(hubId) && Coins() && Select(null) ? "값 있는 재료를 고르세요" : null,
-                "pick_up" => OpenInterior(hubId) && Coins() && Select(null) ? "값 있는 재료를 칸에 놓으세요" : null,
+                "unlock_material" => OpenInterior(hubId) && PlaceLot(hubId) ? "자동(개간지 완성)" : null,
+                "buy_material" => OpenInterior(hubId) && Select(null) ? "땅이 아닌 재료를 고르세요" : null,
+                "pick_up" => OpenInterior(hubId) && Select(null) ? "재고가 있는 재료를 칸에 놓으세요" : null,
                 "undo" => OpenInterior(hubId) && Coins() && Seen("pick_up") && PlaceAnywhere(hubId, COBBLE) ? "놓인 땅을 우클릭으로 회수하세요" : null,
                 "camera_zoom" => OpenInterior(hubId) && Trigger(director, topicId) ? "자동" : null,
                 "codex" => RevealHint() ? "자동(단서 공개)" : null,
@@ -55,9 +53,6 @@ namespace IronRing.Onboarding
                 "clear_slot" => OpenInterior(hubId) && FillHotbar() ? "자동(퀵슬롯 9칸 채움)" : null,
                 "passengers" => BoardPassenger() ? "자동(승객 탑승)" : null,
                 "return_town" => FinishLap() ? "자동(한 바퀴 돌아 황동골 도착)" : null,
-                "boarding_dialog" => QueueBoardingEvent() ? "출발하세요(다음 휴식지에서 합류 대화)" : null,
-                "npc_join" => OpenInterior(hubId) && JoinNpc(hubId) ? "자동(주민 합류)" : null,
-                "npc_interact" => OpenInterior(hubId) && Seen("npc_join") && EnsureResident(hubId) && Trigger(director, topicId) ? "마을 주민을 클릭해 대화하세요" : null,
                 "line_open" => OpenLockedHub() ? "자동(잿골 개통)" : null,
                 "run_danger" => DropProsperity(hubId) ? "자동(번영 하락)" : null,
                 _ => null,
@@ -91,13 +86,6 @@ namespace IronRing.Onboarding
         {
             OnboardingProgress.MarkSeen(topicId);
             return true;
-        }
-
-        /// <summary>itemId 재료가 해금돼 있으면 true. 도감이 없으면 true(해금 상황을 만들 수 없음).</summary>
-        private static bool IsTileUnlocked(string itemId)
-        {
-            IHabitatCodex codex = GameServices.Get<IHabitatCodex>();
-            return codex == null || codex.IsTileUnlocked(itemId);
         }
 
         /// <summary>
@@ -149,14 +137,6 @@ namespace IronRing.Onboarding
             if (GameServices.Get<IWaypointResolver>() is WaypointResolver resolver && resolver.IsEncounterActive) resolver.Advance();
         }
 
-        /// <summary>다음 휴식지 사건을 승객 합류 사건으로 정해 둔다. 플레이어가 출발하면 실제 합류 대화가 열린다. 정했으면 true.</summary>
-        private static bool QueueBoardingEvent()
-        {
-            PhaseLoop loop = LoopInstaller.Loop;
-            if (loop == null) return false;
-            loop.ForceNext(BOARDING_EVENT);
-            return true;
-        }
 
         /// <summary>합류하지 않았고 타고 있지 않은 승객 후보 하나를 hubId 마을에 합류시켜 실제 합류 이벤트를 낸다. 합류했으면 true.</summary>
         private static bool JoinNpc(string hubId)
@@ -279,8 +259,10 @@ namespace IronRing.Onboarding
         private static bool RevealHint()
         {
             if (GameServices.Get<IHabitatCodex>() is not HabitatCodex codex) return false;
+            // 공개할 단서가 남아 있지 않으면 이벤트가 오지 않아 연습이 멈추므로 실패로 돌려 fallback을 태운다.
+            int before = codex.HintedTypeIds.Count;
             codex.OnLapCompleted(0);
-            return true;
+            return codex.HintedTypeIds.Count > before;
         }
 
         /// <summary>잠긴 마을 중 첫 마을(잿골)의 선로를 연다. 열 마을이 있으면 true.</summary>

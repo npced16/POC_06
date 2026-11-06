@@ -23,6 +23,7 @@ namespace IronRing.Npc
             passengers.Boarded += announcer.OnBoarded;
             passengers.Disembarked += announcer.OnDisembarked;
             passengers.Left += announcer.OnLeft;
+            passengers.Returned += announcer.OnReturned;
             return announcer;
         }
 
@@ -32,6 +33,11 @@ namespace IronRing.Npc
         /// <summary>id가 waypoint에서 탑승하면 이름과 요청을 토스트 대기열에 추가한다.</summary>
         private void OnBoarded(string id, string waypoint)
         {
+            if (_passengers.IsReturning(id))
+            {
+                Enqueue(string.Format(_passengers.Pool.ReboardToastFormat, Subject(Name(id))));
+                return;
+            }
             NpcDefinition npc = _passengers.Pool.Find(id);
             Enqueue(string.Format(_passengers.Pool.BoardToastFormat, Subject(Name(id)), _passengers.OriginName(id),
                 PassengerRequest.Label(npc) ?? _passengers.Proposal(id)));
@@ -46,6 +52,9 @@ namespace IronRing.Npc
                 line += " · " + PassengerRequest.WorkLabel(npc.WorkKind) + " +" + npc.WorkBonus;
             Enqueue(line);
         }
+
+        /// <summary>스펙 005. 다시 탄 주민 id가 hub에 내리면 재하차 문구를 토스트 대기열에 추가한다.</summary>
+        private void OnReturned(string id, string hub) => Enqueue(string.Format(_passengers.Pool.ReturnToastFormat, Subject(Name(id))));
 
         /// <summary>id가 열차를 떠나면 떠남 알림을 토스트 대기열에 추가한다.</summary>
         private void OnLeft(string id) => Enqueue(string.Format(_passengers.Pool.LeaveToastFormat, Subject(Name(id))));
@@ -76,6 +85,7 @@ namespace IronRing.Npc
             _passengers.Boarded -= OnBoarded;
             _passengers.Disembarked -= OnDisembarked;
             _passengers.Left -= OnLeft;
+            _passengers.Returned -= OnReturned;
         }
     }
 }

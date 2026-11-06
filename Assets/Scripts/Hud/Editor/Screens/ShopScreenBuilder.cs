@@ -8,7 +8,7 @@ using IronRing.Localization;
 
 namespace IronRing.Hud.Editor.Screens
 {
-    /// <summary>스펙 005. 녹슨 다리 찢어진 설계도 상점의 전면 화면 프리팹(상품 카드 4칸·잔고·구매 결과·계속)을 만든다.</summary>
+    /// <summary>스펙 010. 녹슨 다리 찢어진 설계도 상점의 전면 화면 프리팹(상품 카드 4칸·잔고·구매 결과·계속)을 만든다.</summary>
     public static class ShopScreenBuilder
     {
         private const int CARD_COUNT = 4;

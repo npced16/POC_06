@@ -1,5 +1,8 @@
+using System.Collections.Generic;
+
 using UnityEngine;
 
+using IronRing.Contracts;
 using IronRing.Contracts.Presentation;
 using IronRing.Presentation.Interior;
 
@@ -68,10 +71,13 @@ namespace IronRing.Onboarding
             if (t >= 1f && _returning) _active = false;
         }
 
-        /// <summary>마을 내부가 열려 있으면 지금 카메라 상태를 기억하고 열차 앵커 쪽으로 옮기기 시작한다. 시작했으면 예약을 지운다.</summary>
+        /// <summary>황동골(첫 마을) 내부가 열려 있으면 지금 카메라 상태를 기억하고 열차 앵커 쪽으로 옮기기 시작한다. 다른 마을이면 예약만 지운다.</summary>
         private void TryStart()
         {
             if (_view == null || !_view.InteriorOpen) return;
+            // 귀환 안내는 황동골(첫 마을) 도착을 가리키므로, 다른 마을 내부가 열려 있으면 연출하지 않는다.
+            IReadOnlyList<string> hubs = GameServices.Get<IHubStateSystem>()?.HubIds;
+            if (hubs != null && hubs.Count > 0 && _view.InteriorHubId != hubs[0]) { _pending = false; Debug.Log("ONBOARDING: camera focus skipped (not home hub)"); return; }
             HubInteriorView interior = Object.FindAnyObjectByType<HubInteriorView>();
             Transform station = interior != null ? interior.TrainAnchor(_view.InteriorHubId) : null;
             _camera = Camera.main;
