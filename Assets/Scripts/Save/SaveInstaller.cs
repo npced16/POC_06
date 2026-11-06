@@ -2,6 +2,7 @@ using System.Collections.Generic;
 
 using UnityEngine;
 
+using IronRing.Combat;
 using IronRing.Contracts;
 using IronRing.Contracts.Presentation;
 
@@ -56,6 +57,9 @@ namespace IronRing.Save
             SaveSlots.SetParticipants(CollectParticipants());
             if (SaveSlots.PendingLoadSlot <= 0)
             {
+                // 정적 클래스라 씬을 다시 열어도 남는 포탑·단서 기록을 새 게임 상태로 비운다.
+                TrainArmament.ResetForNewGame();
+                BattleHintJournal.ResetForNewGame();
                 SaveSlots.MarkCurrentAsSaved();
                 return;
             }
@@ -99,6 +103,9 @@ namespace IronRing.Save
             {
                 if (behaviour is ISaveParticipant participant && !result.Contains(participant)) result.Add(participant);
             }
+            // 서비스가 아닌 정적 클래스(포탑·전투 단서)는 래퍼로 참여시킨다.
+            result.Add(new TrainArmamentSaveParticipant());
+            result.Add(new BattleHintJournalSaveParticipant());
             return result;
         }
 

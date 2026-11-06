@@ -23,6 +23,43 @@ namespace IronRing.Combat
             _levels = null;
         }
 
+        // 스펙 003: 저장 슬롯용 포탑 장비 꺼내기·되돌리기·새 게임 초기화 추가
+        /// <summary>스펙 003. 지금 포탑 id와 단계를 JSON 문자열로 꺼낸다.</summary>
+        public static string CaptureState()
+        {
+            EnsureInitialized();
+            return JsonUtility.ToJson(new ArmamentSave { Ids = (string[])_ids.Clone(), Levels = (int[])_levels.Clone() });
+        }
+
+        /// <summary>스펙 003. CaptureState가 만든 json으로 포탑 장비를 되돌리고 Changed를 낸다. 칸 수가 맞지 않으면 기본 장비로 둔다.</summary>
+        public static void RestoreState(string json)
+        {
+            ArmamentSave state = JsonUtility.FromJson<ArmamentSave>(json);
+            ResetStatics();
+            EnsureInitialized();
+            if (state.Ids != null && state.Levels != null && state.Ids.Length == SLOT_COUNT && state.Levels.Length == SLOT_COUNT)
+            {
+                _ids = state.Ids;
+                _levels = state.Levels;
+            }
+            Changed?.Invoke();
+        }
+
+        /// <summary>스펙 003. 새 게임 시작 때 기본 장비로 되돌리고 Changed를 낸다.</summary>
+        public static void ResetForNewGame()
+        {
+            ResetStatics();
+            Changed?.Invoke();
+        }
+
+        /// <summary>스펙 003. 저장 형식: 칸별 포탑 id와 단계.</summary>
+        [Serializable]
+        private sealed class ArmamentSave
+        {
+            public string[] Ids;
+            public int[] Levels;
+        }
+
         /// <summary>장비가 비어 있으면 _ids와 _levels를 만들고 첫 칸에 기본 포탑을 제공한다.</summary>
         private static void EnsureInitialized()
         {

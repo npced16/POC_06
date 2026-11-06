@@ -11,7 +11,7 @@
   - 게임 메뉴 화면 `GameMenu`: Esc 키와 TopBar 톱니 버튼으로 열고 닫음, 열린 동안 일시정지
   - 메뉴 항목 4개: 게임 저장, 백그라운드 실행 토글, 타이틀 화면으로, 게임 종료
   - 슬롯 고르기 패널(3칸, 칸마다 요약), 덮어쓰기 확인, 순환 페이즈 중 저장 비활성
-  - 저장하지 않은 진행이 있을 때 나가기 확인 창(타이틀로·게임 종료·Alt+F4·창 닫기)
+  - 저장하지 않은 진행이 있을 때 메뉴의 타이틀로·게임 종료 버튼 확인 창(Alt+F4·창 닫기는 확인 없이 바로 종료)
   - 저장 시스템 `SaveSlots`: 슬롯 목록·저장·불러오기·새 게임 API, 슬롯 파일 형식
   - 저장 참여 계약 `ISaveParticipant`와 저장 대상 시스템들의 꺼내기·되돌리기 구현
   - 씬 이름 상수 `SceneNames`(Title·Main)
@@ -27,7 +27,7 @@
 
 ## 3. 기술 방향
 
-- 사용 기술/API: UGUI(`Button`, `TMP_Text`), `JsonUtility`, `System.IO.File`, `Application.persistentDataPath`, `Application.wantsToQuit`, `Application.Quit`, `Application.runInBackground`, `SceneManager.LoadScene`, `Time.timeScale`, `PlayerPrefs`, Input System `Keyboard.current.escapeKey`.
+- 사용 기술/API: UGUI(`Button`, `TMP_Text`), `JsonUtility`, `System.IO.File`, `Application.persistentDataPath`, `Application.Quit`, `Application.runInBackground`, `SceneManager.LoadScene`, `Time.timeScale`, `PlayerPrefs`, Input System `Keyboard.current.escapeKey`.
 - 핵심 방식:
   - 저장 파일은 슬롯마다 `persistentDataPath/saves/slot{n}.json` 하나다(n은 1~3). 내용은 `SaveFile { int Version; string SavedAt; SaveHeader Header; SaveEntry[] Entries; }`이고, `SaveEntry { string Key; string Json; }`에 참여 시스템마다 자기 상태 JSON을 담는다.
   - 쓰기는 `slot{n}.json.tmp`에 쓴 뒤 `File.Replace`(처음이면 `File.Move`)로 바꿔 끼워서, 쓰다 끊겨도 기존 파일이 깨지지 않게 한다.
@@ -49,7 +49,7 @@
 | 클래스 | `IronRing.Save.SaveSlots` (static) | `SlotCount`, `List()`, `HasAny()`, `Save(slot)`, `LoadAndStart(slot)`, `StartNew()`, `HasUnsavedProgress()`, `PendingLoadSlot` |
 | 클래스 | `IronRing.Save.SaveSlotInfo` | 슬롯 표시 정보: `Slot`, `IsEmpty`, `IsCorrupt`, `SavedAt`, `TownTier`, `TownTierName`, `Coins`, `Lap`, `Summary` |
 | 클래스 | `IronRing.Save.SaveFile`, `SaveHeader`, `SaveEntry` | 슬롯 파일 직렬화 형식 |
-| 클래스 | `IronRing.Save.SaveInstaller` | 참여자 수집, 불러오기 대기 슬롯 복원, `Application.wantsToQuit` 등록·해제 |
+| 클래스 | `IronRing.Save.SaveInstaller` | 참여자 수집, 불러오기 대기 슬롯 복원 |
 | 클래스 | `IronRing.Save.BackgroundRunSetting` (static) | PlayerPrefs `settings_run_in_background` 읽기·쓰기, `Application.runInBackground` 적용 |
 | 계약 | `ISaveParticipant` (IronRingContracts.cs 끝에 추가) | `string SaveKey { get; }`, `int Order { get; }`, `string Capture()`, `void Restore(string json)` |
 | 클래스 | `IronRing.Hud.GameMenuScreen` | 메뉴 열기·닫기, 일시정지, 항목 버튼, 슬롯 패널, 확인 창 |
@@ -87,6 +87,7 @@
 | `Assets/Scripts/Track/PhaseLoop.cs` | `ISaveParticipant`: 바퀴 수 `Lap`. 복원 때 건설 페이즈로 둔다 |
 | `Assets/Scripts/Hud/Hotbar/HotbarScreen.cs` | `ISaveParticipant`: 퀵슬롯 배정 `_slots`(FR-020) |
 | `Assets/Scripts/Economy/MoneyStore.cs`의 `Ledger` | `ISaveParticipant`(키 `ledger`, Order 81): 장부 항목과 현재 바퀴 |
+| `Assets/Scripts/Combat/TrainArmament.cs`, `BattleHintJournal.cs` | 저장용 꺼내기·되돌리기·새 게임 초기화 메서드. `Save/CombatSaveParticipants.cs` 래퍼가 `ISaveParticipant`(키 `trainArmament` Order 85, `battleHintJournal` Order 86)로 참여시키고, 새 게임 때 `SaveInstaller`가 비운다 |
 | `Assets/Scripts/Track/LineOpener.cs` | `ISaveParticipant`(키 `lineOpener`, Order 65): 열린 선로. 복원 때 `Open()`으로 거점 열기·마을 연결을 다시 붙인다 |
 | `Assets/Scripts/Hub/HubState.cs` | 복원용 internal 메서드 |
 | `Assets/Scripts/Hud/Ui/ToastScreen.cs` | 복원 중(`SaveSlots.IsRestoring`)에는 토스트를 띄우지 않음 |
@@ -95,7 +96,7 @@
 
   위 표의 필드 가운데 다른 값에서 계산되는 값은 저장하지 않고 `Restore` 뒤에 다시 계산한다. 구현 중 표에 없는 상태 보유 클래스를 찾으면 구현을 멈추고 이 표에 추가하는 스펙 수정을 제안한다.
 
-- 참여자 복원 순서(`Order`): 10 `HubInterior` → 20 `ResourceInventory` → 21 `ItemInventory` → 22 `TileStock` → 30 `ItemPlacement` → 40 `ClusterHabitatSystem` → 50 `HabitatCodex` → 55 `HotbarScreen` → 60 `NpcRecruiter` → 61 `NpcHomes` → 62 `Passengers` → 65 `LineOpener` → 70 `RunState` → 71 `Population` → 72 `TownTiers` → 80 `MoneyStore` → 81 `Ledger` → 90 `RingTrack` → 91 `PhaseLoop`.
+- 참여자 복원 순서(`Order`): 10 `HubInterior` → 20 `ResourceInventory` → 21 `ItemInventory` → 22 `TileStock` → 30 `ItemPlacement` → 40 `ClusterHabitatSystem` → 50 `HabitatCodex` → 55 `HotbarScreen` → 60 `NpcRecruiter` → 61 `NpcHomes` → 62 `Passengers` → 65 `LineOpener` → 70 `RunState` → 71 `Population` → 72 `TownTiers` → 80 `MoneyStore` → 81 `Ledger` → 85 `TrainArmament` → 86 `BattleHintJournal` → 90 `RingTrack` → 91 `PhaseLoop`.
 
 ## 5. 동작 플로우차트
 
@@ -123,9 +124,10 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    A[타이틀로 / 게임 종료 / Alt+F4] --> B{저장 안 한 진행? - FR-012}
+    A[메뉴의 타이틀로 / 게임 종료] --> B{저장 안 한 진행? - FR-012}
     B -- 아니오 --> E{무엇?}
-    B -- 예 --> C[확인 창 - FR-010, FR-011, FR-013]
+    B -- 예 --> C[확인 창 - FR-010, FR-011]
+    Q[Alt+F4 / 창 닫기] --> R[확인 없이 바로 종료 - FR-013]
     C -- 아니오 --> D[메뉴로 돌아감]
     C -- 예 --> E
     E -- 타이틀로 --> G[Title 씬 열기 - FR-010]
@@ -160,7 +162,7 @@ flowchart TD
 - FR-010: "타이틀 화면으로"를 누르면 `GameMenuScreen`은 FR-012 판정이 참일 때 `game_menu_leave_confirm` 확인 창을 띄우고, 거짓이거나 "예"를 누르면 `Time.timeScale`을 1로 되돌린 뒤 `SceneManager.LoadScene(SceneNames.Title)`을 부른다.
 - FR-011: "게임 종료"를 누르면 `GameMenuScreen`은 FR-012 판정이 참일 때 `game_menu_quit_confirm` 확인 창을 띄우고, 거짓이거나 "예"를 누르면 종료 허용 표시를 세운 뒤 `Application.Quit()`을 부른다. 편집기에서는 `EditorApplication.isPlaying = false`로 Play Mode를 멈춘다.
 - FR-012: 나가기 판정 때 `SaveSlots.HasUnsavedProgress()`는 `IPhaseLoop.Phase`가 `Circulate`이면(운행 진행은 저장되지 않으므로) true를, 그 밖에는 지금 참여자 `Capture()`로 만든 `Entries` 직렬화 문자열이 `_lastSavedState`와 다르면 true를 돌려준다.
-- FR-013: Alt+F4나 창 닫기로 `Application.wantsToQuit`이 불렸을 때 `SaveInstaller`는 종료 허용 표시가 없고 FR-012가 참이면 false를 돌려줘 종료를 막고, 게임 메뉴를 FR-011과 같은 확인 창 상태로 연다.
+- FR-013: Alt+F4나 창 닫기를 하면 저장하지 않은 진행이 있어도 게임은 확인 창 없이 바로 종료한다(`Application.wantsToQuit`을 가로채지 않는다).
 - FR-014: `SaveSlots.List()`는 슬롯 1~3마다 `SaveSlotInfo`를 돌려준다. 파일이 없으면 `IsEmpty=true`, 읽거나 해석하지 못하면 `IsCorrupt=true`, 그 밖에는 `Header`에서 `SavedAt`·`TownTier`·`TownTierName`·`Coins`·`Lap`을 채우고 `Summary`를 `save_slot_summary` 형식으로 만든다.
 - FR-015: `SaveSlots.HasAny()`는 `IsEmpty`도 `IsCorrupt`도 아닌 슬롯이 하나라도 있으면 true를 돌려준다. `List()`와 `HasAny()`는 타이틀 씬에서 `GameServices` 없이 불리므로 슬롯 파일과 `Localization`만 쓰고 서비스에 기대지 않는다.
 - FR-016: `SaveSlots.LoadAndStart(slot)`은 `PendingLoadSlot`에 슬롯 번호를 적고 `SceneManager.LoadScene(SceneNames.Main)`을 부른다. `SaveSlots.StartNew()`는 `PendingLoadSlot`을 0으로 두고 같은 씬을 연다.
@@ -178,7 +180,7 @@ flowchart TD
 | `SaveSlots.SlotCount` | const int | 슬롯 수 | 3 |
 | `SaveSlots.PendingLoadSlot` | static int | 씬을 넘어 전달하는 불러올 슬롯(0이면 새 게임) | 0 |
 | `SaveSlots._lastSavedState` | static string | 마지막 저장·불러오기·새 게임 시점의 `Entries` 직렬화 | null |
-| `SaveSlots._quitAllowed` | static bool | 종료 허용 표시(FR-011·FR-013) | false |
+| `SaveSlots._quitAllowed` | static bool | 종료 허용 표시(FR-011) | false |
 | `SaveSlots._loadFailed` | static bool | 다시 연 Main 씬에서 실패 토스트를 띄울지(FR-019) | false |
 | `SaveFile.Version` | int | 저장 형식 버전 | 1 |
 | `SaveFile.SavedAt` | string | ISO 8601 저장 시각(현지 시각) | 저장 때 |
@@ -194,9 +196,9 @@ flowchart TD
 - 순환 페이즈 중 메뉴 열기: 메뉴는 열리고 일시정지된다. 저장만 비활성이다(FR-005).
 - 저장 파일 버전이 `SaveFile.Version`보다 크다: 손상으로 본다(`IsCorrupt=true`).
 - `saves` 폴더가 없다: 첫 저장 때 만든다.
-- 편집기 Play Mode 중지: `Application.wantsToQuit`이 불리지 않으므로 확인 창이 뜨지 않는다. FR-013은 빌드 실행 파일에서만 확인한다.
-- 데모 인자(`--loop-demo` 등)로 실행: 데모 드라이버가 `runInBackground`를 켜는 동작은 그대로 두고, `wantsToQuit` 가로채기를 하지 않는다(데모 자동 종료를 막지 않기 위해).
-- 확인 창이 떠 있는 동안 Alt+F4를 다시 누름: 같은 확인 창을 유지한다.
+- 편집기 Play Mode 중지: 확인 창 없이 바로 멈춘다. FR-013은 빌드 실행 파일에서 확인한다.
+- 데모 인자(`--loop-demo` 등)로 실행: 데모 드라이버가 `runInBackground`를 켜는 동작은 그대로 두고, 데모 자동 종료도 막지 않는다.
+- 메뉴의 확인 창이 떠 있는 동안 Alt+F4: 확인 없이 바로 종료한다.
 - 메뉴가 열린 채 씬 전환: 전환 전에 `Time.timeScale`을 1로 되돌린다.
 - 온보딩 팝업이 떠 있을 때 Esc: 온보딩 팝업은 Esc를 쓰지 않으므로 게임 메뉴가 열린다.
 - F9 메뉴: F9로 열고 닫으며 Esc를 쓰지 않는다(스펙 001). 열려 있는 동안 게임 메뉴는 Esc를 무시한다.
@@ -219,11 +221,11 @@ flowchart TD
 - FR-010: 저장 직후 "타이틀 화면으로" → 확인 없이 Title 씬. 칸 하나에 재료를 놓은 뒤 누르면 확인 창이 뜬다.
 - FR-011: 저장 직후 "게임 종료" → 바로 종료(빌드). 재료를 놓은 뒤 누르면 확인 창이 뜬다.
 - FR-012: 저장 → 재료 놓기 → 그 재료를 집어 원래대로 → "게임 종료" 시 확인 창이 뜨지 않는다(상태가 같으므로).
-- FR-013: 빌드 실행 파일에서 재료를 놓은 뒤 Alt+F4 → 창이 닫히지 않고 확인 창이 뜬다. "예" → 종료. 저장 직후 Alt+F4 → 바로 종료.
+- FR-013: 빌드 실행 파일에서 재료를 놓고 저장하지 않은 채 Alt+F4 → 확인 창 없이 바로 종료된다.
 - FR-014: 슬롯 3칸의 `List()` 결과를 로그로 찍어 빈·손상·정상이 맞는지 확인한다.
 - FR-015: 모든 슬롯이 비었거나 손상일 때 `HasAny()`가 false, 정상 슬롯 하나가 생기면 true(로그).
 - FR-016: 타이틀에서 이어하기 → Main 씬이 열린다. 새 게임 → 처음 상태로 열린다.
-- FR-017: 건물 하나 완성·동전 변화·해금 하나 후 저장 → 타이틀 → 이어하기 → 보드·창고·퀵슬롯·동전·해금·주민·마을 단계·바퀴 수가 저장 때와 같고 건설 페이즈다(전후 캡처 비교).
+- FR-017: 건물 하나 완성·동전 변화·해금 하나 후 저장 → 타이틀 → 이어하기 → 보드·창고·퀵슬롯·동전·해금·주민·마을 단계·바퀴 수·열차 포탑 장착·전투 단서 기록이 저장 때와 같고 건설 페이즈다(전후 캡처 비교).
 - FR-018: 새 게임 시작 직후 "게임 종료" → 확인 창 없이 종료.
 - FR-019: 슬롯 파일의 한 `Entry.Json`을 깨뜨리고 이어하기 → 새 게임 상태로 열리고 실패 토스트가 뜬다.
 - FR-020: 퀵슬롯 3번 칸에 다른 재료를 배정하고 저장 → 이어하기 → 3번 칸 배정이 같다.
