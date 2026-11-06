@@ -31,6 +31,7 @@ namespace IronRing.Hud.Editor.Screens
             PassengersScreen screen = root.AddComponent<PassengersScreen>();
             Image panel = UiKit.Panel(root.transform, "Panel", theme);
             UiKit.Place(panel.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, -10), PanelSize);
+            CanvasGroup panelGroup = panel.gameObject.AddComponent<CanvasGroup>();
 
             RectOffset pad = UiKit.FramePad(theme);
             TextMeshProUGUI title = UiKit.TitlePlate(panel.transform, "Title", string.Format(Strings.Get("passengers_title"), 2, 3), theme);
@@ -50,6 +51,7 @@ namespace IronRing.Hud.Editor.Screens
             UiKit.Bind(screen, "_close", close);
             UiKit.Bind(screen, "_list", list);
             UiKit.Bind(screen, "_rowPrefab", rowPart.GetComponent<PassengerRowView>());
+            UiKit.Bind(screen, "_panelGroup", panelGroup);
             return root;
         }
 
@@ -67,7 +69,7 @@ namespace IronRing.Hud.Editor.Screens
         private static GameObject Row(UiTheme theme)
         {
             Image frame = UiKit.Slot(null, "PassengerRow", theme);
-            frame.raycastTarget = false; // 스크롤 휠·드래그는 뷰포트가 받는다
+            frame.raycastTarget = true; // 줄이 승객 끌기를 받는다. 휠 스크롤은 부모 ScrollRect로 올라간다.
             frame.rectTransform.sizeDelta = RowSize;
             PassengerRowView view = frame.gameObject.AddComponent<PassengerRowView>();
             const float side = 16;

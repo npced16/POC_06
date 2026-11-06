@@ -160,6 +160,7 @@ MonoBehaviour:
   _close: {fileID: 347047809266001043}
   _list: {fileID: 8713480701840316119}
   _rowPrefab: {fileID: 7928118850730179209, guid: 4fe9aeb1209287f48b6d175e3c51ec35, type: 3}
+  _panelGroup: {fileID: 9150593092719158814}
 --- !u!1 &2161940994732882238
 GameObject:
   m_ObjectHideFlags: 0
@@ -247,6 +248,7 @@ GameObject:
   - component: {fileID: 172633834501572722}
   - component: {fileID: 710869751424147781}
   - component: {fileID: 6951622043487381306}
+  - component: {fileID: 9150593092719158814}
   m_Layer: 5
   m_Name: Panel
   m_TagString: Untagged
@@ -330,6 +332,18 @@ MonoBehaviour:
   m_EffectColor: {r: 0.42745098, g: 0.44313726, b: 0.4627451, a: 0.32}
   m_EffectDistance: {x: 1, y: -1}
   m_UseGraphicAlpha: 1
+--- !u!225 &9150593092719158814
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2342186367870252525}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &4452296456372703387
 GameObject:
   m_ObjectHideFlags: 0

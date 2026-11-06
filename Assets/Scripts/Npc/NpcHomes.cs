@@ -56,6 +56,7 @@ namespace IronRing.Npc
             _pool = pool ?? throw new ArgumentNullException(nameof(pool));
             _placementSource = placement;
             _recruiter.NpcJoined += OnNpcJoined;
+            _recruiter.NpcWithdrawn += OnNpcWithdrawn;
             if (hubIds != null)
                 foreach (string hub in hubIds)
                     foreach (string npc in _recruiter.NpcsAt(hub))
@@ -114,6 +115,7 @@ namespace IronRing.Npc
             if (_disposed) return;
             _disposed = true;
             _recruiter.NpcJoined -= OnNpcJoined;
+            _recruiter.NpcWithdrawn -= OnNpcWithdrawn;
             if (_clusters != null)
             {
                 _clusters.HabitatCompleted -= OnHabitatChanged;
@@ -132,6 +134,44 @@ namespace IronRing.Npc
             if (!AddRecord(hubId, npcId)) return;
             Bind();
             Refresh(hubId, npcId);
+        }
+
+        /// <summary>
+        /// 스펙 005. 합류가 취소된 npcId의 집 기록을 지우고 HomeChanged를 낸 뒤 hubId의 남은 집을 다시 맞춘다.
+        /// 기록이 없으면 아무것도 바꾸지 않는다.
+        /// </summary>
+        private void OnNpcWithdrawn(string hubId, string npcId)
+        {
+            if (!_records.Remove(npcId)) return;
+            _joinOrder.Remove(npcId);
+            Bind();
+            HomeChanged?.Invoke(npcId);
+            Refresh(hubId, null);
+        }
+
+        /// <summary>
+        /// 스펙 005. npcId의 집을 cells로 옮긴다. cells는 그 NPC 거점의 같은 종류 완성 묶음과 칸이 같아야 한다.
+        /// 옮기면 Cells와 LastCells를 바꾸고 HomeChanged를 낸다. 이미 그 집이면 알림 없이 true, 맞는 묶음이 없으면 false를 반환한다.
+        /// </summary>
+        public bool TryMoveHome(string npcId, IReadOnlyList<int> cells)
+        {
+            Bind();
+            if (npcId == null || cells == null || _clusters == null || !_records.TryGetValue(npcId, out Record r)) return false;
+            int[] wanted = new List<int>(cells).ToArray();
+            Array.Sort(wanted);
+            foreach (HabitatCluster cluster in _clusters.CompletedAt(r.HubId))
+            {
+                if (cluster?.Cells == null || cluster.TypeId != r.TypeId) continue;
+                int[] found = new List<int>(cluster.Cells).ToArray();
+                Array.Sort(found);
+                if (!SameCells(found, wanted)) continue;
+                if (SameCells(wanted, r.Cells)) return true;
+                r.Cells = wanted;
+                r.LastCells = wanted;
+                HomeChanged?.Invoke(npcId);
+                return true;
+            }
+            return false;
         }
 
         private void OnHabitatChanged(string hubId, string typeId) => Refresh(hubId, null);

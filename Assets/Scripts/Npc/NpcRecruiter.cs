@@ -29,6 +29,8 @@ namespace IronRing.Npc
         public event Action<string, string> NpcJoined;
         /// <summary>Story 023: npcId, hubId — raised right after NpcJoined (homes are assigned by then); presentation plays the arrival walk.</summary>
         public event Action<string, string> NpcArrived;
+        /// <summary>스펙 005. hubId, npcId. 합류 기록이 지워진 뒤.</summary>
+        public event Action<string, string> NpcWithdrawn;
 
         /// <summary>Story 023: receives every hub visit instead of the legacy roll (set by Passengers). Null keeps the legacy roll.</summary>
         public Action<string> VisitHandler { get; set; }
@@ -80,6 +82,21 @@ namespace IronRing.Npc
         {
             if (string.IsNullOrEmpty(hubId) || IsJoined(npcId) || _pool.Find(n => n.Id == npcId) == null) return false;
             Commit(npcId, hubId);
+            return true;
+        }
+
+        /// <summary>
+        /// 스펙 005. npcId의 합류 기록을 _joined, _joinOrder, _members에서 지우고 NpcWithdrawn을 낸다.
+        /// 합류하지 않은 npcId면 아무것도 바꾸지 않고 false를 반환한다.
+        /// </summary>
+        public bool TryWithdraw(string npcId)
+        {
+            if (!IsJoined(npcId)) return false;
+            string hubId = HubOf(npcId);
+            _joined.Remove(npcId);
+            _joinOrder.Remove(npcId);
+            _members[hubId].Remove(npcId);
+            NpcWithdrawn?.Invoke(hubId, npcId);
             return true;
         }
 
