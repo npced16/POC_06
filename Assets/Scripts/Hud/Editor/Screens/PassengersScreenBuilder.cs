@@ -6,6 +6,7 @@ using TMPro;
 using IronRing.Hud.Npc;
 using IronRing.Hud.Ui;
 using IronRing.Localization;
+using IronRing.Presentation.HubPhase;
 
 namespace IronRing.Hud.Editor.Screens
 {
@@ -19,9 +20,11 @@ namespace IronRing.Hud.Editor.Screens
         public const string ROW_PART = BuildMainCanvas.PARTS_FOLDER + "/PassengerRow.prefab";
 
         private const float HINT_HEIGHT = 36;
+        private const float NAME_GAP = 12;
 
         private static readonly Vector2 PanelSize = new Vector2(720, 400);
         private static readonly Vector2 RowSize = new Vector2(664, 84);
+        private static readonly Vector2 BodySize = new Vector2(64, 64);
 
         /// <summary>화면 루트(UiScreen "Passengers", 상황 화면) + PassengersScreen + 가운데 패널·머리줄·줄 목록·빈 상태 문구.</summary>
         public static GameObject Build(UiTheme theme)
@@ -32,7 +35,7 @@ namespace IronRing.Hud.Editor.Screens
             GameObject root = UiKit.ScreenRoot("Passengers", false);
             PassengersScreen screen = root.AddComponent<PassengersScreen>();
             Image panel = UiKit.Panel(root.transform, "Panel", theme);
-            UiKit.Place(panel.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, -10), PanelSize);
+            UiKit.Place(panel.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 62), PanelSize); // 하단바 재료 설명 위로 띄운다.
             CanvasGroup panelGroup = panel.gameObject.AddComponent<CanvasGroup>();
 
             RectOffset pad = UiKit.FramePad(theme);
@@ -73,7 +76,7 @@ namespace IronRing.Hud.Editor.Screens
             return true;
         }
 
-        /// <summary>승객 이름과 완성할 건물·합류 인물 관계만 담은 줄 부품을 만든다.</summary>
+        /// <summary>왼쪽 NPC 그림과 직업 이름만 담은 줄 부품을 만든다. 그림은 런타임에 승객마다 다시 넣는다.</summary>
         private static GameObject Row(UiTheme theme)
         {
             Image frame = UiKit.Slot(null, "PassengerRow", theme);
@@ -82,18 +85,17 @@ namespace IronRing.Hud.Editor.Screens
             PassengerRowView view = frame.gameObject.AddComponent<PassengerRowView>();
             const float side = 16;
 
+            Image body = UiKit.Image(frame.transform, "Body", InteriorNpcWalker.BodySprite(null), Color.white);
+            UiKit.Place(body.rectTransform, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(side, 0), BodySize);
+
             TextMeshProUGUI name = UiKit.Label(frame.transform, "Name", "", UiTextSize.Normal, theme, TextAlignmentOptions.MidlineLeft);
-            UiKit.StretchTop(name.rectTransform, 32, 8, side, 400);
+            UiKit.Stretch(name.rectTransform, side + BodySize.x + NAME_GAP, 0, side, 0);
             name.color = theme.Accent;
             name.fontStyle = FontStyles.Bold;
             NoWrap(name);
-            TextMeshProUGUI wants = UiKit.Label(frame.transform, "Wants", "", UiTextSize.Normal, theme, TextAlignmentOptions.MidlineLeft);
-            UiKit.StretchTop(wants.rectTransform, 32, 44, side, side);
-            wants.color = theme.Accent;
-            NoWrap(wants);
 
             UiKit.Bind(view, "_name", name);
-            UiKit.Bind(view, "_wants", wants);
+            UiKit.Bind(view, "_body", body);
             return frame.gameObject;
         }
 

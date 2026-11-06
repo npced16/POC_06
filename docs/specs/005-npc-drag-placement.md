@@ -11,6 +11,7 @@
   - 마을에 보이는 NPC를 끌어 정차한 열차에 태우기
   - 마을에 보이는 NPC를 끌어 같은 서식지 종류의 다른 완성 건물로 옮기기
   - 승객 목록의 승객을 끌어 자기 서식지 종류의 완성 건물에 내리기
+  - 승객 목록 줄을 NPC 그림과 직업 이름으로 표시하기
   - 합류 취소와 그에 따른 직무 효과·번영·포탑 강화 해제
   - 다시 탄 주민의 알림과 운임 제외
   - 열차 승객 저장·복원
@@ -46,7 +47,7 @@
 | 계약 | `INpcRecruiter.TryWithdraw`, `NpcWithdrawn` | 합류 취소와 그 알림(기본 구현, 인터페이스 끝에 추가) |
 | 계약 | `INpcHomes.TryMoveHome` | 같은 거점의 같은 종류 완성 묶음으로 집 변경(기본 구현, 끝에 추가) |
 | 계약 | `IPassengers.TryBoardResident`, `TryPlace`, `IsReturning`, `Returned` | 주민 재탑승, 손 하차, 재탑승 여부, 재탑승 주민 하차 알림(기본 구현, 끝에 추가) |
-| 프리팹 | `Parts/PassengerRow.prefab` | 줄 프레임 `raycastTarget` 켜기, 드래그 받기 |
+| 프리팹 | `Parts/PassengerRow.prefab` | 줄 프레임 `raycastTarget` 켜기, 드래그 받기, 왼쪽 NPC 그림과 직업 이름 한 줄 |
 | 프리팹 | `Screens/Passengers.prefab` | 패널에 `CanvasGroup` 추가 |
 | 씬 | 해당 없음 | |
 | ScriptableObject | 해당 없음 | |
@@ -71,12 +72,14 @@
 | `Assets/Scripts/Hud/GameMenuScreen.cs` | 끌기 취소에 쓴 Esc로 메뉴를 열지 않기 |
 | `Assets/Scripts/Hud/Ui/ToastScreen.cs` | 승객 화면이 열려 있어도 바로 띄우는 `ShowNow` 추가 |
 | `Assets/Scripts/Combat/TrainArmamentScreen.cs` | 열차 옆 NPC를 누를 때 정비창을 열지 않기 |
-| `Assets/Scripts/Hud/Npc/PassengerRowView.cs` | npcId 보관, 드래그 핸들러 |
-| `Assets/Scripts/Hud/Npc/PassengersScreen.cs` | 줄에 npcId 전달, 패널 감추기, `Returned` 구독 |
+| `Assets/Scripts/Hud/Npc/PassengerRowView.cs` | npcId 보관, 드래그 핸들러, NPC 그림 표시, 요청 문구 제거 |
+| `Assets/Scripts/Hud/Npc/PassengersScreen.cs` | 줄에 npcId와 `InteriorNpcWalker.BodySprite` 전달, 패널 감추기, `Returned` 구독 |
 | `Assets/Scripts/Hud/TopBarScreen.cs` | `Returned` 구독으로 승객 수 갱신 |
 | `Assets/Scripts/Hud/HubPanelScreen.cs` | `NpcWithdrawn` 구독으로 주민 수 갱신 |
-| `Assets/Scripts/Hud/Editor/Screens/PassengersScreenBuilder.cs` | 줄 `raycastTarget` 켜기, 패널 `CanvasGroup` 바인딩, 안내 문구 `Hint` 추가 |
-| `Assets/Scripts/Localization/Resources/ko.json` | `npc_drag_wrong_home`, `npc_drag_train_full`, `passengers_drag_hint` 키 추가 |
+| `Assets/Scripts/Hud/Editor/Screens/PassengersScreenBuilder.cs` | 줄 `raycastTarget` 켜기, 패널 `CanvasGroup` 바인딩, 안내 문구 `Hint` 추가, 줄에 `Body` 그림 추가와 `Wants` 제거 |
+| `Assets/Scripts/Localization/Resources/ko.json` | `npc_drag_wrong_home`, `npc_drag_train_full`, `passengers_drag_hint`, `passengers_row_name` 키 추가, `onboarding_passengers` 문구 수정 |
+| `Assets/Scripts/Npc/PassengerRequest.cs` | 서식지 이름 조회를 나누고 승객 줄 이름을 만드는 `RowName` 추가 |
+| `docs/specs/001-onboarding-popups.md` | `passengers` 주제에서 건설 요청 제외 |
 | `docs/specs/003-game-menu-save.md` | `Passengers.cs` 저장 범위에 탑승 중 승객 추가 |
 
 ## 5. 동작 플로우차트
@@ -151,6 +154,9 @@ flowchart TD
 - FR-021: 그 밖의 곳에 놓거나 Esc·우클릭이 들어올 때 `NpcDragController`는 승객을 그대로 두고, 놓은 경우에만 안내 알림을 띄운다.
 - FR-022: 승객을 건물에 내리는 데 성공할 때 `PassengersScreen`은 승객 목록을 닫는다.
 - FR-023: 승객이 한 명 이상일 때 `PassengersScreen`은 패널 아래쪽에 끌어서 내릴 수 있다는 안내 문구를 표시한다.
+- FR-024: 승객 줄을 그릴 때 `PassengerRowView`는 직업 이름 왼쪽에 `InteriorNpcWalker.BodySprite`의 NPC 그림을 표시한다.
+- FR-025: 승객 줄을 그릴 때 `PassengerRowView`는 건물 완성과 합류 관계 문구를 표시하지 않는다. 중간역 탑승 대화의 문구는 유지한다.
+- FR-026: 승객 줄을 그릴 때 `PassengersScreen`은 직업 이름 뒤 괄호에 그 승객의 서식지·건물 이름을 붙인다. 서식지가 없는 승객은 직업 이름만 표시한다.
 
 ### 상태와 데이터
 
@@ -212,7 +218,10 @@ flowchart TD
 - FR-020: 승객을 건물이 두 채인 종류의 뒤쪽 건물에 놓으면 그 건물이 집이 되는지 확인한다.
 - FR-021: 다른 곳에 놓거나 취소했을 때 승객이 목록에 남아 있는지 확인한다.
 - FR-022: 승객을 건물에 내린 뒤 목록이 닫혀 있고, 다시 열면 정상으로 보이는지 확인한다.
-- FR-023: 승객이 있을 때 안내 문구가 줄과 겹치지 않게 보이고, 승객이 없으면 보이지 않는지 확인한다.
+- FR-023: 승객이 있을 때 안내 문구가 줄과 재료를 고른 상태의 하단바 설명에 겹치지 않게 보이고, 승객이 없으면 보이지 않는지 확인한다.
+- FR-024: 승객 줄마다 직업 이름 왼쪽에 NPC 그림이 보이고, 그림 위에서도 줄을 끌 수 있는지 확인한다.
+- FR-025: 승객 줄에 합류 문구가 없고, 중간역 탑승 대화에는 남아 있는지 확인한다.
+- FR-026: 승객 줄이 `개간공 (개간지)`처럼 보이고, 긴 이름도 줄 안에 들어가는지 확인한다.
 
 ## 9. 미결 사항
 

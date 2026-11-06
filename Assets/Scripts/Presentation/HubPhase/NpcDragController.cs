@@ -6,7 +6,6 @@ using UnityEngine.InputSystem;
 
 using IronRing.Contracts;
 using IronRing.Contracts.Presentation;
-using IronRing.Habitats;
 using IronRing.Hud.Ui;
 using IronRing.Localization;
 using IronRing.Npc;
@@ -223,11 +222,11 @@ namespace IronRing.Presentation.HubPhase
             PassengerDragEnded?.Invoke(placed);
         }
 
-        /// <summary>npcId가 살 수 있는 서식지 이름을 넣은 안내 문구를 반환한다.</summary>
+        /// <summary>npcId의 이름에 주격 조사를 붙여 그 NPC가 거부했다는 안내 문구를 반환한다.</summary>
         private static string WrongHomeText(string npcId)
         {
-            string typeId = NpcInstaller.Pool?.Find(npcId)?.HabitatTypeId;
-            return string.Format(Strings.Get("npc_drag_wrong_home"), HabitatsInstaller.Catalog?.Get(typeId)?.Name ?? typeId);
+            string name = NpcInstaller.Pool?.Find(npcId)?.Name ?? npcId;
+            return string.Format(Strings.Get("npc_drag_wrong_home"), PassengerRequest.Subject(name));
         }
 
         /// <summary>cells에 cell이 있으면 true를 반환한다.</summary>

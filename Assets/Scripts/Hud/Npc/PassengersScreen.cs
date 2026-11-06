@@ -17,7 +17,7 @@ using IronRing.Presentation.HubPhase;
 namespace IronRing.Hud.Npc
 {
     /// <summary>
-    /// 상황 화면 "Passengers": 지금 열차에 탄 승객마다 이름과 건물 완성 후 합류 관계를 한 줄에 보여 준다.
+    /// 상황 화면 "Passengers": 지금 열차에 탄 승객마다 NPC 그림과 직업 이름(괄호에 서식지)을 한 줄에 보여 준다.
     /// 비어 있으면 "승객이 없다". 상단 바 승객 버튼(Toggle)·P 키로 열고 닫고, 닫기 버튼·Esc로 닫는다. 탑승·하차·이탈 때 다시 그린다.
     /// 숨은 조건과 조합법은 보이지 않는다. 키는 화면이 꺼져 있어도 ScreenTicker로 읽는다.
     /// 스펙 005: 줄을 끌면 NpcDragController로 넘기고 끄는 동안 패널을 감춘다. 게임 상태는 직접 바꾸지 않는다.
@@ -158,8 +158,8 @@ namespace IronRing.Hud.Npc
             {
                 PassengerRowView row = Instantiate(_rowPrefab, _list);
                 row.name = "Row_" + id;
-                row.Show(id, _interaction != null ? _interaction.DisplayName(id) : id,
-                    PassengerRequest.Label(NpcInstaller.Pool?.Find(id)));
+                string name = _interaction != null ? _interaction.DisplayName(id) : id;
+                row.Show(id, PassengerRequest.RowName(NpcInstaller.Pool?.Find(id), name), InteriorNpcWalker.BodySprite(id));
             }
             _empty.gameObject.SetActive(ids.Count == 0);
             _hint.gameObject.SetActive(ids.Count > 0);
