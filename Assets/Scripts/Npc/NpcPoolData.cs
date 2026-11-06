@@ -24,6 +24,8 @@ namespace IronRing.Npc
         [SerializeField] private string _boardToastFormat = "{0} {1}에서 탔다 · {2}";
         [SerializeField] private string _disembarkToastFormat = "열차에서 {0} 내렸다 · {1} 출신";
         [SerializeField] private string _leaveToastFormat = "{0} 열차에서 내려 떠났다";
+        [SerializeField] private string _reboardToastFormat = "{0} 다시 열차에 탔다";
+        [SerializeField] private string _returnToastFormat = "{0} 열차에서 내려 마을에 자리를 잡았다";
         [Header("POC single station (Story 032)")]
         [Tooltip("true: a passenger may disembark at any station where its habitat type is complete, ignoring its _hubIds roster.")]
         [SerializeField] private bool _ignoreHubRoster;
@@ -50,6 +52,10 @@ namespace IronRing.Npc
         public string DisembarkToastFormat => _disembarkToastFormat;
         /// <summary>{0} job name.</summary>
         public string LeaveToastFormat => _leaveToastFormat;
+        /// <summary>스펙 005. 주민이 다시 탈 때 문구. {0} 주격 조사를 붙인 이름.</summary>
+        public string ReboardToastFormat => _reboardToastFormat;
+        /// <summary>스펙 005. 다시 탄 주민이 내릴 때 문구. {0} 주격 조사를 붙인 이름.</summary>
+        public string ReturnToastFormat => _returnToastFormat;
         /// <summary>Story 032: disembarking ignores each NPC's hub roster (habitat type and hidden conditions still apply).</summary>
         public bool IgnoreHubRoster => _ignoreHubRoster;
         /// <summary>Story 032: boarding ignores each NPC's origin waypoint (boarding conditions and chance still apply).</summary>

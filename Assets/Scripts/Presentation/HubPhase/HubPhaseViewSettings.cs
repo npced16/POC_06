@@ -55,6 +55,18 @@ namespace IronRing.Presentation.HubPhase
         [SerializeField] private Color _npcHoverOutlineColor = new Color(0.25f, 1f, 0.35f, 1f);
         [Tooltip("마우스가 올라간 NPC의 윤곽선 두께(스프라이트 픽셀).")]
         [SerializeField] private float _npcHoverOutlinePixels = 2f;
+        [Tooltip("스펙 005: 클릭과 끌기를 가르는 이동 거리(화면 픽셀).")]
+        [SerializeField] private float _npcDragThresholdPixels = 8f;
+        [Tooltip("스펙 005: 열차 놓기 범위의 가로 크기(칸 단위).")]
+        [SerializeField] private float _npcDragTrainWidthCells = 5.2f;
+        [Tooltip("스펙 005: 열차 놓기 범위의 세로 크기(칸 단위).")]
+        [SerializeField] private float _npcDragTrainHeightCells = 1.8f;
+        [Tooltip("스펙 005: 놓을 수 있을 때 끌리는 NPC 색.")]
+        [SerializeField] private Color _npcDragValidColor = new Color(0.55f, 1f, 0.6f, 1f);
+        [Tooltip("스펙 005: 놓을 수 없을 때 끌리는 NPC 색.")]
+        [SerializeField] private Color _npcDragInvalidColor = new Color(1f, 0.5f, 0.45f, 1f);
+        [Tooltip("스펙 005: 놓기 실패 알림 표시 시간(초).")]
+        [SerializeField] private float _npcDragToastSeconds = 2f;
         [Tooltip("혼잣말 사이 최소 간격(초).")]
         [SerializeField] private float _npcMutterIntervalMin = 20f;
         [Tooltip("혼잣말 사이 최대 간격(초).")]
@@ -111,6 +123,18 @@ namespace IronRing.Presentation.HubPhase
         public Color NpcHoverOutlineColor => _npcHoverOutlineColor;
         /// <summary>마우스가 올라간 NPC의 윤곽선 두께(스프라이트 픽셀).</summary>
         public float NpcHoverOutlinePixels => Mathf.Max(0f, _npcHoverOutlinePixels);
+        /// <summary>스펙 005. 클릭과 끌기를 가르는 이동 거리(화면 픽셀).</summary>
+        public float NpcDragThresholdPixels => Mathf.Max(0f, _npcDragThresholdPixels);
+        /// <summary>스펙 005. 열차 놓기 범위의 가로 크기(칸 단위).</summary>
+        public float NpcDragTrainWidthCells => Mathf.Max(0f, _npcDragTrainWidthCells);
+        /// <summary>스펙 005. 열차 놓기 범위의 세로 크기(칸 단위).</summary>
+        public float NpcDragTrainHeightCells => Mathf.Max(0f, _npcDragTrainHeightCells);
+        /// <summary>스펙 005. 놓을 수 있을 때 끌리는 NPC 색.</summary>
+        public Color NpcDragValidColor => _npcDragValidColor;
+        /// <summary>스펙 005. 놓을 수 없을 때 끌리는 NPC 색.</summary>
+        public Color NpcDragInvalidColor => _npcDragInvalidColor;
+        /// <summary>스펙 005. 놓기 실패 알림 표시 시간(초).</summary>
+        public float NpcDragToastSeconds => Mathf.Max(0.1f, _npcDragToastSeconds);
         /// <summary>혼잣말 사이 최소 간격(초).</summary>
         public float NpcMutterIntervalMin => Mathf.Max(1f, _npcMutterIntervalMin);
         /// <summary>혼잣말 사이 최대 간격(초).</summary>

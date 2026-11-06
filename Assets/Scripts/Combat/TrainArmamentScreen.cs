@@ -112,7 +112,8 @@ namespace IronRing.Combat
             RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, max, null, out Vector2 localMax);
             _trainHover.anchoredPosition = (localMin + localMax) * .5f;
             _trainHover.sizeDelta = localMax - localMin;
-            if (Mouse.current.leftButton.wasPressedThisFrame) Open();
+            // 열차 옆 NPC를 누른 입력은 NPC 클릭·끌기로 처리한다.
+            if (Mouse.current.leftButton.wasPressedThisFrame && !IronRing.Presentation.HubPhase.InteriorNpcWalker.IsHoveringNpc) Open();
         }
 
         void OnDisable()

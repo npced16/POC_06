@@ -45,6 +45,8 @@ namespace IronRing.Presentation.HubPhase
         private string _highlighted;
         private string _talking;
         private string _hovered;
+        private string _pressedNpc;
+        private Vector2 _pressPointer;
         private readonly List<string> _arriving = new List<string>();
 
         /// <summary>Story 023 demo override of the arrival walk speed (0 = data value). Cleared on play start.</summary>
@@ -117,6 +119,9 @@ namespace IronRing.Presentation.HubPhase
             else if (_instance._talking == npcId) _instance._talking = null;
         }
 
+        /// <summary>스펙 005. 마우스가 내부 화면 NPC 위에 있으면 true를 반환한다.</summary>
+        public static bool IsHoveringNpc => _instance != null && _instance._hovered != null;
+
         /// <summary>현재 내부 화면에 보이는 NPC의 id를 ids에 추가한다. 내부 화면이 닫혀 있으면 추가하지 않는다.</summary>
         public static void CollectVisibleNpcs(List<string> ids)
         {
@@ -153,6 +158,7 @@ namespace IronRing.Presentation.HubPhase
             _view.InteriorChanged += OnInteriorChanged;
             _npcs.NpcJoined += OnNpcJoined;
             _npcs.NpcArrived += OnNpcArrived;
+            _npcs.NpcWithdrawn += OnNpcJoined;
             if (_interior != null) _interior.CellChanged += OnCellChanged;
             ResolveHomes();
             Rebuild();
@@ -361,7 +367,7 @@ namespace IronRing.Presentation.HubPhase
         private string HoveredNpc()
         {
             Mouse mouse = Mouse.current;
-            if (_hub == null || _walkers.Count == 0 || mouse == null || !_view.InteriorOpen) return null;
+            if (_hub == null || _walkers.Count == 0 || mouse == null || !_view.InteriorOpen || NpcDragController.DraggingNpc != null) return null;
             PlacementGhost ghost = PlacementGhost.Instance;
             if (ghost != null && (ghost.Selected.IsValid || ghost.DragEntry.IsValid)) return null;
             Vector2 pointer = mouse.position.ReadValue();
@@ -384,7 +390,7 @@ namespace IronRing.Presentation.HubPhase
             if (!_settings.NpcWanders) ComputePosts();
             foreach (Walker walker in _walkers)
             {
-                if (walker.Renderer == null) continue;
+                if (walker.Renderer == null || walker.NpcId == NpcDragController.DraggingNpc) continue;
                 if (!_settings.NpcWanders) { StandAtPost(walker); continue; }
                 if (walker.Target == null) walker.Target = RandomTarget(walker);
                 if (walker.Target == null) continue;
@@ -409,11 +415,12 @@ namespace IronRing.Presentation.HubPhase
 
         /// <summary>
         /// Empty-handed left click on an NPC body: only with the interior open, no hotbar selection or drag (those clicks
-        /// are placement), and not over UI (EventSystem raycast).
+        /// are placement), and not over UI (EventSystem raycast). 스펙 005: NPC 누름은 _pressedNpc에 두고 TrackPress가 클릭과 끌기를 가른다.
         /// </summary>
         private void HandleClick()
         {
             Mouse mouse = Mouse.current;
+            if (_pressedNpc != null) { TrackPress(mouse); return; }
             if (_hub == null || mouse == null || !mouse.leftButton.wasPressedThisFrame || !_view.InteriorOpen) return;
             PlacementGhost ghost = PlacementGhost.Instance;
             if (ghost != null && (ghost.Selected.IsValid || ghost.DragEntry.IsValid)) return;
@@ -425,7 +432,8 @@ namespace IronRing.Presentation.HubPhase
             foreach (RaycastHit2D hit in hits)
             {
                 if (hit.collider == null || !hit.collider.TryGetComponent(out NpcBody npc) || npc.HubId != _hub) continue;
-                NpcClicked?.Invoke(npc.HubId, npc.NpcId);
+                _pressedNpc = npc.NpcId;
+                _pressPointer = pointer;
                 return;
             }
             foreach (RaycastHit2D hit in hits)
@@ -434,6 +442,28 @@ namespace IronRing.Presentation.HubPhase
                 ClickBuilding(piece);
                 return;
             }
+        }
+
+        /// <summary>
+        /// 스펙 005. 눌린 _pressedNpc를 mouse로 따라간다. 임계값을 넘기 전에 떼면 NpcClicked를 내고,
+        /// 넘겼고 끌 수 있으면 NpcDragController로 넘긴다. 대화 중이거나 끌 수 없으면 뗄 때까지 클릭으로 둔다.
+        /// </summary>
+        private void TrackPress(Mouse mouse)
+        {
+            string npcId = _pressedNpc;
+            if (_hub == null || mouse == null || !_view.InteriorOpen) { _pressedNpc = null; return; }
+            if (!mouse.leftButton.isPressed)
+            {
+                _pressedNpc = null;
+                NpcClicked?.Invoke(_hub, npcId);
+                return;
+            }
+            NpcDragController drag = NpcDragController.Instance;
+            bool moved = (mouse.position.ReadValue() - _pressPointer).magnitude >= _settings.NpcDragThresholdPixels;
+            if (!moved || _talking != null || drag == null || !drag.CanDrag(_hub)) return;
+            _pressedNpc = null;
+            Walker walker = _walkers.Find(w => w.NpcId == npcId);
+            if (walker?.Renderer != null) drag.BeginField(_hub, npcId, walker.Renderer);
         }
 
         /// <summary>
@@ -589,6 +619,7 @@ namespace IronRing.Presentation.HubPhase
             if (_view != null) _view.InteriorChanged -= OnInteriorChanged;
             if (_npcs != null) _npcs.NpcJoined -= OnNpcJoined;
             if (_npcs != null) _npcs.NpcArrived -= OnNpcArrived;
+            if (_npcs != null) _npcs.NpcWithdrawn -= OnNpcJoined;
             if (_interior != null) _interior.CellChanged -= OnCellChanged;
             if (_homes != null) _homes.HomeChanged -= OnHomeChanged;
             if (_instance == this) _instance = null;
