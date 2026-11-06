@@ -130,7 +130,7 @@ namespace IronRing.Hud
             if (_riders != null) return;
             _riders = GameServices.Get<IPassengers>();
             if (_riders == null) return;
-            _riders.Boarded += OnBoarded; _riders.Disembarked += OnDisembarked; _riders.Left += OnLeft;
+            _riders.Boarded += OnBoarded; _riders.Disembarked += OnDisembarked; _riders.Left += OnLeft; _riders.Returned += OnDisembarked;
         }
 
         /// <summary>승객 아이콘의 숫자를 현재 탑승 인원으로 갱신한다. 승객 서비스가 없으면 버튼을 숨긴다.</summary>
@@ -233,7 +233,7 @@ namespace IronRing.Hud
             if (_loop != null) _loop.PhaseChanged -= OnLoopPhaseChanged;
             if (_restEvents != null) { _restEvents.EventStarted -= Refresh; _restEvents.EventClosed -= Refresh; }
             if (_instance == this) _instance = null;
-            if (_riders != null) { _riders.Boarded -= OnBoarded; _riders.Disembarked -= OnDisembarked; _riders.Left -= OnLeft; }
+            if (_riders != null) { _riders.Boarded -= OnBoarded; _riders.Disembarked -= OnDisembarked; _riders.Left -= OnLeft; _riders.Returned -= OnDisembarked; }
             if (_track == null) return;
             _track.Arrived -= OnArrived; _track.LapCompleted -= OnLap;
             _hubs.RunLost -= Refresh;

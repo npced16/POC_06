@@ -27,6 +27,8 @@ namespace IronRing.Npc
             public string Id;
             public string WaypointId;
             public int BoardLap;
+            /// <summary>스펙 005. 주민이었다가 다시 탄 승객이면 true. 내릴 때 운임이 없다.</summary>
+            public bool Returning;
         }
 
         private readonly NpcPoolData _pool;
@@ -48,6 +50,8 @@ namespace IronRing.Npc
         public event Action<string, string> Disembarked;
         /// <summary>npcId that left the train without a home.</summary>
         public event Action<string> Left;
+        /// <summary>스펙 005. npcId, hubId. 다시 탄 주민이 내렸을 때.</summary>
+        public event Action<string, string> Returned;
 
         /// <summary>Subscribes to waypoint results and takes over the recruiter's hub visits. Lazy sources may return null.</summary>
         public Passengers(NpcPoolData pool, NpcRecruiter recruiter, ITrackRuntime track, IWaypointResolver waypoints,
@@ -130,6 +134,35 @@ namespace IronRing.Npc
             return true;
         }
 
+        /// <summary>
+        /// 스펙 005. hubId의 주민 npcId를 합류 취소하고 Returning 승객으로 태운다. 탑승 조건은 보지 않고 좌석 수만 본다.
+        /// hubId의 주민이 아니거나 좌석이 없으면 아무것도 바꾸지 않고 false를 반환한다.
+        /// </summary>
+        public bool TryBoardResident(string npcId, string hubId)
+        {
+            NpcDefinition npc = _pool.Find(npcId);
+            if (_disposed || npc?.Passenger == null || IsFull) return false;
+            if (!Contains(_recruiter.NpcsAt(hubId), npcId) || !_recruiter.TryWithdraw(npcId)) return false;
+            Board(npc, hubId, true);
+            return true;
+        }
+
+        /// <summary>
+        /// 스펙 005. 승객 npcId를 hubId에 바로 내린다. 자동 하차와 같은 조건(CanDisembark)을 쓴다.
+        /// 승객이 아니거나 조건이 맞지 않으면 아무것도 바꾸지 않고 false를 반환한다.
+        /// </summary>
+        public bool TryPlace(string npcId, string hubId)
+        {
+            Rider rider = Find(npcId);
+            NpcDefinition npc = _pool.Find(npcId);
+            if (_disposed || rider == null || npc == null || !CanDisembark(npc, hubId, VisitsAt(hubId))) return false;
+            LetOff(rider, npc, hubId);
+            return true;
+        }
+
+        /// <summary>스펙 005. npcId가 주민이었다가 다시 탄 승객이면 true를 반환한다.</summary>
+        public bool IsReturning(string npcId) => Find(npcId)?.Returning ?? false;
+
         /// <summary>npcId의 표시 이름(직업명)을 반환한다. 모르면 id를 반환한다.</summary>
         public string Name(string npcId) => _pool.Find(npcId)?.Name ?? npcId;
 
@@ -210,7 +243,7 @@ namespace IronRing.Npc
             _disposed = true;
             if (_waypoints != null) _waypoints.EncounterEnded -= OnEncounterEnded;
             if (_recruiter.VisitHandler == (Action<string>)OnHubVisited) _recruiter.VisitHandler = null;
-            Boarded = null; Disembarked = null; Left = null;
+            Boarded = null; Disembarked = null; Left = null; Returned = null;
         }
 
         private int Lap => _track?.Lap ?? 0;
@@ -325,10 +358,10 @@ namespace IronRing.Npc
             return ids[0];
         }
 
-        /// <summary>npc를 waypointId에서 탑승시키고 도감 발견 기록에 남긴 뒤 탑승 사건을 알린다.</summary>
-        private void Board(NpcDefinition npc, string waypointId)
+        /// <summary>npc를 waypointId에서 탑승시키고 도감 발견 기록에 남긴 뒤 탑승 사건을 알린다. returning이면 다시 탄 주민으로 기록한다.</summary>
+        private void Board(NpcDefinition npc, string waypointId, bool returning = false)
         {
-            _riders.Add(new Rider { Id = npc.Id, WaypointId = waypointId, BoardLap = Lap });
+            _riders.Add(new Rider { Id = npc.Id, WaypointId = waypointId, BoardLap = Lap, Returning = returning });
             PassengerDiscovery.Remember(npc.Id);
             UnityEngine.Debug.Log($"PASSENGER: board {npc.Id} at {waypointId} \"{npc.Passenger.Proposal}\" {npc.Passenger.Hint}");
             Boarded?.Invoke(npc.Id, waypointId);
@@ -346,11 +379,29 @@ namespace IronRing.Npc
                 if (limit > 0 && count >= limit) break;
                 NpcDefinition npc = _pool.Find(rider.Id);
                 if (npc == null || !CanDisembark(npc, hubId, VisitsAt(hubId))) continue;
-                _riders.Remove(rider);
-                UnityEngine.Debug.Log($"PASSENGER: disembark {npc.Id} at {hubId}");
-                if (_recruiter.TryJoin(npc.Id, hubId)) count++;
-                Disembarked?.Invoke(npc.Id, hubId);
+                if (LetOff(rider, npc, hubId)) count++;
             }
+        }
+
+        /// <summary>
+        /// rider를 내려 npc를 hubId에 합류시키고 Returning이면 Returned, 아니면 Disembarked를 낸다.
+        /// 합류에 성공했는지를 반환한다.
+        /// </summary>
+        private bool LetOff(Rider rider, NpcDefinition npc, string hubId)
+        {
+            _riders.Remove(rider);
+            UnityEngine.Debug.Log($"PASSENGER: disembark {npc.Id} at {hubId} returning={rider.Returning}");
+            bool joined = _recruiter.TryJoin(npc.Id, hubId);
+            if (rider.Returning) Returned?.Invoke(npc.Id, hubId);
+            else Disembarked?.Invoke(npc.Id, hubId);
+            return joined;
+        }
+
+        /// <summary>ids에 id가 있으면 true를 반환한다.</summary>
+        private static bool Contains(IReadOnlyList<string> ids, string id)
+        {
+            foreach (string each in ids) if (each == id) return true;
+            return false;
         }
 
         private bool CanDisembark(NpcDefinition npc, string hubId, int visits)
@@ -368,36 +419,31 @@ namespace IronRing.Npc
             return null;
         }
 
-        // 스펙 003: 저장 슬롯용 거점 방문 횟수와 탑승 중 승객 꺼내기·되돌리기 추가
+        // 스펙 003: 저장 슬롯용 거점 방문 횟수 꺼내기·되돌리기 추가. 스펙 005: 탑승 중 승객도 저장
         /// <summary>스펙 003. 슬롯 파일 안의 키.</summary>
         public string SaveKey => "passengers";
 
         /// <summary>스펙 003. 복원 순서.</summary>
         public int Order => 62;
 
-        /// <summary>거점 방문 횟수 _visits를 거점 id 순으로, 탑승 중 승객 _riders를 탑승 순서로 JSON에 담아 돌려준다. 상태를 바꾸지 않는다.</summary>
+        /// <summary>거점 방문 횟수 _visits를 거점 id 순으로 정렬하고 탑승 중 승객 _riders를 탑승 순서로 담아 JSON으로 돌려준다. 상태를 바꾸지 않는다.</summary>
         public string Capture()
         {
             List<string> hubs = new List<string>(_visits.Keys);
             hubs.Sort(StringComparer.Ordinal);
-            VisitSave state = new VisitSave { HubIds = hubs.ToArray(), Counts = new int[hubs.Count] };
+            VisitSave state = new VisitSave { HubIds = hubs.ToArray(), Counts = new int[hubs.Count], Riders = new RiderSave[_riders.Count] };
             for (int i = 0; i < hubs.Count; i++) state.Counts[i] = _visits[hubs[i]];
-            // 스펙 003: 정차 중 탑승 승객(id·탄 곳·탄 바퀴) 저장 추가
-            state.RiderIds = new string[_riders.Count];
-            state.RiderWaypoints = new string[_riders.Count];
-            state.RiderLaps = new int[_riders.Count];
             for (int i = 0; i < _riders.Count; i++)
             {
-                state.RiderIds[i] = _riders[i].Id;
-                state.RiderWaypoints[i] = _riders[i].WaypointId;
-                state.RiderLaps[i] = _riders[i].BoardLap;
+                Rider rider = _riders[i];
+                state.Riders[i] = new RiderSave { NpcId = rider.Id, WaypointId = rider.WaypointId, BoardLap = rider.BoardLap, Returning = rider.Returning };
             }
             return UnityEngine.JsonUtility.ToJson(state);
         }
 
         /// <summary>
-        /// Capture가 만든 json으로 _visits와 _riders를 바꾼다. 풀에 없거나 이미 합류했거나 중복이거나 좌석을 넘는 승객은 버린다.
-        /// 해금 토스트·온보딩이 다시 뜨지 않도록 Boarded 등 알림을 내지 않는다.
+        /// Capture가 만든 json으로 _visits와 _riders를 바꾼다. 풀에 없거나 합류했거나 중복인 승객은 건너뛰고, 좌석이 차면 남은 승객은 버린다.
+        /// 탑승 알림이 다시 뜨지 않도록 이벤트를 내지 않는다.
         /// </summary>
         public void Restore(string json)
         {
@@ -407,27 +453,33 @@ namespace IronRing.Npc
             {
                 if (!string.IsNullOrEmpty(state.HubIds[i])) _visits[state.HubIds[i]] = state.Counts[i];
             }
-            // 스펙 003: 정차 중 탑승 승객 복원 추가(합류 기록은 NpcRecruiter가 먼저 복원됨)
             _riders.Clear();
-            int count = Math.Min(state.RiderIds.Length, Math.Min(state.RiderWaypoints.Length, state.RiderLaps.Length));
-            for (int i = 0; i < count && _riders.Count < _pool.MaxPassengers; i++)
+            foreach (RiderSave saved in state.Riders)
             {
-                string id = state.RiderIds[i];
-                if (_pool.Find(id)?.Passenger == null || _recruiter.IsJoined(id) || Find(id) != null) continue;
-                _riders.Add(new Rider { Id = id, WaypointId = state.RiderWaypoints[i], BoardLap = state.RiderLaps[i] });
+                // 스펙 003: 불러올 때 열차 좌석 수를 넘는 승객은 버림
+                if (_riders.Count >= _pool.MaxPassengers) break;
+                if (_pool.Find(saved.NpcId) == null || _recruiter.IsJoined(saved.NpcId) || Find(saved.NpcId) != null) continue;
+                _riders.Add(new Rider { Id = saved.NpcId, WaypointId = saved.WaypointId, BoardLap = saved.BoardLap, Returning = saved.Returning });
             }
         }
 
-        /// <summary>스펙 003. 저장 형식: 거점 id와 방문 횟수의 짝(같은 순번).</summary>
+        /// <summary>스펙 003. 저장 형식: 거점 id와 방문 횟수의 짝(같은 순번). 스펙 005: 탑승 중 승객 목록.</summary>
         [Serializable]
         private sealed class VisitSave
         {
             public string[] HubIds = Array.Empty<string>();
             public int[] Counts = Array.Empty<int>();
-            // 스펙 003: 탑승 승객 저장 배열 추가(같은 순번이 한 승객, 옛 파일에는 없어 빈 배열)
-            public string[] RiderIds = Array.Empty<string>();
-            public string[] RiderWaypoints = Array.Empty<string>();
-            public int[] RiderLaps = Array.Empty<int>();
+            public RiderSave[] Riders = Array.Empty<RiderSave>();
+        }
+
+        /// <summary>스펙 005. 저장 형식: 승객 하나의 id·탑승 위치·탑승 바퀴·재탑승 여부.</summary>
+        [Serializable]
+        private sealed class RiderSave
+        {
+            public string NpcId;
+            public string WaypointId;
+            public int BoardLap;
+            public bool Returning;
         }
     }
 }

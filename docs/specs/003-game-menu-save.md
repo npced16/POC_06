@@ -80,7 +80,7 @@
 | `Assets/Scripts/Habitats/ClusterHabitatSystem.cs` | `ISaveParticipant`: 잠긴 묶음·플래그. 완성 묶음은 복원된 보드에서 다시 계산 |
 | `Assets/Scripts/Npc/NpcRecruiter.cs` | `ISaveParticipant`: 합류한 NPC |
 | `Assets/Scripts/Npc/NpcHomes.cs` | `ISaveParticipant`: 숙소 기록·합류 순서 |
-| `Assets/Scripts/Npc/Passengers.cs` | `ISaveParticipant`: 방문 횟수 `_visits`와 탑승 중 승객 `_riders`(id·탄 곳·탄 바퀴, 탑승 순서). 복원 때 풀에 없거나 이미 합류했거나 중복이거나 좌석을 넘는 승객은 버리고 `Boarded`를 내지 않는다 |
+| `Assets/Scripts/Npc/Passengers.cs` | `ISaveParticipant`: 방문 횟수 `_visits`와 탑승 중 승객 `_riders`(스펙 005). 복원 때 좌석 수를 넘는 승객은 버린다 |
 | `Assets/Scripts/Economy/Population.cs` | `ISaveParticipant`: 마을별 주민 기록 |
 | `Assets/Scripts/Economy/TownTiers.cs` | `ISaveParticipant`: 마을 단계·해금 조합·업그레이드·정류장·열린 거점 |
 | `Assets/Scripts/Hub/RunState.cs` | `ISaveParticipant`: 거점 상태·정착 여부·닫힌 거점·마을 연결 |

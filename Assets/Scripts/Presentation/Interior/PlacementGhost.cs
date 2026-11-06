@@ -303,6 +303,8 @@ namespace IronRing.Presentation.Interior
         /// <summary>마우스·키보드 입력: Esc는 선택 취소, 칸 우클릭은 회수, 좌클릭은 배치한다.</summary>
         private void HandleInput(string hub, PlacementEntry active, int cell, bool overUi)
         {
+            // NPC를 끄는 동안의 우클릭은 끌기 취소이므로 회수·철거로 처리하지 않는다.
+            if (IronRing.Presentation.HubPhase.NpcDragController.IsInputHeld) return;
             Mouse mouse = Mouse.current;
             Keyboard keyboard = Keyboard.current;
             bool escape = keyboard != null && keyboard.escapeKey.wasPressedThisFrame;
@@ -359,6 +361,9 @@ namespace IronRing.Presentation.Interior
             _ghost.transform.position = new Vector3(world.x, world.y, 0);
             if (!_ghost.activeSelf) _ghost.SetActive(true);
         }
+
+        /// <summary>스펙 005. 화면 좌표 pointer 아래의 칸 번호를 반환하고 world에 월드 좌표를 담는다. 칸이 없으면 -1을 반환한다.</summary>
+        public int CellAt(Vector2 pointer, out Vector3 world) => NearestCell(pointer, out world);
 
         /// <summary>화면 좌표 pointer 아래의 월드 위치와 스냅 반경 안에서 가장 가까운 열린 거점의 칸(없으면 -1).</summary>
         private int NearestCell(Vector2 pointer, out Vector3 world)

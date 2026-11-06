@@ -79,7 +79,7 @@ namespace IronRing.Hud
             _catalog = JsonUtility.FromJson<HudCatalog>(_catalogJson.text);
             if (_close != null) _close.onClick.AddListener(ClosePanel);
             _track.Arrived += OnArrived; _track.LapCompleted += OnLap;
-            _habitat.EventFlagRaised += OnHub; _npcs.NpcJoined += OnPair;
+            _habitat.EventFlagRaised += OnHub; _npcs.NpcJoined += OnPair; _npcs.NpcWithdrawn += OnPair;
             _hubs.ProsperityChanged += OnProsperity; _hubs.HubRuined += OnHub; _hubs.RunLost += Refresh;
             _waypoints.EncounterStarted += OnArrived; _waypoints.EncounterEnded += OnEncounterEnded;
             _clicks.HubClicked += OpenHub;
@@ -178,7 +178,7 @@ namespace IronRing.Hud
             if (_instance == this) _instance = null;
             if (_track == null) return;
             _track.Arrived -= OnArrived; _track.LapCompleted -= OnLap;
-            _habitat.EventFlagRaised -= OnHub; _npcs.NpcJoined -= OnPair;
+            _habitat.EventFlagRaised -= OnHub; _npcs.NpcJoined -= OnPair; _npcs.NpcWithdrawn -= OnPair;
             _hubs.ProsperityChanged -= OnProsperity; _hubs.HubRuined -= OnHub; _hubs.RunLost -= Refresh;
             _waypoints.EncounterStarted -= OnArrived; _waypoints.EncounterEnded -= OnEncounterEnded;
             _clicks.HubClicked -= OpenHub;

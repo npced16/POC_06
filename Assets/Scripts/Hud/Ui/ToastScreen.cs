@@ -18,6 +18,7 @@ namespace IronRing.Hud.Ui
         [Tooltip("스토리 024: 상황 화면이 열려 있는 동안 쌓아 둘 토스트 최대 개수(넘치면 가장 오래된 것을 버린다)")]
         [SerializeField] private int _maxQueued = 4;
         private float _until;
+        private bool _overSituation;
         private readonly System.Collections.Generic.Queue<(string text, float seconds)> _queue = new();
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -79,6 +80,19 @@ namespace IronRing.Hud.Ui
             return true;
         }
 
+        /// <summary>
+        /// 스펙 005. text를 상황 화면이 열려 있어도 기다리지 않고 seconds초 띄운다. 끌어 놓기 실패처럼 바로 이유를 보여야 할 때 쓴다.
+        /// 토스트 화면이 없거나 꺼져 있으면 false를 반환한다.
+        /// </summary>
+        public static bool ShowNow(string text, float seconds)
+        {
+            ToastScreen toast = Current;
+            if (toast == null || toast._box == null || toast._text == null) return false;
+            toast.Display(text, seconds);
+            toast._overSituation = true;
+            return true;
+        }
+
         /// <summary>항상 켜진 화면이 아닌 화면(상황 화면)이 하나라도 열려 있는지.</summary>
         private static bool SituationOpen()
         {
@@ -92,6 +106,7 @@ namespace IronRing.Hud.Ui
         private void Display(string text, float seconds)
         {
             _text.text = text;
+            _overSituation = false;
             _until = Time.realtimeSinceStartup + seconds;
             _box.SetActive(true);
         }
@@ -112,7 +127,7 @@ namespace IronRing.Hud.Ui
         void Update()
         {
             if (_box == null) return;
-            if (_box.activeSelf && (Time.realtimeSinceStartup >= _until || SituationOpen())) _box.SetActive(false);
+            if (_box.activeSelf && (Time.realtimeSinceStartup >= _until || (SituationOpen() && !_overSituation))) _box.SetActive(false);
             if (!_box.activeSelf && _queue.Count > 0 && !SituationOpen())
             {
                 var next = _queue.Dequeue();

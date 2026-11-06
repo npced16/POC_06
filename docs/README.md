@@ -48,5 +48,6 @@ SDD 작업을 시작할 때 이 파일을 가장 먼저 읽는다.
 | 002 | `docs/specs/002-title-screen.md` | 별도 Title 씬의 타이틀 화면(새 게임·이어하기·종료)과 저장 슬롯 선택 화면 | 구현완료 |
 | 003 | `docs/specs/003-game-menu-save.md` | 게임 안 메뉴(저장·타이틀로·종료·백그라운드 실행), 저장 슬롯 3개와 나가기 확인 | 구현완료 |
 | 004 | `docs/specs/004-prosperity-clear.md` | 바퀴 정산 때 모든 마을 번영도 80% 이상이면 클리어(기한·등급 승리 제거) | 승인 |
-| 005 | `docs/specs/005-battle-hint-line-rules.md` | 전투 보상 단서를 도감에 반영하고, 바퀴 단서 지급과 구리 갱도 잿골 개통을 빼서 바뀐 game-brief 규칙에 맞춤(스펙 006 디펜스 숨김 동안 보류) | 작성중 |
+| 005 | `docs/specs/005-npc-drag-placement.md` | 마을 NPC와 열차 승객을 끌어 열차 탑승·집 이동·직접 하차(자동 규칙 유지) | 구현완료 |
 | 006 | `docs/specs/006-hide-defense.md` | 디펜스(정차역 전투·포탑·정비) 화면을 스위치 하나로 숨기고 기능 코드는 보존 | 구현완료 |
+| 007 | `docs/specs/007-battle-hint-line-rules.md` | 전투 보상 단서를 도감에 반영하고, 바퀴 단서 지급과 구리 갱도 잿골 개통을 빼서 바뀐 game-brief 규칙에 맞춤(스펙 006 디펜스 숨김 동안 보류) | 작성중 |

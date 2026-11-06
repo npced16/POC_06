@@ -182,7 +182,7 @@ flowchart TD
 | `clear_slot` | 8 | action | alert | 퀵슬롯 슬롯 우클릭으로 배정 비우기 | 퀵슬롯 9칸이 처음 다 참 | `HotbarScreen` 슬롯 비우기 알림 | 없음 | 재료를 9종 이상 해금해 퀵슬롯을 채움 |
 | `camera_zoom` | 9 | action | default | 휠로 마을 확대·축소 | 되돌리기 안내(`undo`)를 닫은 뒤 | `HubInteriorView` 확대 알림 | 없음 | 마을 내부를 엶 |
 | `codex` | 10 | info | happy | 설계 도감(책 아이콘·C 키)에서 단서 보기 | 첫 설계 단서를 얻음(`HabitatCodex.HintUnlocked`) | 확인 또는 `CodexScreen`을 엶 | 없음 | 아직 없는 건물 단서 1개 공개 |
-| `passengers` | 11 | info | happy | 승객 목록(아이콘·P 키)과 건설 요청 | 첫 승객이 탐(`IPassengers.Boarded`) | 확인 또는 `PassengersScreen`을 엶 | 없음 | 승객 1명 강제 탑승(`TryBoard(force)`) |
+| `passengers` | 11 | info | happy | 승객 목록(아이콘·P 키) | 첫 승객이 탐(`IPassengers.Boarded`) | 확인 또는 `PassengersScreen`을 엶 | 없음 | 승객 1명 강제 탑승(`TryBoard(force)`) |
 | `depart` | 12 | action | default | 출발 버튼·Space로 열차 출발 | 첫 건물 완성 뒤 건설 페이즈에서 마을 내부를 닫음 | `IHubDevelopment.PhaseChanged`(순환) | 없음 | 개간지를 완성하고 건설 페이즈로 둠 |
 | `return_town` | 13 | info | happy | 마을로 돌아올 때마다 설계 단서와 수입을 얻음 | 첫 바퀴를 마치고 마을에 도착(`LapCompleted`) | 확인(도착하면 내부가 자동으로 열리므로) | 지도 카메라 확대(황동골 역) | 단서 1개 공개·정산 1회 후 마을 도착 상태로 둠 |
 | `line_open` | 17 | info | happy | 잿골 지역 선로 개통(디펜스 숨김 중에는 구리 갱도 완성, 디펜스가 켜져 있으면 정차역 보스 처치) | 잠긴 마을이 처음 열리고 개통 배너와 지도 등장 연출이 끝남(`ILineOpener.HubOpened`, FR-035) | 확인 | 없음 | 잿골을 엶 |
