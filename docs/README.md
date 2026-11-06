@@ -56,3 +56,4 @@ SDD 작업을 시작할 때 이 파일을 가장 먼저 읽는다.
 | 007 | `docs/specs/007-unified-town-grid.md` | 마을 건설 그리드와 인접 판정 통합 | 승인 |
 | 008 | `docs/specs/008-town-resource-hud.md` | 마을 HUD 버튼과 해금된 재료 재고 표시 | 승인 |
 | 009 | `docs/specs/009-combine-completed-habitats.md` | 완성 서식지 두 개를 복합 서식지로 조합 | 작성중 |
+| 010 | `docs/specs/010-rusted-bridge-fragment-shop.md` | 녹슨 다리에서 찢어진 설계도 조각을 구매하고 잿골을 여는 상점 | 구현완료 |

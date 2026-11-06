@@ -9,6 +9,7 @@
 | 중간역 탑승 대화 | `NpcDialog` (같은 프리팹, `_boardingBackdrop`)                  | `NpcDialogScreen.OpenBoarding`              | 호출자가 넘긴 이름·출신·대사                                              | 호출하는 곳 없음 (아래 2절)  |
 | 휴식지 사건 창  | `RestEvent` / `Assets/Prefabs/UI/Screens/RestEvent.prefab` | `Assets/Scripts/Hud/RestEventScreen.cs`     | `Assets/Scripts/Track/Resources/Track/RestEvents.json`        | 사용 중 (경유지 정차)      |
 | 승객 알림     | `Toast` / `Assets/Prefabs/UI/Screens/Toast.prefab`         | `Assets/Scripts/Npc/PassengerAnnouncer.cs`  | `NpcPool.json`의 `_*ToastFormat`                               | 사용 중 (탑승·하차·떠남)    |
+| 녹슨 다리 상점 창 | `Shop` / `Assets/Prefabs/UI/Screens/Shop.prefab`       | `Assets/Scripts/Hud/ShopScreen.cs`          | `Assets/Scripts/Shop/Resources/Shop/FragmentShop.json`        | 사용 중 (`REST-2` 정차)  |
 
 ---
 
@@ -179,12 +180,32 @@
 
 ---
 
-## 5. 변경 기록
+## 5. 녹슨 다리 상점 창 (`Shop`)
+
+스펙 `docs/specs/010-rusted-bridge-fragment-shop.md`. 열차가 `REST-2`에 도착하면 열리고 열차를 붙잡는다. 구매하지 않아도 [계속]으로 닫고 떠난다.
+
+| 위치 | 문구 (`ko.json` 키) |
+| --- | --- |
+| 제목 | 녹슨 다리 · 찢어진 설계도 (`shop_title`) |
+| 안내 | 찢어진 설계도 조각을 판다. 한 장을 사면 그 건물의 모르는 재료 하나와 수량을 알 수 있다. (`shop_intro`) |
+| 잔고 | 잔고 {0}마르크 (`shop_balance`) |
+| 상품 카드 | 건물 이름(`habitat_type_*`), {0}마르크(`shop_price`), [조각 사기](`shop_buy`) |
+| 구매 불가 이유 | 품절(`shop_reason_sold_out`) · 마르크 부족(`shop_reason_money`) · 더 알아낼 조건 없음(`shop_reason_known`) · 판매 불가(`shop_reason_unavailable`) |
+| 빈 상점 | 오늘은 팔 조각이 없다. (`shop_empty`) |
+| 구매 결과 | {0} 조각에서 알아냈다: {1} (`shop_result`, 예: 임시 거처 조각에서 알아냈다: 땅 ×1) |
+| 계속 | 계속 (`loop_continue`) |
+
+도감의 잠긴 카드에는 `알아낸 재료: {0}`(`codex_fragment_known`)과, 모르는 재료가 남으면 `그 밖의 재료 ???`(`codex_fragment_more`)가 보인다. 재료 한 개는 `{0} ×{1}`(`codex_fragment_item`) 형식이다.
+
+---
+
+## 6. 변경 기록
 
 대화창과 대화 문구를 바꿀 때마다 아래에 추가한다. 최근 변경이 위에 온다.
 
 | 날짜 | 범위 | 변경 | 파일 |
 | --- | --- | --- | --- |
+| 2026-11-06 | 녹슨 다리 상점 창 | `REST-2`의 찢어진 설계도 상점 창을 새로 만들었다(5절). 도감 잠긴 카드에 조각으로 알아낸 재료 문구를 추가했다. | `Shop.prefab`, `ShopScreen.cs`, `CodexScreen.cs`, `ko.json` |
 | 2026-11-05 | NPC 대화창 | 대화창을 열면 첫 대사 한 줄만 읽고 바로 선택지로 간다. 다음 대사는 [대화]를 눌러야 나온다. 전에는 선택지 전에 첫 대사와 `_lines`를 모두 읽었고 첫 대사가 두 번 나왔다. | `Assets/Scripts/Hud/Npc/NpcDialogScreen.cs` |
 | 2026-11-05 | NPC 대화창 | 17명의 대사를 직업별 성격 말투로 교체했다. 첫 대사(`_quote`)는 성격이 드러나는 한 줄, 다음 대사(`_lines`)는 한 줄이다. 공통 대사 "오늘도 제 작업장을 살피겠습니다." / "이 마을이 커지면 제 일도 더 바빠지겠군요."와 옛 "~하겠습니다" 첫 대사는 없앴다. | `Assets/Scripts/Npc/Data/NpcPool.json` |
 | 2026-11-05 | 휴식지 사건 창 | `waypoint_boarding`에 탑승 결정을 추가했다. 후보의 이름·요청·직무와 `탄 승객 N/최대명`을 보여 주고 [태운다]/[돌려보낸다]를 고른다. 만석이면 `{이름} 내리고 태운다`로 교체한다. 선택지 버튼을 4개로 늘렸다. | `RestEvents.json`, `ko.json`, `PhaseLoop.cs`, `Passengers.cs`, `RestEvent.prefab` |
