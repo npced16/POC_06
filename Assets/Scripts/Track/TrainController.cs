@@ -22,9 +22,13 @@ namespace IronRing.Track
         private float _waiting;
         private bool _captureStarted;
         private float _headStart;
-        private float EdgeSeconds => _data.EdgeSeconds;
+        private float _edgeSeconds;
+        private int _edgeIndex = -1;
+        private float EdgeSeconds => _edgeSeconds;
         /// <summary>Initialized movement model for location queries and arrival subscriptions.</summary>
         public RingTrack Track => _track;
+        /// <summary>출발 구간 번호를 받아 기본 구간 시간에 곱할 배율을 돌려준다. 비어 있으면 1이다. 배율은 출발할 때 한 번 적용한다.</summary>
+        public Func<int, float> EdgeDurationScale { get; set; }
         /// <summary>Normalized progress along the active edge, or zero while standing at a node.</summary>
         public float TravelProgress => _track.IsMoving ? Mathf.Clamp01(_elapsed / EdgeSeconds)
             : _headStart > 0 ? _headStart : 0;
@@ -37,6 +41,7 @@ namespace IronRing.Track
             if (_configuration == null) _configuration = UnityEngine.Resources.Load<TextAsset>("Track/ring-track");
             _data = TrackData.Parse(_configuration.text);
             _track = _data.CreateTrack();
+            _edgeSeconds = _data.EdgeSeconds;
         }
 
         void Update()
@@ -51,6 +56,8 @@ namespace IronRing.Track
                 return;
             }
 
+            // 공용 API 출발과 잠긴 역 통과도 새 구간으로 보고 이동 시간을 다시 정한다.
+            if (_track.CurrentIndex != _edgeIndex) BeginEdge();
             _elapsed += Time.deltaTime;
             if (!_captureStarted && Argument("--track-screenshot") != null && Time.frameCount >= 60 && TravelProgress >= 0.4f && TravelProgress < 0.9f)
             {
@@ -62,13 +69,29 @@ namespace IronRing.Track
                 _track.Arrive();
                 _elapsed = 0;
                 _waiting = 0;
+                _edgeIndex = -1;
             }
         }
 
         /// <summary>Requests one edge of travel and resets interpolation only when the movement model accepts departure.</summary>
         public void Depart()
         {
-            if (_track.TryDepart()) { _elapsed = _headStart * EdgeSeconds; _headStart = 0; }
+            if (!_track.TryDepart()) return;
+            BeginEdge();
+            _elapsed = _headStart * EdgeSeconds;
+            _headStart = 0;
+        }
+
+        /// <summary>
+        /// 현재 구간 번호로 EdgeDurationScale을 불러 이번 구간의 이동 시간을 정한다.
+        /// _track.CurrentIndex와 기본 구간 시간을 사용하며, _edgeSeconds와 _edgeIndex를 변경한다.
+        /// </summary>
+        private void BeginEdge()
+        {
+            // 구간 시간은 구간을 시작할 때 정해서 이동 중 선로가 넓어져도 진행도가 튀지 않게 한다.
+            _edgeIndex = _track.CurrentIndex;
+            float scale = EdgeDurationScale != null ? EdgeDurationScale(_edgeIndex) : 1f;
+            _edgeSeconds = _data.EdgeSeconds * Mathf.Max(0.01f, scale);
         }
 
         /// <summary>Configures the standalone view and keyboard option during scene creation so an integrated HUD can own presentation and input.</summary>

@@ -1,0 +1,23 @@
+{
+  "_comment": "역 개통 조건. 규칙마다 _hubId 역을 _conditions를 모두 만족하면 연다. _kind habitat: _habitatId 건물 완성. _kind distinct_habitats: 서로 다른 건물 _count종류 이상 완성(같은 종류 재완성은 세지 않음). _sourceHubId가 비면 모든 마을 합산. 선로에 없는 역의 규칙은 무시된다.",
+  "_rules": [
+    {
+      "_hubId": "hub-2",
+      "_conditions": [
+        { "_kind": "distinct_habitats", "_count": 5, "_sourceHubId": "" }
+      ]
+    },
+    {
+      "_hubId": "hub-3",
+      "_conditions": [
+        { "_kind": "distinct_habitats", "_count": 10, "_sourceHubId": "" }
+      ]
+    },
+    {
+      "_hubId": "hub-4",
+      "_conditions": [
+        { "_kind": "distinct_habitats", "_count": 15, "_sourceHubId": "" }
+      ]
+    }
+  ]
+}
