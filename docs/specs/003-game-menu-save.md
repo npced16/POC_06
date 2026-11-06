@@ -13,7 +13,8 @@
   - 슬롯 고르기 패널(3칸, 칸마다 요약), 덮어쓰기 확인, 순환 페이즈 중 저장 비활성
   - 저장하지 않은 진행이 있을 때 메뉴의 타이틀로·게임 종료 버튼 확인 창(Alt+F4·창 닫기는 확인 없이 바로 종료)
   - 저장 시스템 `SaveSlots`: 슬롯 목록·저장·불러오기·새 게임 API, 슬롯 파일 형식
-  - 저장 참여 계약 `ISaveParticipant`와 저장 대상 시스템들의 꺼내기·되돌리기 구현
+  - 저장 참여 계약 `ISaveParticipant`와 저장 대상 시스템들의 꺼내기·되돌리기 구현(건설 페이즈 정차 중 탑승 승객, 학습 진행 포함)
+  - 옛 슬롯 파일에 빠진 키의 기본값 규칙
   - 씬 이름 상수 `SceneNames`(Title·Main)
   - 백그라운드 실행 토글(`Application.runInBackground`, PlayerPrefs 기억)
   - 이 기능의 `ko.json` 키(문구 값은 사용자 검수 뒤 넣는다)
@@ -23,7 +24,7 @@
   - 순환 페이즈(원정·운행) 중 상태 저장: 열차 위치, 진행 중 사건, 탑승 중 승객 위치
   - 슬롯 삭제, 슬롯 이름 바꾸기
   - 클라우드 저장, 저장 파일 암호화
-  - PlayerPrefs에 이미 있는 기록(승객 발견 `PassengerDiscovery`, 온보딩 열람 `OnboardingProgress`)의 슬롯 이전: 기기 단위 기록으로 그대로 둔다
+  - 승객 발견 기록 `PassengerDiscovery`의 슬롯 저장: 현재 게임 동안만 유지하고 새 게임에서 비운다
 
 ## 3. 기술 방향
 
@@ -79,7 +80,7 @@
 | `Assets/Scripts/Habitats/ClusterHabitatSystem.cs` | `ISaveParticipant`: 잠긴 묶음·플래그. 완성 묶음은 복원된 보드에서 다시 계산 |
 | `Assets/Scripts/Npc/NpcRecruiter.cs` | `ISaveParticipant`: 합류한 NPC |
 | `Assets/Scripts/Npc/NpcHomes.cs` | `ISaveParticipant`: 숙소 기록·합류 순서 |
-| `Assets/Scripts/Npc/Passengers.cs` | `ISaveParticipant`: 방문 횟수 `_visits`(탑승 중 승객은 저장하지 않음) |
+| `Assets/Scripts/Npc/Passengers.cs` | `ISaveParticipant`: 방문 횟수 `_visits`와 탑승 중 승객 `_riders`(id·탄 곳·탄 바퀴, 탑승 순서). 복원 때 풀에 없거나 이미 합류했거나 중복이거나 좌석을 넘는 승객은 버리고 `Boarded`를 내지 않는다 |
 | `Assets/Scripts/Economy/Population.cs` | `ISaveParticipant`: 마을별 주민 기록 |
 | `Assets/Scripts/Economy/TownTiers.cs` | `ISaveParticipant`: 마을 단계·해금 조합·업그레이드·정류장·열린 거점 |
 | `Assets/Scripts/Hub/RunState.cs` | `ISaveParticipant`: 거점 상태·정착 여부·닫힌 거점·마을 연결 |
@@ -88,6 +89,7 @@
 | `Assets/Scripts/Hud/Hotbar/HotbarScreen.cs` | `ISaveParticipant`: 퀵슬롯 배정 `_slots`(FR-020) |
 | `Assets/Scripts/Economy/MoneyStore.cs`의 `Ledger` | `ISaveParticipant`(키 `ledger`, Order 81): 장부 항목과 현재 바퀴 |
 | `Assets/Scripts/Combat/TrainArmament.cs`, `BattleHintJournal.cs` | 저장용 꺼내기·되돌리기·새 게임 초기화 메서드. `Save/CombatSaveParticipants.cs` 래퍼가 `ISaveParticipant`(키 `trainArmament` Order 85, `battleHintJournal` Order 86)로 참여시키고, 새 게임 때 `SaveInstaller`가 비운다 |
+| `Assets/Scripts/Hud/Onboarding/OnboardingScreen.cs` | `ISaveParticipant`(키 `onboarding`, Order 87): 본 학습 항목 id 목록(`OnboardingProgress`). 새 게임일 때만 Awake에서 기록을 지운다(스펙 001 FR-025) |
 | `Assets/Scripts/Track/LineOpener.cs` | `ISaveParticipant`(키 `lineOpener`, Order 65): 열린 선로. 복원 때 `Open()`으로 거점 열기·마을 연결을 다시 붙인다 |
 | `Assets/Scripts/Hub/HubState.cs` | 복원용 internal 메서드 |
 | `Assets/Scripts/Hud/Ui/ToastScreen.cs` | 복원 중(`SaveSlots.IsRestoring`)에는 토스트를 띄우지 않음 |
@@ -96,7 +98,7 @@
 
   위 표의 필드 가운데 다른 값에서 계산되는 값은 저장하지 않고 `Restore` 뒤에 다시 계산한다. 구현 중 표에 없는 상태 보유 클래스를 찾으면 구현을 멈추고 이 표에 추가하는 스펙 수정을 제안한다.
 
-- 참여자 복원 순서(`Order`): 10 `HubInterior` → 20 `ResourceInventory` → 21 `ItemInventory` → 22 `TileStock` → 30 `ItemPlacement` → 40 `ClusterHabitatSystem` → 50 `HabitatCodex` → 55 `HotbarScreen` → 60 `NpcRecruiter` → 61 `NpcHomes` → 62 `Passengers` → 65 `LineOpener` → 70 `RunState` → 71 `Population` → 72 `TownTiers` → 80 `MoneyStore` → 81 `Ledger` → 85 `TrainArmament` → 86 `BattleHintJournal` → 90 `RingTrack` → 91 `PhaseLoop`.
+- 참여자 복원 순서(`Order`): 10 `HubInterior` → 20 `ResourceInventory` → 21 `ItemInventory` → 22 `TileStock` → 30 `ItemPlacement` → 40 `ClusterHabitatSystem` → 50 `HabitatCodex` → 55 `HotbarScreen` → 60 `NpcRecruiter` → 61 `NpcHomes` → 62 `Passengers` → 65 `LineOpener` → 70 `RunState` → 71 `Population` → 72 `TownTiers` → 80 `MoneyStore` → 81 `Ledger` → 85 `TrainArmament` → 86 `BattleHintJournal` → 87 `OnboardingScreen` → 90 `RingTrack` → 91 `PhaseLoop`.
 
 ## 5. 동작 플로우차트
 
@@ -166,7 +168,7 @@ flowchart TD
 - FR-014: `SaveSlots.List()`는 슬롯 1~3마다 `SaveSlotInfo`를 돌려준다. 파일이 없으면 `IsEmpty=true`, 읽거나 해석하지 못하면 `IsCorrupt=true`, 그 밖에는 `Header`에서 `SavedAt`·`TownTier`·`TownTierName`·`Coins`·`Lap`을 채우고 `Summary`를 `save_slot_summary` 형식으로 만든다.
 - FR-015: `SaveSlots.HasAny()`는 `IsEmpty`도 `IsCorrupt`도 아닌 슬롯이 하나라도 있으면 true를 돌려준다. `List()`와 `HasAny()`는 타이틀 씬에서 `GameServices` 없이 불리므로 슬롯 파일과 `Localization`만 쓰고 서비스에 기대지 않는다.
 - FR-016: `SaveSlots.LoadAndStart(slot)`은 `PendingLoadSlot`에 슬롯 번호를 적고 `SceneManager.LoadScene(SceneNames.Main)`을 부른다. `SaveSlots.StartNew()`는 `PendingLoadSlot`을 0으로 두고 같은 씬을 연다.
-- FR-017: Main 씬에서 `GameServices.Ready` 뒤 `PendingLoadSlot`이 1 이상이면 `SaveInstaller`는 그 파일의 `Entries`를 참여자 `Order` 순서로 `Restore`하고, 열차를 거점에 정차한 건설 페이즈로 두고, `_lastSavedState`를 불러온 상태로 두고, `PendingLoadSlot`을 0으로 되돌린다. 파일에 없는 키의 참여자는 건드리지 않는다.
+- FR-017: Main 씬에서 `GameServices.Ready` 뒤 `PendingLoadSlot`이 1 이상이면 `SaveInstaller`는 그 파일의 `Entries`를 참여자 `Order` 순서로 `Restore`하고, 열차를 거점에 정차한 건설 페이즈로 두고, `_lastSavedState`를 불러온 상태로 두고, `PendingLoadSlot`을 0으로 되돌린다. 파일에 키가 없는 참여자는 「예외 및 경계 조건」의 빠진 키 규칙을 따른다.
 - FR-018: Main 씬에서 `GameServices.Ready` 뒤 `PendingLoadSlot`이 0이면(새 게임, 또는 편집기에서 Main을 바로 Play) `SaveInstaller`는 아무것도 복원하지 않은 새 게임 상태로 두고, 그 상태를 `_lastSavedState`로 둔다. 슬롯 파일은 지우지 않는다.
 - FR-019: 불러오기 중 파일을 읽지 못하거나 `Restore`가 예외를 내면 `SaveInstaller`는 남은 복원을 멈추고 `StartNew()`로 Main 씬을 다시 연 뒤 `save_load_failed` 토스트를 띄운다.
 
@@ -182,7 +184,7 @@ flowchart TD
 | `SaveSlots._lastSavedState` | static string | 마지막 저장·불러오기·새 게임 시점의 `Entries` 직렬화 | null |
 | `SaveSlots._quitAllowed` | static bool | 종료 허용 표시(FR-011) | false |
 | `SaveSlots._loadFailed` | static bool | 다시 연 Main 씬에서 실패 토스트를 띄울지(FR-019) | false |
-| `SaveFile.Version` | int | 저장 형식 버전 | 1 |
+| `SaveFile.Version` | int | 저장 형식 버전(빠진 키는 버전이 아니라 빠진 키 규칙으로 처리) | 1 |
 | `SaveFile.SavedAt` | string | ISO 8601 저장 시각(현지 시각) | 저장 때 |
 | `SaveHeader` | {int TownTier; string TownTierName; int Coins; int Lap;} | 슬롯 요약용 | 저장 때 |
 | `SaveEntry` | {string Key; string Json;} | 참여자별 상태 | 저장 때 |
@@ -195,6 +197,8 @@ flowchart TD
 
 - 순환 페이즈 중 메뉴 열기: 메뉴는 열리고 일시정지된다. 저장만 비활성이다(FR-005).
 - 저장 파일 버전이 `SaveFile.Version`보다 크다: 손상으로 본다(`IsCorrupt=true`).
+- 빠진 키 규칙(FR-017): 슬롯 파일에 현재 참여자의 키가 없을 때, 그 참여자가 `ISaveDefault`(Save 안 internal 계약 `void RestoreDefault()`)를 구현하면 `RestoreDefault()`로 명시적 기본값을 적용하고 `SAVE: <키> 없음 → 기본값` 로그를 남긴다. 구현하지 않은 참여자(필수 키 19개: `hubInterior`, `resources`, `items`, `tileStock`, `hotbar`, `placement`, `habitatClusters`, `codex`, `npcRecruiter`, `npcHomes`, `passengers`, `lineOpener`, `runState`, `population`, `townTiers`, `money`, `ledger`, `ringTrack`, `phaseLoop`)의 키가 없으면 불러오기 실패로 보고 FR-019를 따른다. 기본값: `trainArmament`·`battleHintJournal`은 새 게임 초기화(`ResetForNewGame`), `onboarding`은 기본 학습 묶음(`_chain` 항목)을 모두 본 것으로 기록한다. 파일에만 있고 현재 참여자가 없는 키는 무시한다.
+- 탑승 승객 배열이 없는 옛 `passengers` 항목: 탑승 승객 없이 방문 횟수만 복원한다.
 - `saves` 폴더가 없다: 첫 저장 때 만든다.
 - 편집기 Play Mode 중지: 확인 창 없이 바로 멈춘다. FR-013은 빌드 실행 파일에서 확인한다.
 - 데모 인자(`--loop-demo` 등)로 실행: 데모 드라이버가 `runInBackground`를 켜는 동작은 그대로 두고, 데모 자동 종료도 막지 않는다.
@@ -225,7 +229,7 @@ flowchart TD
 - FR-014: 슬롯 3칸의 `List()` 결과를 로그로 찍어 빈·손상·정상이 맞는지 확인한다.
 - FR-015: 모든 슬롯이 비었거나 손상일 때 `HasAny()`가 false, 정상 슬롯 하나가 생기면 true(로그).
 - FR-016: 타이틀에서 이어하기 → Main 씬이 열린다. 새 게임 → 처음 상태로 열린다.
-- FR-017: 건물 하나 완성·동전 변화·해금 하나 후 저장 → 타이틀 → 이어하기 → 보드·창고·퀵슬롯·동전·해금·주민·마을 단계·바퀴 수·열차 포탑 장착·전투 단서 기록이 저장 때와 같고 건설 페이즈다(전후 캡처 비교).
+- FR-017: 건물 하나 완성·동전 변화·해금 하나 후 저장 → 타이틀 → 이어하기 → 보드·창고·퀵슬롯·동전·해금·주민·마을 단계·바퀴 수·열차 포탑 장착·전투 단서 기록·탑승 중인 승객·학습 진행이 저장 때와 같고 건설 페이즈다(전후 캡처 비교). `trainArmament`·`battleHintJournal`·`onboarding` 키가 없는 옛 슬롯을 이어하면 로그에 `SAVE: <키> 없음 → 기본값`이 찍히고 출발이 막히지 않는다. 필수 키 하나를 지운 슬롯을 이어하면 FR-019처럼 새 게임과 실패 토스트가 뜬다.
 - FR-018: 새 게임 시작 직후 "게임 종료" → 확인 창 없이 종료.
 - FR-019: 슬롯 파일의 한 `Entry.Json`을 깨뜨리고 이어하기 → 새 게임 상태로 열리고 실패 토스트가 뜬다.
 - FR-020: 퀵슬롯 3번 칸에 다른 재료를 배정하고 저장 → 이어하기 → 3번 칸 배정이 같다.

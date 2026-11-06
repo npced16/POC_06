@@ -188,6 +188,7 @@ namespace IronRing.Save
                 foreach (ISaveParticipant participant in _participants)
                 {
                     if (byKey.TryGetValue(participant.SaveKey, out string json)) participant.Restore(json);
+                    else RestoreMissing(participant);
                 }
             }
             catch (Exception e)
@@ -203,6 +204,17 @@ namespace IronRing.Save
             MarkCurrentAsSaved();
             Debug.Log("SAVE: slot " + slot + " 불러옴");
             return true;
+        }
+
+        /// <summary>
+        /// 슬롯 파일에 키가 없는 participant를 처리한다(빠진 키 규칙). ISaveDefault면 기본값을 적용하고 로그를 남기며,
+        /// 아니면 필수 키 누락으로 InvalidDataException을 던져 불러오기를 실패시킨다.
+        /// </summary>
+        private static void RestoreMissing(ISaveParticipant participant)
+        {
+            if (!(participant is ISaveDefault fallback)) throw new InvalidDataException("필수 키 " + participant.SaveKey + " 없음");
+            fallback.RestoreDefault();
+            Debug.Log("SAVE: " + participant.SaveKey + " 없음 → 기본값");
         }
 
         /// <summary>참여자마다 Capture를 불러 SaveEntry 배열을 만든다.</summary>
@@ -289,5 +301,14 @@ namespace IronRing.Save
             Time.timeScale = 1f;
             SceneManager.LoadScene(SceneNames.Main);
         }
+    }
+
+    /// <summary>
+    /// 스펙 003 빠진 키 규칙. 슬롯 파일에 자기 키가 없어도 불러오기를 실패시키지 않는 참여자가 구현한다.
+    /// </summary>
+    internal interface ISaveDefault
+    {
+        /// <summary>슬롯에 키가 없을 때 명시적 기본값으로 상태를 바꾼다.</summary>
+        void RestoreDefault();
     }
 }

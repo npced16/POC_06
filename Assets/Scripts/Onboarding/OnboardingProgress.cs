@@ -33,5 +33,25 @@ namespace IronRing.Onboarding
         {
             _seen.Add(topicId);
         }
+
+        // 스펙 003: 저장 슬롯용 본 항목 꺼내기·통째로 되돌리기 추가
+        /// <summary>현재 게임에서 본 항목 id를 이름 순으로 돌려준다. 상태를 바꾸지 않는다.</summary>
+        public static string[] All()
+        {
+            List<string> ids = new List<string>(_seen);
+            ids.Sort(System.StringComparer.Ordinal);
+            return ids.ToArray();
+        }
+
+        /// <summary>본 항목 기록을 지우고 topicIds로 바꾼다. 빈 id는 버린다.</summary>
+        public static void RestoreAll(IEnumerable<string> topicIds)
+        {
+            _seen.Clear();
+            if (topicIds == null) return;
+            foreach (string topicId in topicIds)
+            {
+                if (!string.IsNullOrEmpty(topicId)) _seen.Add(topicId);
+            }
+        }
     }
 }

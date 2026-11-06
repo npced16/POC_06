@@ -368,24 +368,37 @@ namespace IronRing.Npc
             return null;
         }
 
-        // 스펙 003: 저장 슬롯용 거점 방문 횟수 꺼내기·되돌리기 추가(탑승 중 승객은 저장하지 않음)
+        // 스펙 003: 저장 슬롯용 거점 방문 횟수와 탑승 중 승객 꺼내기·되돌리기 추가
         /// <summary>스펙 003. 슬롯 파일 안의 키.</summary>
         public string SaveKey => "passengers";
 
         /// <summary>스펙 003. 복원 순서.</summary>
         public int Order => 62;
 
-        /// <summary>거점 방문 횟수 _visits를 거점 id 순으로 정렬해 JSON으로 돌려준다. 상태를 바꾸지 않는다.</summary>
+        /// <summary>거점 방문 횟수 _visits를 거점 id 순으로, 탑승 중 승객 _riders를 탑승 순서로 JSON에 담아 돌려준다. 상태를 바꾸지 않는다.</summary>
         public string Capture()
         {
             List<string> hubs = new List<string>(_visits.Keys);
             hubs.Sort(StringComparer.Ordinal);
             VisitSave state = new VisitSave { HubIds = hubs.ToArray(), Counts = new int[hubs.Count] };
             for (int i = 0; i < hubs.Count; i++) state.Counts[i] = _visits[hubs[i]];
+            // 스펙 003: 정차 중 탑승 승객(id·탄 곳·탄 바퀴) 저장 추가
+            state.RiderIds = new string[_riders.Count];
+            state.RiderWaypoints = new string[_riders.Count];
+            state.RiderLaps = new int[_riders.Count];
+            for (int i = 0; i < _riders.Count; i++)
+            {
+                state.RiderIds[i] = _riders[i].Id;
+                state.RiderWaypoints[i] = _riders[i].WaypointId;
+                state.RiderLaps[i] = _riders[i].BoardLap;
+            }
             return UnityEngine.JsonUtility.ToJson(state);
         }
 
-        /// <summary>Capture가 만든 json으로 _visits를 바꾼다. 방문 횟수에는 변경 이벤트가 없어 알림을 내지 않는다.</summary>
+        /// <summary>
+        /// Capture가 만든 json으로 _visits와 _riders를 바꾼다. 풀에 없거나 이미 합류했거나 중복이거나 좌석을 넘는 승객은 버린다.
+        /// 해금 토스트·온보딩이 다시 뜨지 않도록 Boarded 등 알림을 내지 않는다.
+        /// </summary>
         public void Restore(string json)
         {
             VisitSave state = UnityEngine.JsonUtility.FromJson<VisitSave>(json);
@@ -393,6 +406,15 @@ namespace IronRing.Npc
             for (int i = 0; i < state.HubIds.Length && i < state.Counts.Length; i++)
             {
                 if (!string.IsNullOrEmpty(state.HubIds[i])) _visits[state.HubIds[i]] = state.Counts[i];
+            }
+            // 스펙 003: 정차 중 탑승 승객 복원 추가(합류 기록은 NpcRecruiter가 먼저 복원됨)
+            _riders.Clear();
+            int count = Math.Min(state.RiderIds.Length, Math.Min(state.RiderWaypoints.Length, state.RiderLaps.Length));
+            for (int i = 0; i < count && _riders.Count < _pool.MaxPassengers; i++)
+            {
+                string id = state.RiderIds[i];
+                if (_pool.Find(id)?.Passenger == null || _recruiter.IsJoined(id) || Find(id) != null) continue;
+                _riders.Add(new Rider { Id = id, WaypointId = state.RiderWaypoints[i], BoardLap = state.RiderLaps[i] });
             }
         }
 
@@ -402,6 +424,10 @@ namespace IronRing.Npc
         {
             public string[] HubIds = Array.Empty<string>();
             public int[] Counts = Array.Empty<int>();
+            // 스펙 003: 탑승 승객 저장 배열 추가(같은 순번이 한 승객, 옛 파일에는 없어 빈 배열)
+            public string[] RiderIds = Array.Empty<string>();
+            public string[] RiderWaypoints = Array.Empty<string>();
+            public int[] RiderLaps = Array.Empty<int>();
         }
     }
 }
