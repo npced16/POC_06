@@ -41,7 +41,7 @@ namespace IronRing.Hud.Editor.Screens
             UiKit.Place(codexIcon.rectTransform, new Vector2(.5f, .5f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(34, 34));
 
             Button passengers = UiKit.Button(root.transform, "Passengers", "", theme);
-            UiKit.Place((RectTransform)passengers.transform, Vector2.one, Vector2.one, new Vector2(-20, -150), new Vector2(58, 58));
+            UiKit.Place((RectTransform)passengers.transform, Vector2.one, Vector2.one, new Vector2(-20, -218), new Vector2(58, 58));
             Image passengersIcon = UiKit.Image(passengers.transform, "Icon", icons.Get("ui_people"), Color.white);
             UiKit.Place(passengersIcon.rectTransform, new Vector2(.5f, .5f), new Vector2(.5f, .5f), new Vector2(-3, 2), new Vector2(32, 32));
             TextMeshProUGUI passengerCount = UiKit.Label(passengers.transform, "Count", "0", UiTextSize.Normal, theme);

@@ -315,6 +315,20 @@ namespace IronRing.Hud.Codex
             return string.Join(", ", names);
         }
 
+<<<<<<< HEAD
+=======
+        /// <summary>typeId의 후보 중 현재 게임의 발견 기록에 남은 승객 이름만 이어 반환하고 없으면 null을 반환한다.</summary>
+        private string KnownVisitors(string typeId)
+        {
+            IReadOnlyList<string> candidates = _recruiter?.CandidatesOf(typeId);
+            if (candidates == null) return null;
+            var names = new List<string>();
+            foreach (string id in candidates)
+                if (PassengerDiscovery.IsKnown(id)) names.Add(NpcName(id));
+            return names.Count == 0 ? null : string.Join(", ", names);
+        }
+
+>>>>>>> 3c30dd8b975517ec011754781d2ce52f5f9e8373
         /// <summary>스토리 030. board·teach로 열린 종류면 "가르쳐 주는 이: 직업", 아니면 null.</summary>
         private string Teacher(string typeId)
         {

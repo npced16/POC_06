@@ -385,7 +385,7 @@ namespace IronRing.Contracts
         public string Reason;
     }
 
-    /// <summary>스토리 017. NPC 대화와 상호작용. 상태(정차당 1회 같은 제한)는 이 시스템이 소유한다.</summary>
+    /// <summary>스토리 017. NPC 대화와 상호작용. 대사 진행 상태는 이 시스템이 소유한다.</summary>
     public interface INpcInteraction
     {
         /// <summary>표시 이름(직업명).</summary>
@@ -402,6 +402,8 @@ namespace IronRing.Contracts
         event Action<string, string> Interacted;
         /// <summary>스토리 023. npcId의 출신지 이름(한국어, 예: "북쪽 고개"). 모르면 null. 대화 패널의 "&lt;출신지&gt; 출신" 줄에 쓴다.</summary>
         string Origin(string npcId) => null;
+        /// <summary>npcId가 말풍선으로 띄우는 혼잣말 목록을 반환한다. 없으면 빈 목록이다.</summary>
+        IReadOnlyList<string> MutterLines(string npcId) => Array.Empty<string>();
     }
 
     /// <summary>런이 끝난 이유.</summary>
@@ -460,6 +462,18 @@ namespace IronRing.Contracts
         bool TryBoard(string npcId, string waypointId, bool force);
         /// <summary>스토리 051. 중간역 사건 "합류": 자리가 있으면 아직 합류·탑승하지 않은 NPC 하나를 태운다(출신지·탑승 조건을 채우는 이를 먼저, 없으면 아무나). 태운 id, 없으면 null.</summary>
         string TryBoardAny(string waypointId) => null;
+        /// <summary>중간역 승객 사건: TryBoardAny와 같은 규칙으로 후보 하나를 고르되 태우지 않는다. 좌석 수는 보지 않는다. 후보가 없으면 null.</summary>
+        string PickCandidate(string waypointId) => null;
+        /// <summary>좌석이 가득 찼으면 true.</summary>
+        bool IsFull => false;
+        /// <summary>leaveId(null이면 빈 좌석 사용)를 떠나게 하고 boardId를 태운다. 탑승 조건은 보지 않는다. 자리가 없거나 대상이 맞지 않으면 false.</summary>
+        bool TrySwap(string leaveId, string boardId, string waypointId) => false;
+        /// <summary>표시 이름(직업명). 모르면 id.</summary>
+        string Name(string npcId) => npcId;
+        /// <summary>「건물 완성 → 인물 합류 · 직무 +값」 안내(한국어). 없으면 "".</summary>
+        string RequestLabel(string npcId) => "";
+        /// <summary>열차 최대 승객 수(좌석 수). 모르면 0.</summary>
+        int MaxPassengers => 0;
     }
 
     // ----- 런의 끝과 번영 예보(스토리 028) -----
