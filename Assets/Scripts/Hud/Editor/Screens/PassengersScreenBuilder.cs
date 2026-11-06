@@ -18,6 +18,8 @@ namespace IronRing.Hud.Editor.Screens
         /// <summary>승객 한 줄 부품 경로.</summary>
         public const string ROW_PART = BuildMainCanvas.PARTS_FOLDER + "/PassengerRow.prefab";
 
+        private const float HINT_HEIGHT = 36;
+
         private static readonly Vector2 PanelSize = new Vector2(720, 400);
         private static readonly Vector2 RowSize = new Vector2(664, 84);
 
@@ -38,8 +40,13 @@ namespace IronRing.Hud.Editor.Screens
             Button close = UiKit.CloseButton(panel.transform, "Close", theme);
 
             ScrollRect scroll = UiKit.ScrollGrid(panel.transform, "List", RowSize, new Vector2(0, 8), 1, out RectTransform list);
-            UiKit.Stretch((RectTransform)scroll.transform, pad.left, UiKit.ContentTop(theme) + 6, pad.right, pad.bottom);
+            UiKit.Stretch((RectTransform)scroll.transform, pad.left, UiKit.ContentTop(theme) + 6, pad.right, pad.bottom + HINT_HEIGHT);
             scroll.scrollSensitivity = 30;
+
+            TextMeshProUGUI hint = UiKit.Label(panel.transform, "Hint", Strings.Get("passengers_drag_hint"), UiTextSize.Normal, theme);
+            UiKit.Stretch(hint.rectTransform, pad.left, PanelSize.y - pad.bottom - HINT_HEIGHT, pad.right, pad.bottom);
+            hint.color = theme.Muted;
+            NoWrap(hint);
 
             TextMeshProUGUI empty = UiKit.Label(panel.transform, "Empty", Strings.Get("passengers_empty"), UiTextSize.Normal, theme);
             UiKit.Stretch(empty.rectTransform, pad.left, UiKit.ContentTop(theme) + 6, pad.right, pad.bottom);
@@ -52,6 +59,7 @@ namespace IronRing.Hud.Editor.Screens
             UiKit.Bind(screen, "_list", list);
             UiKit.Bind(screen, "_rowPrefab", rowPart.GetComponent<PassengerRowView>());
             UiKit.Bind(screen, "_panelGroup", panelGroup);
+            UiKit.Bind(screen, "_hint", hint);
             return root;
         }
 

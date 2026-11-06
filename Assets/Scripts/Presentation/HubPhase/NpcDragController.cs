@@ -43,8 +43,8 @@ namespace IronRing.Presentation.HubPhase
         private Vector3 _startPosition;
         private bool _fromPassengers;
 
-        /// <summary>승객 줄 끌기가 놓기나 취소로 끝났을 때.</summary>
-        public event Action PassengerDragEnded;
+        /// <summary>승객 줄 끌기가 놓기나 취소로 끝났을 때. 인자는 승객을 건물에 내렸는지.</summary>
+        public event Action<bool> PassengerDragEnded;
 
         /// <summary>드래그 컨트롤러. 조립 전이면 null.</summary>
         public static NpcDragController Instance => _instance;
@@ -188,9 +188,8 @@ namespace IronRing.Presentation.HubPhase
                     if (!done) failure = Strings.Get("npc_drag_train_full");
                     break;
                 case DropTarget.Home:
-                    Finish(false);
-                    if (fromPassengers && !_passengers.TryPlace(npcId, hubId)) { failure = WrongHomeText(npcId); break; }
-                    done = _homes.TryMoveHome(npcId, cells);
+                    done = (!fromPassengers || _passengers.TryPlace(npcId, hubId)) && _homes.TryMoveHome(npcId, cells);
+                    Finish(false, done);
                     if (!done) failure = WrongHomeText(npcId);
                     break;
                 default:
@@ -206,9 +205,9 @@ namespace IronRing.Presentation.HubPhase
 
         /// <summary>
         /// 드래그를 끝내고 그림의 색과 표시 순서를 되돌린다. returnToStart면 시작 위치로 옮긴다.
-        /// 승객 끌기였다면 만든 그림을 없애고 PassengerDragEnded를 낸다.
+        /// 승객 끌기였다면 만든 그림을 없애고 placed를 담아 PassengerDragEnded를 낸다.
         /// </summary>
-        private void Finish(bool returnToStart)
+        private void Finish(bool returnToStart, bool placed = false)
         {
             if (_body != null)
             {
@@ -221,7 +220,7 @@ namespace IronRing.Presentation.HubPhase
             if (!_fromPassengers) return;
             _fromPassengers = false;
             if (_body != null) Destroy(_body.gameObject);
-            PassengerDragEnded?.Invoke();
+            PassengerDragEnded?.Invoke(placed);
         }
 
         /// <summary>npcId가 살 수 있는 서식지 이름을 넣은 안내 문구를 반환한다.</summary>

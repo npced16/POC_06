@@ -1756,6 +1756,7 @@
     { "_key": "rest_boarding_refuse_result", "_value": "승객은 다음 열차를 기다리기로 했다." },
     { "_key": "rest_boarding_swap", "_value": "{0} 내리고 태운다" },
     { "_key": "npc_drag_wrong_home", "_value": "{0}에만 살 수 있다" },
-    { "_key": "npc_drag_train_full", "_value": "열차에 빈 자리가 없다" }
+    { "_key": "npc_drag_train_full", "_value": "열차에 빈 자리가 없다" },
+    { "_key": "passengers_drag_hint", "_value": "승객을 끌어 자기 건물에 놓으면 바로 내립니다." }
   ]
 }

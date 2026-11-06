@@ -39,6 +39,8 @@ namespace IronRing.Hud.Npc
         [SerializeField] private PassengerRowView _rowPrefab;
         [Tooltip("승객을 끄는 동안 패널을 감출 CanvasGroup.")]
         [SerializeField] private CanvasGroup _panelGroup;
+        [Tooltip("승객을 끌어 내릴 수 있다는 안내 문구.")]
+        [SerializeField] private TMP_Text _hint;
 
         private UiScreens _screens;
         private UiScreen _screen;
@@ -84,6 +86,7 @@ namespace IronRing.Hud.Npc
             _passengers = GameServices.Get<IPassengers>();
             _interaction = GameServices.Get<INpcInteraction>();
             _empty.text = Strings.Get("passengers_empty");
+            _hint.text = Strings.Get("passengers_drag_hint");
             TMP_Text closeLabel = _close.GetComponentInChildren<TMP_Text>(true);
             if (closeLabel != null) closeLabel.text = Strings.Get("passengers_close");
             _close.onClick.AddListener(Close);
@@ -108,11 +111,12 @@ namespace IronRing.Hud.Npc
             SetPanelVisible(false);
         }
 
-        /// <summary>스펙 005. 승객 끌기가 끝나면 구독을 풀고 패널을 되돌린다.</summary>
-        private void OnRowDragEnded()
+        /// <summary>스펙 005. 승객 끌기가 끝나면 구독을 풀고 패널을 되돌린다. placed면 승객 목록을 닫는다.</summary>
+        private void OnRowDragEnded(bool placed)
         {
             NpcDragController.Instance.PassengerDragEnded -= OnRowDragEnded;
             SetPanelVisible(true);
+            if (placed) Close();
         }
 
         /// <summary>스펙 005. visible에 따라 패널의 투명도와 입력 차단을 바꾼다. 화면은 끄지 않아 끌기 이벤트가 이어진다.</summary>
@@ -158,6 +162,7 @@ namespace IronRing.Hud.Npc
                     PassengerRequest.Label(NpcInstaller.Pool?.Find(id)));
             }
             _empty.gameObject.SetActive(ids.Count == 0);
+            _hint.gameObject.SetActive(ids.Count > 0);
         }
 
         private void ClearRows()

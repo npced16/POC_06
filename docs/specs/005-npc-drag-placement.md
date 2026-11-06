@@ -75,8 +75,8 @@
 | `Assets/Scripts/Hud/Npc/PassengersScreen.cs` | 줄에 npcId 전달, 패널 감추기, `Returned` 구독 |
 | `Assets/Scripts/Hud/TopBarScreen.cs` | `Returned` 구독으로 승객 수 갱신 |
 | `Assets/Scripts/Hud/HubPanelScreen.cs` | `NpcWithdrawn` 구독으로 주민 수 갱신 |
-| `Assets/Scripts/Hud/Editor/Screens/PassengersScreenBuilder.cs` | 줄 `raycastTarget` 켜기, 패널 `CanvasGroup` 바인딩 |
-| `Assets/Scripts/Localization/Resources/ko.json` | `npc_drag_wrong_home`, `npc_drag_train_full` 키 추가 |
+| `Assets/Scripts/Hud/Editor/Screens/PassengersScreenBuilder.cs` | 줄 `raycastTarget` 켜기, 패널 `CanvasGroup` 바인딩, 안내 문구 `Hint` 추가 |
+| `Assets/Scripts/Localization/Resources/ko.json` | `npc_drag_wrong_home`, `npc_drag_train_full`, `passengers_drag_hint` 키 추가 |
 | `docs/specs/003-game-menu-save.md` | `Passengers.cs` 저장 범위에 탑승 중 승객 추가 |
 
 ## 5. 동작 플로우차트
@@ -111,8 +111,8 @@ flowchart TD
     E -- 자기 종류 건물 --> F[하차와 집 지정 - FR-020]
     E -- 그 밖 --> G[안내 알림 - FR-021]
     E -- Esc 또는 우클릭 --> H[취소 - FR-021]
-    F --> I[패널 복원 - FR-019]
-    G --> I
+    F --> J[목록 닫기 - FR-022]
+    G --> I[패널 복원 - FR-019]
     H --> I
 ```
 
@@ -146,9 +146,11 @@ flowchart TD
 ### 묶음 C: 승객 줄 끌기
 
 - FR-018: 드래그 가능 조건에서 승객 줄을 끌 때 `PassengerRowView`는 그 npcId로 드래그를 시작한다. 조건이 아니면 시작하지 않는다.
-- FR-019: 승객 줄 드래그 중일 때 `PassengersScreen`은 패널을 감추고 입력을 막지 않게 하며, 끝나면 되돌린다.
+- FR-019: 승객 줄 드래그 중일 때 `PassengersScreen`은 패널을 감추고 입력을 막지 않게 하며, 내리지 않고 끝나면 되돌린다.
 - FR-020: 자기 종류의 완성 건물에 놓을 때 `NpcDragController`는 `TryPlace` 뒤 `TryMoveHome`을 불러 놓은 건물을 집으로 삼는다.
 - FR-021: 그 밖의 곳에 놓거나 Esc·우클릭이 들어올 때 `NpcDragController`는 승객을 그대로 두고, 놓은 경우에만 안내 알림을 띄운다.
+- FR-022: 승객을 건물에 내리는 데 성공할 때 `PassengersScreen`은 승객 목록을 닫는다.
+- FR-023: 승객이 한 명 이상일 때 `PassengersScreen`은 패널 아래쪽에 끌어서 내릴 수 있다는 안내 문구를 표시한다.
 
 ### 상태와 데이터
 
@@ -206,9 +208,11 @@ flowchart TD
 - FR-016: 다른 종류 건물과 빈 땅에 놓고, 좌석이 찬 열차에 놓아 복귀와 알림을 확인한다.
 - FR-017: 끄는 중 Esc와 우클릭으로 상태가 바뀌지 않는지 확인한다.
 - FR-018: 출발 불가 상태에서 줄이 끌리지 않고, 정차 중에는 끌리는지 확인한다.
-- FR-019: 끄는 동안 패널이 보이지 않고 건물을 가리지 않으며, 끝나면 패널이 다시 보이는지 확인한다.
+- FR-019: 끄는 동안 패널이 보이지 않고 건물을 가리지 않으며, 실패·취소 뒤 패널이 다시 보이는지 확인한다.
 - FR-020: 승객을 건물이 두 채인 종류의 뒤쪽 건물에 놓으면 그 건물이 집이 되는지 확인한다.
 - FR-021: 다른 곳에 놓거나 취소했을 때 승객이 목록에 남아 있는지 확인한다.
+- FR-022: 승객을 건물에 내린 뒤 목록이 닫혀 있고, 다시 열면 정상으로 보이는지 확인한다.
+- FR-023: 승객이 있을 때 안내 문구가 줄과 겹치지 않게 보이고, 승객이 없으면 보이지 않는지 확인한다.
 
 ## 9. 미결 사항
 
