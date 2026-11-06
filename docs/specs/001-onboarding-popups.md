@@ -196,7 +196,7 @@ flowchart TD
 | `onboarding_codex` | 새 설계 단서를 얻었어요! 책 아이콘이나 C 키로 도감을 열어 확인해 보세요. |
 | `onboarding_passengers` | 승객이 탔어요! 승객 아이콘이나 P 키로 누가 무엇을 원하는지 확인해 보세요. |
 | `onboarding_depart` | 준비가 됐다면 오른쪽 아래 출발 버튼이나 Space로 열차를 출발시켜요. |
-| `onboarding_return_town` | 고생하셨어요! 다시 마을로 돌아오셨네요! 마을로 돌아올 때마다 건물의 설계 단서와 수입을 얻어요! 마을로 들어가볼까요? |
+| `onboarding_return_town` | 고생하셨어요! 다시 마을로 돌아오셨네요! 마을로 돌아올 때마다 수입을 얻어요. 정차역 전투에서 이기면 건물의 설계 단서를 얻을 수도 있답니다! |
 | `onboarding_boarding_dialog` | 새 승객이 말을 걸어요. 대화를 끝까지 들어 보세요. |
 | `onboarding_npc_join` | 승객이 원하던 건물을 지었어요! 이제 이 마을에 살면서 마을을 도와줄 거예요. |
 | `onboarding_npc_interact` | 마을 주민을 눌러 말을 걸어 보세요. |
