@@ -51,3 +51,8 @@ SDD 작업을 시작할 때 이 파일을 가장 먼저 읽는다.
 | 005 | `docs/specs/005-npc-drag-placement.md` | 마을 NPC와 열차 승객을 끌어 열차 탑승·집 이동·직접 하차(자동 규칙 유지) | 구현완료 |
 | 006 | `docs/specs/006-hide-defense.md` | 디펜스(정차역 전투·포탑·정비) 화면을 스위치 하나로 숨기고 기능 코드는 보존 | 구현완료 |
 | 007 | `docs/specs/007-battle-hint-line-rules.md` | 전투 보상 단서를 도감에 반영하고, 바퀴 단서 지급과 구리 갱도 잿골 개통을 빼서 바뀐 game-brief 규칙에 맞춤(스펙 006 디펜스 숨김 동안 보류) | 작성중 |
+| 005 | `docs/specs/005-habitat-move-rotate.md` | 완성 서식지 선택·이동·회전·제거 | 승인 |
+| 006 | `docs/specs/006-habitat-production.md` | 서식지 자원 생산과 네 칸 조합 | 작성중 |
+| 007 | `docs/specs/007-unified-town-grid.md` | 마을 건설 그리드와 인접 판정 통합 | 승인 |
+| 008 | `docs/specs/008-town-resource-hud.md` | 마을 HUD 버튼과 해금된 재료 재고 표시 | 승인 |
+| 009 | `docs/specs/009-combine-completed-habitats.md` | 완성 서식지 두 개를 복합 서식지로 조합 | 작성중 |

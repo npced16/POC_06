@@ -20,9 +20,8 @@ namespace IronRing.Onboarding
     public static class OnboardingSituations
     {
         private const string COBBLE = "tile_cobble";
-        private const string STONE = "tile_stone";
         private const int DEV_COINS = 500;
-        private const int LOT_SIZE = 3;
+        private const int LOT_SIZE = 4;
         private const int MAX_LAP_STEPS = 20;
         private static readonly string[] HOTBAR_FILL_TYPES =
         {
@@ -44,9 +43,9 @@ namespace IronRing.Onboarding
                 "select_material" => ReopenInterior(hubId, director, topicId) ? "자동" : null,
                 "place_material" => OpenInterior(hubId) && Select(null) ? "퀵슬롯에서 재료를 고르세요" : null,
                 "build_combo" => OpenInterior(hubId) && Coins() && PlaceLot(hubId) ? "자동(개간지 완성)" : null,
-                "unlock_material" => !IsTileUnlocked(STONE) && OpenInterior(hubId) && Coins() && PlaceLot(hubId) ? "자동(돌 해금)" : null,
-                "buy_material" => OpenInterior(hubId) && Coins() && Select(null) ? "값 있는 재료를 고르세요" : null,
-                "pick_up" => OpenInterior(hubId) && Coins() && Select(null) ? "값 있는 재료를 칸에 놓으세요" : null,
+                "unlock_material" => OpenInterior(hubId) && PlaceLot(hubId) ? "자동(개간지 완성)" : null,
+                "buy_material" => OpenInterior(hubId) && Select(null) ? "땅이 아닌 재료를 고르세요" : null,
+                "pick_up" => OpenInterior(hubId) && Select(null) ? "재고가 있는 재료를 칸에 놓으세요" : null,
                 "undo" => OpenInterior(hubId) && Coins() && Seen("pick_up") && PlaceAnywhere(hubId, COBBLE) ? "놓인 땅을 우클릭으로 회수하세요" : null,
                 "camera_zoom" => OpenInterior(hubId) && Trigger(director, topicId) ? "자동" : null,
                 "codex" => RevealHint() ? "자동(단서 공개)" : null,
@@ -87,13 +86,6 @@ namespace IronRing.Onboarding
         {
             OnboardingProgress.MarkSeen(topicId);
             return true;
-        }
-
-        /// <summary>itemId 재료가 해금돼 있으면 true. 도감이 없으면 true(해금 상황을 만들 수 없음).</summary>
-        private static bool IsTileUnlocked(string itemId)
-        {
-            IHabitatCodex codex = GameServices.Get<IHabitatCodex>();
-            return codex == null || codex.IsTileUnlocked(itemId);
         }
 
         /// <summary>

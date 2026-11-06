@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -453,8 +454,7 @@ namespace IronRing.Presentation.Interior.Editor
             Transform trackGroup = Group(temp.transform, "Track");
             Transform trainAnchor = Group(temp.transform, "TrainAnchor");
             Transform cameraAnchor = Group(temp.transform, "CameraAnchor");
-            Transform upper = Group(temp.transform, "UpperGrid");
-            Transform lower = Group(temp.transform, "LowerGrid");
+            Transform grid = Group(temp.transform, "Grid");
             int rows = data.Rows, columns = data.Columns;
             float trackY = -rows * catalog.TileSize;
             trackGroup.localPosition = new Vector3(0, trackY, 0);
@@ -478,14 +478,109 @@ namespace IronRing.Presentation.Interior.Editor
                 bool isUpper = index < data.AreaCellCount;
                 int local = isUpper ? index : index - data.AreaCellCount;
                 int row = local / columns, column = local % columns;
-                GameObject instance = Instance(cell, isUpper ? upper : lower, new Vector3(X(column, columns, catalog.TileSize), Y(row, isUpper, rows, catalog.TileSize), 0));
+                GameObject instance = Instance(cell, grid, new Vector3(X(column, columns, catalog.TileSize), Y(row, isUpper, rows, catalog.TileSize), 0));
                 instance.name = "Cell " + index;
                 instance.GetComponent<InteriorCellView>().Configure(index, row, column, isUpper);
             }
+            ConfigureUnityGrid(root, catalog.TileSize);
             root.Configure(catalog, catalog.DefaultCameraSize, trainAnchor, cameraAnchor);
             TrainCarRoleBuild.ApplyToHub(temp, catalog, Load<TMP_FontAsset>("Assets/Fonts/Mulmaru SDF.asset"));
             PrefabUtility.SaveAsPrefabAsset(temp, HUB_PREFAB);
             UnityEngine.Object.DestroyImmediate(temp);
+        }
+
+        /// <summary>
+        /// 기존 마을 프리팹의 위·아래 그리드를 하나로 합친다.
+        /// 칸의 위치와 인덱스를 보존하고 프리팹을 저장하며 Play Mode에서는 실행하지 않는다.
+        /// </summary>
+        public static void UnifyExistingGrid()
+        {
+            if (EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play mode before editing town prefabs.");
+            GameObject contents = PrefabUtility.LoadPrefabContents(HUB_PREFAB);
+            try
+            {
+                Transform root = contents.transform;
+                Transform upper = root.Find("UpperGrid");
+                Transform lower = root.Find("LowerGrid");
+                if (upper == null && lower == null) return;
+                Transform grid = root.Find("Grid");
+                if (grid == null) grid = Group(root, "Grid");
+                foreach (Transform old in new[] { upper, lower })
+                {
+                    if (old == null) continue;
+                    while (old.childCount > 0) old.GetChild(0).SetParent(grid, true);
+                    UnityEngine.Object.DestroyImmediate(old.gameObject);
+                }
+                PrefabUtility.SaveAsPrefabAsset(contents, HUB_PREFAB);
+            }
+            finally { PrefabUtility.UnloadPrefabContents(contents); }
+            AssetDatabase.SaveAssets();
+        }
+
+        /// <summary>열린 Main 씬과 마을 프리팹의 칸 위치를 유지하며 Unity Grid를 설정하고 저장한다.</summary>
+        public static void ConfigureExistingUnityGrid()
+        {
+            if (EditorApplication.isPlayingOrWillChangePlaymode) throw new InvalidOperationException("Exit Play mode before configuring the town grid.");
+            Scene scene = SceneManager.GetActiveScene();
+            if (scene.path != SCENE || scene.isDirty) throw new InvalidOperationException("Main scene must be active and saved.");
+            InteriorCatalog catalog = Load<InteriorCatalog>(CATALOG);
+            GameObject contents = PrefabUtility.LoadPrefabContents(HUB_PREFAB);
+            try
+            {
+                ValidateUnityGrid(contents.GetComponent<HubInteriorRoot>(), catalog.TileSize);
+                foreach (HubInteriorRoot root in UnityEngine.Object.FindObjectsByType<HubInteriorRoot>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+                    if (root.gameObject.scene == scene) ValidateUnityGrid(root, root.Catalog.TileSize);
+                ConfigureUnityGrid(contents.GetComponent<HubInteriorRoot>(), catalog.TileSize);
+                PrefabUtility.SaveAsPrefabAsset(contents, HUB_PREFAB);
+            }
+            finally { PrefabUtility.UnloadPrefabContents(contents); }
+            foreach (HubInteriorRoot root in UnityEngine.Object.FindObjectsByType<HubInteriorRoot>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                if (root.gameObject.scene != scene) continue;
+                ConfigureUnityGrid(root, root.Catalog.TileSize);
+            }
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
+            AssetDatabase.SaveAssets();
+        }
+
+        /// <summary>root의 칸 위치를 보존하면서 tile 간격의 Grid 중심에 칸을 대응시킨다. 맞지 않는 배치는 오류로 중단한다.</summary>
+        private static void ConfigureUnityGrid(HubInteriorRoot root, float tile)
+        {
+            ValidateUnityGrid(root, tile);
+            Transform gridTransform = root.transform.Find("Grid");
+            InteriorCellView[] cells = root.Cells();
+            Vector3 first = gridTransform.InverseTransformPoint(cells[0].transform.position);
+            Grid grid = gridTransform.GetComponent<Grid>();
+            if (grid != null) return;
+            var positions = new Vector3[gridTransform.childCount];
+            for (int i = 0; i < positions.Length; i++) positions[i] = gridTransform.GetChild(i).position;
+            gridTransform.position = gridTransform.TransformPoint(first - new Vector3(tile * 0.5f, tile * 0.5f, 0f));
+            for (int i = 0; i < positions.Length; i++) gridTransform.GetChild(i).position = positions[i];
+            grid = gridTransform.gameObject.AddComponent<Grid>();
+            grid.cellSize = new Vector3(tile, tile, 1f);
+        }
+
+        /// <summary>root의 칸이 tile 간격의 서로 다른 위치에 있는지 검사하고 잘못되면 예외를 낸다.</summary>
+        private static void ValidateUnityGrid(HubInteriorRoot root, float tile)
+        {
+            Transform gridTransform = root.transform.Find("Grid");
+            InteriorCellView[] cells = root.Cells();
+            if (gridTransform == null || cells.Length == 0 || tile <= 0f) throw new InvalidOperationException("Town grid or cells are missing.");
+            Vector3 first = gridTransform.InverseTransformPoint(cells[0].transform.position);
+            var coordinates = new HashSet<Vector2Int>();
+            foreach (InteriorCellView cell in cells)
+            {
+                Vector3 offset = (gridTransform.InverseTransformPoint(cell.transform.position) - first) / tile;
+                var coordinate = new Vector2Int(Mathf.RoundToInt(offset.x), Mathf.RoundToInt(offset.y));
+                if (Mathf.Abs(offset.x - coordinate.x) > 0.001f || Mathf.Abs(offset.y - coordinate.y) > 0.001f || Mathf.Abs(offset.z) > 0.001f || !coordinates.Add(coordinate))
+                    throw new InvalidOperationException($"Town cell {cell.Index} is not aligned with the grid.");
+            }
+            Grid grid = gridTransform.GetComponent<Grid>();
+            if (grid != null)
+                foreach (InteriorCellView cell in cells)
+                    if (Vector2.Distance(grid.GetCellCenterWorld(grid.WorldToCell(cell.transform.position)), cell.transform.position) > 0.01f)
+                        throw new InvalidOperationException($"Town cell {cell.Index} is not at its Grid center.");
         }
 
         /// <summary>column(음수·초과 허용)의 구역 중심 기준 로컬 x.</summary>

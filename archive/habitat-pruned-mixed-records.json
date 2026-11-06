@@ -1,0 +1,91 @@
+{
+  "_recipes": [
+    {
+      "_id": "mixed_stone_wire",
+      "_kind": "set",
+      "_requiredCount": 4,
+      "_tiles": [
+        {
+          "_tileItemId": "tile_stone",
+          "_minCount": 2
+        },
+        {
+          "_tileItemId": "tile_wire",
+          "_minCount": 2
+        }
+      ],
+      "_villageWork": "마을의 생활과 보관에 쓰인다. 바퀴마다 3마르크를 번다",
+      "_machineRole": "돌과 전선을 함께 이용한다"
+    },
+    {
+      "_id": "mixed_grain_coal",
+      "_kind": "set",
+      "_requiredCount": 4,
+      "_tiles": [
+        {
+          "_tileItemId": "tile_grain",
+          "_minCount": 2
+        },
+        {
+          "_tileItemId": "tile_coal",
+          "_minCount": 2
+        }
+      ],
+      "_villageWork": "마을의 생활과 보관에 쓰인다. 바퀴마다 3마르크를 번다",
+      "_machineRole": "곡식과 석탄을 함께 이용한다"
+    },
+    {
+      "_id": "mixed_grain_copper",
+      "_kind": "set",
+      "_requiredCount": 4,
+      "_tiles": [
+        {
+          "_tileItemId": "tile_grain",
+          "_minCount": 2
+        },
+        {
+          "_tileItemId": "tile_copper",
+          "_minCount": 2
+        }
+      ],
+      "_villageWork": "마을의 생활과 보관에 쓰인다. 바퀴마다 3마르크를 번다",
+      "_machineRole": "곡식과 구리을 함께 이용한다"
+    }
+  ],
+  "_types": [
+    {
+      "_id": "mixed_grain_coal",
+      "_name": "연료 곡물고",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 3,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "mixed_grain_copper",
+      "_name": "구리 곡물고",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 3,
+      "_housing": 0,
+      "_light": 0
+    },
+    {
+      "_id": "mixed_stone_wire",
+      "_name": "전선 기초",
+      "_prosperityBonus": 3,
+      "_npcTypeId": "",
+      "_buildingStyle": "storage",
+      "_signProp": "bench_tools",
+      "_income": 3,
+      "_housing": 0,
+      "_light": 0
+    }
+  ],
+  "_production": []
+}

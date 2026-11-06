@@ -14,6 +14,11 @@ namespace IronRing.Hud.Codex
         [SerializeField] private TMP_Text _name;
         [SerializeField] private TMP_Text _meta;
         [SerializeField] private TMP_Text _bonus;
+        [SerializeField] private TMP_Text _yield;
+        [SerializeField] private Image _resourceIcon;
+        [SerializeField] private Image _incomeIcon;
+        [SerializeField] private TMP_Text _resourceText;
+        [SerializeField] private TMP_Text _incomeText;
         [SerializeField] private TMP_Text _npc;
         [Tooltip("스토리 030: '가르쳐 주는 이: 직업' 한 줄(Small). board·teach로 열린 종류만 보인다.")]
         [SerializeField] private TMP_Text _teacher;
@@ -66,6 +71,8 @@ namespace IronRing.Hud.Codex
         /// <summary>스토리 030. teacher("가르쳐 주는 이: …")가 비면 그 줄을 끈다.</summary>
         public void ShowUnlocked(string name, string meta, string bonus, string npc, string teacher, bool complete)
         {
+            SetYield(null);
+            SetProduction(null, null, null, null);
             if (_teacher != null)
             {
                 _teacher.text = teacher ?? string.Empty;
@@ -80,6 +87,40 @@ namespace IronRing.Hud.Codex
             ClearDiagram();
         }
 
+        /// <summary>text를 생산 정보에 표시하고, 값이 없으면 해당 줄을 숨긴다.</summary>
+        public void SetYield(string text)
+        {
+            if (_yield == null) return;
+            _yield.text = text ?? string.Empty;
+            _yield.gameObject.SetActive(!string.IsNullOrEmpty(text));
+        }
+
+        /// <summary>생산 및 수입 스프라이트와 문구를 각 행에 반영하고 값이 없는 행을 숨긴다.</summary>
+        public void SetProduction(Sprite resourceSprite, string resourceText, Sprite incomeSprite, string incomeText)
+        {
+            if (_resourceIcon != null)
+            {
+                _resourceIcon.sprite = resourceSprite;
+                _resourceIcon.gameObject.SetActive(!string.IsNullOrEmpty(resourceText) && resourceSprite != null);
+            }
+            if (_resourceText != null)
+            {
+                _resourceText.text = resourceText ?? string.Empty;
+                _resourceText.gameObject.SetActive(!string.IsNullOrEmpty(resourceText));
+            }
+            if (_incomeIcon != null)
+            {
+                if (incomeSprite != null) _incomeIcon.sprite = incomeSprite;
+                _incomeIcon.gameObject.SetActive(!string.IsNullOrEmpty(incomeText) && _incomeIcon.sprite != null);
+            }
+            if (_incomeText != null)
+            {
+                _incomeText.text = string.IsNullOrEmpty(incomeText) ? string.Empty :
+                    (_incomeIcon == null || _incomeIcon.sprite == null ? "마르크 " + incomeText : incomeText);
+                _incomeText.gameObject.SetActive(!string.IsNullOrEmpty(incomeText));
+            }
+        }
+
         /// <summary>배열 격자의 열 수(패턴이면 행 길이, 아니면 0으로 기본값).</summary>
         public void SetColumns(int columns)
         {
@@ -88,8 +129,10 @@ namespace IronRing.Hud.Codex
             _diagramGrid.constraintCount = Mathf.Max(1, columns > 0 ? columns : _flowColumns);
         }
 
+        /// <summary>unlocked에 따라 카드의 공개 정보와 실루엣 표시를 전환한다.</summary>
         private void SetUnlockedParts(bool unlocked)
         {
+            if (!unlocked) { SetYield(null); SetProduction(null, null, null, null); }
             _meta.gameObject.SetActive(unlocked);
             _bonus.gameObject.SetActive(unlocked);
             _npc.gameObject.SetActive(unlocked);
@@ -98,6 +141,7 @@ namespace IronRing.Hud.Codex
             if (_silhouette != null) _silhouette.SetActive(!unlocked);
         }
 
+        /// <summary>기존 배열 아이콘을 숨기고 제거해 카드의 배열을 비운다.</summary>
         private void ClearDiagram()
         {
             for (int i = _diagram.childCount - 1; i >= 0; i--)

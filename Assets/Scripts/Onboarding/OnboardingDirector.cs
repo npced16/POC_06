@@ -43,7 +43,6 @@ namespace IronRing.Onboarding
         private bool _lineOpenPending;
         private int _filledSlots;
         private IViewMode _view;
-        private IPlacementCost _cost;
 
         /// <summary>항목이 화면에 떠야 할 때(항목).</summary>
         public event Action<OnboardingTopic> Shown;
@@ -89,7 +88,6 @@ namespace IronRing.Onboarding
             if (_subscribed) return;
             _subscribed = true;
             _view = GameServices.Get<IViewMode>();
-            _cost = GameServices.Get<IPlacementCost>();
             if (_view != null) _view.InteriorChanged += OnInteriorChanged;
 
             IItemPlacement placement = GameServices.Get<IItemPlacement>();
@@ -103,7 +101,6 @@ namespace IronRing.Onboarding
             if (clusters != null) clusters.HabitatCompleted += OnHabitatCompleted;
 
             IHabitatCodex codex = GameServices.Get<IHabitatCodex>();
-            if (codex != null) codex.TileUnlocked += OnTileUnlocked;
             if (codex is HabitatCodex concrete) concrete.HintUnlocked += OnHintUnlocked;
 
             IPassengers passengers = GameServices.Get<IPassengers>();
@@ -350,19 +347,19 @@ namespace IronRing.Onboarding
             if (_anyBuilt && LoopInstaller.Loop != null && LoopInstaller.Loop.Phase == LoopPhase.Build) Trigger("depart");
         }
 
-        /// <summary>재료를 고르면 재료 고르기를 끝내고, 놓기·구매 안내를 발생시킨다.</summary>
+        /// <summary>entry 재료를 고르면 선택 안내를 끝내고 배치 또는 재고 사용 안내를 발생시킨다.</summary>
         private void OnSelectionChanged(PlacementEntry entry)
         {
             if (!entry.IsValid) return;
             Complete("select_material");
             Trigger("place_material");
-            if (PriceOf(entry.Id) > 0) Trigger("buy_material");
+            if (entry.Id != "tile_cobble") Trigger("buy_material");
         }
 
-        /// <summary>값이 있는 재료를 놓으면 구매 안내를 끝내고 회수 안내를 발생시킨다.</summary>
+        /// <summary>hubId의 cellIndex에 itemId 재료를 놓으면 재고 사용 안내를 끝내고 회수 안내를 발생시킨다.</summary>
         private void OnItemPlaced(string hubId, int cellIndex, string itemId)
         {
-            if (PriceOf(itemId) <= 0) return;
+            if (itemId == "tile_cobble") return;
             Complete("buy_material");
             Trigger("pick_up");
         }
@@ -377,20 +374,18 @@ namespace IronRing.Onboarding
         /// <summary>Ctrl+Z 되돌리기를 하면 되돌리기 안내를 끝낸다.</summary>
         private void OnUndone(PlacementAction action) => Complete("undo");
 
-        /// <summary>건물이 완성되면 놓기 안내를 끝내고 조합 안내를 발생시킨다.</summary>
+        /// <summary>hubId에서 typeId 건물이 완성되면 배치 안내를 끝내고 조합과 개간지 생산 안내를 발생시킨다.</summary>
         private void OnHabitatCompleted(string hubId, string typeId)
         {
             _anyBuilt = true;
             // 재료 해금이 먼저 큐에 들어와 있어도 조합 안내가 앞서도록, 놓기 안내를 닫기 전에 조합 안내를 큐에 넣는다.
             Trigger("build_combo");
+            if (typeId == "cleared_lot")
+            {
+                LastUnlockedTile = "tile_stone";
+                Trigger("unlock_material");
+            }
             Complete("place_material");
-        }
-
-        /// <summary>새 재료가 해금되면 첫 재료 id를 LastUnlockedTile에 기억하고 해금 안내를 발생시킨다.</summary>
-        private void OnTileUnlocked(IReadOnlyList<string> tileIds, string byRecipeId)
-        {
-            if (tileIds != null && tileIds.Count > 0) LastUnlockedTile = tileIds[0];
-            Trigger("unlock_material");
         }
 
         /// <summary>설계 단서를 얻으면 도감 안내를 발생시킨다.</summary>
@@ -430,7 +425,5 @@ namespace IronRing.Onboarding
             if (phase == LoopPhase.Circulate) Complete("depart");
         }
 
-        /// <summary>itemId 재료의 배치 가격을 돌려준다. 비용 서비스가 없으면 0.</summary>
-        private int PriceOf(string itemId) => _cost != null && itemId != null ? _cost.PriceOf(itemId) : 0;
     }
 }

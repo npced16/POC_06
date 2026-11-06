@@ -59,7 +59,7 @@
 | 씬 | `Main.unity` | `MainCanvas` 아래 `GameMenu` 인스턴스(생성기로 추가) |
 | ScriptableObject | 해당 없음 | |
 
-- 오브젝트 구성: `MainCanvas/GameMenu` 루트에 `GameMenuScreen`. 자식은 `Dim`(반투명 배경), `MenuPanel`(버튼 4개), `SlotPanel`(슬롯 버튼 3개·닫기), `ConfirmPanel`(문구·예·아니오)이다. 세 패널 가운데 하나만 켠다. TopBar 오른쪽 위에 `GameMenuButton`(톱니)을 두고, 오른쪽 아래 출발 버튼 위치는 바꾸지 않는다.
+- 오브젝트 구성: `MainCanvas/GameMenu` 루트에 `GameMenuScreen`. 자식은 `Dim`(반투명 배경), `MenuPanel`(버튼 4개), `SlotPanel`(슬롯 버튼 3개·닫기), `ConfirmPanel`(문구·예·아니오)이다. 세 패널 가운데 하나만 켠다. `GameMenuButton`과 출발 버튼 위치는 스펙 008을 따른다.
 - 클래스 간 관계: `GameMenuScreen` → `SaveSlots`(저장·판정), `BackgroundRunSetting`, `IPhaseLoop.Phase`(저장 가능 여부). `SaveSlots` → `SaveInstaller`가 모은 `ISaveParticipant` 목록. `SaveInstaller` → `GameServices`. 타이틀(스펙 002) → `SaveSlots.List/HasAny/LoadAndStart/StartNew`.
 - 실행 순서 의존성: `SaveInstaller`의 복원은 `GameServices.Ready` 뒤, 화면(View)들이 첫 상태를 그리기 전에 끝나야 한다. 복원이 끝나면 전체 변경 이벤트가 있는 참여자는 그 이벤트를 내서 화면이 다시 그려지게 한다. 항목별 이벤트만 있는 참여자(`HabitatCodex`·`Passengers`·`Ledger`)는 해금 토스트·온보딩이 다시 뜨지 않도록 이벤트를 내지 않고, 화면은 다음에 열거나 그릴 때 새 상태를 읽는다. `BackgroundRunSetting.Apply()`는 `RuntimeInitializeOnLoadMethod(BeforeSceneLoad)`에서 부른다.
 - 기존 코드와의 접점(팀원 코드, 수정한 곳마다 무엇을 바꿨는지 한 줄 주석):

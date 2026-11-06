@@ -85,7 +85,7 @@ namespace IronRing.Hud.Editor.Screens
                 if (i == 0) views[i].SetState(true, false, theme);
             }
             Button toggle = UiKit.Button(content, "PaletteToggle", "", theme);
-            UiKit.Place((RectTransform)toggle.transform, Vector2.one, Vector2.one, new Vector2(-20, -286), new Vector2(58, 58));
+            UiKit.Place((RectTransform)toggle.transform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(20, -286), new Vector2(58, 58));
             IconCatalog icons = AssetDatabase.LoadAssetAtPath<IconCatalog>("Assets/Prefabs/UI/IconCatalog.asset");
             Image inventoryIcon = UiKit.Image(toggle.transform, "Icon", icons.Get("ui_cargo"), Color.white);
             UiKit.Place(inventoryIcon.rectTransform, new Vector2(.5f, .5f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(34, 34));
@@ -134,7 +134,7 @@ namespace IronRing.Hud.Editor.Screens
         {
             TrainArmamentScreen controller = content.gameObject.AddComponent<TrainArmamentScreen>();
             Button open = UiKit.Button(content, "ArmamentOpen", "", theme);
-            UiKit.Place((RectTransform)open.transform, Vector2.one, Vector2.one, new Vector2(-20, -354), new Vector2(58, 58)); // 기존 -150 → 도감 자리를 비워 -354(숨김 중)
+            UiKit.Place((RectTransform)open.transform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(20, -218), new Vector2(58, 58));
             RectTransform hover = UiKit.Node(content, "TrainHover");
             TMP_Text hoverText = UiKit.Label(hover, "Prompt", "열차 정비?", UiTextSize.Normal, theme);
             UiKit.Place(hoverText.rectTransform, new Vector2(.5f, 1), new Vector2(.5f, 1), new Vector2(0, 20), new Vector2(180, 36));
@@ -145,7 +145,7 @@ namespace IronRing.Hud.Editor.Screens
             Sprite[] turretSprites = new Sprite[7];
             for (int i = 0; i < turretSprites.Length; i++) turretSprites[i] = ArmamentSprite("armament_turrets", i);
             Image openIcon = UiKit.Image(open.transform, "Icon", turretSprites[0], Color.white, false);
-            UiKit.Place(openIcon.rectTransform, new Vector2(.5f, .5f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(45, 45));
+            UiKit.Place(openIcon.rectTransform, new Vector2(.5f, .5f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(34, 34));
             openIcon.preserveAspect = true;
             Image background = UiKit.Image(panel.transform, "Workshop", backgroundSprite, Color.white, false);
             UiKit.Stretch(background.rectTransform);

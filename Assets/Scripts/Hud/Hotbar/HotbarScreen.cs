@@ -201,8 +201,8 @@ namespace IronRing.Hud.Hotbar
             }
         }
 
-        /// <summary>entry의 아이템 id를 도감 잠금 상태와 대조해 표시 가능 여부를 반환한다.</summary>
-        private bool IsAvailable(PlacementEntry entry) => entry.Kind != PlacementKind.Item || _codex == null || _codex.IsTileUnlocked(entry.Id);
+        /// <summary>entry의 재고 또는 도감 해금 상태를 확인해 초기 빠른 칸에 배정할 수 있는지 반환한다.</summary>
+        private bool IsAvailable(PlacementEntry entry) => entry.Kind != PlacementKind.Item || (_stock != null && _stock.CountOf(entry.Id) > 0) || _codex == null || _codex.IsTileUnlocked(entry.Id);
 
         /// <summary>entry가 현재 아이템 카탈로그에 있는지 반환한다.</summary>
         private bool Exists(PlacementEntry entry)
@@ -217,7 +217,7 @@ namespace IronRing.Hud.Hotbar
             var list = new List<PlacementEntry>();
             string[] categories = PaletteCategories();
             foreach (ItemDefinition item in _items.Items)
-                if ((categories.Length == 0 || Array.IndexOf(categories, item.Category) >= 0) && IsAvailable(new PlacementEntry(PlacementKind.Item, item.Id)))
+                if (categories.Length == 0 || Array.IndexOf(categories, item.Category) >= 0)
                     list.Add(new PlacementEntry(PlacementKind.Item, item.Id));
             return list;
         }
@@ -297,18 +297,33 @@ namespace IronRing.Hud.Hotbar
             }
         }
 
-        /// <summary>entry의 데이터 가격과 현재 결제 가능 상태를 읽어 view의 가격·부족 표시를 갱신한다.</summary>
+        /// <summary>entry가 땅이면 view에 가격과 잔고 부족을, 다른 재료면 재고 수와 부족 상태를 표시한다.</summary>
         private void RefreshPrice(HotbarCellView view, PlacementEntry entry)
         {
             ItemDefinition item = entry.Kind == PlacementKind.Item ? _items.Get(entry.Id) : null;
             int stockCount = item != null && _stock != null ? _stock.CountOf(entry.Id) : 0;
-            bool affordable = stockCount > 0 || item == null || _money == null || (_cost != null ? _cost.CanAfford(entry.Id) : _money.Balance >= item.Price);
-            view.SetPrice(item != null ? (_cost != null ? _cost.PriceOf(entry.Id) : item.Price) : (int?)null, affordable);
-            view.SetStock(stockCount);
+            bool ground = item != null && entry.Id == "tile_cobble";
+            int price = ground && _cost != null ? _cost.PriceOf(entry.Id) : 0;
+            bool affordable = item == null || (ground ? _cost == null || _cost.CanAfford(entry.Id) : stockCount > 0);
+            view.SetPrice(ground ? price : null, affordable);
+            view.SetStock(stockCount, item != null && !ground);
         }
 
-        /// <summary>itemId의 재고 수가 바뀌면 핫바와 열린 팔레트의 배지·가격 줄을 갱신한다.</summary>
-        private void OnStockChanged(string itemId, int count) { Refresh(); }
+        /// <summary>itemId 재고가 count로 바뀌면 보유 재료를 빈 빠른 칸에 배정하고 수량 표시를 갱신한다.</summary>
+        private void OnStockChanged(string itemId, int count)
+        {
+            var entry = new PlacementEntry(PlacementKind.Item, itemId);
+            if (count > 0 && !IronRing.Save.SaveSlots.IsRestoring && Exists(entry) && !Array.Exists(_slots, slot => slot.Equals(entry)))
+            {
+                int empty = Array.FindIndex(_slots, slot => !slot.IsValid);
+                if (empty >= 0)
+                {
+                    _slots[empty] = entry;
+                    _unlockFlashUntil[empty] = Time.realtimeSinceStartup + Mathf.Max(0f, _unlockFlashSeconds);
+                }
+            }
+            Refresh();
+        }
 
         /// <summary>entry에 해당하는 시설 또는 아이템의 표시 이름을 반환한다.</summary>
         private string DisplayName(PlacementEntry entry)
@@ -352,10 +367,14 @@ namespace IronRing.Hud.Hotbar
             Refresh();
         }
 
+        /// <summary>entry를 배치 재료로 선택하고 빠른 칸 배정 대기 상태를 전환한다.</summary>
         private void OnPaletteClicked(PlacementEntry entry)
         {
             _pendingAssign = _pendingAssign.Equals(entry) ? default : entry;
+            _selectedSlot = -1;
+            _ghost.Select(entry);
             Refresh();
+            UpdateMaterialHint();
         }
 
         /// <summary>새로 열린 tileIds를 빈 핫바 슬롯에 순서대로 배정하고 반짝임 시간을 시작하며 팔레트를 갱신한다.</summary>

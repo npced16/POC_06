@@ -23,8 +23,8 @@ namespace IronRing.Hud.Editor.Screens
         /// <summary>타일 칸 부품 경로.</summary>
         public const string TILE_PART = BuildMainCanvas.PARTS_FOLDER + "/TileIcon.prefab";
 
-        private static readonly Vector2 CardSize = new Vector2(304, 222); // 스토리 030: 가르쳐 주는 이 한 줄(+22)
-        private const float TILE = 26;
+        private static readonly Vector2 CardSize = new Vector2(270, 304);
+        private const float TILE = 24;
 
         /// <summary>화면 루트(UiScreen "Codex", 상황 화면) + CodexScreen + 패널·머리줄·카드 격자.</summary>
         public static GameObject Build(UiTheme theme)
@@ -38,7 +38,7 @@ namespace IronRing.Hud.Editor.Screens
             Image panel = UiKit.Panel(root.transform, "Panel", theme);
             RectTransform rect = panel.rectTransform;
             rect.anchorMin = new Vector2(0.5f, 0); rect.anchorMax = new Vector2(0.5f, 1); rect.pivot = new Vector2(0.5f, 0.5f);
-            rect.offsetMin = new Vector2(-500, 90); rect.offsetMax = new Vector2(500, -150);
+            rect.offsetMin = new Vector2(-600, 18); rect.offsetMax = new Vector2(600, -24);
 
             RectOffset pad = UiKit.FramePad(theme);
             TextMeshProUGUI title = UiKit.TitlePlate(panel.transform, "Title", Strings.Get("ui_sample_codex_title"), theme);
@@ -51,7 +51,7 @@ namespace IronRing.Hud.Editor.Screens
             Button turrets = UiKit.Button(panel.transform, "TurretsTab", Strings.Get("codex_tab_turrets"), theme);
             UiKit.Place((RectTransform)turrets.transform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(pad.left + 150, -UiKit.ContentTop(theme) - 30), new Vector2(135, 40));
 
-            ScrollRect scroll = UiKit.ScrollGrid(panel.transform, "Grid", CardSize, new Vector2(8, 8), 3, out RectTransform grid);
+            ScrollRect scroll = UiKit.ScrollGrid(panel.transform, "Grid", CardSize, new Vector2(8, 8), 4, out RectTransform grid);
             UiKit.Stretch((RectTransform)scroll.transform, pad.left, UiKit.ContentTop(theme) + theme.LineHeight(UiTextSize.Small) + 52, pad.right, pad.bottom);
             scroll.scrollSensitivity = 30;
 
@@ -62,7 +62,7 @@ namespace IronRing.Hud.Editor.Screens
                 Strings.Get("codex_kind_cluster") + "  ·  " + string.Format(Strings.Get("codex_cells"), 3),
                 "폐허에 사람들이 모일 터를 닦는다", "땅 세 칸을 붙인다",
                 string.Format(Strings.Get("codex_npc"), Strings.Get("codex_visitor_unknown")));
-            sample.SetColumns(0);
+            sample.SetColumns(3);
             for (int i = 0; i < 3; i++)
                 ((GameObject)PrefabUtility.InstantiatePrefab(tilePart, sample.Diagram)).GetComponent<CodexTileView>()
                     .Show(sprites != null ? sprites.Get("tile_cobble") : null, "땅", false);
@@ -80,6 +80,7 @@ namespace IronRing.Hud.Editor.Screens
             return root;
         }
 
+        /// <summary>부품 id의 재생성 표식을 확인하고 있으면 삭제한 뒤 존재 여부를 반환한다.</summary>
         private static bool ConsumeMarker(string id)
         {
             string marker = System.IO.Path.Combine(System.IO.Directory.GetParent(Application.dataPath).FullName, ".bridge", "rebuild", id);
@@ -98,38 +99,65 @@ namespace IronRing.Hud.Editor.Screens
             CodexCardView view = frame.gameObject.AddComponent<CodexCardView>();
 
             TextMeshProUGUI name = UiKit.Label(frame.transform, "Name", "", UiTextSize.Normal, theme, TextAlignmentOptions.MidlineLeft);
-            UiKit.StretchTop(name.rectTransform, 34, 2, 12, 80); // 줄 높이(약 29px)보다 높아야 Ellipsis가 줄을 지우지 않는다
+            UiKit.StretchTop(name.rectTransform, 32, 3, 12, 80);
             name.color = theme.Accent;
             name.textWrappingMode = TextWrappingModes.NoWrap;
-            name.overflowMode = TextOverflowModes.Ellipsis;
+            name.enableAutoSizing = true;
+            name.fontSizeMax = theme.Size(UiTextSize.Normal);
+            name.fontSizeMin = theme.Size(UiTextSize.Normal) * 0.7f;
 
             Image badge = UiKit.Sliced(frame.transform, "Badge", theme.ButtonPressedSprite, theme, false); // 스토리 024: btn_gold(가운데 톱니 없음)
             UiKit.Place(badge.rectTransform, Vector2.one, Vector2.one, new Vector2(-8, -8), new Vector2(64, 24));
             TextMeshProUGUI badgeText = UiKit.Label(badge.transform, "Text", Strings.Get("codex_complete"), UiTextSize.Small, theme);
             badgeText.color = theme.Accent;
 
+            Image resourceIcon = UiKit.Image(frame.transform, "ResourceIcon", null, Color.white);
+            UiKit.Place(resourceIcon.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(12, -37), new Vector2(24, 24));
+            resourceIcon.preserveAspect = true;
+            TextMeshProUGUI resourceText = UiKit.Label(frame.transform, "ResourceText", "", UiTextSize.Small, theme, TextAlignmentOptions.MidlineLeft);
+            UiKit.StretchTop(resourceText.rectTransform, 24, 37, 42, 12);
+            resourceText.textWrappingMode = TextWrappingModes.NoWrap;
+            resourceText.enableAutoSizing = true;
+            resourceText.fontSizeMax = theme.Size(UiTextSize.Small);
+            resourceText.fontSizeMin = theme.Size(UiTextSize.Small) * 0.7f;
+
+            IconCatalog icons = AssetDatabase.LoadAssetAtPath<IconCatalog>("Assets/Prefabs/UI/IconCatalog.asset");
+            Image incomeIcon = UiKit.Image(frame.transform, "IncomeIcon", icons != null ? icons.Get("ui_coin") : null, Color.white);
+            UiKit.Place(incomeIcon.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(12, -63), new Vector2(24, 24));
+            incomeIcon.preserveAspect = true;
+            TextMeshProUGUI incomeText = UiKit.Label(frame.transform, "IncomeText", "", UiTextSize.Small, theme, TextAlignmentOptions.MidlineLeft);
+            UiKit.StretchTop(incomeText.rectTransform, 24, 63, 42, 12);
+            incomeText.textWrappingMode = TextWrappingModes.NoWrap;
+            incomeText.enableAutoSizing = true;
+            incomeText.fontSizeMax = theme.Size(UiTextSize.Small);
+            incomeText.fontSizeMin = theme.Size(UiTextSize.Small) * 0.7f;
+            resourceIcon.gameObject.SetActive(false);
+            resourceText.gameObject.SetActive(false);
+            incomeIcon.gameObject.SetActive(false);
+            incomeText.gameObject.SetActive(false);
+
             TextMeshProUGUI meta = UiKit.Label(frame.transform, "Meta", "", UiTextSize.Small, theme, TextAlignmentOptions.MidlineLeft);
-            UiKit.StretchTop(meta.rectTransform, 20, 37, 12, 12);
+            UiKit.StretchTop(meta.rectTransform, 22, 128, 12, 12);
             meta.color = theme.Muted;
 
             RectTransform diagram = UiKit.Node(frame.transform, "Diagram");
-            UiKit.StretchTop(diagram, TILE * 3 + 8, 60, 12, 12);
+            UiKit.Place(diagram, new Vector2(0, 1), new Vector2(0, 1), new Vector2(12, -151), new Vector2(TILE * 3 + 6, TILE * 3 + 6));
             GridLayoutGroup grid = diagram.gameObject.AddComponent<GridLayoutGroup>();
             grid.cellSize = new Vector2(TILE, TILE);
             grid.spacing = new Vector2(3, 3);
             grid.childAlignment = TextAnchor.UpperLeft;
             grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-            grid.constraintCount = 9;
+            grid.constraintCount = 3;
 
             TextMeshProUGUI bonus = UiKit.Label(frame.transform, "Bonus", "", UiTextSize.Small, theme, TextAlignmentOptions.MidlineLeft);
-            UiKit.StretchTop(bonus.rectTransform, 20, 148, 12, 12);
-            bonus.textWrappingMode = TextWrappingModes.NoWrap;
-            bonus.overflowMode = TextOverflowModes.Ellipsis;
+            UiKit.StretchTop(bonus.rectTransform, 40, 88, 12, 12);
+            bonus.textWrappingMode = TextWrappingModes.Normal;
+            bonus.overflowMode = TextOverflowModes.Masking;
             bonus.enableAutoSizing = true;
             bonus.fontSizeMax = theme.Size(UiTextSize.Small);
-            bonus.fontSizeMin = theme.Size(UiTextSize.Small) * 0.7f;
+            bonus.fontSizeMin = theme.Size(UiTextSize.Small) * 0.5f;
             TextMeshProUGUI npc = UiKit.Label(frame.transform, "Npc", "", UiTextSize.Small, theme, TextAlignmentOptions.MidlineLeft);
-            UiKit.StretchTop(npc.rectTransform, 20, 170, 12, 12);
+            UiKit.StretchTop(npc.rectTransform, 26, 230, 12, 12);
             npc.color = theme.Muted;
             // 스토리 025: 후보가 여럿이면 길어지므로 한 줄에 맞게 줄이고, 그래도 넘치면 말줄임
             npc.textWrappingMode = TextWrappingModes.NoWrap;
@@ -139,13 +167,13 @@ namespace IronRing.Hud.Editor.Screens
             npc.fontSizeMin = theme.Size(UiTextSize.Small) * 0.7f;
             // 스토리 030: "가르쳐 주는 이: 직업"(board·teach로 열린 종류만)
             TextMeshProUGUI teacher = UiKit.Label(frame.transform, "Teacher", "", UiTextSize.Small, theme, TextAlignmentOptions.MidlineLeft);
-            UiKit.StretchTop(teacher.rectTransform, 20, 192, 12, 12);
+            UiKit.StretchTop(teacher.rectTransform, 43, 257, 12, 12);
             teacher.color = theme.Accent;
-            teacher.textWrappingMode = TextWrappingModes.NoWrap;
-            teacher.overflowMode = TextOverflowModes.Ellipsis;
+            teacher.textWrappingMode = TextWrappingModes.Normal;
+            teacher.overflowMode = TextOverflowModes.Masking;
             teacher.enableAutoSizing = true;
             teacher.fontSizeMax = theme.Size(UiTextSize.Small);
-            teacher.fontSizeMin = theme.Size(UiTextSize.Small) * 0.7f;
+            teacher.fontSizeMin = theme.Size(UiTextSize.Small) * 0.5f;
             teacher.gameObject.SetActive(false);
 
             Image silhouette = UiKit.Sliced(frame.transform, "Silhouette", theme.SlotSprite, theme, false);
@@ -155,6 +183,10 @@ namespace IronRing.Hud.Editor.Screens
             silhouette.gameObject.SetActive(false);
 
             UiKit.Bind(view, "_name", name);
+            UiKit.Bind(view, "_resourceIcon", resourceIcon);
+            UiKit.Bind(view, "_resourceText", resourceText);
+            UiKit.Bind(view, "_incomeIcon", incomeIcon);
+            UiKit.Bind(view, "_incomeText", incomeText);
             UiKit.Bind(view, "_meta", meta);
             UiKit.Bind(view, "_bonus", bonus);
             UiKit.Bind(view, "_npc", npc);
