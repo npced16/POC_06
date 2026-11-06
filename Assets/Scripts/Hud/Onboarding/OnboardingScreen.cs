@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 using UnityEngine;
@@ -12,6 +13,7 @@ using IronRing.Hud.Ui;
 using IronRing.Localization;
 using IronRing.Onboarding;
 using IronRing.Presentation.Interior;
+using IronRing.Save;
 
 namespace IronRing.Hud.Onboarding
 {
@@ -20,7 +22,8 @@ namespace IronRing.Hud.Onboarding
     /// 안내형이면 확인 버튼을 보이며, Closed에 팝업을 숨긴다. 매 프레임 Director.Tick을 불러 상태 변화를 살피게 한다.
     /// </summary>
     [RequireComponent(typeof(UiScreen))]
-    public sealed class OnboardingScreen : MonoBehaviour
+    // 스펙 003: 학습 진행을 저장 슬롯에 참여시키는 ISaveParticipant·ISaveDefault 추가
+    public sealed class OnboardingScreen : MonoBehaviour, ISaveParticipant, ISaveDefault
     {
         private const string TOPICS_PATH = "Onboarding/OnboardingTopics";
 
@@ -51,6 +54,10 @@ namespace IronRing.Hud.Onboarding
         [Tooltip("귀환 안내 때 카메라 크기 비율(1보다 작을수록 확대)")]
         [SerializeField, Range(0.1f, 1f)] private float _focusZoomRatio = 0.7f;
 
+        [Header("건너뛰기")]
+        [Tooltip("행동형 팝업에 건너뛰기 버튼이 나오기까지 기다리는 시간(초)")]
+        [SerializeField] private float _skipDelaySeconds = 5f;
+
         [Header("등장 효과")]
         [Tooltip("팝업이 튀어나오는 시간(초)")]
         [SerializeField] private float _popSeconds = 0.3f;
@@ -62,24 +69,21 @@ namespace IronRing.Hud.Onboarding
         private OnboardingCameraFocus _focus;
         private IItemPlacement _placement;
         private float _popStarted = -1f;
+        private float _skipAt = -1f;
+        private TMP_Text _confirmLabel;
         private string _unlockedTile;
         private string[] _unlockGuide;
         private readonly List<RaycastResult> _uiHits = new();
         private readonly Vector3[] _corners = new Vector3[4];
-        private Vector2 _boxAnchorMin;
-        private Vector2 _boxAnchorMax;
-        private Vector2 _boxPosition;
 
         void Awake()
         {
-            RectTransform boxRect = (RectTransform)_box.transform;
-            _boxAnchorMin = boxRect.anchorMin;
-            _boxAnchorMax = boxRect.anchorMax;
-            _boxPosition = boxRect.anchoredPosition;
             _box.SetActive(false);
             _confirm.onClick.AddListener(OnConfirmClicked);
+            _confirmLabel = _confirm.GetComponentInChildren<TMP_Text>(true);
             // 시작할 때 마을 내부가 먼저 열려도 첫 안내가 뜨도록, 다른 Start보다 앞선 Awake에서 기록을 지운다(FR-025).
-            ResetProgress();
+            // 스펙 001 FR-025: 이어하기면 지우지 않고 슬롯 복원에 맡긴다.
+            if (SaveSlots.PendingLoadSlot <= 0) ResetProgress();
         }
 
         void OnDestroy()
@@ -99,6 +103,22 @@ namespace IronRing.Hud.Onboarding
             _guide?.Tick();
             _focus?.Tick();
             TickPop();
+            TickSkip();
+        }
+
+        /// <summary>행동형 팝업이 _skipDelaySeconds 동안 완료되지 않았으면 확인 버튼 자리에 건너뛰기 버튼을 켠다(FR-027).</summary>
+        private void TickSkip()
+        {
+            if (_skipAt < 0f || Time.unscaledTime < _skipAt || !_box.activeSelf) return;
+            _skipAt = -1f;
+            SetConfirmLabel("onboarding_skip");
+            _confirm.gameObject.SetActive(true);
+        }
+
+        /// <summary>확인 버튼 글자를 textKey 문구로 바꾼다.</summary>
+        private void SetConfirmLabel(string textKey)
+        {
+            if (_confirmLabel != null) _confirmLabel.text = Strings.Get(textKey);
         }
 
         void LateUpdate() => _guide?.LateTick();
@@ -128,18 +148,50 @@ namespace IronRing.Hud.Onboarding
             Debug.Log("ONBOARDING: progress reset");
         }
 
+        /// <summary>스펙 003. 슬롯 파일 안의 키.</summary>
+        public string SaveKey => "onboarding";
+
+        /// <summary>스펙 003. 복원 순서(전투 단서 다음).</summary>
+        public int Order => 87;
+
+        /// <summary>현재 게임에서 본 학습 항목 id 목록을 JSON으로 돌려준다. 상태를 바꾸지 않는다.</summary>
+        public string Capture()
+        {
+            return JsonUtility.ToJson(new OnboardingSave { Ids = OnboardingProgress.All() });
+        }
+
+        /// <summary>Capture가 만든 json으로 본 학습 항목 기록을 통째로 바꾼다.</summary>
+        public void Restore(string json)
+        {
+            OnboardingProgress.RestoreAll(JsonUtility.FromJson<OnboardingSave>(json).Ids);
+        }
+
+        /// <summary>
+        /// 슬롯에 onboarding 키가 없을 때 부른다(스펙 003 빠진 키 규칙). 옛 저장은 이미 진행된 판이므로
+        /// 기본 학습 묶음(_chain 항목)만 본 것으로 기록해 출발이 막히지 않게 한다.
+        /// </summary>
+        public void RestoreDefault()
+        {
+            var ids = new List<string>();
+            TextAsset asset = Resources.Load<TextAsset>(TOPICS_PATH);
+            foreach (OnboardingTopic topic in OnboardingTopicsData.Parse(asset != null ? asset.text : null).Topics)
+            {
+                if (topic.Chain) ids.Add(topic.Id);
+            }
+            OnboardingProgress.RestoreAll(ids);
+        }
+
         /// <summary>topic의 표정 그림과 문구를 등장 효과와 함께 팝업에 보이고, 안내형일 때만 확인 버튼을 켠다. 안내 배치 패턴이 있으면 시작한다(FR-006, FR-007, FR-018, FR-021).</summary>
         private void OnShown(OnboardingTopic topic)
         {
-            RectTransform boxRect = (RectTransform)_box.transform;
-            boxRect.anchorMin = topic.Id == "npc_interact" ? new Vector2(0f, 1f) : _boxAnchorMin;
-            boxRect.anchorMax = topic.Id == "npc_interact" ? new Vector2(0f, 1f) : _boxAnchorMax;
-            boxRect.anchoredPosition = topic.Id == "npc_interact" ? new Vector2(_boxPosition.x, -_boxPosition.y) : _boxPosition;
             Sprite sprite = MascotOf(topic.Mascot);
             _mascot.sprite = sprite;
             _mascot.gameObject.SetActive(sprite != null);
             _text.text = Strings.Get(topic.TextKey);
             _confirm.gameObject.SetActive(!topic.IsAction);
+            // 행동형은 버튼 없이 시작하고, 일정 시간 안에 못 하면 건너뛰기 버튼이 나온다(FR-027).
+            SetConfirmLabel("onboarding_ok");
+            _skipAt = topic.IsAction ? Time.unscaledTime + _skipDelaySeconds : -1f;
             _box.SetActive(true);
             _popStarted = Time.unscaledTime;
             // 강조는 지금 떠 있는 팝업의 것만 보인다. 앞 팝업이 남긴 안내 칸·퀵슬롯 강조는 먼저 지운다.
@@ -158,6 +210,7 @@ namespace IronRing.Hud.Onboarding
         /// <summary>topicId 항목이 닫히면 팝업을 숨기고, 그 팝업의 안내 칸·퀵슬롯 강조를 모두 끈다(FR-010, FR-021).</summary>
         private void OnClosed(string topicId)
         {
+            _skipAt = -1f;
             _box.SetActive(false);
             ClearHighlights();
         }
@@ -240,7 +293,14 @@ namespace IronRing.Hud.Onboarding
         }
 
         /// <summary>확인 버튼을 누르면 Director에 떠 있는 안내형 항목을 닫게 한다(FR-008).</summary>
-        private void OnConfirmClicked() => _director?.Confirm();
+        private void OnConfirmClicked()
+        {
+            if (_director == null) return;
+            OnboardingTopic current = _director.Find(_director.Current);
+            // 행동형에서 눌린 버튼은 건너뛰기다(FR-027).
+            if (current != null && current.IsAction) _director.Skip();
+            else _director.Confirm();
+        }
 
         /// <summary>mascot 표정 이름(default, happy, alert)에 맞는 그림을 돌려준다. 모르는 이름이거나 그림이 없으면 기본 표정.</summary>
         private Sprite MascotOf(string mascot) => mascot switch
@@ -249,5 +309,12 @@ namespace IronRing.Hud.Onboarding
             "alert" => _mascotAlert != null ? _mascotAlert : _mascotDefault,
             _ => _mascotDefault,
         };
+
+        /// <summary>스펙 003. 저장 형식: 본 학습 항목 id 목록.</summary>
+        [Serializable]
+        private sealed class OnboardingSave
+        {
+            public string[] Ids = Array.Empty<string>();
+        }
     }
 }

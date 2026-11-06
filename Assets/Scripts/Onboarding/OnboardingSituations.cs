@@ -24,7 +24,6 @@ namespace IronRing.Onboarding
         private const int DEV_COINS = 500;
         private const int LOT_SIZE = 3;
         private const int MAX_LAP_STEPS = 20;
-        private const string BOARDING_EVENT = "waypoint_boarding";
         private static readonly string[] HOTBAR_FILL_TYPES =
         {
             "cleared_lot", "logging_site", "stone_well", "terrace_field", "coal_shaft", "iron_forge", "copper_pit", "steam_boiler",
@@ -55,9 +54,6 @@ namespace IronRing.Onboarding
                 "clear_slot" => OpenInterior(hubId) && FillHotbar() ? "자동(퀵슬롯 9칸 채움)" : null,
                 "passengers" => BoardPassenger() ? "자동(승객 탑승)" : null,
                 "return_town" => FinishLap() ? "자동(한 바퀴 돌아 황동골 도착)" : null,
-                "boarding_dialog" => QueueBoardingEvent() ? "출발하세요(다음 휴식지에서 합류 대화)" : null,
-                "npc_join" => OpenInterior(hubId) && JoinNpc(hubId) ? "자동(주민 합류)" : null,
-                "npc_interact" => OpenInterior(hubId) && Seen("npc_join") && EnsureResident(hubId) && Trigger(director, topicId) ? "마을 주민을 클릭해 대화하세요" : null,
                 "line_open" => OpenLockedHub() ? "자동(잿골 개통)" : null,
                 "run_danger" => DropProsperity(hubId) ? "자동(번영 하락)" : null,
                 _ => null,
@@ -149,14 +145,6 @@ namespace IronRing.Onboarding
             if (GameServices.Get<IWaypointResolver>() is WaypointResolver resolver && resolver.IsEncounterActive) resolver.Advance();
         }
 
-        /// <summary>다음 휴식지 사건을 승객 합류 사건으로 정해 둔다. 플레이어가 출발하면 실제 합류 대화가 열린다. 정했으면 true.</summary>
-        private static bool QueueBoardingEvent()
-        {
-            PhaseLoop loop = LoopInstaller.Loop;
-            if (loop == null) return false;
-            loop.ForceNext(BOARDING_EVENT);
-            return true;
-        }
 
         /// <summary>합류하지 않았고 타고 있지 않은 승객 후보 하나를 hubId 마을에 합류시켜 실제 합류 이벤트를 낸다. 합류했으면 true.</summary>
         private static bool JoinNpc(string hubId)
@@ -279,8 +267,10 @@ namespace IronRing.Onboarding
         private static bool RevealHint()
         {
             if (GameServices.Get<IHabitatCodex>() is not HabitatCodex codex) return false;
+            // 공개할 단서가 남아 있지 않으면 이벤트가 오지 않아 연습이 멈추므로 실패로 돌려 fallback을 태운다.
+            int before = codex.HintedTypeIds.Count;
             codex.OnLapCompleted(0);
-            return true;
+            return codex.HintedTypeIds.Count > before;
         }
 
         /// <summary>잠긴 마을 중 첫 마을(잿골)의 선로를 연다. 열 마을이 있으면 true.</summary>

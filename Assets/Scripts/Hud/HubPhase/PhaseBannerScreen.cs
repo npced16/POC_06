@@ -215,6 +215,10 @@ namespace IronRing.Hud.HubPhase
             _bannerMessages.Enqueue((string.Format(Strings.Get("ui_line_opened"), Strings.Get(hubId.Replace('-', '_'))), 2.5f));
         }
 
+        /// <summary>스펙 001 FR-035: 가운데 배너가 떠 있거나 띄울 문구가 남아 있으면 true를 돌려준다.</summary>
+        public static bool IsBusy => _instance != null && _instance._tierBanner != null
+            && (_instance._tierBanner.activeSelf || _instance._bannerMessages.Count > 0 || _instance._tierMessages.Count > 0);
+
         void LateUpdate()
         {
             if (_instance != this || _development == null) return;

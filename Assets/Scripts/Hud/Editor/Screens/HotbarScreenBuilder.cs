@@ -134,7 +134,7 @@ namespace IronRing.Hud.Editor.Screens
         {
             TrainArmamentScreen controller = content.gameObject.AddComponent<TrainArmamentScreen>();
             Button open = UiKit.Button(content, "ArmamentOpen", "", theme);
-            UiKit.Place((RectTransform)open.transform, Vector2.one, Vector2.one, new Vector2(-20, -150), new Vector2(58, 58));
+            UiKit.Place((RectTransform)open.transform, Vector2.one, Vector2.one, new Vector2(-20, -354), new Vector2(58, 58)); // 기존 -150 → 도감 자리를 비워 -354(숨김 중)
             RectTransform hover = UiKit.Node(content, "TrainHover");
             TMP_Text hoverText = UiKit.Label(hover, "Prompt", "열차 정비?", UiTextSize.Normal, theme);
             UiKit.Place(hoverText.rectTransform, new Vector2(.5f, 1), new Vector2(.5f, 1), new Vector2(0, 20), new Vector2(180, 36));

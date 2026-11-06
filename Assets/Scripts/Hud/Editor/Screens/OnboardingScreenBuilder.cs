@@ -14,9 +14,9 @@ namespace IronRing.Hud.Editor.Screens
     public static class OnboardingScreenBuilder
     {
         private const string MASCOT_FOLDER = "Assets/Art/Generated/mascot/";
-        private const float MASCOT_SIZE = 168f;
+        private const float MASCOT_SIZE = 104f;
         private static readonly Vector2 BOX_POSITION = new(24f, 150f);
-        private static readonly Vector2 BOX_SIZE = new(640f, 200f);
+        private static readonly Vector2 BOX_SIZE = new(520f, 132f);
 
         /// <summary>
         /// theme 색·틀로 화면 루트(UiScreen "Onboarding", 항상 켜짐), 팝업 상자, 마스코트 이미지, 문구, 확인 버튼을 만든다.
@@ -38,10 +38,10 @@ namespace IronRing.Hud.Editor.Screens
             TextMeshProUGUI text = UiKit.Label(box.transform, "Text", Strings.Get("onboarding_select_material"), UiTextSize.Normal, theme);
             text.alignment = TextAlignmentOptions.TopLeft;
             text.enableWordWrapping = true;
-            UiKit.Stretch(text.rectTransform, MASCOT_SIZE + 28f, 18f, 20f, 58f);
+            UiKit.Stretch(text.rectTransform, MASCOT_SIZE + 20f, 14f, 14f, 46f);
 
             Button confirm = UiKit.Button(box.transform, "Confirm", Strings.Get("onboarding_ok"), theme);
-            UiKit.Place((RectTransform)confirm.transform, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-16f, 12f), new Vector2(120f, 40f));
+            UiKit.Place((RectTransform)confirm.transform, new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-12f, 10f), new Vector2(100f, 32f));
 
             UiKit.Bind(screen, "_box", box.gameObject);
             UiKit.Bind(screen, "_mascot", mascot);

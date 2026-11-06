@@ -442,7 +442,7 @@ namespace IronRing.Npc
         }
 
         /// <summary>
-        /// Capture가 만든 json으로 _visits와 _riders를 바꾼다. 풀에 없거나 합류했거나 중복인 승객은 건너뛴다.
+        /// Capture가 만든 json으로 _visits와 _riders를 바꾼다. 풀에 없거나 합류했거나 중복인 승객은 건너뛰고, 좌석이 차면 남은 승객은 버린다.
         /// 탑승 알림이 다시 뜨지 않도록 이벤트를 내지 않는다.
         /// </summary>
         public void Restore(string json)
@@ -456,6 +456,8 @@ namespace IronRing.Npc
             _riders.Clear();
             foreach (RiderSave saved in state.Riders)
             {
+                // 스펙 003: 불러올 때 열차 좌석 수를 넘는 승객은 버림
+                if (_riders.Count >= _pool.MaxPassengers) break;
                 if (_pool.Find(saved.NpcId) == null || _recruiter.IsJoined(saved.NpcId) || Find(saved.NpcId) != null) continue;
                 _riders.Add(new Rider { Id = saved.NpcId, WaypointId = saved.WaypointId, BoardLap = saved.BoardLap, Returning = saved.Returning });
             }

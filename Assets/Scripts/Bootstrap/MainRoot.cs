@@ -77,7 +77,7 @@ namespace IronRing.Bootstrap
             _demo = Arguments().Contains("--integration-demo");
             _interiorDemo = Arguments().Contains("--interior-demo");
             _battleWaypoints = new HashSet<string>(StringComparer.Ordinal);
-            if (!_demo && !_interiorDemo)
+            if (!_demo && !_interiorDemo && !DefenseVisibility.Hidden) // 스펙 006: 디펜스 숨김 동안 전투 경유지를 모으지 않음
             {
                 foreach (MapNode node in _map.GetComponentsInChildren<MapNode>(true))
                     if (node.Hub == null && node.Content == WaypointContent.Battle) _battleWaypoints.Add(node.Id);

@@ -37,11 +37,12 @@ namespace IronRing.Items
             return _catalog.Unlimited && _catalog.Contains(itemId) ? Math.Max(stored, _catalog.UnlimitedCount) : stored;
         }
 
-        /// <summary>카탈로그 아이템을 amount(0 이상)만큼 더한다.</summary>
+        /// <summary>카탈로그 아이템을 amount(0 이상)만큼 더한다. 무제한 모드에서는 수량을 바꾸지 않는다.</summary>
         public void Add(string itemId, int amount)
         {
             Validate(itemId, amount);
             if (amount == 0) return;
+            if (_catalog.Unlimited) return; // 스펙 003: 무제한 모드는 꺼낼 때처럼 더해도 늘지 않게 해 저장 수량이 쌓이지 않도록 추가
             int value = checked(Count(itemId) + amount);
             _counts[itemId] = value;
             Changed?.Invoke(itemId, value);

@@ -163,8 +163,8 @@ namespace IronRing.Presentation.Interior
         /// <summary>데모·캡처용: 마우스 대신 cellIndex 칸 위에 고스트를 고정한다(마우스 입력은 무시). 음수면 해제.</summary>
         public void Park(int cellIndex) => _parkedCell = cellIndex;
 
-        /// <summary>entry를 hubId의 cellIndex에 놓을 수 있는지. 아이템은 IItemPlacement.CanPlace.</summary>
-        public bool Affordable(string itemId) => GameServices.Get<IPlacementCost>()?.CanAfford(itemId) ?? true;
+        /// <summary>itemId 타일 재고가 있거나 잔고가 배치 비용을 감당하면 true를 돌려준다.</summary>
+        public bool Affordable(string itemId) => GameServices.Get<ITileStock>()?.CountOf(itemId) > 0 || (GameServices.Get<IPlacementCost>()?.CanAfford(itemId) ?? true); // 스펙 003: 보상 재고가 있으면 잔고 검사를 건너뜀
 
         /// <summary>엔트리를 hubId의 cellIndex에 놓을 수 있는지(스토리 041: 아이템은 잔고도 검사).</summary>
         public bool CanPlace(string hubId, int cellIndex, PlacementEntry entry)
@@ -316,7 +316,7 @@ namespace IronRing.Presentation.Interior
                 return;
             }
             if (escape && _selected.IsValid) { ClearSelection(); return; }
-            if (keyboard != null && keyboard.zKey.wasPressedThisFrame && keyboard.ctrlKey.isPressed) { if (_surface != null) _surface.TryUndo(); else TryUndo(); return; }
+            if (keyboard != null && keyboard.zKey.wasPressedThisFrame && keyboard.ctrlKey.isPressed && !IronRing.Hud.GameMenuScreen.IsOpen && !IronRing.Hud.Onboarding.DevSituationsScreen.IsOpen) { if (_surface != null) _surface.TryUndo(); else TryUndo(); return; } // 스펙 003: 게임 메뉴·개발자 메뉴가 열려 있으면 되돌리기 막음
             if (right)
             {
                 if (overUi) return;

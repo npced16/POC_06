@@ -36,7 +36,7 @@ namespace IronRing.Hud.Editor.Screens
             balance.outlineWidth = 0.2f;
             UiKit.Bind(screen, "_balance", balance); UiKit.Bind(screen, "_coin", coin); UiKit.Bind(screen, "_icons", icons);
             Button codex = UiKit.Button(root.transform, "Codex", "", theme);
-            UiKit.Place((RectTransform)codex.transform, Vector2.one, Vector2.one, new Vector2(-20, -82), new Vector2(58, 58));
+            UiKit.Place((RectTransform)codex.transform, Vector2.one, Vector2.one, new Vector2(-20, -150), new Vector2(58, 58)); // 기존 도감 -82 → 톱니 아래 -150
             Image codexIcon = UiKit.Image(codex.transform, "Icon", CodexIcon(), Color.white);
             UiKit.Place(codexIcon.rectTransform, new Vector2(.5f, .5f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(34, 34));
 
@@ -57,7 +57,7 @@ namespace IronRing.Hud.Editor.Screens
             UiKit.Place(departIcon.rectTransform, new Vector2(.5f, 1), new Vector2(.5f, 1), new Vector2(0, -7), new Vector2(38, 38));
 
             Button gameMenu = UiKit.Button(root.transform, "GameMenuButton", "", theme); // 스펙 003: 오른쪽 위 잔고 왼쪽에 게임 메뉴 톱니 버튼 추가
-            UiKit.Place((RectTransform)gameMenu.transform, Vector2.one, Vector2.one, new Vector2(-104, -12), new Vector2(52, 52)); // 스펙 003: 톱니 버튼 위치·크기(잔고·동전과 겹치지 않게)
+            UiKit.Place((RectTransform)gameMenu.transform, Vector2.one, Vector2.one, new Vector2(-20, -82), new Vector2(58, 58)); // 기존 잔고 왼쪽(-104,-12) 52 → 잔고 바로 아래(-20,-82) 58
             Image gameMenuIcon = UiKit.Image(gameMenu.transform, "Icon", icons.Get("goods_parts"), Color.white); // 스펙 003: 톱니 그림은 기존 톱니+렌치 아이콘(goods_parts) 재사용
             UiKit.Place(gameMenuIcon.rectTransform, new Vector2(.5f, .5f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(32, 32)); // 스펙 003: 톱니 아이콘 크기
 
